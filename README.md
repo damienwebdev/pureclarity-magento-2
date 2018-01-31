@@ -1,8 +1,8 @@
-# pureclarity-magento-2
 PureClarity for Magento 2
 =========================
 
 Deliver the Ultimate Personalized Ecommerce Experience.
+
 Support website: [support.pureclarity.com/hc/](https://support.pureclarity.com/hc/en-us)
 
 Powerful Intelligent Personalization
