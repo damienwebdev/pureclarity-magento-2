@@ -1,0 +1,22 @@
+<?xml version="1.0"?>
+<page xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+    <head>
+        <css src="Pureclarity_Core::css/pureclarity.css"/>
+    </head>
+    <body>
+        <referenceBlock name="head.additional">
+            <block 
+                name="pureclarity.core.configuration" 
+                template="Pureclarity_Core::configuration.phtml"
+                class="Pureclarity\Core\Block\Configuration" 
+                cacheable="false" />
+        </referenceBlock>
+        <referenceContainer name="before.body.end">
+            <block 
+                template="Pureclarity_Core::all_pages.phtml"
+                class="Pureclarity\Core\Block\Configuration"
+                name="pureclarity.core.allpages"
+                cacheable="false" />
+        </referenceContainer>
+    </body>
+</page>

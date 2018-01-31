@@ -1,0 +1,10 @@
+<?php if($this->isActive()): ?>
+
+<script type="text/javascript">
+    window.pureclarityConfig = <?php echo json_encode($this->getConfiguration()); ?>;
+    if (pureclarityConfig.state.isActive && pureclarityConfig.search.isClientSearch){
+        document.write('<style type="text/css">' + pureclarityConfig.search.DOMSelector + ' { display:none }</style>');
+    }    
+</script>
+
+<?php endif; ?>

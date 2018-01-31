@@ -1,0 +1,150 @@
+<?xml version="1.0"?>
+<config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="urn:magento:module:Magento_Config:etc/system_file.xsd">
+    <system>
+        <tab id="pureclarity_tab" translate="label" sortOrder="500">
+            <label>PureClarity</label>
+        </tab>
+        <section id="pureclarity" translate="label" type="text" showInDefault="1" showInStore="1" showInWebsite="1">
+            <label>Configuration</label>
+            <tab>pureclarity_tab</tab>
+            <resource>Pureclarity_Core::config</resource>
+            <group id="environment" type="text" sortOrder="1" showInDefault="1" showInWebsite="1" showInStore="1">
+                <label>Environment</label>
+                <field id="active" translate="label" type="select" showInDefault="1" showInWebsite="1" showInStore="1">
+                    <label>Enabled</label>
+                    <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
+                </field>
+            </group>
+            <group id="credentials" type="text" sortOrder="2" showInDefault="1" showInWebsite="1" showInStore="1">
+                <label>Credentials</label>
+                <comment>The Access Key is website and store specific. If you have a different access key for each store view, for example to integrate to PureClarity in different languages, you must set a separate key for each store.</comment>
+                <field id="access_key" translate="label" type="text" showInDefault="1" showInWebsite="1" showInStore="1">
+                    <label>Access Key</label>
+                </field>
+                <field id="secret_key" translate="label" type="text" showInDefault="1" showInWebsite="1" showInStore="1">
+                    <label>Secret Key</label>
+                </field>
+                <field id="region" translate="label" type="select" showInDefault="1" showInWebsite="1" showInStore="1">
+                    <label>Region</label>
+                    <source_model>Pureclarity\Core\Model\Config\Source\Region</source_model>
+                </field>
+            </group>
+            <group id="feeds" type="text" sortOrder="3" showInDefault="1" showInWebsite="1" showInStore="1">
+                <label>Data feeds/Indexing</label>
+                <comment>Configure the settings for indexing your data with PureClarity.</comment>
+                <field id="product_index" translate="label" type="select" showInDefault="1" showInWebsite="1" showInStore="1">
+                    <label>Product Indexing Enabled</label>
+                    <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
+                    <comment>Choose if the PureClarity Product Reindexing should be enabled</comment>
+                </field>
+                <field id="notify_feed" translate="label" type="select" showInDefault="1" showInWebsite="1" showInStore="1">
+                    <label>Daily Feed Enabled</label>
+                    <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
+                    <comment>Choose if a full data set of Products, Categories and Users should be pushed to PureClarity in the early hours each day</comment>
+                </field>
+                <field id="brand_feed_enabled" translate="label" type="select" showInDefault="1" showInWebsite="1" showInStore="1">
+                    <label>Brand Feed Enabled</label>
+                    <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
+                    <comment>If this is enabled the brand parent category value should be set below.</comment>
+                </field>
+                <field id="brand_parent_category" translate="label" type="select" showInDefault="1" showInWebsite="1" showInStore="1">
+                    <label>Brand Parent Category</label>
+                    <source_model>Pureclarity\Core\Model\Config\Source\Categories</source_model>
+                    <comment>Set the parent category of the Brand Categories. First level children of the selected category will be used to build your brand feed. Products in those categories will be assigned as a specific brand.</comment>
+                </field>
+                <field id="data_feed_button" translate="label" type="button" showInDefault="1" showInWebsite="1" showInStore="1">
+                    <label>Run Data Feed</label>
+                    <frontend_model>Pureclarity\Core\Block\System\Config\Datafeedbutton</frontend_model>
+                    <comment>Under normal conditions you don't need to run feeds manually, this is done automatically every night.</comment>
+                </field>
+            </group>
+            <group id="general_config" type="text" sortOrder="4" showInDefault="1" showInWebsite="1" showInStore="1">
+                <label>General configuration</label>
+                <comment>Enable or disabled the PureClarity Merchandizing and Search functionality.</comment>
+                <field id="merch_active" translate="label" type="select" showInDefault="1" showInWebsite="1" showInStore="1">
+                    <label>Merchandizing Zones Enabled</label>
+                    <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
+                    <comment>Select if PureClarity should show BMZs</comment>
+                </field>
+                <field id="search_active" translate="label" type="select" showInDefault="1" showInWebsite="1" showInStore="1">
+                    <label>Search Enabled</label>
+                    <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
+                    <comment>Select if PureClarity Search should be enabled</comment>
+                </field>
+                <field id="prodlisting_active" translate="label" type="select" showInDefault="1" showInWebsite="1" showInStore="1">
+                    <label>Product Listing Enabled</label>
+                    <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
+                    <comment>Select if PureClarity product listing should be used on all product listing pages</comment>
+                </field>
+            </group>
+            <group id="actions" type="text" sortOrder="5" showInDefault="1" showInWebsite="1" showInStore="1">
+                <label>Actions</label>
+                <field id="intall_bmzs_button" translate="label" type="button" showInDefault="1" showInWebsite="1" showInStore="1">
+                    <label>Install Default BMZs</label>
+                    <frontend_model>Pureclarity\Core\Block\System\Config\InstallBmzsButton</frontend_model>
+                    <comment>Install a default set of BMZ Widgets on to various pages on your site.</comment>
+                </field>
+                <field id="go_admin_button" translate="label" type="button" showInDefault="1" showInWebsite="1" showInStore="1">
+                    <label>Go to PureClarity Admin site</label>
+                    <frontend_model>Pureclarity\Core\Block\System\Config\Pcadminbutton</frontend_model>
+                    <comment>In the PureClarity Administration portal you can configure campaigns, set personalization rules, view analytics and much more.</comment>
+                </field>
+            </group>
+            <group id="placeholders" type="text" sortOrder="6" showInDefault="1" showInWebsite="1" showInStore="1">
+                <label>Placeholder images</label>
+                <field id="placeholder_product" translate="label" type="text" showInDefault="1" showInWebsite="1" showInStore="1">
+                    <label>Product image placeholder</label>
+                    <comment>Leave this blank to use the magento default placeholder</comment>
+                </field>
+                <field id="placeholder_category" translate="label" type="text" showInDefault="1" showInWebsite="1" showInStore="1">
+                    <label>Category image placeholder</label>
+                    <comment>Leave this blank to use the magento default placeholder</comment>
+                </field>
+                <field id="placeholder_category_secondary" translate="label" type="text" showInDefault="1" showInWebsite="1" showInStore="1">
+                    <label>Secondary category image placeholder</label>
+                    <comment>Leave this blank to use the magento default placeholder</comment>
+                </field>
+            </group>
+            <group id="advanced" type="text" sortOrder="7" showInDefault="1" showInWebsite="1" showInStore="1">
+                <label>Advanced options</label>
+                <field id="bmz_debug" translate="label" type="select" showInDefault="1" showInWebsite="1" showInStore="1">
+                    <label>Debug Mode</label>
+                    <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
+                    <comment>In Debug Mode the BMZ Id is shown on BMZs that have no content. Leave this disabled in production use.</comment>
+                </field>
+                <field id="server_side_integration" translate="label" type="select" showInDefault="1" showInWebsite="1" showInStore="1">
+                    <label>Use Server Side integration</label>
+                    <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
+                    <comment>PureClarity is best implemented using Client Side integration. However, for greater control over the PureClarity implementation you may wish use the Server Side option, which uses Templates that are built in the PureClarity Plugin. This is generally used for highly customized Magento implementations where developers may want greater control, for example, over prices. Please read the documentation for further information.</comment>
+                </field>
+
+                <field id="seo_friendly" translate="label" type="select" showInDefault="1" showInWebsite="1" showInStore="1">
+                    <label>SEO Friendly Searches</label>
+                    <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
+                    <comment>When PureClarity doesn't use Server Side integration set this value to Yes to record searches within Magento for SEO purposes.</comment>
+                </field>
+
+                <field id="search_result_template" translate="label" type="text" showInDefault="1" showInWebsite="1" showInStore="1">
+                    <label>Search Result Template Overide</label>
+                    <comment>Leave this blank to use the PureClarity default template when using Server Side implementation.</comment>
+                </field>
+
+                <field id="prod_list_template" translate="label" type="text" showInDefault="1" showInWebsite="1" showInStore="1">
+                    <label>Search/Product List Template Overide</label>
+                    <comment>Leave this blank to use the PureClarity default template when using Server Side implementation.</comment>
+                </field>
+
+                <field id="prod_rec_template" translate="label" type="text" showInDefault="1" showInWebsite="1" showInStore="1">
+                    <label>Product Recommender Template Overide</label>
+                    <comment>Leave this blank to use the PureClarity default template when using Server Side implementation</comment>
+                </field>
+
+                <field id="pureclarity_search_selector" translate="label" type="text" showInDefault="1" showInWebsite="1" showInStore="1">
+                    <label>DOM Element for client side search results to be injected into</label>
+                    <comment>Leave this blank to use the default ".columns" class</comment>
+                </field>
+
+            </group>
+        </section>
+    </system>
+</config>

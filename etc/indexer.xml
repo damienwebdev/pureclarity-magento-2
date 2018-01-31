@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="urn:magento:framework:Indexer/etc/indexer.xsd">
+    <indexer id="pureclarity_products" view_id="pureclarity_products" class="Pureclarity\Core\Model\Indexer\Product">
+        <title translate="true">PureClarity Products</title>
+        <description translate="true">
+            Index Products.
+        </description>
+    </indexer>
+    <indexer id="pureclarity_categories" view_id="pureclarity_categories" class="Pureclarity\Core\Model\Indexer\Category">
+        <title translate="true">PureClarity Categories</title>
+        <description translate="true">
+            Index Categories.
+        </description>
+    </indexer>
+</config>

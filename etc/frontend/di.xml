@@ -1,0 +1,16 @@
+<?xml version="1.0"?>
+<config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:noNamespaceSchemaLocation="urn:magento:framework:ObjectManager/etc/config.xsd">
+    <type name="Magento\Customer\CustomerData\SectionPoolInterface">
+        <arguments>
+            <argument name="sectionSourceMap" xsi:type="array">
+                <item name="cart-update" xsi:type="string">Pureclarity\Core\CustomerData\Cart</item>
+                <item name="customer-details" xsi:type="string">Pureclarity\Core\CustomerData\Customer</item>
+            </argument>
+        </arguments>
+    </type>
+                    
+    <preference for="Magento\CatalogSearch\Block\Result" type="Pureclarity\Core\Block\Search\Result" />
+    <preference for="Magento\CatalogSearch\Block\SearchResult\ListProduct" type="Pureclarity\Core\Block\Search\ListProduct" />
+    <preference for="Magento\Catalog\Block\Product\ListProduct" type="Pureclarity\Core\Block\Search\ListProduct" />
+</config>

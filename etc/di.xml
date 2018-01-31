@@ -1,0 +1,33 @@
+<?xml version="1.0"?>
+ 
+<config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="urn:magento:framework:ObjectManager/etc/config.xsd">
+    <virtualType name="Pureclarity\Core\ImageUpload" type="Magento\Catalog\Model\ImageUploader">
+        <arguments>
+            <argument name="baseTmpPath" xsi:type="string">catalog/tmp/pureclarity</argument>
+            <argument name="basePath" xsi:type="string">catalog/pureclarity</argument>
+            <argument name="allowedExtensions" xsi:type="array">
+                <item name="jpg" xsi:type="string">jpg</item>
+                <item name="jpeg" xsi:type="string">jpeg</item>
+                <item name="gif" xsi:type="string">gif</item>
+                <item name="png" xsi:type="string">png</item>
+            </argument>
+        </arguments>
+    </virtualType>
+	<type name="Pureclarity\Core\Controller\Adminhtml\Image\Upload">
+        <arguments>
+            <argument name="imageUploader" xsi:type="object">Pureclarity\Core\ImageUpload</argument>
+        </arguments>
+    </type>
+    <type name="Magento\Catalog\Model\Category\DataProvider">
+        <plugin name="pureclarity_core_dataprovider_plugin" type="Pureclarity\Core\Plugin\Category\DataProvider" />
+    </type>
+    <preference for="Magento\Framework\Search\Adapter\Mysql\Adapter" type="Pureclarity\Core\Adapter\Search" />
+
+    <type name="Magento\Framework\HTTP\PhpEnvironment\RemoteAddress">
+        <arguments>
+            <argument name="alternativeHeaders" xsi:type="array">
+                <item name="x-forwarded-for" xsi:type="string">HTTP_X_FORWARDED_FOR</item>
+            </argument>
+        </arguments>
+    </type>
+</config>

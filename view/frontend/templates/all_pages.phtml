@@ -1,0 +1,28 @@
+<?php if($this->isActive()): ?>
+
+    <div data-bind="scope: 'customerdetails'" style="display:none">
+        <!-- ko if: renderTrackingEvents--><!-- /ko -->
+    </div>
+
+    <div data-bind="scope: 'cartupdate'" style="display:none">
+        <!-- ko if: renderTrackingEvents--><!-- /ko -->
+    </div>
+
+    <script type="text/x-magento-init">
+        { 
+            "*": {
+                "Magento_Ui/js/core/app": {
+                    "components": {
+                        "cartupdate": {
+                            "component": "Pureclarity_Core/js/view/cart-update"
+                        },
+                        "customerdetails": {
+                            "component": "Pureclarity_Core/js/view/customer-details"
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+
+<?php endif; ?>
