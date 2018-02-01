@@ -5,6 +5,8 @@ Deliver the Ultimate Personalized Ecommerce Experience.
 
 Support website: [support.pureclarity.com/hc/](https://support.pureclarity.com/hc/en-us)
 
+Magento 2 Extension Setup: [Magento-2-x Implementation Guide](https://support.pureclarity.com/hc/en-us/sections/360000118834-Magento-2-x)
+
 Powerful Intelligent Personalization
 ------------------------------------
 
