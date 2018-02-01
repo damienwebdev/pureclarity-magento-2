@@ -174,6 +174,7 @@ class Feed extends \Magento\Framework\Model\AbstractModel
             ->addAttributeToSelect('name')
             ->addAttributeToSelect('is_active')
             ->addAttributeToSelect('image')
+            ->addAttributeToSelect('pureclarity_hide_from_feed')
             ->addUrlRewriteToResult();        
 
         $maxProgress = count($categoryCollection);
