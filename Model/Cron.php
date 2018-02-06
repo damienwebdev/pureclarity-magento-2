@@ -133,7 +133,7 @@ class Cron extends \Magento\Framework\Model\AbstractModel
                     break;
                 case 'brand':
                     fwrite($feedFile, $doNdjson?'{"Type":"Brand","Version":2}' . PHP_EOL:'"Brand":[');
-                    if (!$this->coreHelper->isBrandFeedEnabled($storeId)){
+                    if ($this->coreHelper->isBrandFeedEnabled($storeId)){
                         $feedData = $feedModel->BrandFeed($progressFileName, $storeId, $doNdjson);
                         fwrite($feedFile, $feedData);
                     }
