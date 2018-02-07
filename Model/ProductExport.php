@@ -222,9 +222,17 @@ class ProductExport extends \Magento\Framework\Model\AbstractModel
                 "Categories" => $categoryIds,
                 "MagentoCategories" => array_values(array_unique($categoryList, SORT_STRING)),
                 "MagentoProductType" => $product->getTypeId(),
-                "InStock" => $product->getExtensionAttributes ($this->catalogInventoryStockItemFactory->create()->setProduct($product)->getIsInStock() == 1) ? true : false,
-                "Visibility" => $product->getVisibility()
+                "InStock" => $product->getExtensionAttributes ($this->catalogInventoryStockItemFactory->create()->setProduct($product)->getIsInStock() == 1) ? true : false
             );
+
+            // Set the visibility for PureClarity
+            $visibility = $product->getVisibility();
+            if ($visibility == \Magento\Catalog\Model\Product\Visibility::VISIBILITY_IN_CATALOG){
+                $data["ExcludeFromSearch"] = true;
+            }
+            else if ($visibility == \Magento\Catalog\Model\Product\Visibility::VISIBILITY_IN_SEARCH){
+                $data["ExcludeFromProductListing"] = true;
+            }
 
             // Set Brand
             if ($brandId){
