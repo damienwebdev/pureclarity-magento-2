@@ -98,7 +98,7 @@ class ProductExport extends \Magento\Framework\Model\AbstractModel
         $this->currenciesToProcess[] = $this->baseCurrencyCode;
         if ($currencyRates != null){
             foreach($currencies as $currency){
-                if ($currency != $this->baseCurrencyCode && $currencyRates[$currency]!= null){
+                if ($currency != $this->baseCurrencyCode && !empty($currencyRates[$currency])){
                     $this->currenciesToProcess[] = $currency;
                 }
             }
