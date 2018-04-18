@@ -3,7 +3,7 @@
     "description": "PureClarity Intelligent Personalization",
     "type": "magento2-module",
     "license": ["OSL-3.0"],
-    "version": "1.0.7",
+    "version": "1.0.8",
     "require": {
         "php": "~5.5.0|~5.6.0|~7.0|~7.1",
         "magento/framework": "~100.0|~101.0"

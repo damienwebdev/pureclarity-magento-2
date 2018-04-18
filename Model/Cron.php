@@ -106,7 +106,7 @@ class Cron extends \Magento\Framework\Model\AbstractModel
         if (!$orderOnly){
             $feedFile = @fopen($feedFilePath, "w+");
             if ((!$feedFile) || !flock($feedFile, LOCK_EX | LOCK_NB)){
-                throw new \Exception("Pureclarity: Cannot open feed file for writing (try deleting): " . $file);
+                throw new \Exception("Error: Cannot open feed file for writing under var/pureclarity directory. It could be locked or there maybe insufficient permissions to write to the directory. You must delete locked files or ensure PureClarity has permission to write to the var directory.");
             }
 
             fwrite($feedFile, $doNdjson?'{"FileType":"ndjson", "Version": 2}' . PHP_EOL:'{ "Version": 2');

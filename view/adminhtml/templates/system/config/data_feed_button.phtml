@@ -78,6 +78,7 @@
                     chkUsers: $('#pc-chkUsers'),
                     chkOrders: $('#pc-chkOrders'),
                     selectedStore: 0,
+		    callError: null,
 
                     // Initialise function
                     init: function(){
@@ -131,21 +132,31 @@
                             urlParts.push('user='+this.chkUsers.is(':checked'));
                             if (this.showImportOption)
                                 urlParts.push('orders='+this.chkOrders.is(':checked'));
-                            $.ajax({
+                            var self = this;
+			    $.ajax({
                                 url: urlParts.join('&'),
                                 data: {form_key: window.FORM_KEY, storeid: this.selectedStore},
                             }).done(function(response) {
-                            });
+                            }).fail(function(jqXHR, status, err) {
+				self.callError = jqXHR.responseText;
+			    });
                             var progressCheck = this.progressCheck.bind(this);
                             setTimeout(progressCheck, 1000);
                         }
                     },
                     progressCheck: function(){
-                        var manageProgressResponse = this.manageProgressResponse.bind(this);
-                        $.ajax({
-                            url: this.progressFeedUrl,
-                            data: {form_key: window.FORM_KEY, storeid: this.selectedStore},
-                        }).done(manageProgressResponse);
+			if (this.callError){
+                                this.message(this.callError);
+                                this.isComplete = true;
+                                this.resetState();
+                        }
+			else {
+                        	var manageProgressResponse = this.manageProgressResponse.bind(this);
+                        	$.ajax({
+                            		url: this.progressFeedUrl,
+                            		data: {form_key: window.FORM_KEY, storeid: this.selectedStore},
+                        	}).done(manageProgressResponse);
+			}
                     },
                     message: function(message){
                         this.messageContainer.show();

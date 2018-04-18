@@ -43,9 +43,9 @@ class Runfeed extends \Magento\Backend\App\Action
         catch (\Exception $e){
             $this->getResponse()
                 ->clearHeaders()
-                ->setHeader('HTTP/1.0', 409, true)
-                ->setHeader('Content-Type', 'text/html')
-                ->setBody('Conflict');
+		->setStatusCode(\Magento\Framework\App\Response\Http::STATUS_CODE_500)
+                ->setHeader('Content-type', 'text/html')
+                ->setBody($e->getMessage());
         }
     }
 }
