@@ -120,7 +120,7 @@ class ProductExport extends \Magento\Framework\Model\AbstractModel
         // Get list of attributes to include
         foreach ($attributes as $attribute){
             $code = $attribute->getAttributecode();
-            if ($attribute->getIsFilterable()!=0 && !in_array(strtolower($code), $attributesToExclude)) {
+            if (!in_array(strtolower($code), $attributesToExclude)) {
                 $this->attributesToInclude[] = array($code, $attribute->getFrontendLabel());
             }
         }
