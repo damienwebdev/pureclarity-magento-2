@@ -32,6 +32,7 @@ class ProductExport extends \Magento\Framework\Model\AbstractModel
     protected $catalogConfig;
     protected $catalogProductFactory;
     protected $catalogHelper;
+    protected $logger;
 
     public function __construct(
         \Magento\Framework\Model\Context $context,
@@ -51,6 +52,7 @@ class ProductExport extends \Magento\Framework\Model\AbstractModel
         \Magento\Catalog\Model\Config $catalogConfig,
         \Magento\Catalog\Helper\Data $catalogHelper,
         \Magento\Catalog\Model\ProductFactory $catalogProductFactory,
+        \Psr\Log\LoggerInterface $logger,
         \Magento\Framework\Model\ResourceModel\AbstractResource $resource = null,
         \Magento\Framework\Data\Collection\AbstractDb $resourceCollection = null,
         array $data = []
@@ -70,6 +72,7 @@ class ProductExport extends \Magento\Framework\Model\AbstractModel
         $this->catalogConfig = $catalogConfig;
         $this->catalogHelper = $catalogHelper;
         $this->catalogProductFactory = $catalogProductFactory;
+        $this->logger = $logger;
         parent::__construct(
             $context,
             $registry,
@@ -115,12 +118,12 @@ class ProductExport extends \Magento\Framework\Model\AbstractModel
 
         // Get Attributes
         $attributes = $this->catalogResourceModelProductAttributeCollectionFactory->create()->getItems();
-        $attributesToExclude = array("prices", "price");
+        $attributesToExclude = array("prices", "price", "category_ids");
 
         // Get list of attributes to include
         foreach ($attributes as $attribute){
             $code = $attribute->getAttributecode();
-            if (!in_array(strtolower($code), $attributesToExclude)) {
+            if (!in_array(strtolower($code), $attributesToExclude) && !empty($attribute->getFrontendLabel())) {
                 $this->attributesToInclude[] = array($code, $attribute->getFrontendLabel());
             }
         }
@@ -426,7 +429,13 @@ class ProductExport extends \Magento\Framework\Model\AbstractModel
             $code = $attribute[0];
             $name = $attribute[1];
             if ($product->getData($code) != null) {
-                $attrValue = $product->getAttributeText($code);
+                try{
+                    $attrValue = $product->getAttributeText($code);
+                }
+                catch (\Exception $e){
+                    // Unable to read attribute text
+                    continue;
+                }
                 if (is_array($attrValue)){
                     foreach($attrValue as $value){
                         $this->addValueToDataArray($data, $name, $value);
