@@ -41,7 +41,7 @@ class ListProduct extends \Magento\Catalog\Block\Product\ListProduct {
         if ($this->coreHelper->isSearchActive() && $this->coreHelper->isServerSide()){
             
             $searchResult = $this->pureClarityService->getSearchResult();
-            if ($searchResult && array_key_exists('refId', $searchResult)){
+            if ($searchResult && array_key_exists('refId', $searchResult) && array_key_exists('clickEventName', $searchResult)){
                 $this->setPureClarityClickData([
                     "event" => $searchResult['clickEventName'],
                     "refId" => $searchResult['refId']
