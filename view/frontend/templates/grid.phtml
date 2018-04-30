@@ -36,7 +36,7 @@
                     <?php $iterator = 1; ?>
                     <?php foreach ($items as $_item): ?>
                         <?php if ($iterator++ != 1): ?></li><?php endif ?>
-                        <li class="product-item" onmousedown="<?php echo $this->getPureclarityClickEvents()[$_item->getId()]; ?>">
+                        <li class="product-item" onmousedown="<?php echo $this->getPureclarityClickEvents()[$_item->getSku()]; ?>">
                         <div class="product-item-info">
                             <a href="<?= $block->escapeUrl($block->getProductUrl($_item)) ?>" class="product-item-photo">
                                 <?= $block->getImage($_item, $image)->toHtml() ?>

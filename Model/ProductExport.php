@@ -118,7 +118,7 @@ class ProductExport extends \Magento\Framework\Model\AbstractModel
 
         // Get Attributes
         $attributes = $this->catalogResourceModelProductAttributeCollectionFactory->create()->getItems();
-        $attributesToExclude = array("prices", "price", "category_ids");
+        $attributesToExclude = array("prices", "price", "category_ids", "sku");
 
         // Get list of attributes to include
         foreach ($attributes as $attribute){
