@@ -95,7 +95,7 @@ class Service extends \Magento\Framework\App\Helper\AbstractHelper
         if (!$isMagentoAdminCall && $this->coreHelper->isServerSide()){
             $product = $this->registry->registry("product");
             if ($product != null){
-                $this->addTrackingEvent("product_view", ["Id"=>$product->getId()]);
+                $this->addTrackingEvent("product_view", ["id"=>$product->getId()]);
             }
 
             switch($this->action){
