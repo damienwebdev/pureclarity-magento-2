@@ -58,10 +58,7 @@ class Service extends \Magento\Framework\App\Helper\AbstractHelper
         $this->toolBar = $toolBar;
         $this->request = $request;
 
-        $this->category = $this->registry->registry('category');
-        if ($this->category != null){
-            $this->addTrackingEvent('categoryid', $this->category->getId());
-        }
+        $this->category = $this->registry->registry('current_category');
         parent::__construct($context);
     }
 
@@ -101,6 +98,7 @@ class Service extends \Magento\Framework\App\Helper\AbstractHelper
                 ($this->isCategory && !empty($this->category) && $this->category->getId() && $this->coreHelper->isProdListingActive()) || 
                 $this->isSearchPage())
             )){
+                
                 $this->query = $this->isCategoryPage()?$this->category->getId():$this->catalogSearchHelper->getEscapedQueryText();
                 $sortOrder = $this->toolBar->getOrder();
                 $sortDirection = $this->toolBar->getDirection();
@@ -142,7 +140,7 @@ class Service extends \Magento\Framework\App\Helper\AbstractHelper
         if (!$isMagentoAdminCall && $this->coreHelper->isServerSide()){
             $product = $this->registry->registry("product");
             if ($product != null){
-                $this->addTrackingEvent("product_view", ["id"=>$product->getId()]);
+                $this->addTrackingEvent("product_view", ["Id"=>$product->getId()]);
             }
 
             switch($this->action){
@@ -240,7 +238,6 @@ class Service extends \Magento\Framework\App\Helper\AbstractHelper
             try {
                 $response = $client->send();
                 $this->result = json_decode($response->getBody(), true);
-
         
                 if (array_key_exists('errors', $this->result)){
                     $this->logger->error('PURECLARITY ERROR: Errors return from PureClarity - ' . var_export($this->result['errors'], true));
