@@ -75,44 +75,12 @@ class Search implements AdapterInterface
         $documents = [];
         $table = null;
         
-        $query = $this->catalogSearchHelper->getEscapedQueryText();
         
         if ($this->coreHelper->isSearchActive() &&
             ($this->coreHelper->isServerSide() || $this->coreHelper->seoSearchFriendly()) &&
             (($this->isCategoryPage() && $this->getCategoryId($request) && $this->coreHelper->isProdListingActive()) || $this->isSearchPage())){
             
-            if ($this->isCategoryPage())
-                $query = $this->getCategoryId($request);
-
-            $pureClaritySort = 0;
-            $sortOrder = $this->toolBar->getOrder();
-            $sortDirection = $this->toolBar->getDirection();
-            if ($sortOrder || $sortDirection){
-                $sortOrder = $sortOrder?$sortOrder:'relevance';
-                $sortDirection = $sortDirection?$sortDirection:'desc';
-                $sort = $sortOrder . '_' . $sortDirection;
-                switch($sort){
-                    case "price_asc":
-                        $pureClaritySort = 1;
-                        break;
-                    case "price_desc":
-                        $pureClaritySort = 2;
-                        break;
-                    case "name_asc":
-                        $pureClaritySort = 3;
-                        break;
-                    case "name_desc":
-                        $pureClaritySort = 4;
-                        break;
-                }
-            }
-
-            $size = $this->coreHelper->isServerSide()?"2000":null;
-
-            $doCategorySearch = (!$this->isSearchPage() && $this->isCategoryPage());
-            $this->service->addSearch($doCategorySearch, $query, $pureClaritySort, $size);
             $this->service->dispatch();
-
             $result = $this->service->getSearchResult();
             
             if ($result){

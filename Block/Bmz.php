@@ -48,8 +48,9 @@ class Bmz extends Template implements BlockInterface
     }
     
     public function setData($key, $value = null){
-        if ($key == 'bmz_id' && $this->coreHelper->isServerSide())
+        if ($key == 'bmz_id' && $this->coreHelper->isServerSide()){
             $this->service->addZone($value);
+        }
         parent::setData($key, $value);
     }
 
@@ -69,6 +70,10 @@ class Bmz extends Template implements BlockInterface
     public function _beforeToHtml(){
         if (!$this->coreHelper->isMerchActive())
             return;
+
+        if ($this->coreHelper->isServerSide()){
+            $this->service->dispatch();
+        }
 
         // Get some parameters
         $this->debug = $this->coreHelper->isBMZDebugActive();

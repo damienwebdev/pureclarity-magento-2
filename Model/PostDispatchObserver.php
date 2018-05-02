@@ -25,13 +25,7 @@ class PostDispatchObserver implements ObserverInterface
 
     public function execute(\Magento\Framework\Event\Observer $observer)
     {
-        if ($this->coreHelper->isSearchActive() && 
-            ($this->coreHelper->isServerSide() || $this->coreHelper->seoSearchFriendly()) &&
-            ($this->isCategoryPage() || $this->isSearchPage())){
-                return;
-            }
-            
-        $this->service->dispatch();
+        //$this->service->dispatch();
     }
 
     private function isSearchPage(){
