@@ -199,7 +199,13 @@ class ProductExport extends \Magento\Framework\Model\AbstractModel
             }
             
             // Get Product Link URL
-            $productUrl = $product->getProductUrl();
+            $urlParams = [
+                '_nosid' => true,
+            ];
+            $productUrl = $product->getUrlModel()->getUrl($product, $urlParams);
+            if ($productUrl){
+                $productUrl = str_replace(array("https:", "http:"), "", $productUrl);
+            }
 
             // Get Product Image URL
             $productImageUrl = '';
