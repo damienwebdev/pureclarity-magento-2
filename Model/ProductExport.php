@@ -442,13 +442,15 @@ class ProductExport extends \Magento\Framework\Model\AbstractModel
                     // Unable to read attribute text
                     continue;
                 }
-                if (is_array($attrValue)){
-                    foreach($attrValue as $value){
-                        $this->addValueToDataArray($data, $name, $value);
+                if (!empty($attrValue)){
+                    if (is_array($attrValue)){
+                        foreach($attrValue as $value){
+                            $this->addValueToDataArray($data, $name, $value);
+                        }
                     }
-                }
-                else {
-                    $this->addValueToDataArray($data, $name, $attrValue);
+                    else {
+                        $this->addValueToDataArray($data, $name, $attrValue);
+                    }
                 }
             }
         }
