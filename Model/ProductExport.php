@@ -33,6 +33,9 @@ class ProductExport extends \Magento\Framework\Model\AbstractModel
     protected $catalogProductFactory;
     protected $catalogHelper;
     protected $logger;
+    protected $eavConfig;
+    protected $swatchHelper;
+    protected $swatchMediaHelper;
 
     public function __construct(
         \Magento\Framework\Model\Context $context,
@@ -53,6 +56,9 @@ class ProductExport extends \Magento\Framework\Model\AbstractModel
         \Magento\Catalog\Helper\Data $catalogHelper,
         \Magento\Catalog\Model\ProductFactory $catalogProductFactory,
         \Psr\Log\LoggerInterface $logger,
+        \Magento\Eav\Model\Config $eavConfig,
+        \Magento\Swatches\Helper\Data $swatchHelper,
+        \Magento\Swatches\Helper\Media $swatchMediaHelper,
         \Magento\Framework\Model\ResourceModel\AbstractResource $resource = null,
         \Magento\Framework\Data\Collection\AbstractDb $resourceCollection = null,
         array $data = []
@@ -73,6 +79,9 @@ class ProductExport extends \Magento\Framework\Model\AbstractModel
         $this->catalogHelper = $catalogHelper;
         $this->catalogProductFactory = $catalogProductFactory;
         $this->logger = $logger;
+        $this->eavConfig = $eavConfig;
+        $this->swatchHelper = $swatchHelper;
+        $this->swatchMediaHelper = $swatchMediaHelper;
         parent::__construct(
             $context,
             $registry,
@@ -123,8 +132,50 @@ class ProductExport extends \Magento\Framework\Model\AbstractModel
         // Get list of attributes to include
         foreach ($attributes as $attribute){
             $code = $attribute->getAttributecode();
+            
             if (!in_array(strtolower($code), $attributesToExclude) && !empty($attribute->getFrontendLabel())) {
-                $this->attributesToInclude[] = array($code, $attribute->getFrontendLabel());
+
+                $isSwatch =  false;
+                $isVisualSwatch = false;
+                $attributeOptions = [];
+                $parsedSwatchAttributes = [];
+                if (!empty($attribute->getAdditionalData())){
+                    $additionalDataArray = json_decode($attribute->getAdditionalData(), true);
+                    if (array_key_exists("swatch_input_type", $additionalDataArray)){
+                        $isSwatch = true;
+                        $attributeOptions = $attribute->getSource()->getAllOptions();
+                        $isVisualSwatch = ($additionalDataArray["swatch_input_type"] == "visual");
+                        if ($isVisualSwatch){
+                            $valueIds = [];
+                            foreach ($attributeOptions as $option) {
+                                $valueIds[] = $option['value'];
+                            }
+                            $swatchValues = $this->swatchHelper->getSwatchesByOptionsId($valueIds);
+                            foreach($attributeOptions as $option){
+                                if (!empty($option["value"] && array_key_exists($option["value"], $swatchValues))){
+                                    $swatch = $swatchValues[$option["value"]];
+                                    if ($swatch["store_id"] == 0 || $swatch["store_id"] == $this->storeId){
+                                        $parsedSwatchAttributes[$option["label"]] = [
+                                            "value" => $option["label"],
+                                            "swatch_id" => $swatch["swatch_id"],
+                                            "option_id" => $swatch["option_id"]
+                                        ];
+                                        if ($swatch["type"] == 1)
+                                            $parsedSwatchAttributes[$option["label"]]["color"] = $swatch["value"];
+                                        else if ($swatch["type"] == 2){
+                                            $swatchImage = $this->swatchMediaHelper->getSwatchAttributeImage("swatch_image", $swatch["value"]);
+                                            $swatchImageThumb = $this->swatchMediaHelper->getSwatchAttributeImage("swatch_thumb", $swatch["value"]);
+                                            $parsedSwatchAttributes[$option["label"]]["image"] = str_replace(array("https:", "http:"), "", $swatchImage);
+                                            $parsedSwatchAttributes[$option["label"]]["image_thumb"] = str_replace(array("https:", "http:"), "", $swatchImageThumb);;
+                                        }
+                                    }
+                                }
+                            }                            
+                        }
+                    }
+                };
+
+                $this->attributesToInclude[] = array($code, $attribute->getFrontendLabel(), $isSwatch, $isVisualSwatch, $parsedSwatchAttributes);
             }
         }
 
@@ -434,6 +485,7 @@ class ProductExport extends \Magento\Framework\Model\AbstractModel
         foreach ($this->attributesToInclude as $attribute) {
             $code = $attribute[0];
             $name = $attribute[1];
+            $isSwatch = $attribute[2];
             if ($product->getData($code) != null) {
                 try{
                     $attrValue = $product->getAttributeText($code);
@@ -450,6 +502,13 @@ class ProductExport extends \Magento\Framework\Model\AbstractModel
                     }
                     else {
                         $this->addValueToDataArray($data, $name, $attrValue);
+                    }
+                    if ($isSwatch){
+                        $isVisualSwatch = $attribute[3];
+                        if ($isVisualSwatch && array_key_exists($attrValue, $attribute[4])){
+                            $swatchValue = $attribute[4][$attrValue];
+                            $this->addValueToDataArray($data, $name . "__swatch", $swatchValue);
+                        }
                     }
                 }
             }
