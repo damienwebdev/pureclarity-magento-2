@@ -116,7 +116,6 @@ class ProductExport extends \Magento\Framework\Model\AbstractModel
             }
         }
 
-
         // Manage Brand
         $this->brandLookup = [];
         // If brand feed is enabled, get the brands
@@ -139,7 +138,7 @@ class ProductExport extends \Magento\Framework\Model\AbstractModel
                 $isVisualSwatch = false;
                 $attributeOptions = [];
                 $parsedSwatchAttributes = [];
-                if (!empty($attribute->getAdditionalData())){
+                if ($this->coreHelper->sendSwatches($this->storeId) && !empty($attribute->getAdditionalData())){
                     $additionalDataArray = json_decode($attribute->getAdditionalData(), true);
                     if (array_key_exists("swatch_input_type", $additionalDataArray)){
                         $isSwatch = true;
