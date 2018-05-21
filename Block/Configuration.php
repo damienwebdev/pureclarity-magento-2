@@ -44,6 +44,9 @@ class Configuration extends Template
     }
 
     public function getConfiguration(){
+        $objectManager = \Magento\Framework\App\ObjectManager::getInstance(); 
+        $formKey = $objectManager->get('Magento\Framework\Data\Form\FormKey');
+
         return [
             "apiUrl" => $this->getApiStartUrl(),
             "currency" => $this->getCurrencyCode(),
@@ -58,7 +61,11 @@ class Configuration extends Template
                 "DOMSelector" => $this->getDOMSelector(),
                 "dataValue" => $this->getSearchDataValue()
             ],
-            "order" => $this->getOrder()
+            "order" => $this->getOrder(),
+            "baseUrl" => $this->coreHelper->getBaseUrl(),
+            "formkey" => $formKey->getFormKey(),
+            "wishListUrl" =>  $this->getUrl('wishlist/index/add'),
+            "compareUrl" =>  $this->getUrl('catalog/product_compare/add')
         ];
     }
 

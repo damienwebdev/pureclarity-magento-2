@@ -456,6 +456,9 @@ class Data extends \Magento\Framework\App\Helper\AbstractHelper {
         return $order;
     }
 
+    public function getBaseUrl(){
+        return $this->storeManager->getStore()->getBaseUrl();
+    }
 
     public function formatFeed($feed, $feedFormat = 'json')
     {
