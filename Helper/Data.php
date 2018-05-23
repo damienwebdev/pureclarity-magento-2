@@ -460,6 +460,14 @@ class Data extends \Magento\Framework\App\Helper\AbstractHelper {
         return $this->storeManager->getStore()->getBaseUrl();
     }
 
+    public function getNumberSwatchesPerProduct($storeId = null){
+        return $this->scopeConfig->getValue('catalog/frontend/swatches_per_product',\Magento\Store\Model\ScopeInterface::SCOPE_STORE, $this->getStoreId($storeId));
+    }
+
+    public function showSwatches($storeId = null){
+        return $this->scopeConfig->getValue('catalog/frontend/show_swatches_in_product_list',\Magento\Store\Model\ScopeInterface::SCOPE_STORE, $this->getStoreId($storeId));
+    }
+
     public function formatFeed($feed, $feedFormat = 'json')
     {
         switch ($feedFormat) {

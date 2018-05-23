@@ -1,4 +1,4 @@
-define(['jquery'], function ($) {
+define(['jquery', 'Magento_Swatches/js/swatch-renderer', 'priceBox'], function ($, SwatchRenderer, priceBox) {
 
     // Before initialise, check we're active
     if (!pureclarityConfig.state.isActive) return;
@@ -121,7 +121,7 @@ define(['jquery'], function ($) {
                 v = obj[n];
                 t = typeof(v);
                 if (obj.hasOwnProperty(n)) {
-                    if (t == "string") v = '"' + v + '"'; else if (t == "object" && v !== null) v = jQuery.stringify(v);
+                    if (t == "string") v = '"' + v + '"'; else if (t == "object" && v !== null) v = $.stringify(v);
                     json.push((arr ? "" : '"' + n + '":') + String(v));
                 }
             }
@@ -130,7 +130,7 @@ define(['jquery'], function ($) {
     }
 
     // Initialise form variables
-    var inputs = jQuery( "[name='form_key']" );
+    var inputs = $( "[name='form_key']" );
     pureclarityConfig.formkey = inputs.length>0?inputs[0].value:pureclarityConfig.formkey;
     var uenc = Base64.encode(document.location.href).replace(/=/g, ",");
     var addToCartUrlPrefix = pureclarityConfig.baseUrl + "checkout/cart/add/uenc/" + encodeURIComponent(uenc) + "/product/";
@@ -147,7 +147,11 @@ define(['jquery'], function ($) {
         _pc('currency', pureclarityConfig.currency );
         _pc('page_view');
         var parsedResults = false;
-        _pc('callback_event', function(type){     
+        _pc('callback_event', function(type){
+            if (type == "search"){
+                var $sideBarAdditional = $(".sidebar-additional");
+                $sideBarAdditional.appendTo($("#pc-filter"));
+            }
             if (!parsedResults){
                 parsedResults = true;
                 var items = $("[pureclarity-data-item]");
@@ -206,6 +210,27 @@ define(['jquery'], function ($) {
                                 $(compare[0]).attr("data-post", stringify(compareData));
                             }
                         }
+                    }
+
+                    // Manage Swatches
+                    if (pureclarityConfig.showSwatches){
+                        var swatchOptions = $item.find(".swatch-opt");
+                        $(swatchOptions).each(function(){
+                            var option = $(this);
+                            var jsonConfig = option.data().pureclarityJsonconfig;
+                            var swatchRenderJson = option.data().pureclaritySwatchrenderjson;
+                            if (jsonConfig && swatchRenderJson){
+                                swatchRenderJson.numberToShow = pureclarityConfig.swatchesToShow;
+                                option.SwatchRenderer(swatchRenderJson);
+                                var priceBoxSelector = "[data-role=priceBox][data-product-id=" + id + "]";
+                                $(priceBoxSelector).priceBox({
+                                    'priceConfig': {
+                                        priceFormat: jsonConfig.priceFormat,
+                                        prices: jsonConfig.prices
+                                    }
+                                });
+                            }
+                        });
                     }
                 }
             }

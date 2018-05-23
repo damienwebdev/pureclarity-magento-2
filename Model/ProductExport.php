@@ -37,6 +37,7 @@ class ProductExport extends \Magento\Framework\Model\AbstractModel
     protected $swatchHelper;
     protected $swatchMediaHelper;
     protected $blockFactory;
+    protected $galleryReadHandler;
 
     public function __construct(
         \Magento\Framework\Model\Context $context,
@@ -61,6 +62,7 @@ class ProductExport extends \Magento\Framework\Model\AbstractModel
         \Magento\Swatches\Helper\Data $swatchHelper,
         \Magento\Swatches\Helper\Media $swatchMediaHelper,
         \Magento\Framework\View\Element\BlockFactory $blockFactory,
+        \Magento\Catalog\Model\Product\Gallery\ReadHandler $galleryReadHandler,
         \Magento\Framework\Model\ResourceModel\AbstractResource $resource = null,
         \Magento\Framework\Data\Collection\AbstractDb $resourceCollection = null,
         array $data = []
@@ -85,6 +87,7 @@ class ProductExport extends \Magento\Framework\Model\AbstractModel
         $this->swatchHelper = $swatchHelper;
         $this->swatchMediaHelper = $swatchMediaHelper;
         $this->blockFactory = $blockFactory;
+        $this->galleryReadHandler = $galleryReadHandler;
 
         parent::__construct(
             $context,
@@ -228,6 +231,15 @@ class ProductExport extends \Magento\Framework\Model\AbstractModel
                 $productImageUrl = $this->currentStore->getBaseUrl(\Magento\Framework\UrlInterface::URL_TYPE_MEDIA)."catalog/product/placeholder/". $this->currentStore->getConfig("catalog/placeholder/image_placeholder");
             $productImageUrl = str_replace(array("https:", "http:"), "", $productImageUrl);
 
+        
+            $this->galleryReadHandler->execute($product);
+            $productImages = $product->getMediaGalleryImages();
+            $allImages = [];
+            foreach($productImages as $image){
+                $this->logger->debug(json_encode($image->getUrl()));
+                $allImages[] = str_replace(array("https:", "http:"), "", $image->getUrl());
+            }
+
             // Set standard data
             $data = array(
                 "_index" => $index,
@@ -242,6 +254,10 @@ class ProductExport extends \Magento\Framework\Model\AbstractModel
                 "MagentoProductType" => $product->getTypeId(),
                 "InStock" => $product->getExtensionAttributes ($this->catalogInventoryStockItemFactory->create()->setProduct($product)->getIsInStock() == 1) ? true : false
             );
+
+            if (sizeof($allImages) > 0){
+                $data["AllImages"] = $allImages;
+            }
 
             // Swatch renderer
             if ($this->coreHelper->sendSwatches($this->storeId) && $product->getTypeId() == \Magento\ConfigurableProduct\Model\Product\Type\Configurable::TYPE_CODE){
@@ -506,3 +522,5 @@ class ProductExport extends \Magento\Framework\Model\AbstractModel
 
 
 }
+
+

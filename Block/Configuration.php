@@ -65,7 +65,9 @@ class Configuration extends Template
             "baseUrl" => $this->coreHelper->getBaseUrl(),
             "formkey" => $formKey->getFormKey(),
             "wishListUrl" =>  $this->getUrl('wishlist/index/add'),
-            "compareUrl" =>  $this->getUrl('catalog/product_compare/add')
+            "compareUrl" =>  $this->getUrl('catalog/product_compare/add'),
+            "showSwatches" => (int)$this->showSwatches(),
+            "swatchesToShow" => $this->getNumberSwatchesPerProduct()
         ];
     }
 
@@ -80,6 +82,14 @@ class Configuration extends Template
 
     public function isLogOut(){
         return $this->request->getFullActionName() == 'customer_account_logoutSuccess';
+    }
+
+    public function getNumberSwatchesPerProduct(){
+        return $this->coreHelper->getNumberSwatchesPerProduct($this->_storeManager->getStore()->getId());
+    }
+
+    public function showSwatches(){
+        return $this->coreHelper->showSwatches($this->_storeManager->getStore()->getId());
     }
 
     public function isCheckoutSuccess(){
