@@ -132,7 +132,7 @@ define(['jquery', 'Magento_Swatches/js/swatch-renderer', 'priceBox'], function (
     // Initialise form variables
     var inputs = $( "[name='form_key']" );
     pureclarityConfig.formkey = inputs.length>0?inputs[0].value:pureclarityConfig.formkey;
-    var uenc = Base64.encode(document.location.href).replace(/=/g, ",");
+    var uenc = Base64.encode(document.location.href).replace(/=/g, ",").replace(/\//g, "_");
     var addToCartUrlPrefix = pureclarityConfig.baseUrl + "checkout/cart/add/uenc/" + encodeURIComponent(uenc) + "/product/";
 
     // Initialise PureClarity
