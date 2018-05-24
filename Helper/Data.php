@@ -223,11 +223,6 @@ class Data extends \Magento\Framework\App\Helper\AbstractHelper {
         return $this->scopeConfig->getValue("pureclarity/advanced/bmz_debug", \Magento\Store\Model\ScopeInterface::SCOPE_STORE, $this->getStoreId($storeId));
     }
 
-    public function sendSwatches($storeId = null)
-    {
-        return $this->scopeConfig->getValue("pureclarity/advanced/prod_feed_swatches", \Magento\Store\Model\ScopeInterface::SCOPE_STORE, $this->getStoreId($storeId));
-    }
-
 
     // END POINTS
     public function getHost($storeId){

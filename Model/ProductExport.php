@@ -260,7 +260,7 @@ class ProductExport extends \Magento\Framework\Model\AbstractModel
             }
 
             // Swatch renderer
-            if ($this->coreHelper->sendSwatches($this->storeId) && $product->getTypeId() == \Magento\ConfigurableProduct\Model\Product\Type\Configurable::TYPE_CODE){
+            if ($product->getTypeId() == \Magento\ConfigurableProduct\Model\Product\Type\Configurable::TYPE_CODE){
                 session_write_close();
                 $swatchBlock = $this->blockFactory
                                     ->createBlock('\Magento\Swatches\Block\Product\Renderer\Listing\Configurable')

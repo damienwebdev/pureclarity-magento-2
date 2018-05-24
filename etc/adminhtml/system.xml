@@ -117,11 +117,6 @@
                     <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
                     <comment>PureClarity is best implemented using Client Side integration. However, for greater control over the PureClarity implementation you may wish use the Server Side option, which uses Templates that are built in the PureClarity Plugin. This is generally used for highly customized Magento implementations where developers may want greater control, for example, over prices. Please read the documentation for further information.</comment>
                 </field>
-                <field id="prod_feed_swatches" translate="label" type="select" showInDefault="1" showInWebsite="1" showInStore="1">
-                    <label>Send Visual Swatches in product feed</label>
-                    <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
-                    <comment>When enabled visual swatches, set against an attribute, will be sent in the feed as a separate attribute to be used by PureClarity templates. Swatch attributes will be added alongside the original with a "__swatch" suffix added to the name (e.g. Color__swatch).</comment>
-                </field>
                 <field id="seo_friendly" translate="label" type="select" showInDefault="1" showInWebsite="1" showInStore="1">
                     <label>SEO Friendly Searches</label>
                     <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
