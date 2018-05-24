@@ -143,6 +143,11 @@ define(['jquery', 'Magento_Swatches/js/swatch-renderer', 'priceBox'], function (
     })(window, document, 'script', window.pureclarityConfig.apiUrl, '_pc');
 
     // Execute tracking events
+    
+    if (pureclarityConfig.state.isLogout){
+        _pc('customer_logout');
+    }
+
     if (!pureclarityConfig.state.serversideMode){
         _pc('currency', pureclarityConfig.currency );
         _pc('page_view');
@@ -239,10 +244,6 @@ define(['jquery', 'Magento_Swatches/js/swatch-renderer', 'priceBox'], function (
         if (pureclarityConfig.product){
             _pc("product_view", { id: pureclarityConfig.product.Id });
         }
-        
-        if (pureclarityConfig.state.isLogout){
-            _pc('customer_logout');
-        }
 
         if (pureclarityConfig.order){
             _pc('order:addTrans', pureclarityConfig.order.transaction);
@@ -255,9 +256,7 @@ define(['jquery', 'Magento_Swatches/js/swatch-renderer', 'priceBox'], function (
     else {
         _pc('set_cache_filter', { _size: 2000, requesttype: "both" });
     }
-
     
-
     
 
     return {

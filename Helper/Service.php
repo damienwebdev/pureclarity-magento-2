@@ -257,14 +257,14 @@ class Service extends \Magento\Framework\App\Helper\AbstractHelper
         $metadata = $this->cookieMetadataFactory
             ->createPublicCookieMetadata()
             ->setDuration($duration)
-            ->setPath($this->sessionManager->getCookiePath())
-            ->setDomain($this->sessionManager->getCookieDomain());
+            ->setPath($this->sessionManager->getCookiePath());
+            //->setDomain($this->sessionManager->getCookieDomain());
 
-      $this->cookieManager->setPublicCookie(
-          $cookieName,
-          $value,
-          $metadata
-      );
+        $this->cookieManager->setPublicCookie(
+            $cookieName,
+            $value,
+            $metadata
+        );
     }
 
     public function getResult(){
