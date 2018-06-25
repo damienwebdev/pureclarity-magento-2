@@ -472,7 +472,7 @@ class ProductExport extends \Magento\Framework\Model\AbstractModel
 
     protected function getDefaultFromProduct(\Magento\Catalog\Model\Product $product, $getFinalPrice = false, $includeTax = true) 
     {
-        $price = $getFinalPrice ? $product->getFinalPrice() : $product->getPrice();
+        $price = $getFinalPrice ? $product->getPriceInfo()->getPrice('final_price')->getValue() : $product->getPrice();
         if ($includeTax) {
             $price = $this->catalogHelper->getTaxPrice($product, $price, true);
         }
