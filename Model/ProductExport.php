@@ -101,6 +101,7 @@ class ProductExport extends \Magento\Framework\Model\AbstractModel
     // Initialise the model ready to call the product data for the give store.
     public function init($storeId)
     {
+
         // Use this store, if not passed in.
         $this->storeId = $storeId;
         if (is_null($this->storeId)) {
@@ -163,9 +164,9 @@ class ProductExport extends \Magento\Framework\Model\AbstractModel
         $validVisiblity = array('in' => array(\Magento\Catalog\Model\Product\Visibility::VISIBILITY_BOTH, 
                                               \Magento\Catalog\Model\Product\Visibility::VISIBILITY_IN_CATALOG, 
                                               \Magento\Catalog\Model\Product\Visibility::VISIBILITY_IN_SEARCH));
-        
         $products = $this->coreResourceProductCollectionFactory->create()
             ->setStoreId($this->storeId)
+            ->addStoreFilter($this->storeId)
             ->addUrlRewrite()
             ->addAttributeToSelect('*')
             ->addAttributeToFilter("status", array("eq" => \Magento\Catalog\Model\Product\Attribute\Source\Status::STATUS_ENABLED))
@@ -217,8 +218,9 @@ class ProductExport extends \Magento\Framework\Model\AbstractModel
             // Get Product Link URL
             $urlParams = [
                 '_nosid' => true,
+                '_scope' => $this->storeId
             ];
-            $productUrl = $product->getUrlModel()->getUrl($product, $urlParams);
+            $productUrl = $product->setStoreId($this->storeId)->getUrlModel()->getUrl($product, $urlParams);
             if ($productUrl){
                 $productUrl = str_replace(array("https:", "http:"), "", $productUrl);
             }
@@ -236,7 +238,6 @@ class ProductExport extends \Magento\Framework\Model\AbstractModel
             $productImages = $product->getMediaGalleryImages();
             $allImages = [];
             foreach($productImages as $image){
-                $this->logger->debug(json_encode($image->getUrl()));
                 $allImages[] = str_replace(array("https:", "http:"), "", $image->getUrl());
             }
 

@@ -74,12 +74,12 @@ class Url extends \Magento\Catalog\Model\Product\Url
             $storeId = $this->storeManager->getStore($routeParams['_scope'])->getId();
         }
 
-        if ($storeId != $this->storeManager->getStore()->getId()) {
-            $routeParams['_scope_to_url'] = true;
-        }
+        // if ($storeId != $this->storeManager->getStore()->getId()) {
+        //     $routeParams['_scope_to_url'] = true;
+        // }
 
         if (!empty($requestPath)) {
-            $routeParams['_direct'] = $requestPath;
+            $routePath = $requestPath;
         } else {
             $routePath = 'catalog/product/view';
             $routeParams['id'] = $product->getId();
