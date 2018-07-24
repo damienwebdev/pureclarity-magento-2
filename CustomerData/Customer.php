@@ -17,9 +17,9 @@ class Customer implements \Magento\Customer\CustomerData\SectionSourceInterface
     
     public function getSectionData()
     {
-        if ($this->customerSession->isLoggedIn()){
+        if ($this->customerSession->isLoggedIn()) {
             $customer = $this->customerSession->getCustomer();
-            if ($customer){
+            if ($customer) {
                 $data = [
                     "isLoggedIn" => true,
                     "customer"=> [
@@ -29,7 +29,7 @@ class Customer implements \Magento\Customer\CustomerData\SectionSourceInterface
                         'lastname' => $customer->getLastname()
                     ]
                 ];
-                if ($customer->getDob()){
+                if ($customer->getDob()) {
                     $data['customer']['dob'] = $customer->getDob();
                 }
                 return $data;
@@ -39,5 +39,4 @@ class Customer implements \Magento\Customer\CustomerData\SectionSourceInterface
                 "isLoggedIn" => false
         ];
     }
-
 }

@@ -22,11 +22,11 @@ class Sftp extends \Magento\Framework\App\Helper\AbstractHelper
         $path = '/' . ($directory?$directory.'/':'') . $filename;
         $success = true;
         try {
-            $this->sftp->open(array("host"=>($host.":".$port),"username"=>$username, "password"=>$password));
+            $this->sftp->open(["host"=>($host.":".$port),"username"=>$username, "password"=>$password]);
             $this->sftp->write($path, $payload);
-        } catch(\Exception $e) {
+        } catch (\Exception $e) {
             $this->logger->error("ERROR: Processing PureClarity SFTP transfer. See Exception log for details.");
-            $this->logger->critical($e);   
+            $this->logger->critical($e);
             $success = false;
         }
         $this->sftp->close();

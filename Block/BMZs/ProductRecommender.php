@@ -26,18 +26,21 @@ class ProductRecommender extends Template implements BlockInterface
         );
     }
 
-    public function getTitle(){
+    public function getTitle()
+    {
         return $this->getBmzData()['title'];
     }
 
-    public function getProducts(){
+    public function getProducts()
+    {
         return $this->getBmzData()['items'];
     }
 
-    public function _beforeToHtml(){
+    public function _beforeToHtml()
+    {
         $skus = [];
         $clickEvents = [];
-        foreach($this->getProducts() as $item){
+        foreach ($this->getProducts() as $item) {
             $skus[] = $item['Sku'];
             $clickEvents[$item['Id']] = $item['ClickEvt'];
         }
@@ -53,7 +56,8 @@ class ProductRecommender extends Template implements BlockInterface
             ->toHtml();
     }
 
-    public function getProductList(){
+    public function getProductList()
+    {
         return $this->productListHtml;
     }
 }

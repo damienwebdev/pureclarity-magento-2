@@ -27,7 +27,8 @@ class Pcadminbutton extends Field
         return parent::render($element);
     }
 
-    public function getAdminUrl(){
+    public function getAdminUrl()
+    {
         return $this->coreHelper->getAdminUrl();
     }
 
@@ -37,10 +38,10 @@ class Pcadminbutton extends Field
      * @param  AbstractElement $element
      * @return string
      */
-     protected function _getElementHtml(AbstractElement $element)
-     {
-         return $this->_toHtml();
-     }
+    protected function _getElementHtml(AbstractElement $element)
+    {
+        return $this->_toHtml();
+    }
 
     /**
      * Generate button html
@@ -50,11 +51,11 @@ class Pcadminbutton extends Field
     public function getButtonHtml()
     {
         $button = $this->getLayout()->createBlock('Magento\Backend\Block\Widget\Button')
-            ->setData(array(
+            ->setData([
                 'id' => 'PC_Admin',
                 'label' => "Go to admin",
                 'onclick' => 'javascript:pureclarity_magento_go_to_admin(); return false;'
-            ));
+            ]);
 
         return $button->toHtml();
     }

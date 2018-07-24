@@ -40,42 +40,44 @@ class Result extends \Magento\CatalogSearch\Block\Result
         );
     }
 
-    public function _beforeToHtml(){
+    public function _beforeToHtml()
+    {
         
 
-        if ($this->coreHelper->isSearchActive() && $this->coreHelper->isServerSide()){
+        if ($this->coreHelper->isSearchActive() && $this->coreHelper->isServerSide()) {
             $this->setTemplate($this->coreHelper->getResultTemplate());
         }
             
         return parent::_beforeToHtml();
     }
 
-    public function showNoResultRecommenders(){
+    public function showNoResultRecommenders()
+    {
         
         $searchResult = $this->pureClarityService->getSearchResult();
 
-        if ($searchResult && 
-            $searchResult['zeroResults'] && 
+        if ($searchResult &&
+            $searchResult['zeroResults'] &&
             array_key_exists('recommenders', $searchResult) &&
-            sizeof($searchResult['recommenders']) > 0){
+            sizeof($searchResult['recommenders']) > 0) {
             return true;
         }
         return false;
     }
 
-    public function getNoResultsRecommendersHtml(){
+    public function getNoResultsRecommendersHtml()
+    {
         
         $searchResult = $this->pureClarityService->getSearchResult();
 
         $html = "";
 
-        if ($this->showNoResultRecommenders()){
-
+        if ($this->showNoResultRecommenders()) {
             $count = 1;
-            foreach($searchResult['recommenders'] as $recommender){
+            foreach ($searchResult['recommenders'] as $recommender) {
                 $skus = [];
                 $clickEvents = [];
-                foreach($recommender['items'] as $item){
+                foreach ($recommender['items'] as $item) {
                     $skus[] = $item['Sku'];
                     $clickEvents[$item['Id']] = $this->getPureClarityClickEvent($item['Id']);
                 }
@@ -98,5 +100,4 @@ class Result extends \Magento\CatalogSearch\Block\Result
             return $html;
         }
     }
-
 }

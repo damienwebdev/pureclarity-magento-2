@@ -31,9 +31,10 @@ class Datafeedbutton extends Field
         return parent::render($element);
     }
 
-    public function getStores($withDefault = false, $codeKey = false){
+    public function getStores($withDefault = false, $codeKey = false)
+    {
         $stores=[];
-        foreach($this->storeManagerInterface->getStores() as $store){
+        foreach ($this->storeManagerInterface->getStores() as $store) {
             $stores[] = [
                 "id" => $store->getId(),
                 "website" => $store->getWebsite()->getName(),
@@ -83,10 +84,10 @@ class Datafeedbutton extends Field
     public function getButtonHtml()
     {
         $button = $this->getLayout()->createBlock('Magento\Backend\Block\Widget\Button')
-            ->setData(array(
+            ->setData([
                 'id' => 'pc-feedpopupbutton',
                 'label' => 'Data Feed'
-            ));
+            ]);
 
         return $button->toHtml();
     }

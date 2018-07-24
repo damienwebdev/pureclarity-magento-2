@@ -29,10 +29,9 @@ class Progress extends \Magento\Backend\App\Action
         $contents = "";
         $storeId =  (int)$this->getRequest()->getParam('storeid');
         $progressFileName = $this->coreHelper->getProgressFileName("all");
-        if ($progressFileName != null && file_exists($progressFileName)){
+        if ($progressFileName != null && file_exists($progressFileName)) {
             $contents = file_get_contents($progressFileName);
         }
         return $this->resultJsonFactory->create()->setData(json_decode($contents));
     }
-
 }

@@ -19,19 +19,19 @@ class Category implements \Magento\Framework\Indexer\ActionInterface, \Magento\F
         $this->productFeedFactory = $productFeedFactory;
     }
 
-    public function execute($productIds){
+    public function execute($productIds)
+    {
 
         $deltaProduct = $this->productFeedFactory->create();
 
         $deltaProduct->setData(
-            array(
+            [
                 'product_id'    => -1,
                 'token'         => 'category',
                 'status_id'     => 0
-            )
+            ]
         );
         $deltaProduct->save();
-        
     }
 
 
@@ -49,5 +49,4 @@ class Category implements \Magento\Framework\Indexer\ActionInterface, \Magento\F
     {
         $this->execute([$id]);
     }
-
 }

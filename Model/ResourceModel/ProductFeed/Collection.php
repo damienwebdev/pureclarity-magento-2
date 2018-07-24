@@ -10,7 +10,8 @@ class Collection extends AbstractCollection
     public function _construct()
     {
         $this->_init(
-            'Pureclarity\Core\Model\ProductFeed', 
-            'Pureclarity\Core\Model\ResourceModel\ProductFeed');
+            'Pureclarity\Core\Model\ProductFeed',
+            'Pureclarity\Core\Model\ResourceModel\ProductFeed'
+        );
     }
 }

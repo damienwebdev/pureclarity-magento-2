@@ -13,12 +13,13 @@ define([
             this._super();
             this.data = customerData.get('cart-update');
 
-            this.renderTrackingEvents = ko.computed(function(){
-                if (pcjs.sectionUpdated(self.data()['data_id'], 'cart-update')){
-                    if (self.data().items.length == 0)
+            this.renderTrackingEvents = ko.computed(function () {
+                if (pcjs.sectionUpdated(self.data()['data_id'], 'cart-update')) {
+                    if (self.data().items.length == 0) {
                         pcjs.push("set_basket", {cart_empty: true});
-                    else
-                        pcjs.push("set_basket", self.data().items);
+                    } else {
+                        pcjs.push("set_basket", self.data().items); 
+                    }
                     return true;
                 }
                 return false;

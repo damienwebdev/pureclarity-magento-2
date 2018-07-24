@@ -1,4 +1,4 @@
-<?php 
+<?php
 
 namespace Pureclarity\Core\Model;
 
@@ -22,7 +22,8 @@ use Magento\Framework\Search\Adapter\Mysql\ScoreBuilder;
 use Magento\Framework\Search\Adapter\Mysql\ConditionManager;
 use Magento\Framework\Search\Adapter\Mysql\TemporaryStorageFactory;
 
-class Mapper extends \Magento\Framework\Search\Adapter\Mysql\Mapper {
+class Mapper extends \Magento\Framework\Search\Adapter\Mysql\Mapper
+{
 
     private $indexProviders;
     private $queryContainerFactory;

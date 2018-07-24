@@ -45,9 +45,9 @@ class Image extends \Magento\Eav\Model\Entity\Attribute\Backend\AbstractBackend
                         // don't update
                     }
                 }
-            }
-            else
+            } else {
                 $object->setData($attrCode, '');
+            }
         }
  
         return $this;

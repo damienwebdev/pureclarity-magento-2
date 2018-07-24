@@ -13,17 +13,17 @@ class Observer implements ObserverInterface
     public function __construct(
         \Psr\Log\LoggerInterface $logger,
         \Pureclarity\Core\Helper\Data $coreHelper,
-        \Pureclarity\Core\Helper\Service $service)
-    {
+        \Pureclarity\Core\Helper\Service $service
+    ) {
+    
         $this->logger = $logger;
         $this->service = $service;
         $this->coreHelper = $coreHelper;
-        
     }
 
     public function execute(\Magento\Framework\Event\Observer $observer)
     {
-        if ($this->coreHelper->isSearchActive()){
+        if ($this->coreHelper->isSearchActive()) {
             $observer->getLayout()->getUpdate()->addHandle('pureclarity_autocomplete_handle');
         }
 

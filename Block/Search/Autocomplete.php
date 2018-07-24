@@ -2,7 +2,8 @@
 
 namespace Pureclarity\Core\Block\Search;
 
-class ListProduct extends \Magento\Framework\View\Element\Template {
+class ListProduct extends \Magento\Framework\View\Element\Template
+{
     
     protected $coreHelper;
     protected $logger;
@@ -21,12 +22,12 @@ class ListProduct extends \Magento\Framework\View\Element\Template {
         );
     }
 
-    public function _beforeToHtml(){
-        if ($this->coreHelper->isSearchActive() ){
+    public function _beforeToHtml()
+    {
+        if ($this->coreHelper->isSearchActive()) {
             $this->setTemplate('Pureclarity_Core::autocomplete.phtml');
         }
             
         return parent::_beforeToHtml();
     }
-
 }

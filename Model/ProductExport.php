@@ -2,18 +2,18 @@
 namespace Pureclarity\Core\Model;
 
 /**
-* PureClarity Product Export Module
-*/
+ * PureClarity Product Export Module
+ */
 class ProductExport extends \Magento\Framework\Model\AbstractModel
 {
 
     public $storeId = null;
     public $baseCurrencyCode = null;
-    public $currenciesToProcess = array();
-    public $attributesToInclude = array();
-    public $seenProductIds = array();
+    public $currenciesToProcess = [];
+    public $attributesToInclude = [];
+    public $seenProductIds = [];
     public $currentStore = null;
-    public $brandLookup = array();
+    public $brandLookup = [];
     protected $categoryCollection = [];
 
     
@@ -111,14 +111,14 @@ class ProductExport extends \Magento\Framework\Model\AbstractModel
         $this->currentStore = $this->storeStoreFactory->create()->load($this->storeId);
 
         // Set Currency list
-        $currencyModel = $this->directoryCurrencyFactory->create(); 
+        $currencyModel = $this->directoryCurrencyFactory->create();
         $this->baseCurrencyCode = $this->currentStore->getBaseCurrencyCode();
         $currencies = $this->currentStore->getAllowedCurrencies();
         $currencyRates = $currencyModel->getCurrencyRates($this->baseCurrencyCode, array_values($currencies));
         $this->currenciesToProcess[] = $this->baseCurrencyCode;
-        if ($currencyRates != null){
-            foreach($currencies as $currency){
-                if ($currency != $this->baseCurrencyCode && !empty($currencyRates[$currency])){
+        if ($currencyRates != null) {
+            foreach ($currencies as $currency) {
+                if ($currency != $this->baseCurrencyCode && !empty($currencyRates[$currency])) {
                     $this->currenciesToProcess[] = $currency;
                 }
             }
@@ -127,30 +127,30 @@ class ProductExport extends \Magento\Framework\Model\AbstractModel
         // Manage Brand
         $this->brandLookup = [];
         // If brand feed is enabled, get the brands
-        if($this->coreHelper->isBrandFeedEnabled($this->storeId)) {
+        if ($this->coreHelper->isBrandFeedEnabled($this->storeId)) {
             $feedModel = $this->coreFeedFactory->create();
             $this->brandLookup = $feedModel->BrandFeedArray($this->storeId);
         }
 
         // Get Attributes
         $attributes = $this->catalogResourceModelProductAttributeCollectionFactory->create()->getItems();
-        $attributesToExclude = array("prices", "price", "category_ids", "sku");
+        $attributesToExclude = ["prices", "price", "category_ids", "sku"];
 
         // Get list of attributes to include
-        foreach ($attributes as $attribute){
+        foreach ($attributes as $attribute) {
             $code = $attribute->getAttributecode();
             
             if (!in_array(strtolower($code), $attributesToExclude) && !empty($attribute->getFrontendLabel())) {
-                $this->attributesToInclude[] = array($code, $attribute->getFrontendLabel());
+                $this->attributesToInclude[] = [$code, $attribute->getFrontendLabel()];
             }
         }
 
-        // Get Category List 
+        // Get Category List
         $this->categoryCollection = [];
         $categoryCollection = $this->catalogResourceModelCategoryCollectionFactory->create()
                 ->addAttributeToSelect('name')
-                ->addFieldToFilter('is_active', array("in" => array('1')));
-        foreach($categoryCollection as $category){
+                ->addFieldToFilter('is_active', ["in" => ['1']]);
+        foreach ($categoryCollection as $category) {
             $this->categoryCollection[$category->getId()] = $category->getName();
         }
     }
@@ -161,15 +161,15 @@ class ProductExport extends \Magento\Framework\Model\AbstractModel
     public function getFullProductFeed($pageSize = 1000000, $currentPage = 1)
     {
         // Get product collection
-        $validVisiblity = array('in' => array(\Magento\Catalog\Model\Product\Visibility::VISIBILITY_BOTH, 
-                                              \Magento\Catalog\Model\Product\Visibility::VISIBILITY_IN_CATALOG, 
-                                              \Magento\Catalog\Model\Product\Visibility::VISIBILITY_IN_SEARCH));
+        $validVisiblity = ['in' => [\Magento\Catalog\Model\Product\Visibility::VISIBILITY_BOTH,
+                                              \Magento\Catalog\Model\Product\Visibility::VISIBILITY_IN_CATALOG,
+                                              \Magento\Catalog\Model\Product\Visibility::VISIBILITY_IN_SEARCH]];
         $products = $this->coreResourceProductCollectionFactory->create()
             ->setStoreId($this->storeId)
             ->addStoreFilter($this->storeId)
             ->addUrlRewrite()
             ->addAttributeToSelect('*')
-            ->addAttributeToFilter("status", array("eq" => \Magento\Catalog\Model\Product\Attribute\Source\Status::STATUS_ENABLED))
+            ->addAttributeToFilter("status", ["eq" => \Magento\Catalog\Model\Product\Attribute\Source\Status::STATUS_ENABLED])
             ->addFieldToFilter('visibility', $validVisiblity)
             ->setPageSize($pageSize)
             ->setCurPage($currentPage);
@@ -177,29 +177,29 @@ class ProductExport extends \Magento\Framework\Model\AbstractModel
         // Get pages
         $pages = $products->getLastPageNumber();
         if ($currentPage > $pages) {
-            $products = array();
+            $products = [];
         }
         
         // Loop through products
-        $feedProducts = array();
-        foreach($products as $product) {
+        $feedProducts = [];
+        foreach ($products as $product) {
             $data = $this->processProduct($product, count($feedProducts)+($pageSize * $currentPage)+1);
-            if ($data != null)
+            if ($data != null) {
                 $feedProducts[] = $data;
+            }
         }
         
-        return  array(
+        return  [
             "Pages" => $pages,
             "Products" => $feedProducts
-        );
+        ];
     }
 
     // Gets the data for a product.
     public function processProduct(&$product, $index)
     {
         // Check hash that we've not already seen this product
-        if(!array_key_exists($product->getId(), $this->seenProductIds) || $this->seenProductIds[$product->getId()]===null) {
-
+        if (!array_key_exists($product->getId(), $this->seenProductIds) || $this->seenProductIds[$product->getId()]===null) {
             // Set Category Ids for product
             $categoryIds = $product->getCategoryIds();
 
@@ -207,10 +207,10 @@ class ProductExport extends \Magento\Framework\Model\AbstractModel
             $categoryList = [];
             $brandId = null;
             foreach ($categoryIds as $id) {
-                if (array_key_exists($id, $this->categoryCollection)){
+                if (array_key_exists($id, $this->categoryCollection)) {
                     $categoryList[] = $this->categoryCollection[$id];
                 }
-                if (!$brandId && array_key_exists($id, $this->brandLookup)){
+                if (!$brandId && array_key_exists($id, $this->brandLookup)) {
                     $brandId = $id;
                 }
             }
@@ -221,47 +221,48 @@ class ProductExport extends \Magento\Framework\Model\AbstractModel
                 '_scope' => $this->storeId
             ];
             $productUrl = $product->setStoreId($this->storeId)->getUrlModel()->getUrl($product, $urlParams);
-            if ($productUrl){
-                $productUrl = str_replace(array("https:", "http:"), "", $productUrl);
+            if ($productUrl) {
+                $productUrl = str_replace(["https:", "http:"], "", $productUrl);
             }
 
             // Get Product Image URL
             $productImageUrl = '';
-            if($product->getImage() && $product->getImage() != 'no_selection')
+            if ($product->getImage() && $product->getImage() != 'no_selection') {
                 $productImageUrl = $this->currentStore->getBaseUrl(\Magento\Framework\UrlInterface::URL_TYPE_MEDIA)."catalog/product/".$product->getImage();
-            else 
+            } else {
                 $productImageUrl = $this->currentStore->getBaseUrl(\Magento\Framework\UrlInterface::URL_TYPE_MEDIA)."catalog/product/placeholder/". $this->currentStore->getConfig("catalog/placeholder/image_placeholder");
-            $productImageUrl = str_replace(array("https:", "http:"), "", $productImageUrl);
+            }
+            $productImageUrl = str_replace(["https:", "http:"], "", $productImageUrl);
 
         
             $this->galleryReadHandler->execute($product);
             $productImages = $product->getMediaGalleryImages();
             $allImages = [];
-            foreach($productImages as $image){
-                $allImages[] = str_replace(array("https:", "http:"), "", $image->getUrl());
+            foreach ($productImages as $image) {
+                $allImages[] = str_replace(["https:", "http:"], "", $image->getUrl());
             }
 
             // Set standard data
-            $data = array(
+            $data = [
                 "_index" => $index,
                 "Id" => $product->getId(),
                 "Sku" => $product->getSku(),
                 "Title" => $product->getName(),
-                "Description" => array(strip_tags($product->getData('description')), strip_tags($product->getShortDescription())),
+                "Description" => [strip_tags($product->getData('description')), strip_tags($product->getShortDescription())],
                 "Link" => $productUrl,
                 "Image" => $productImageUrl,
                 "Categories" => $categoryIds,
                 "MagentoCategories" => array_values(array_unique($categoryList, SORT_STRING)),
                 "MagentoProductType" => $product->getTypeId(),
-                "InStock" => $product->getExtensionAttributes ($this->catalogInventoryStockItemFactory->create()->setProduct($product)->getIsInStock() == 1) ? true : false
-            );
+                "InStock" => $product->getExtensionAttributes($this->catalogInventoryStockItemFactory->create()->setProduct($product)->getIsInStock() == 1) ? true : false
+            ];
 
-            if (sizeof($allImages) > 0){
+            if (sizeof($allImages) > 0) {
                 $data["AllImages"] = $allImages;
             }
 
             // Swatch renderer
-            if ($product->getTypeId() == \Magento\ConfigurableProduct\Model\Product\Type\Configurable::TYPE_CODE){
+            if ($product->getTypeId() == \Magento\ConfigurableProduct\Model\Product\Type\Configurable::TYPE_CODE) {
                 session_write_close();
                 $swatchBlock = $this->blockFactory
                                     ->createBlock('\Magento\Swatches\Block\Product\Renderer\Listing\Configurable')
@@ -283,51 +284,54 @@ class ProductExport extends \Magento\Framework\Model\AbstractModel
             
             // Set the visibility for PureClarity
             $visibility = $product->getVisibility();
-            if ($visibility == \Magento\Catalog\Model\Product\Visibility::VISIBILITY_IN_CATALOG){
+            if ($visibility == \Magento\Catalog\Model\Product\Visibility::VISIBILITY_IN_CATALOG) {
                 $data["ExcludeFromSearch"] = true;
-            }
-            else if ($visibility == \Magento\Catalog\Model\Product\Visibility::VISIBILITY_IN_SEARCH){
+            } elseif ($visibility == \Magento\Catalog\Model\Product\Visibility::VISIBILITY_IN_SEARCH) {
                 $data["ExcludeFromProductListing"] = true;
             }
 
             // Set Brand
-            if ($brandId){
+            if ($brandId) {
                 $data["Brand"] = $brandId;
             }
 
             // Set PureClarity Custom values
             $searchTag = $product->getData('pureclarity_search_tags');
-            if ($searchTag != null && $searchTag != '')
-                 $data["SearchTags"] = array($searchTag);
+            if ($searchTag != null && $searchTag != '') {
+                 $data["SearchTags"] = [$searchTag];
+            }
 
             $overlayImage = $product->getData('pureclarity_overlay_image');
-            if ($overlayImage != ""){
-                $overlayImage = str_replace(array("https:", "http:"), "", $overlayImage);
+            if ($overlayImage != "") {
+                $overlayImage = str_replace(["https:", "http:"], "", $overlayImage);
                 $data["ImageOverlay"] = $this->coreHelper->getPlaceholderUrl($this->currentStore) . $overlayImage;
             }
 
-            if ($product->getData('pureclarity_exc_rec') == '1')
+            if ($product->getData('pureclarity_exc_rec') == '1') {
                  $data["ExcludeFromRecommenders"] = true;
+            }
         
-            if ($product->getData('pureclarity_newarrival') == '1')
+            if ($product->getData('pureclarity_newarrival') == '1') {
                  $data["NewArrival"] = true;
+            }
             
-            if ($product->getData('pureclarity_onoffer') == '1')
+            if ($product->getData('pureclarity_onoffer') == '1') {
                  $data["OnOffer"] = true;
+            }
 
             // Add attributes
             $this->setAttributes($product, $data);
             
 
             // Look for child products in Configurable, Grouped or Bundled products
-            $childProducts = array();
+            $childProducts = [];
             switch ($product->getTypeId()) {
                 case \Magento\ConfigurableProduct\Model\Product\Type\Configurable::TYPE_CODE:
                     $childIds = $this->configurableProductProductTypeConfigurableFactory->create()->getChildrenIds($product->getId());
-                    if (count($childIds[0]) > 0){
+                    if (count($childIds[0]) > 0) {
                         $childProducts = $this->coreResourceProductCollectionFactory->create()->addAttributeToSelect('*')
-                            ->addFieldToFilter('entity_id', array('in'=> $childIds[0]));
-                    }else{
+                            ->addFieldToFilter('entity_id', ['in'=> $childIds[0]]);
+                    } else {
                         //configurable with no children - exlude from feed
                         return null;
                     }
@@ -356,8 +360,9 @@ class ProductExport extends \Magento\Framework\Model\AbstractModel
         return null;
     }
 
-    protected function childProducts($products, &$data){
-        foreach($products as $product){
+    protected function childProducts($products, &$data)
+    {
+        foreach ($products as $product) {
             $this->setProductData($product, $data);
             $this->setAttributes($product, $data);
         }
@@ -370,15 +375,17 @@ class ProductExport extends \Magento\Framework\Model\AbstractModel
         $this->addValueToDataArray($data, 'Description', strip_tags($product->getData('description')));
         $this->addValueToDataArray($data, 'Description', strip_tags($product->getShortDescription()));
         $searchTag = $product->getData('pureclarity_search_tags');
-        if ($searchTag != null && $searchTag != '')
+        if ($searchTag != null && $searchTag != '') {
             $this->addValueToDataArray($data, 'SearchTags', $searchTag);
+        }
     }
 
-    protected function addValueToDataArray(&$data, $key, $value){
+    protected function addValueToDataArray(&$data, $key, $value)
+    {
 
-        if (!array_key_exists($key,$data)){
+        if (!array_key_exists($key, $data)) {
             $data[$key][] = $value;
-        }else if ($value !== null && (!is_array($data[$key]) || !in_array($value, $data[$key]))){
+        } elseif ($value !== null && (!is_array($data[$key]) || !in_array($value, $data[$key]))) {
             $data[$key][] = $value;
         }
     }
@@ -387,32 +394,36 @@ class ProductExport extends \Magento\Framework\Model\AbstractModel
     {
         $basePrices = $this->getProductPrice($product, false, true, $childProducts);
         $baseFinalPrices = $this->getProductPrice($product, true, true, $childProducts);
-        foreach($this->currenciesToProcess as $currency){
+        foreach ($this->currenciesToProcess as $currency) {
             // Process currency for min price
             $minPrice = $this->convertCurrency($basePrices['min'], $currency);
             $this->addValueToDataArray($data, 'Prices', number_format($minPrice, 2, '.', '').' '.$currency);
             $minFinalPrice = $this->convertCurrency($baseFinalPrices['min'], $currency);
-            if ($minFinalPrice !== null && $minFinalPrice < $minPrice){
-                $this->addValueToDataArray($data, 'SalePrices', number_format($minFinalPrice, 2,'.', '').' '.$currency);
+            if ($minFinalPrice !== null && $minFinalPrice < $minPrice) {
+                $this->addValueToDataArray($data, 'SalePrices', number_format($minFinalPrice, 2, '.', '').' '.$currency);
             }
             // Process currency for max price if it's different to min price
             $maxPrice = $this->convertCurrency($basePrices['max'], $currency);
-            if ($minPrice<$maxPrice){
+            if ($minPrice<$maxPrice) {
                 $this->addValueToDataArray($data, 'Prices', number_format($maxPrice, 2, '.', '').' '.$currency);
                 $maxFinalPrice = $this->convertCurrency($baseFinalPrices['max'], $currency);
-                if ($maxFinalPrice !== null && $maxFinalPrice < $maxPrice){
-                    $this->addValueToDataArray($data, 'SalePrices', number_format($maxFinalPrice, 2,'.', '').' '.$currency);
+                if ($maxFinalPrice !== null && $maxFinalPrice < $maxPrice) {
+                    $this->addValueToDataArray($data, 'SalePrices', number_format($maxFinalPrice, 2, '.', '').' '.$currency);
                 }
             }
         }
     }
 
-     protected function convertCurrency($price, $to){
-        if ($to === $this->baseCurrencyCode) return $price;
+    protected function convertCurrency($price, $to)
+    {
+        if ($to === $this->baseCurrencyCode) {
+            return $price;
+        }
         return $this->directoryHelper->currencyConvert($price, $this->baseCurrencyCode, $to);
     }
 
-     protected function getProductPrice(\Magento\Catalog\Model\Product $product, $getFinalPrice = false, $includeTax = true, &$childProducts = null) {
+    protected function getProductPrice(\Magento\Catalog\Model\Product $product, $getFinalPrice = false, $includeTax = true, &$childProducts = null)
+    {
         $minPrice = 0;
         $maxPrice = 0;
         switch ($product->getTypeId()) {
@@ -441,19 +452,19 @@ class ProductExport extends \Magento\Framework\Model\AbstractModel
                 $price = null;
                 $lowestPrice = 0;
                 $highestPrice = 0;
-                $associatedProducts = ($childProducts !== null) ? 
-                                        $childProducts : 
+                $associatedProducts = ($childProducts !== null) ?
+                                        $childProducts :
                                         $this->configurableProductProductTypeConfigurableFactory->create()
                                         ->getUsedProducts(null, $product);
                 foreach ($associatedProducts as $associatedProduct) {
-                    if (!$associatedProduct->isDisabled()){
+                    if (!$associatedProduct->isDisabled()) {
                         $productModel = $this->catalogProductFactory->create()->load($associatedProduct->getId());
                         $variationPrices = $this->getProductPrice($productModel, $getFinalPrice, true);
                         
                         if ($lowestPrice == 0 || $variationPrices['min'] < $lowestPrice) {
                             $lowestPrice = $variationPrices['min'];
                         }
-                        if ($highestPrice == 0 || $variationPrices['max'] > $highestPrice){
+                        if ($highestPrice == 0 || $variationPrices['max'] > $highestPrice) {
                             $highestPrice = $variationPrices['max'];
                         }
                     }
@@ -463,14 +474,14 @@ class ProductExport extends \Magento\Framework\Model\AbstractModel
                 $maxPrice = $highestPrice;
                 break;
             default:
-                $minPrice = $this->getDefaultFromProduct($product,$getFinalPrice,$includeTax);
+                $minPrice = $this->getDefaultFromProduct($product, $getFinalPrice, $includeTax);
                 $maxPrice = $minPrice;
                 break;
         }
-        return array('min' => $minPrice, 'max' => $maxPrice);
+        return ['min' => $minPrice, 'max' => $maxPrice];
     }
 
-    protected function getDefaultFromProduct(\Magento\Catalog\Model\Product $product, $getFinalPrice = false, $includeTax = true) 
+    protected function getDefaultFromProduct(\Magento\Catalog\Model\Product $product, $getFinalPrice = false, $includeTax = true)
     {
         $price = $getFinalPrice ? $product->getPriceInfo()->getPrice('final_price')->getValue() : $product->getPrice();
         if ($includeTax) {
@@ -481,25 +492,23 @@ class ProductExport extends \Magento\Framework\Model\AbstractModel
 
 
     protected function setAttributes(\Magento\Catalog\Model\Product $product, &$data)
-    {  
+    {
         foreach ($this->attributesToInclude as $attribute) {
             $code = $attribute[0];
             $name = $attribute[1];
             if ($product->getData($code) != null) {
-                try{
+                try {
                     $attrValue = $product->getAttributeText($code);
-                }
-                catch (\Exception $e){
+                } catch (\Exception $e) {
                     // Unable to read attribute text
                     continue;
                 }
-                if (!empty($attrValue)){
-                    if (is_array($attrValue)){
-                        foreach($attrValue as $value){
+                if (!empty($attrValue)) {
+                    if (is_array($attrValue)) {
+                        foreach ($attrValue as $value) {
                             $this->addValueToDataArray($data, $name, $value);
                         }
-                    }
-                    else {
+                    } else {
                         $this->addValueToDataArray($data, $name, $attrValue);
                     }
                 }
@@ -520,8 +529,4 @@ class ProductExport extends \Magento\Framework\Model\AbstractModel
 
         return $price;
     }
-
-
 }
-
-

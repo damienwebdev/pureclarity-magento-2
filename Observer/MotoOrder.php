@@ -1,10 +1,11 @@
-<?php 
+<?php
 namespace Pureclarity\Core\Observer;
 
 use Magento\Framework\Event\ObserverInterface;
 use Magento\Framework\Event\Observer as EventObserver;
 
-class MotoOrder implements ObserverInterface {
+class MotoOrder implements ObserverInterface
+{
 
     protected $logger;
     protected $coreHelper;
@@ -23,18 +24,18 @@ class MotoOrder implements ObserverInterface {
         $this->salesOrder = $salesOrder;
     }
 
-    public function execute(EventObserver $observer){
+    public function execute(EventObserver $observer)
+    {
 
         $observerOrder = $observer->getEvent()->getOrder();
 
-        if(!$this->coreHelper->isActive($observerOrder->getStoreId()))
+        if (!$this->coreHelper->isActive($observerOrder->getStoreId())) {
             return;
+        }
 
-        $motoOrder = $this->salesOrder->loadByIncrementIdAndStoreId($observerOrder->getIncrementId(), $observerOrder->getStoreId());        
+        $motoOrder = $this->salesOrder->loadByIncrementIdAndStoreId($observerOrder->getIncrementId(), $observerOrder->getStoreId());
 
         $this->service->addTrackingEvent('moto_order_track', $this->coreHelper->getOrderForTracking($motoOrder));
         $this->service->dispatch(true);
-
     }
-
 }

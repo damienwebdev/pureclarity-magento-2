@@ -56,14 +56,15 @@ class Feed extends \Magento\Framework\Model\AbstractModel
 
 
     // Process the product feed and update the progress file, in page sizes of 20 (or other if overriden)
-    function ProductFeed($storeId, $progressFileName, $feedFile, $doNdjson, $pageSize = 20){
+    function ProductFeed($storeId, $progressFileName, $feedFile, $doNdjson, $pageSize = 20)
+    {
         
         $productExportModel = $this->coreProductExportFactory->create();
         $productExportModel->init($storeId);
 
         $currentPage = 0;
         $pages = 0;
-        $feedProducts = array();
+        $feedProducts = [];
         $this->coreHelper->setProgressFile($progressFileName, 'product', 0, 1);
 
         $isFirst = true;
@@ -74,8 +75,9 @@ class Feed extends \Magento\Framework\Model\AbstractModel
         
             $json = "";
             foreach ($result["Products"] as $product) {
-                if ($isFirst == false && !$doNdjson)
+                if ($isFirst == false && !$doNdjson) {
                     $json .= ',';
+                }
                 $isFirst=false;
                 $json .= $this->coreHelper->formatFeed($product, 'json') . ($doNdjson?PHP_EOL:'');
             }
@@ -92,7 +94,8 @@ class Feed extends \Magento\Framework\Model\AbstractModel
 
 
     // Process the Order History feed
-    function OrderFeed($storeId, $progressFileName, $orderFilePath){
+    function OrderFeed($storeId, $progressFileName, $orderFilePath)
+    {
         
         // Open the file
         $orderFile = @fopen($orderFilePath, "w+");
@@ -100,8 +103,9 @@ class Feed extends \Magento\Framework\Model\AbstractModel
         // Write the header
         fwrite($orderFile, "OrderId,UserId,Email,DateTimeStamp,ProdCode,Quantity,UnityPrice,LinePrice".PHP_EOL);
         
-        if ((!$orderFile) || !flock($orderFile, LOCK_EX | LOCK_NB))
+        if ((!$orderFile) || !flock($orderFile, LOCK_EX | LOCK_NB)) {
             throw new \Exception("Pureclarity: Cannot open orders feed file for writing (try deleting): " . $file);
+        }
         
         // Get the collection
         $fromDate = date('Y-m-d H:i:s', strtotime("-6 month"));
@@ -110,13 +114,13 @@ class Feed extends \Magento\Framework\Model\AbstractModel
         $orderCollection = $objectManager->get('Magento\Sales\Model\Order')
             ->getCollection()
             ->addAttributeToFilter('store_id', $storeId)
-            ->addAttributeToFilter('created_at', array('from'=>$fromDate, 'to'=>$toDate));
+            ->addAttributeToFilter('created_at', ['from'=>$fromDate, 'to'=>$toDate]);
             // ->addAttributeToFilter('status', array('eq' => \Magento\Sales\Model\Order::STATE_COMPLETE));
             
 
         // Set size and initiate vars
         $maxProgress = count($orderCollection);
-        $currentProgress = 0; 
+        $currentProgress = 0;
         $counter = 0;
         $data = "";
         
@@ -124,23 +128,23 @@ class Feed extends \Magento\Framework\Model\AbstractModel
         $this->coreHelper->setProgressFile($progressFileName, 'orders', 0, 1);
         
         // Build Data
-        foreach($orderCollection as $orderData){
-
+        foreach ($orderCollection as $orderData) {
             $order = $objectManager->create('Magento\Sales\Model\Order')->loadByIncrementId($orderData->getIncrementId());
-            if ($order){
+            if ($order) {
                 $id = $order->getIncrementId();
                 $customerId = $order->getCustomerId();
                 $email = $order->getCutomerEmail();
                 $date = $order->getCreatedAt();
                 
                 $orderItems = $orderData->getAllVisibleItems();
-                foreach($orderItems as $item){
+                foreach ($orderItems as $item) {
                     $productId = $item->getProductId();
                     $quantity = $item->getQtyOrdered();
                     $price = $item->getPriceInclTax();
                     $linePrice = $item->getRowTotalInclTax();
-                    if ($price > 0 && $linePrice>0)
+                    if ($price > 0 && $linePrice>0) {
                         $data .= "$id,$customerId,$email,$date,$productId,$quantity,$price,$linePrice" . PHP_EOL;
+                    }
                 }
                 $counter += 1;
             }
@@ -148,7 +152,7 @@ class Feed extends \Magento\Framework\Model\AbstractModel
             // Incremement counters
             $currentProgress += 1;
 
-            if ($counter >= 10){
+            if ($counter >= 10) {
                 // Every 10, write to the file.
                 fwrite($orderFile, $data);
                 $data = "";
@@ -160,12 +164,13 @@ class Feed extends \Magento\Framework\Model\AbstractModel
         // Final write
         fwrite($orderFile, $data);
         fclose($orderFile);
-        $this->coreHelper->setProgressFile($progressFileName, 'orders', 1, 1);        
+        $this->coreHelper->setProgressFile($progressFileName, 'orders', 1, 1);
     }
 
 
 
-    function CategoryFeed($progressFileName, $storeId, $doNdjson) {
+    function CategoryFeed($progressFileName, $storeId, $doNdjson)
+    {
 
         $feedCategories = "";
         $currentStore = $this->storeStoreFactory->create()->load($storeId);
@@ -175,21 +180,20 @@ class Feed extends \Magento\Framework\Model\AbstractModel
             ->addAttributeToSelect('is_active')
             ->addAttributeToSelect('image')
             ->addAttributeToSelect('pureclarity_hide_from_feed')
-            ->addUrlRewriteToResult();        
+            ->addUrlRewriteToResult();
 
         $maxProgress = count($categoryCollection);
-        $currentProgress = 0;   
+        $currentProgress = 0;
         $isFirst = true;
         foreach ($categoryCollection as $category) {
-            
             // Get image
             $firstImage = $category->getImageUrl();
-            if($firstImage != "") {
+            if ($firstImage != "") {
                 $imageURL = $firstImage;
             } else {
                 $imageURL = $this->coreHelper->getCategoryPlaceholderUrl($storeId);
             }
-            $imageURL = str_replace(array("https:", "http:"), "", $imageURL);
+            $imageURL = str_replace(["https:", "http:"], "", $imageURL);
             
             
             // Get Second Image
@@ -200,46 +204,47 @@ class Feed extends \Magento\Framework\Model\AbstractModel
             } else {
                 $imageURL2 = $this->coreHelper->getSecondaryCategoryPlaceholderUrl($storeId);
             }
-            $imageURL2 = str_replace(array("https:", "http:"), "", $imageURL2);
+            $imageURL2 = str_replace(["https:", "http:"], "", $imageURL2);
             
-            if (!$category->getName()){
+            if (!$category->getName()) {
                 continue;
             }
             // Build Data
-            $categoryData = array(
+            $categoryData = [
                 "Id" => $category->getId(),
                 "DisplayName" => $category->getName(),
                 "Image" => $imageURL,
                 "Link" => "/"
-            );
+            ];
 
             // Set URL and Parent ID
-            if ($category->getLevel() > 1){
+            if ($category->getLevel() > 1) {
                 $categoryUrl = str_replace($currentStore->getBaseUrl(), '', $category->getUrl($category));
                 if (substr($categoryUrl, 0, 1) != '/') {
                     $categoryUrl = '/' . $categoryUrl;
                 }
                 $categoryData["Link"] = $categoryUrl;
-                $categoryData["ParentIds"] = array($category->getParentCategory()->getId());
+                $categoryData["ParentIds"] = [$category->getParentCategory()->getId()];
             }
             
             
             // Check if to ignore this category in recommenders
-            if ($category->getData('pureclarity_hide_from_feed') == '1'){
+            if ($category->getData('pureclarity_hide_from_feed') == '1') {
                  $categoryData["ExcludeFromRecommenders"] = true;
             }
 
             //Check if category is active
-            if (!$category->getIsActive()){
+            if (!$category->getIsActive()) {
                  $categoryData["IsActive"] = false;
             }
 
-            if ($imageURL2 != null){
+            if ($imageURL2 != null) {
                 $categoryData["PCImage"] = $imageURL2;
             }
             
-            if (!$isFirst && !$doNdjson)
+            if (!$isFirst && !$doNdjson) {
                 $feedCategories .= ',';
+            }
             $isFirst = false;
 
             $feedCategories .= $this->coreHelper->formatFeed($categoryData, 'json') . ($doNdjson?PHP_EOL:'');
@@ -252,12 +257,13 @@ class Feed extends \Magento\Framework\Model\AbstractModel
 
 
 
-    function BrandFeed($progressFileName, $storeId, $doNdjson){
+    function BrandFeed($progressFileName, $storeId, $doNdjson)
+    {
         
         $feedBrands = [];
         $brandCategoryId = $this->coreHelper->getBrandParentCategory($storeId);
         
-        if ($brandCategoryId && $brandCategoryId != "-1"){
+        if ($brandCategoryId && $brandCategoryId != "-1") {
             $category = $this->categoryRepository->get($brandCategoryId);
             
             $subcategories = $this->catalogResourceModelCategoryCollectionFactory->create()
@@ -269,20 +275,21 @@ class Feed extends \Magento\Framework\Model\AbstractModel
             $feedBrands = "";
             $currentProgress = 0;
             $isFirst = true;
-            foreach($subcategories as $subcategory) {
-                $thisBrand = array(
+            foreach ($subcategories as $subcategory) {
+                $thisBrand = [
                     "Id" => $subcategory->getId(),
                     "DisplayName" =>  $subcategory->getName()
-                );
+                ];
                 
                 $imageURL = $subcategory->getImageUrl();
-                if ($imageURL){
-                    $imageURL = str_replace(array("https:", "http:"), "", $imageURL);
+                if ($imageURL) {
+                    $imageURL = str_replace(["https:", "http:"], "", $imageURL);
                     $thisBrand['Image'] = $imageURL;
                 }
 
-                if (!$isFirst && !$doNdjson)
+                if (!$isFirst && !$doNdjson) {
                     $feedBrands .= ',';
+                }
                 $isFirst = false;
                 $feedBrands .= $this->coreHelper->formatFeed($thisBrand, 'json') . ($doNdjson?PHP_EOL:'');
                 $currentProgress += 1;
@@ -293,26 +300,24 @@ class Feed extends \Magento\Framework\Model\AbstractModel
 
         $this->coreHelper->setProgressFile($progressFileName, 'brand', 1, 1);
         return "";
-        
     }
 
-    function BrandFeedArray($storeId){
+    function BrandFeedArray($storeId)
+    {
 
-        $feedBrands = array();
-        $brandCategoryId = $this->coreHelper->getBrandParentCategory($storeId);        
+        $feedBrands = [];
+        $brandCategoryId = $this->coreHelper->getBrandParentCategory($storeId);
         
-        if ($brandCategoryId && $brandCategoryId != "-1"){
-            
+        if ($brandCategoryId && $brandCategoryId != "-1") {
             $category = $this->categoryRepository->get($brandCategoryId);
             $subcategories = $category->getChildrenCategories();
             $maxProgress = count($subcategories);
             $currentProgress = 0;
             $isFirst = true;
-            foreach($subcategories as $subcategory) {
+            foreach ($subcategories as $subcategory) {
                 $feedBrands[$subcategory->getId()] = $subcategory->getName();
             }
             return $feedBrands;
-
         }
         return [];
     }
@@ -320,67 +325,70 @@ class Feed extends \Magento\Framework\Model\AbstractModel
 
 
 
-    function UserFeed($progressFileName, $storeId, $doNdjson){
+    function UserFeed($progressFileName, $storeId, $doNdjson)
+    {
 
         $customerGroups = $this->customerGroup->toOptionArray();
         
         $users = "";
         $currentStore = $this->storeStoreFactory->create()->load($storeId);
         $customerCollection = $this->customerFactory->create()->getCollection()
-            ->addAttributeToFilter("website_id", array("eq" => $currentStore->getWebsiteId()))
+            ->addAttributeToFilter("website_id", ["eq" => $currentStore->getWebsiteId()])
             ->addAttributeToSelect("*")
             ->load();
 
         $maxProgress = count($customerCollection);
-        $currentProgress = 0;   
+        $currentProgress = 0;
         $isFirst = true;
         foreach ($customerCollection as $customer) {
-
             $data = [
                 'UserId' => $customer->getId(),
                 'Email' => $customer->getEmail(),
                 'FirstName' => $customer->getFirstname(),
                 'LastName' => $customer->getLastname()
             ];
-            if ($customer->getPrefix()){
+            if ($customer->getPrefix()) {
                 $data['Salutation'] = $customer->getPrefix();
             }
-            if ($customer->getDob()){
+            if ($customer->getDob()) {
                 $data['DOB'] = $customer->getDob();
             }
-            if ($customer->getGroupId() && $customerGroups[$customer->getGroupId()]){
+            if ($customer->getGroupId() && $customerGroups[$customer->getGroupId()]) {
                 $data['Group'] = $customerGroups[$customer->getGroupId()]['label'];
                 $data['GroupId'] = $customer->getGroupId();
             }
-            if ($customer->getGender()){
-                switch($customer->getGender()){
+            if ($customer->getGender()) {
+                switch ($customer->getGender()) {
                     case 1: // Male
                         $data['Gender'] = 'M';
-                    break;
+                        break;
                     case 2: // Female
                         $data['Gender'] = 'F';
-                    break;
+                        break;
                 }
             }
 
             $address = null;
-            if ($customer->getDefaultShipping()){
+            if ($customer->getDefaultShipping()) {
                 $address = $customer->getAddresses()[$customer->getDefaultShipping()];
-            }
-            else if ($customer->getAddresses() && sizeof(array_keys($customer->getAddresses())) > 0) {
+            } elseif ($customer->getAddresses() && sizeof(array_keys($customer->getAddresses())) > 0) {
                 $address = $customer->getAddresses()[array_keys($customer->getAddresses())[0]];
             }
-            if ($address){
-                if ($address->getCity())
+            if ($address) {
+                if ($address->getCity()) {
                     $data['City'] = $address->getCity();
-                if ($address->getRegion())
+                }
+                if ($address->getRegion()) {
                     $data['State'] = $address->getRegion();
-                if ($address->getCountry())
+                }
+                if ($address->getCountry()) {
                     $data['Country'] = $address->getCountry();
+                }
             }
 
-            if (!$isFirst && !$doNdjson)
+            if (!$isFirst && !$doNdjson) {
                 $users .= ',';
+            }
             $isFirst = false;
 
             $users .= $this->coreHelper->formatFeed($data, 'json') . ($doNdjson?PHP_EOL:'');

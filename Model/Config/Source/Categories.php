@@ -40,7 +40,7 @@ class Categories implements \Magento\Framework\Option\ArrayInterface
             foreach ($website->getGroups() as $group) {
                 $stores = $group->getStores();
                 foreach ($stores as $store) {
-                    if (!in_array($store->getRootCategoryId(), $rootCategories)){
+                    if (!in_array($store->getRootCategoryId(), $rootCategories)) {
                         $rootCategories[] = $store->getRootCategoryId();
                         $this->GetSubGategories($store->getRootCategoryId());
                     }
@@ -49,7 +49,8 @@ class Categories implements \Magento\Framework\Option\ArrayInterface
         }
     }
 
-    function GetSubGategories($id, $prefix = '') {
+    function GetSubGategories($id, $prefix = '')
+    {
 
         $category = $this->categoryRepository->get($id);
         $label = $prefix . $category->getName();
@@ -58,7 +59,7 @@ class Categories implements \Magento\Framework\Option\ArrayInterface
             "label" => $label
         ];
         $subcategories = $category->getChildrenCategories();
-        foreach($subcategories as $subcategory) {
+        foreach ($subcategories as $subcategory) {
             $this->GetSubGategories($subcategory->getId(), $label . ' -> ');
         }
     }
@@ -68,5 +69,4 @@ class Categories implements \Magento\Framework\Option\ArrayInterface
         $this->buildCategories();
         return $this->categories;
     }
-
 }

@@ -20,26 +20,25 @@ class Cart implements \Magento\Customer\CustomerData\SectionSourceInterface
     
     public function getSectionData()
     {
-        $items = array();
+        $items = [];
         $visibleItems = $this->cart->getQuote()->getAllVisibleItems();
         $allItems = $this->cart->getQuote()->getAllItems();
-        foreach($visibleItems as $item){
-            $items[$item->getItemId()] = array("id" => $item->getProductId(), "qty" => $item->getQty(), "refid" => $item->getItemId(), "children" => array());
+        foreach ($visibleItems as $item) {
+            $items[$item->getItemId()] = ["id" => $item->getProductId(), "qty" => $item->getQty(), "refid" => $item->getItemId(), "children" => []];
         }
-        foreach($allItems as $item){
-            if ($item->getParentItemId() && $items[$item->getParentItemId()]){
-                $items[$item->getParentItemId()]['children'][] = array("sku" => $item->getSku(), "qty" => $item->getQty());
+        foreach ($allItems as $item) {
+            if ($item->getParentItemId() && $items[$item->getParentItemId()]) {
+                $items[$item->getParentItemId()]['children'][] = ["sku" => $item->getSku(), "qty" => $item->getQty()];
             }
         }
 
         $data = [
             "items" => []
         ];
-        foreach($items as $item){
+        foreach ($items as $item) {
             $data['items'][] = $item;
         }
 
         return $data;
     }
-
 }

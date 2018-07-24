@@ -8,9 +8,11 @@ use Magento\Framework\Setup\SchemaSetupInterface;
 use Magento\Framework\DB\Adapter\AdapterInterface;
 use Magento\Framework\DB\Ddl\Table;
 
-class InstallSchema implements InstallSchemaInterface {
+class InstallSchema implements InstallSchemaInterface
+{
 
-    public function install( SchemaSetupInterface $setup, ModuleContextInterface $context ) {
+    public function install(SchemaSetupInterface $setup, ModuleContextInterface $context)
+    {
         $installer = $setup;
 
         $installer->startSetup();
@@ -46,10 +48,12 @@ class InstallSchema implements InstallSchemaInterface {
                 'nullable' => true
             ], 'Message')
             ->addIndex(
-                $installer->getIdxName($table, ['token']), ['token']
+                $installer->getIdxName($table, ['token']),
+                ['token']
             )
             ->addIndex(
-                $installer->getIdxName($table, ['status_id']), ['status_id']
+                $installer->getIdxName($table, ['status_id']),
+                ['status_id']
             )
             ->setComment('PureClarity Delta Table');
 

@@ -1,10 +1,12 @@
 define(['jquery', 'Magento_Swatches/js/swatch-renderer', 'priceBox'], function ($, SwatchRenderer, priceBox) {
 
     // Before initialise, check we're active
-    if (!pureclarityConfig.state.isActive) return;
+    if (!pureclarityConfig.state.isActive) {
+        return; 
+    }
 
     // If search or category page prepare elements
-    if (pureclarityConfig.search.isClientSearch && pureclarityConfig.search.DOMSelector != ""){
+    if (pureclarityConfig.search.isClientSearch && pureclarityConfig.search.DOMSelector != "") {
         var pcContainer = document.createElement('div');
         var wrapper = document.createElement('div');
         $(wrapper).addClass('pureclarity-wrapper');
@@ -47,57 +49,53 @@ define(['jquery', 'Magento_Swatches/js/swatch-renderer', 'priceBox'], function (
                 enc1 = this._keyStr.indexOf(input.charAt(i++));
                 enc2 = this._keyStr.indexOf(input.charAt(i++));
                 enc3 = this._keyStr.indexOf(input.charAt(i++));
-                enc4 = this._keyStr.indexOf(input.charAt(i++)); 
+                enc4 = this._keyStr.indexOf(input.charAt(i++));
                 chr1 = (enc1 << 2) | (enc2 >> 4);
                 chr2 = ((enc2 & 15) << 4) | (enc3 >> 2);
-                chr3 = ((enc3 & 3) << 6) | enc4; 
-                output = output + String.fromCharCode(chr1); 
+                chr3 = ((enc3 & 3) << 6) | enc4;
+                output = output + String.fromCharCode(chr1);
                 if (enc3 != 64) {
                     output = output + String.fromCharCode(chr2);
                 }
                 if (enc4 != 64) {
                     output = output + String.fromCharCode(chr3);
-                } 
-            } 
-            output = Base64._utf8_decode(output); 
-            return output; 
-        }, 
+                }
+            }
+            output = Base64._utf8_decode(output);
+            return output;
+        },
         _utf8_encode : function (string) {
             string = string.replace(/\r\n/g,"\n");
-            var utftext = ""; 
-            for (var n = 0; n < string.length; n++) { 
-                var c = string.charCodeAt(n); 
+            var utftext = "";
+            for (var n = 0; n < string.length; n++) {
+                var c = string.charCodeAt(n);
                 if (c < 128) {
                     utftext += String.fromCharCode(c);
-                }
-                else if((c > 127) && (c < 2048)) {
+                } else if ((c > 127) && (c < 2048)) {
                     utftext += String.fromCharCode((c >> 6) | 192);
                     utftext += String.fromCharCode((c & 63) | 128);
-                }
-                else {
+                } else {
                     utftext += String.fromCharCode((c >> 12) | 224);
                     utftext += String.fromCharCode(((c >> 6) & 63) | 128);
                     utftext += String.fromCharCode((c & 63) | 128);
-                } 
-            } 
+                }
+            }
             return utftext;
-        }, 
+        },
         _utf8_decode : function (utftext) {
             var string = "";
             var i = 0;
-            var c = c1 = c2 = 0; 
-            while ( i < utftext.length ) { 
-                c = utftext.charCodeAt(i); 
+            var c = c1 = c2 = 0;
+            while (i < utftext.length ) {
+                c = utftext.charCodeAt(i);
                 if (c < 128) {
                     string += String.fromCharCode(c);
                     i++;
-                }
-                else if((c > 191) && (c < 224)) {
+                } else if ((c > 191) && (c < 224)) {
                     c2 = utftext.charCodeAt(i+1);
                     string += String.fromCharCode(((c & 31) << 6) | (c2 & 63));
                     i += 2;
-                }
-                else {
+                } else {
                     c2 = utftext.charCodeAt(i+1);
                     c3 = utftext.charCodeAt(i+2);
                     string += String.fromCharCode(((c & 15) << 12) | ((c2 & 63) << 6) | (c3 & 63));
@@ -108,20 +106,27 @@ define(['jquery', 'Magento_Swatches/js/swatch-renderer', 'priceBox'], function (
         }
     }
 
-    var stringify = function(obj) {
+    var stringify = function (obj) {
         var t = typeof (obj);
         if (t != "object" || obj === null) {
-            if (t == "string") obj = '"' + obj + '"';
+            if (t == "string") {
+                obj = '"' + obj + '"'; 
+            }
             return String(obj);
         } else {
-            if (JSON)
-                return JSON.stringify(obj);
+            if (JSON) {
+                return JSON.stringify(obj); 
+            }
             var n, v, json = [], arr = (obj && obj.constructor == Array);
             for (n in obj) {
                 v = obj[n];
                 t = typeof(v);
                 if (obj.hasOwnProperty(n)) {
-                    if (t == "string") v = '"' + v + '"'; else if (t == "object" && v !== null) v = $.stringify(v);
+                    if (t == "string") {
+                        v = '"' + v + '"'; 
+                    } else if (t == "object" && v !== null) {
+                        v = $.stringify(v); 
+                    }
                     json.push((arr ? "" : '"' + n + '":') + String(v));
                 }
             }
@@ -130,54 +135,56 @@ define(['jquery', 'Magento_Swatches/js/swatch-renderer', 'priceBox'], function (
     }
 
     // Initialise form variables
-    var inputs = $( "[name='form_key']" );
+    var inputs = $("[name='form_key']");
     pureclarityConfig.formkey = inputs.length>0?inputs[0].value:pureclarityConfig.formkey;
     var uenc = Base64.encode(document.location.href).replace(/=/g, ",").replace(/\//g, "_");
     var addToCartUrlPrefix = pureclarityConfig.baseUrl + "checkout/cart/add/uenc/" + encodeURIComponent(uenc) + "/product/";
 
     // Initialise PureClarity
-    (function(w, d, s, u, f) {
-        w['PureClarityObject'] = f;w[f] = w[f] || function() {(w[f].q = w[f].q || []).push(arguments)}
+    (function (w, d, s, u, f) {
+        w['PureClarityObject'] = f;w[f] = w[f] || function () { 
+            (w[f].q = w[f].q || []).push(arguments)
+        }
         var p = d.createElement(s), h = d.getElementsByTagName(s)[0];
         p.src = u;p.async=1;h.parentNode.insertBefore(p, h);
     })(window, document, 'script', window.pureclarityConfig.apiUrl, '_pc');
 
     // Execute tracking events
     
-    if (pureclarityConfig.state.isLogout){
+    if (pureclarityConfig.state.isLogout) {
         _pc('customer_logout');
     }
 
-    if (!pureclarityConfig.state.serversideMode){
-        _pc('currency', pureclarityConfig.currency );
+    if (!pureclarityConfig.state.serversideMode) {
+        _pc('currency', pureclarityConfig.currency);
         _pc('page_view');
         var parsedResults = false;
-        _pc('callback_event', function(type){
-            if (type == "search"){
+        _pc('callback_event', function (type) {
+            if (type == "search") {
                 var $sideBarAdditional = $(".sidebar-additional");
                 $sideBarAdditional.appendTo($("#pc-filter"));
             }
-            if (!parsedResults){
+            if (!parsedResults) {
                 parsedResults = true;
                 var items = $("[pureclarity-data-item]");
-                for(var i=0; i<items.length; i++){
+                for (var i=0; i<items.length; i++) {
                     var $item = $(items[i]);
                     var id = $item.attr("pureclarity-data-item");
                     
                     // Manage Add To Card values
                     var addToCardForms = $item.find("form[data-role='tocart-form']");
-                    if (addToCardForms.length>0){
-                        for(var f=0; f<items.length; f++){
+                    if (addToCardForms.length>0) {
+                        for (var f=0; f<items.length; f++) {
                             var $addToCartForm = $(addToCardForms[f]);
                             var addToCartUrl =  addToCartUrlPrefix + id + "/";
                             $addToCartForm.attr("action",addToCartUrl);
                             var uencInputs = $addToCartForm.find("input[name='uenc']");
-                            if (uencInputs.length>0){
+                            if (uencInputs.length>0) {
                                 var formInputUenc = Base64.encode(addToCartUrl).replace(/=/g, ",");
                                 $(uencInputs[0]).val(formInputUenc);
                             }
                             var formKeyInputs = $addToCartForm.find("input[name='form_key']");
-                            if (formKeyInputs.length>0){
+                            if (formKeyInputs.length>0) {
                                 $(formKeyInputs[0]).val(pureclarityConfig.formkey);
                             }
                         }
@@ -185,13 +192,13 @@ define(['jquery', 'Magento_Swatches/js/swatch-renderer', 'priceBox'], function (
 
                     // Manage Secondary Action Values
                     var addToLinks = $item.find("[data-role='add-to-links']");
-                    if (addToLinks.length>0){
-                        for(var a=0; a<items.length; a++){
+                    if (addToLinks.length>0) {
+                        for (var a=0; a<items.length; a++) {
                             var $addToLink = $(addToLinks[a]);
 
                             // Manage Wish List
                             var wishlist = $addToLink.children(".towishlist");
-                            if (wishlist.length>0){
+                            if (wishlist.length>0) {
                                 var wishListData = {
                                     action: pureclarityConfig.wishListUrl,
                                     data: {
@@ -204,7 +211,7 @@ define(['jquery', 'Magento_Swatches/js/swatch-renderer', 'priceBox'], function (
 
                             // Manage Compare
                             var compare = $addToLink.children(".tocompare");
-                            if (compare.length>0){
+                            if (compare.length>0) {
                                 var compareData = {
                                     action: pureclarityConfig.compareUrl,
                                     data: {
@@ -218,13 +225,13 @@ define(['jquery', 'Magento_Swatches/js/swatch-renderer', 'priceBox'], function (
                     }
 
                     // Manage Swatches
-                    if (pureclarityConfig.showSwatches){
+                    if (pureclarityConfig.showSwatches) {
                         var swatchOptions = $item.find(".swatch-opt");
-                        $(swatchOptions).each(function(){
+                        $(swatchOptions).each(function () {
                             var option = $(this);
                             var jsonConfig = option.data().pureclarityJsonconfig;
                             var swatchRenderJson = option.data().pureclaritySwatchrenderjson;
-                            if (jsonConfig && swatchRenderJson){
+                            if (jsonConfig && swatchRenderJson) {
                                 swatchRenderJson.numberToShow = pureclarityConfig.swatchesToShow;
                                 option.SwatchRenderer(swatchRenderJson);
                                 var priceBoxSelector = "[data-role=priceBox][data-product-id=" + id + "]";
@@ -241,30 +248,28 @@ define(['jquery', 'Magento_Swatches/js/swatch-renderer', 'priceBox'], function (
             }
        });
 
-        if (pureclarityConfig.product){
+        if (pureclarityConfig.product) {
             _pc("product_view", { id: pureclarityConfig.product.Id });
         }
 
-        if (pureclarityConfig.order){
+        if (pureclarityConfig.order) {
             _pc('order:addTrans', pureclarityConfig.order.transaction);
-            for(var i=0; i<pureclarityConfig.order.items.length; i++){
+            for (var i=0; i<pureclarityConfig.order.items.length; i++) {
                 _pc('order:addItem', pureclarityConfig.order.items[i]);
             }
             _pc('order:track');
         }
-    }
-    else {
+    } else {
         _pc('set_cache_filter', { _size: 2000, requesttype: "both" });
     }
     
     
 
     return {
-        push: function(event, value){
+        push: function (event, value) {
             if (window['PureClarityObject'] && typeof window['PureClarityObject'].push === 'function') {
                 window['PureClarityObject'].push([event, value]);
-            }
-            else if (typeof _pc === 'function') {
+            } else if (typeof _pc === 'function') {
                 _pc(event, value);
             }
         },

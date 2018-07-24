@@ -50,5 +50,4 @@ class Region implements \Magento\Framework\Option\ArrayInterface
             ]
         ];
     }
-
 }

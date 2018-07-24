@@ -34,13 +34,14 @@ class InstallBmzsButton extends Field
         return parent::render($element);
     }
 
-    public function getStores($withDefault = true, $codeKey = false){
+    public function getStores($withDefault = true, $codeKey = false)
+    {
         $stores=[];
         $stores[] = [
             "id" => \Magento\Store\Model\Store::DEFAULT_STORE_ID,
             "name" => "All Store Views"
         ];
-        foreach($this->storeManagerInterface->getStores() as $store){
+        foreach ($this->storeManagerInterface->getStores() as $store) {
             $stores[] = [
                 "id" => $store->getId(),
                 "name" => $store->getWebsite()->getName() . ' - ' . $store->getName()
@@ -49,7 +50,8 @@ class InstallBmzsButton extends Field
         return $stores;
     }
 
-    public function getThemes(){
+    public function getThemes()
+    {
         $label = $this->labelFactory->create();
         return $label->getLabelsCollection();
     }
@@ -79,10 +81,10 @@ class InstallBmzsButton extends Field
     public function getButtonHtml()
     {
         $button = $this->getLayout()->createBlock('Magento\Backend\Block\Widget\Button')
-            ->setData(array(
+            ->setData([
                 'id' => 'pc-bmzpopupbutton',
                 'label' => 'Install BMZs'
-            ));
+            ]);
 
         return $button->toHtml();
     }

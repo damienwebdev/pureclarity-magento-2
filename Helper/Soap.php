@@ -23,15 +23,14 @@ class Soap
         curl_setopt($soap_do, CURLOPT_TIMEOUT_MS, 10000);
         curl_setopt($soap_do, CURLOPT_RETURNTRANSFER, true);
         curl_setopt($soap_do, CURLOPT_FOLLOWLOCATION, true);
-        curl_setopt($soap_do, CURLOPT_SSL_VERIFYPEER, FALSE);
+        curl_setopt($soap_do, CURLOPT_SSL_VERIFYPEER, false);
         curl_setopt($soap_do, CURLOPT_SSL_VERIFYHOST, 0);
 
-        if ($payload != null){
+        if ($payload != null) {
             curl_setopt($soap_do, CURLOPT_POST, true);
             curl_setopt($soap_do, CURLOPT_POSTFIELDS, $payload);
-            curl_setopt($soap_do, CURLOPT_HTTPHEADER, array('Content-Type: application/json', 'Content-Length: ' . strlen($payload)));
-        }
-        else {
+            curl_setopt($soap_do, CURLOPT_HTTPHEADER, ['Content-Type: application/json', 'Content-Length: ' . strlen($payload)]);
+        } else {
             curl_setopt($soap_do, CURLOPT_POST, false);
         }
 
@@ -45,15 +44,14 @@ class Soap
         curl_close($soap_do);
 
         $this->logger->debug("------------------ PC DELTA ------------------");
-        $this->logger->debug(print_r($url,true));
-        if ($payload != null)
-            $this->logger->debug(print_r($payload,true));
+        $this->logger->debug(print_r($url, true));
+        if ($payload != null) {
+            $this->logger->debug(print_r($payload, true));
+        }
         $this->logger->debug("------------------ RESPONSE ------------------");
-        $this->logger->debug(print_r($result,true));
+        $this->logger->debug(print_r($result, true));
         $this->logger->debug("------------------ END PRODUCT DELTA ------------------");
 
         return $result;
     }
-
-
 }

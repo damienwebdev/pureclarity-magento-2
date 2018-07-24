@@ -15,8 +15,9 @@ class PostDispatchObserver implements ObserverInterface
         \Psr\Log\LoggerInterface $logger,
         \Magento\Framework\App\Request\Http $request,
         \Pureclarity\Core\Helper\Data $coreHelper,
-        \Pureclarity\Core\Helper\Service $service)
-    {
+        \Pureclarity\Core\Helper\Service $service
+    ) {
+    
         $this->logger = $logger;
         $this->request = $request;
         $this->coreHelper = $coreHelper;
@@ -28,11 +29,13 @@ class PostDispatchObserver implements ObserverInterface
         //$this->service->dispatch();
     }
 
-    private function isSearchPage(){
+    private function isSearchPage()
+    {
         return $this->request->getFullActionName() == 'catalogsearch_result_index';
     }
 
-    private function isCategoryPage(){
+    private function isCategoryPage()
+    {
         return $this->request->getControllerName() == 'category';
     }
 }

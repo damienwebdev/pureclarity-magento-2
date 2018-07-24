@@ -14,8 +14,7 @@ use Magento\Framework\Search\AdapterInterface;
 use Magento\Framework\Search\RequestInterface;
 use Magento\Store\Model\StoreManagerInterface;
 use Magento\Catalog\Model\Product\ProductList\Toolbar;
- 
- 
+
 class Search implements AdapterInterface
 {
     protected $mapper;
@@ -78,19 +77,17 @@ class Search implements AdapterInterface
         
         if ($this->coreHelper->isSearchActive() &&
             ($this->coreHelper->isServerSide() || $this->coreHelper->seoSearchFriendly()) &&
-            (($this->isCategoryPage() && $this->getCategoryId($request) && $this->coreHelper->isProdListingActive()) || $this->isSearchPage())){
-            
+            (($this->isCategoryPage() && $this->getCategoryId($request) && $this->coreHelper->isProdListingActive()) || $this->isSearchPage())) {
             $this->service->dispatch();
             $result = $this->service->getSearchResult();
             
-            if ($result){
-
+            if ($result) {
                 $products = $result['products'];
                 $productCount = sizeof($products);
                 
-                foreach ($products as $product){
+                foreach ($products as $product) {
                     $id = $product['Id'];
-                    if ($id){
+                    if ($id) {
                         $documents[$id] = [
                             "entity_id" => $id,
                             "score" => $productCount
@@ -118,11 +115,11 @@ class Search implements AdapterInterface
                 $documents = $this->getDocuments($table);
                 $newDocuments = [];
                 
-                if (array_key_exists('personalizedProducts', $result)){
+                if (array_key_exists('personalizedProducts', $result)) {
                     $parsedPersonalProducts = [];
                     $personalProducts = $result['personalizedProducts'];
-                    foreach($personalProducts as $item){
-                        if (array_key_exists($item['Id'], $documents)){
+                    foreach ($personalProducts as $item) {
+                        if (array_key_exists($item['Id'], $documents)) {
                             $parsedPersonalProducts[] = $item;
                             unset($documents[$item['Id']]);
                         }
@@ -165,33 +162,39 @@ class Search implements AdapterInterface
         return $connection->fetchAssoc($select);
     }
 
-    private function getMagentoVersion(){
+    private function getMagentoVersion()
+    {
         $objectManager = \Magento\Framework\App\ObjectManager::getInstance();
         $productMetadata = $objectManager->get('Magento\Framework\App\ProductMetadataInterface');
         return $productMetadata->getVersion();
     }
  
-    public function getConnection(){
+    public function getConnection()
+    {
         return $this->connectionManager->getConnection();
     }
 
-    private function isSearchPage(){
+    private function isSearchPage()
+    {
         return $this->request->getFullActionName() == 'catalogsearch_result_index';
     }
 
-    private function getCategoryId(RequestInterface $request){
-        if ($request && 
-            $request->getQuery() && 
+    private function getCategoryId(RequestInterface $request)
+    {
+        if ($request &&
+            $request->getQuery() &&
             $request->getQuery()->getMust() &&
-            array_key_exists('category', $request->getQuery()->getMust()) && 
+            array_key_exists('category', $request->getQuery()->getMust()) &&
             $request->getQuery()->getMust()['category']->getReference() &&
             $request->getQuery()->getMust()['category']->getReference()->getValue()
-            )
+            ) {
             return $request->getQuery()->getMust()['category']->getReference()->getValue();
+        }
         return null;
     }
 
-    private function isCategoryPage(){
+    private function isCategoryPage()
+    {
         return ($this->request->getControllerName() == 'category');
     }
 }

@@ -13,8 +13,8 @@ define([
             this._super();
             this.data = customerData.get('customer-details');
 
-            this.renderTrackingEvents = ko.computed(function(){
-                if (self.data && pcjs.sectionUpdated(self.data()['data_id'], 'customer-details') && self.data()['isLoggedIn']){
+            this.renderTrackingEvents = ko.computed(function () {
+                if (self.data && pcjs.sectionUpdated(self.data()['data_id'], 'customer-details') && self.data()['isLoggedIn']) {
                     pcjs.push("customer_details", self.data()['customer']);
                     return true;
                 }

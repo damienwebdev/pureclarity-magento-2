@@ -2,7 +2,8 @@
 
 namespace Pureclarity\Core\Block\Search;
 
-class ListProduct extends \Magento\Catalog\Block\Product\ListProduct {
+class ListProduct extends \Magento\Catalog\Block\Product\ListProduct
+{
     
     protected $coreHelper;
     protected $logger;
@@ -34,14 +35,14 @@ class ListProduct extends \Magento\Catalog\Block\Product\ListProduct {
         );
     }
 
-    public function _beforeToHtml(){
+    public function _beforeToHtml()
+    {
 
         $collection = $this->_getProductCollection();
 
-        if ($this->coreHelper->isSearchActive() && $this->coreHelper->isServerSide()){
-            
+        if ($this->coreHelper->isSearchActive() && $this->coreHelper->isServerSide()) {
             $searchResult = $this->pureClarityService->getSearchResult();
-            if ($searchResult && array_key_exists('refId', $searchResult) && array_key_exists('clickEventName', $searchResult)){
+            if ($searchResult && array_key_exists('refId', $searchResult) && array_key_exists('clickEventName', $searchResult)) {
                 $this->setPureClarityClickData([
                     "event" => $searchResult['clickEventName'],
                     "refId" => $searchResult['refId']
@@ -56,9 +57,10 @@ class ListProduct extends \Magento\Catalog\Block\Product\ListProduct {
         return parent::_beforeToHtml();
     }
 
-    public function getPureClarityClickEvent($id){
+    public function getPureClarityClickEvent($id)
+    {
         $eventData = $this->getPureClarityClickData();
-        if ($eventData){
+        if ($eventData) {
             $event = $eventData['event'];
             $refId = $eventData['refId'];
             return "_pc('$event', { id: '$id', refid: '$refId' });";
@@ -66,19 +68,18 @@ class ListProduct extends \Magento\Catalog\Block\Product\ListProduct {
         return "";
     }
 
-    public function createPersonalizedProductList(){
+    public function createPersonalizedProductList()
+    {
         
         $searchResult = $this->pureClarityService->getSearchResult();
         
-        if ($searchResult && array_key_exists('personalizedProducts', $searchResult)){
-            
+        if ($searchResult && array_key_exists('personalizedProducts', $searchResult)) {
             $products = $searchResult['personalizedProducts'];
             
-            if ($products && sizeof($products) > 0){
-                
+            if ($products && sizeof($products) > 0) {
                 $ids = [];
                 $clickEvents = [];
-                foreach($products as $item){
+                foreach ($products as $item) {
                     $ids[] = $item['Id'];
                     $clickEvents[$item['Id']] = $this->getPureClarityClickEvent($item['Id']);
                 }
@@ -98,8 +99,8 @@ class ListProduct extends \Magento\Catalog\Block\Product\ListProduct {
         }
     }
 
-    public function getPersonalizedProductListHtml(){
+    public function getPersonalizedProductListHtml()
+    {
         return $this->personalizedProductListHtml;
     }
-
 }

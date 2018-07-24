@@ -19,31 +19,31 @@ class Product implements \Magento\Framework\Indexer\ActionInterface, \Magento\Fr
         $this->productFeedFactory = $productFeedFactory;
     }
 
-    public function execute($productIds){
+    public function execute($productIds)
+    {
 
         $deltaProduct = $this->productFeedFactory->create();
 
-        if ($productIds == null){
+        if ($productIds == null) {
             // reindexing full product set.
             $deltaProduct->setData(
-                array(
+                [
                     'product_id'    => -1,
                     'token'         => 'product',
                     'status_id'     => 0
-                )
+                ]
             );
             $deltaProduct->save();
-        }
-        else {
+        } else {
             // Reindex specific products
-            foreach($productIds as $productId){
+            foreach ($productIds as $productId) {
                 $deltaProduct = $this->productFeedFactory->create();
                 $deltaProduct->setData(
-                    array(
+                    [
                         'product_id'    => $productId,
                         'token'         => '',
                         'status_id'     => 0
-                    )
+                    ]
                 );
                 $deltaProduct->save();
             }
@@ -65,5 +65,4 @@ class Product implements \Magento\Framework\Indexer\ActionInterface, \Magento\Fr
     {
         $this->execute([$id]);
     }
-
 }

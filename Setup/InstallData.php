@@ -26,7 +26,7 @@ class InstallData implements InstallDataInterface
         $eavSetup->addAttributeGroup(\Magento\Catalog\Model\Category::ENTITY, 'Default', 'PureClarity', 1000);
 
         // Add attribute for secondary image is added
-        $eavSetup->addAttribute(\Magento\Catalog\Model\Category::ENTITY, 'pureclarity_category_image', array(
+        $eavSetup->addAttribute(\Magento\Catalog\Model\Category::ENTITY, 'pureclarity_category_image', [
             'group'         => 'PureClarity',
             'input'         => 'image',
             'type'          => 'varchar',
@@ -37,10 +37,10 @@ class InstallData implements InstallDataInterface
             'user_defined'  => 1,
             'sort_order'    => 6,
             'global'        => \Magento\Eav\Model\Entity\Attribute\ScopedAttributeInterface::SCOPE_STORE
-        ));
+        ]);
 
         // Add attribute for hiding product from recommenders
-        $eavSetup->addAttribute(\Magento\Catalog\Model\Category::ENTITY, 'pureclarity_hide_from_feed', array(
+        $eavSetup->addAttribute(\Magento\Catalog\Model\Category::ENTITY, 'pureclarity_hide_from_feed', [
             'group'         => 'PureClarity',
             'input'         => 'boolean',
             'type'          => 'int',
@@ -53,7 +53,7 @@ class InstallData implements InstallDataInterface
             'default'       => 0,
             'global'        => \Magento\Eav\Model\Entity\Attribute\ScopedAttributeInterface::SCOPE_STORE,
             'visible_on_front' => true
-        ));
+        ]);
 
 
 
@@ -61,7 +61,7 @@ class InstallData implements InstallDataInterface
         $eavSetup->addAttributeGroup(\Magento\Catalog\Model\Product::ENTITY, 'Default', 'PureClarity', 1000);
 
         // Add attribute for Search Tags
-        $eavSetup->addAttribute(\Magento\Catalog\Model\Product::ENTITY, 'pureclarity_search_tags', array(
+        $eavSetup->addAttribute(\Magento\Catalog\Model\Product::ENTITY, 'pureclarity_search_tags', [
             'group'         => 'PureClarity',
             'input'         => 'text',
             'type'          => 'text',
@@ -73,10 +73,10 @@ class InstallData implements InstallDataInterface
             'default'       => '',
             'global'        => \Magento\Eav\Model\Entity\Attribute\ScopedAttributeInterface::SCOPE_STORE,
             'visible_on_front' => true
-        ));
+        ]);
 
         // Add attribute for exluding product from recommenders
-        $eavSetup->addAttribute(\Magento\Catalog\Model\Product::ENTITY, 'pureclarity_exc_rec', array(
+        $eavSetup->addAttribute(\Magento\Catalog\Model\Product::ENTITY, 'pureclarity_exc_rec', [
             'group'         => 'PureClarity',
             'input'         => 'boolean',
             'type'          => 'int',
@@ -89,9 +89,9 @@ class InstallData implements InstallDataInterface
             'default'       => 0,
             'global'        => \Magento\Eav\Model\Entity\Attribute\ScopedAttributeInterface::SCOPE_STORE,
             'visible_on_front' => true
-        ));
+        ]);
 
-        $eavSetup->addAttribute(\Magento\Catalog\Model\Product::ENTITY, 'pureclarity_newarrival', array(
+        $eavSetup->addAttribute(\Magento\Catalog\Model\Product::ENTITY, 'pureclarity_newarrival', [
             'group'         => 'PureClarity',
             'input'         => 'boolean',
             'type'          => 'int',
@@ -104,9 +104,9 @@ class InstallData implements InstallDataInterface
             'default'       => 0,
             'global'        => \Magento\Eav\Model\Entity\Attribute\ScopedAttributeInterface::SCOPE_STORE,
             'visible_on_front' => true
-        ));
+        ]);
 
-        $eavSetup->addAttribute(\Magento\Catalog\Model\Product::ENTITY, 'pureclarity_onoffer', array(
+        $eavSetup->addAttribute(\Magento\Catalog\Model\Product::ENTITY, 'pureclarity_onoffer', [
             'group'         => 'PureClarity',
             'input'         => 'boolean',
             'type'          => 'int',
@@ -119,10 +119,10 @@ class InstallData implements InstallDataInterface
             'default'       => 0,
             'global'        => \Magento\Eav\Model\Entity\Attribute\ScopedAttributeInterface::SCOPE_STORE,
             'visible_on_front' => true
-        ));
+        ]);
 
         // Add option for Image Overlay
-        $eavSetup->addAttribute(\Magento\Catalog\Model\Product::ENTITY, 'pureclarity_overlay_image', array(
+        $eavSetup->addAttribute(\Magento\Catalog\Model\Product::ENTITY, 'pureclarity_overlay_image', [
             'input'         => 'media_image',
             'type'          => 'varchar',
             'label'         => 'PureClarity Overlay Image',
@@ -131,7 +131,7 @@ class InstallData implements InstallDataInterface
             'required'      => 0,
             'user_defined'  => 1,
             'global'        => \Magento\Eav\Model\Entity\Attribute\ScopedAttributeInterface::SCOPE_STORE
-        ));
+        ]);
 
  
         $setup->endSetup();

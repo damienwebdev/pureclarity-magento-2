@@ -30,10 +30,9 @@ class Install extends \Magento\Backend\App\Action
         try {
             $storeId =  (int)$this->getRequest()->getParam('storeid');
             $themeId =  (int)$this->getRequest()->getParam('themeid');
-            $result = $this->cmsBlock->install(['bmzs.csv'],$storeId,$themeId);
+            $result = $this->cmsBlock->install(['bmzs.csv'], $storeId, $themeId);
             return $this->resultJsonFactory->create()->setData($result);
-        }
-        catch (\Exception $e){
+        } catch (\Exception $e) {
             $this->getResponse()
                 ->clearHeaders()
                 ->setHeader('HTTP/1.0', 409, true)

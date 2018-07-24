@@ -9,7 +9,8 @@ class ProductFeed extends AbstractDb
     protected function _construct()
     {
         $this->_init(
-            'pureclarity_productfeed', 
-            'id');
+            'pureclarity_productfeed',
+            'id'
+        );
     }
 }

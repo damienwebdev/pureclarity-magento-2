@@ -1,10 +1,11 @@
-<?php 
+<?php
 namespace Pureclarity\Core\Plugin\Category;
 
 use Magento\Catalog\Model\Category;
 use Magento\Catalog\Model\Category\DataProvider as CategoryDataProvider;
 
-class DataProvider{
+class DataProvider
+{
     
     private $coreHelper;
     private $storeManager;
@@ -12,7 +13,7 @@ class DataProvider{
     public function __construct(
         \Pureclarity\Core\Helper\Data $coreHelper,
         \Magento\Store\Model\StoreManagerInterface $storeManager
-    ){
+    ) {
         $this->coreHelper = $coreHelper;
         $this->storeManager = $storeManager;
     }
@@ -41,7 +42,7 @@ class DataProvider{
 
         $imagePath = $this->coreHelper->getAdminImagePath($this->storeManager->getStore(), $imageName, "pureclarity_category_image");
         $fileSize = 0;
-        if ($imagePath){
+        if ($imagePath) {
             $fileSize = filesize($imagePath);
         }
         

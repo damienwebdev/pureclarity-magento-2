@@ -43,8 +43,9 @@ class Configuration extends Template
         parent::__construct($context, $data);
     }
 
-    public function getConfiguration(){
-        $objectManager = \Magento\Framework\App\ObjectManager::getInstance(); 
+    public function getConfiguration()
+    {
+        $objectManager = \Magento\Framework\App\ObjectManager::getInstance();
         $formKey = $objectManager->get('Magento\Framework\Data\Form\FormKey');
 
         return [
@@ -72,36 +73,43 @@ class Configuration extends Template
     }
 
     
-    public function isActive(){
+    public function isActive()
+    {
         return $this->coreHelper->isActive($this->_storeManager->getStore()->getId());
     }
 
-    public function isServerSide(){
+    public function isServerSide()
+    {
         return $this->coreHelper->isServerSide($this->_storeManager->getStore()->getId());
     }
 
-    public function isLogOut(){
+    public function isLogOut()
+    {
         return $this->request->getFullActionName() == 'customer_account_logoutSuccess';
     }
 
-    public function getNumberSwatchesPerProduct(){
+    public function getNumberSwatchesPerProduct()
+    {
         return $this->coreHelper->getNumberSwatchesPerProduct($this->_storeManager->getStore()->getId());
     }
 
-    public function showSwatches(){
+    public function showSwatches()
+    {
         return $this->coreHelper->showSwatches($this->_storeManager->getStore()->getId());
     }
 
-    public function isCheckoutSuccess(){
-        if (!$this->isServerSide() && $this->request->getFullActionName() == 'checkout_onepage_success'){
+    public function isCheckoutSuccess()
+    {
+        if (!$this->isServerSide() && $this->request->getFullActionName() == 'checkout_onepage_success') {
             $this->initOrderData();
             return true;
         };
         return false;
     }
 
-    public function getProduct(){
-        if ($this->product != null){
+    public function getProduct()
+    {
+        if ($this->product != null) {
             return [
                 "Id" => $this->product->getId(),
                 "Sku" => $this->product->getSku()
@@ -110,48 +118,53 @@ class Configuration extends Template
         return null;
     }
 
-    public function getApiStartUrl(){
+    public function getApiStartUrl()
+    {
         return $this->coreHelper->getApiStartUrl();
     }
 
-    public function getCurrencyCode(){
+    public function getCurrencyCode()
+    {
         return $this->_storeManager->getStore()->getCurrentCurrency()->getCode();
     }
 
-    public function getSearchDataValue(){
-        if ($this->isClientSearch()){
-            if ($this->isSearchPage()){
+    public function getSearchDataValue()
+    {
+        if ($this->isClientSearch()) {
+            if ($this->isSearchPage()) {
                 return "navigation_search";
-            }
-            else if ($this->isCategoryPage() && $this->category){
+            } elseif ($this->isCategoryPage() && $this->category) {
                 return "navigation_category:" . $this->category->getId();
             }
         }
         return "";
     }
     
-    public function isClientSearch(){
+    public function isClientSearch()
+    {
         $storeId = $this->_storeManager->getStore()->getId();
         return ($this->coreHelper->isActive($storeId) &&
                 !$this->coreHelper->isServerSide($storeId) &&
                 ($this->isSearchPage() || $this->isCategoryPage()));
     }
 
-    public function getDOMSelector(){
+    public function getDOMSelector()
+    {
         return $this->coreHelper->getDOMSelector($this->_storeManager->getStore()->getId());
     }
 
-    public function isSearchPage($storeId = null) {
+    public function isSearchPage($storeId = null)
+    {
         if ($this->coreHelper->isSearchActive($storeId) && $this->request->getFullActionName() === 'catalogsearch_result_index') {
             return true;
         }
         return false;
     }
 
-    public function isCategoryPage($storeId = null){
+    public function isCategoryPage($storeId = null)
+    {
         
         if ($this->coreHelper->isProdListingActive($storeId) && $this->request->getControllerName() == 'category') {
-            
             if ($this->category && $this->category->getDisplayMode() !== 'PAGE') {
                 return true;
             }
@@ -159,10 +172,10 @@ class Configuration extends Template
         return false;
     }
 
-    public function getOrder(){
+    public function getOrder()
+    {
         
-        if (!$this->isServerSide() && $this->request->getFullActionName() == 'checkout_onepage_success'){
-        
+        if (!$this->isServerSide() && $this->request->getFullActionName() == 'checkout_onepage_success') {
             $lastOrder = $this->checkoutSession->getLastRealOrder();
             $order = [
                 "orderid" => $lastOrder['increment_id'],
@@ -176,19 +189,19 @@ class Configuration extends Template
             $orderItems = [];
             $visibleItems = $lastOrder->getAllVisibleItems();
             $allItems = $lastOrder->getAllItems();
-            foreach($visibleItems as $item){
+            foreach ($visibleItems as $item) {
                 $orderItems[$item->getItemId()] = [
                     "orderid" => $lastOrder['increment_id'],
                     "refid" => $item->getItemId(),
-                    "id" => $item->getProductId(), 
+                    "id" => $item->getProductId(),
                     "qty" => $item->getQtyOrdered(),
                     "unitprice" => $item->getPrice(),
                     "children" => []
                 ];
             }
-            foreach($allItems as $item){
-                if ($item->getParentItemId() && $orderItems[$item->getParentItemId()]){
-                    $orderItems[$item->getParentItemId()]['children'][] = array("sku" => $item->getSku(), "qty" => $item->getQtyOrdered());
+            foreach ($allItems as $item) {
+                if ($item->getParentItemId() && $orderItems[$item->getParentItemId()]) {
+                    $orderItems[$item->getParentItemId()]['children'][] = ["sku" => $item->getSku(), "qty" => $item->getQtyOrdered()];
                 }
             }
 
@@ -199,6 +212,4 @@ class Configuration extends Template
         }
         return null;
     }
-
-
 }

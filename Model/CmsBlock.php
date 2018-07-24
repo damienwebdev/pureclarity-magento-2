@@ -5,7 +5,6 @@ namespace Pureclarity\Core\Model;
 use Magento\Framework\Serialize\Serializer\Json;
 use Magento\Framework\Component\ComponentRegistrar;
 
-
 class CmsBlock
 {
 
@@ -122,8 +121,9 @@ class CmsBlock
                 }
 
                 $customParameters = ['bmz_id' => $row['bmz_id']];
-                if($row['bmz_buffer'] && $row['bmz_buffer'] == 'true')
+                if ($row['bmz_buffer'] && $row['bmz_buffer'] == 'true') {
                     $customParameters['pc_bmz_buffer'] = 1;
+                }
 
                 $widgetInstance->setType($type)->setCode($code)->setThemeId($themeId);
                 $widgetInstance->setTitle($row['title'])

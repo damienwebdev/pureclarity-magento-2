@@ -44,11 +44,11 @@ class Bmz extends Template implements BlockInterface
             $context,
             $data
         );
-        
     }
     
-    public function setData($key, $value = null){
-        if ($key == 'bmz_id' && $this->coreHelper->isServerSide()){
+    public function setData($key, $value = null)
+    {
+        if ($key == 'bmz_id' && $this->coreHelper->isServerSide()) {
             $this->service->addZone($value);
         }
         parent::setData($key, $value);
@@ -57,21 +57,24 @@ class Bmz extends Template implements BlockInterface
 
     protected function _toHtml()
     {
-        if ($this->coreHelper->isMerchActive()){
+        if ($this->coreHelper->isMerchActive()) {
             return parent::_toHtml();
         }
         return '';
     }
 
-    public function addBmzData($field, $value){
+    public function addBmzData($field, $value)
+    {
         $this->bmzData = $this->bmzData . $field . ':' . $value . ';';
     }
 
-    public function _beforeToHtml(){
-        if (!$this->coreHelper->isMerchActive())
+    public function _beforeToHtml()
+    {
+        if (!$this->coreHelper->isMerchActive()) {
             return;
+        }
 
-        if ($this->coreHelper->isServerSide()){
+        if ($this->coreHelper->isServerSide()) {
             $this->service->dispatch();
         }
 
@@ -81,28 +84,27 @@ class Bmz extends Template implements BlockInterface
         $this->isServerSide = $this->coreHelper->isServerSide();
         
 
-        if ($this->bmzId == null or $this->bmzId == ""){
+        if ($this->bmzId == null or $this->bmzId == "") {
             $this->logger->error("PureClarity: BMZ block instantiated without a BMZ Id.");
-        }
-        else {
+        } else {
             $this->addBmzData('bmz', $this->bmzId);
 
             // Set product data
             $product = $this->registry->registry("product");
-            if ($product != null){
+            if ($product != null) {
                 $this->addBmzData('id', $product->getId());
             }
 
             // Set category data
             $category = $this->registry->registry('category');
-            if ($category != null){
+            if ($category != null) {
                 $this->addBmzData('categoryid', $category->getId());
             }
         }
 
         // Generate debug text if needed
         $debugContent = '';
-        if ($this->debug){
+        if ($this->debug) {
             $debugContent = "<p>PureClarity BMZ: $this->bmzId</p>";
         }
 
@@ -113,7 +115,7 @@ class Bmz extends Template implements BlockInterface
         $storeId = $this->_storeManager->getStore()->getId();
         $fallbackBlock = $this->cmsBlockFactory->create()->setStoreId($storeId)->load($fallbackCmsBlock);
         
-        if ($fallbackBlock && $fallbackBlock->getIsActive()){
+        if ($fallbackBlock && $fallbackBlock->getIsActive()) {
             $fallbackContent = $fallbackBlock->getContent();
             if ($this->debug) {
                 $debugContent .= "<p>Fallback block: $fallbackCmsBlock.</p>";
@@ -122,10 +124,11 @@ class Bmz extends Template implements BlockInterface
 
         // Get Server side BMZ Content if we need to
         $serverSideContent = '';
-        if ($this->isServerSide){
+        if ($this->isServerSide) {
             $serverSideContent = $this->getServerSideBmzBlock();
-            if ($serverSideContent != "" && $fallbackContent)
+            if ($serverSideContent != "" && $fallbackContent) {
                 $fallbackContent = "";
+            }
         }
 
         // The actual content is the debug content followed by the fallback content.
@@ -134,10 +137,9 @@ class Bmz extends Template implements BlockInterface
 
         // Get a list of the custom classes for this BMZs div tag
         $customClasses = $this->getData('pc_bmz_classes');
-        if ($customClasses){
+        if ($customClasses) {
             $allClasses = explode(",", $customClasses);
-        }
-        else {
+        } else {
             $allClasses = [];
         }
 
@@ -145,12 +147,16 @@ class Bmz extends Template implements BlockInterface
         $displayMode = $this->getData('pc_bmz_display_mode');
 
         // Add more classes to the class list where they are needed to identify desktop-specific or mobile-specific BMZs
-        if ($displayMode == "mobile"){$allClasses[] = "pureclarity_magento_mobile";}
-        else if ($displayMode == "desktop") {$allClasses[] = "pureclarity_magento_desktop";}
+        if ($displayMode == "mobile") {
+            $allClasses[] = "pureclarity_magento_mobile";
+        } elseif ($displayMode == "desktop") {
+            $allClasses[] = "pureclarity_magento_desktop";
+        }
 
         $applyBuffer = $this->getData('pc_bmz_buffer');
-        if ($applyBuffer == 1 || $applyBuffer == "true")
+        if ($applyBuffer == 1 || $applyBuffer == "true") {
             $allClasses[] = "pc_bmz_buffer";
+        }
 
         // Content is now final
         $this->content = $content;
@@ -182,28 +188,31 @@ class Bmz extends Template implements BlockInterface
         return $this->classes;
     }
 
-    public function getBmzData(){
-        if ($this->isServerSide)
+    public function getBmzData()
+    {
+        if ($this->isServerSide) {
             return "data-pureclarity-server=\"$this->bmzId\"";
+        }
         return "data-pureclarity=\"$this->bmzData\"";
     }
 
-    public function getCacheLifetime(){
+    public function getCacheLifetime()
+    {
         return null;
     }
 
-    public function getServerSideBmzBlock(){
+    public function getServerSideBmzBlock()
+    {
 
         $result = $this->service->getResult();
 
-        if ($result && 
-            array_key_exists('zones', $result) && 
-            array_key_exists($this->bmzId, $result['zones']) && 
-            array_key_exists('type', $result['zones'][$this->bmzId])){
-
+        if ($result &&
+            array_key_exists('zones', $result) &&
+            array_key_exists($this->bmzId, $result['zones']) &&
+            array_key_exists('type', $result['zones'][$this->bmzId])) {
             $resultData = $result['zones'][$this->bmzId];
 
-            switch ($result['zones'][$this->bmzId]['type']){
+            switch ($result['zones'][$this->bmzId]['type']) {
                 case "recommender-product":
                     return $this->getLayout()
                             ->createBlock("Pureclarity\Core\Block\BMZs\ProductRecommender", "pc_bmz_serverside_" . $this->bmzId)
@@ -223,6 +232,4 @@ class Bmz extends Template implements BlockInterface
         }
         return "";
     }
-
-
 }
