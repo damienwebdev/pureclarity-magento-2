@@ -130,7 +130,7 @@ class Feed extends \Magento\Framework\Model\AbstractModel
             if ($order){
                 $id = $order->getIncrementId();
                 $customerId = $order->getCustomerId();
-                $email = $order->getCstomerEmail();
+                $email = $order->getCutomerEmail();
                 $date = $order->getCreatedAt();
                 
                 $orderItems = $orderData->getAllVisibleItems();
@@ -202,7 +202,9 @@ class Feed extends \Magento\Framework\Model\AbstractModel
             }
             $imageURL2 = str_replace(array("https:", "http:"), "", $imageURL2);
             
-            
+            if (!$category->getName()){
+                continue;
+            }
             // Build Data
             $categoryData = array(
                 "Id" => $category->getId(),
