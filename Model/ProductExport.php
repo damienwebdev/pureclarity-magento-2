@@ -296,9 +296,20 @@ class ProductExport extends \Magento\Framework\Model\AbstractModel
             }
 
             // Set PureClarity Custom values
-            $searchTag = $product->getData('pureclarity_search_tags');
-            if ($searchTag != null && $searchTag != '') {
-                 $data["SearchTags"] = [$searchTag];
+            $searchTagString = $product->getData('pureclarity_search_tags');
+            if (!empty($searchTagString)){
+                $searchTags = explode(",", $searchTagString);
+                if(count($searchTags)){
+                    foreach ($searchTags as $key => &$searchTag) {
+                        $searchTag = trim($searchTag);
+                        if(empty($searchTag)){
+                            unset($searchTags[$key]);
+                        }
+                    }
+                    if(count($searchTags)){
+                        $data["SearchTags"] = $searchTags;
+                    }
+                }
             }
 
             $overlayImage = $product->getData('pureclarity_overlay_image');
