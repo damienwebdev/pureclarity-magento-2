@@ -92,13 +92,13 @@ class Bmz extends Template implements BlockInterface
             // Set product data
             $product = $this->registry->registry("product");
             if ($product != null) {
-                $this->addBmzData('id', $product->getId());
+                $this->addBmzData('sku', $product->getId());
             }
 
             // Set category data
-            $category = $this->registry->registry('category');
-            if ($category != null) {
-                $this->addBmzData('categoryid', $category->getId());
+            $categoryObject = $this->registry->registry('current_category');
+            if(is_object($categoryObject)){
+                $this->addBmzData('categoryid', $categoryObject->getId());
             }
         }
 
