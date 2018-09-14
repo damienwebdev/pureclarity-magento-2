@@ -62,7 +62,6 @@ class ProductExport extends \Magento\Framework\Model\AbstractModel
         \Magento\Swatches\Helper\Data $swatchHelper,
         \Magento\Swatches\Helper\Media $swatchMediaHelper,
         \Magento\Framework\View\Element\BlockFactory $blockFactory,
-        \Magento\Catalog\Model\Product\Gallery\ReadHandler $galleryReadHandler,
         \Magento\Framework\Model\ResourceModel\AbstractResource $resource = null,
         \Magento\Framework\Data\Collection\AbstractDb $resourceCollection = null,
         array $data = []
@@ -87,7 +86,6 @@ class ProductExport extends \Magento\Framework\Model\AbstractModel
         $this->swatchHelper = $swatchHelper;
         $this->swatchMediaHelper = $swatchMediaHelper;
         $this->blockFactory = $blockFactory;
-        $this->galleryReadHandler = $galleryReadHandler;
 
         parent::__construct(
             $context,
@@ -226,20 +224,34 @@ class ProductExport extends \Magento\Framework\Model\AbstractModel
             }
 
             // Get Product Image URL
-            $productImageUrl = '';
+            $baseProductImageUrl = $this->currentStore->getBaseUrl(\Magento\Framework\UrlInterface::URL_TYPE_MEDIA) . "catalog/product/";
+            $productImageUrl = $baseProductImageUrl;
             if ($product->getImage() && $product->getImage() != 'no_selection') {
-                $productImageUrl = $this->currentStore->getBaseUrl(\Magento\Framework\UrlInterface::URL_TYPE_MEDIA)."catalog/product/".$product->getImage();
+                $productImageUrl .= $product->getImage();
             } else {
-                $productImageUrl = $this->currentStore->getBaseUrl(\Magento\Framework\UrlInterface::URL_TYPE_MEDIA)."catalog/product/placeholder/". $this->currentStore->getConfig("catalog/placeholder/image_placeholder");
+                $productImageUrl .= "placeholder/". $this->currentStore->getConfig("catalog/placeholder/image_placeholder");
             }
             $productImageUrl = str_replace(["https:", "http:"], "", $productImageUrl);
 
-        
-            $this->galleryReadHandler->execute($product);
-            $productImages = $product->getMediaGalleryImages();
+
+            /**
+             * \Magento\Catalog\Model\Product\Gallery\ReadHandler does not exist in Magento 2.0
+             * - this is a workaround which avoids having the ReadHandler as a constructor parameter
+             */
+            if($this->getGalleryReadHandler()){
+                $this->getGalleryReadHandler()->execute($product);
+                $productImages = $product->getMediaGalleryImages();
+            }
+            else{
+                $productImages = [];
+                $productImages[] = $baseProductImageUrl . $product->getImage();
+                $productImages[] = $baseProductImageUrl . $product->getThumbnail();
+                $productImages[] = $baseProductImageUrl . $product->getSmallImage();
+            }
+
             $allImages = [];
             foreach ($productImages as $image) {
-                $allImages[] = str_replace(["https:", "http:"], "", $image->getUrl());
+                $allImages[] = str_replace(["https:", "http:"], "", (is_object($image) ? $image->getUrl() : $image));
             }
 
             // Set standard data
@@ -539,5 +551,27 @@ class ProductExport extends \Magento\Framework\Model\AbstractModel
         }
 
         return $price;
+    }
+
+    /**
+     * Returns \Magento\Catalog\Model\Product\Gallery\ReadHandler if the class exists,
+     * otherwise returns false
+     */
+    protected function getGalleryReadHandler(){
+        if(is_null($this->galleryReadHandler)){
+            if(class_exists('\\Magento\\Catalog\\Model\\Product\\Gallery\\ReadHandler')){
+                $this->logger->debug('PureClarity: ReadHandler class exists.');
+
+                //using object manager here for backward compatibility issues
+                $objectManager = \Magento\Framework\App\ObjectManager::getInstance();
+                $this->galleryReadHandler = $objectManager->create('\Magento\Catalog\Model\Product\Gallery\ReadHandler');
+                $this->logger->debug('PureClarity: Have created ReadHandler.');
+            }
+            else{
+                $this->logger->debug('PureClarity: ReadHandler class does not exist.');
+                $this->galleryReadHandler = false;
+            }
+        }
+        return $this->galleryReadHandler;
     }
 }
