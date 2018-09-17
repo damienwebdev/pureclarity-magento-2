@@ -309,7 +309,7 @@ class Feed extends \Magento\Framework\Model\AbstractModel
 
             $feedCategories .= $this->coreHelper->formatFeed($categoryData, 'json');
             
-            $currentProgress += 1;
+            $currentProgress ++;
             if($currentProgress >= $maxProgress){
                 $feedCategories .= ']';
             }
@@ -370,7 +370,11 @@ class Feed extends \Magento\Framework\Model\AbstractModel
                 }
                 $isFirst = false;
                 $feedBrands .= $this->coreHelper->formatFeed($thisBrand, 'json');
-                $currentProgress ++;
+                $currentProgress++;
+
+                if($currentProgress >= $maxProgress){
+                    $feedBrands .= ']';
+                }
 
                 $parameters = $this->getParameters($feedBrands, self::FEED_TYPE_BRAND);
                 $this->send("feed-append", $parameters);
