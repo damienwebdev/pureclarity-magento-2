@@ -41,6 +41,13 @@ class CmsBlock
         $this->serializer = $serializer ?: \Magento\Framework\App\ObjectManager::getInstance()->get(Json::class);
     }
 
+
+    /**
+     * Installs PureClarity BMZs based on the CSV files provided.
+     * @param $files array CSV file(s) to be parsed
+     * @param $storeId integer The store id
+     * @param $themeId integer Theme of the id to install the BMZs for
+     */
     public function install(array $files, $storeId, $themeId)
     {
         $path = $this->componentRegistrar->getPath(ComponentRegistrar::MODULE, 'Pureclarity_Core') . DIRECTORY_SEPARATOR . 'data' . DIRECTORY_SEPARATOR;
@@ -103,6 +110,7 @@ class CmsBlock
                     continue;
                 }
 
+        
                 $widgetInstance = $this->widgetFactory->create();
 
                 $code = $row['type_code'];
@@ -125,7 +133,9 @@ class CmsBlock
                     $customParameters['pc_bmz_buffer'] = 1;
                 }
 
-                $widgetInstance->setType($type)->setCode($code)->setThemeId($themeId);
+                $widgetInstance->setType($type)
+                    ->setCode($code)
+                    ->setThemeId($themeId);
                 $widgetInstance->setTitle($row['title'])
                     ->setStoreIds([$storeId])
                     ->setWidgetParameters($customParameters)
@@ -141,6 +151,20 @@ class CmsBlock
             "alreadyExists" => $alreadyExists,
             "installed" => $installed
         ];
+    }
+
+    /**
+     * Uninstalls all PureClarity BMZ widgets (Magento db table is widget_instance). 
+     * Called when PureClarity is uninstalled (/Setup/Uninstall).
+     */
+    public function uninstall(){
+
+        $instanceCollection = $this->appCollectionFactory->create()
+            ->addFilter('instance_type', 'Pureclarity\Core\Block\Bmz');
+        foreach($instanceCollection as $widgetInstance){
+            $widgetInstance->delete();
+        }
+        
     }
 
     /**
