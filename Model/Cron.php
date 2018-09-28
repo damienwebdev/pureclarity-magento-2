@@ -2,7 +2,10 @@
 namespace Pureclarity\Core\Model;
 
 use Pureclarity\Core\Model\Feed;
-use Zend\Http\Client;
+
+/**
+ * Controls the execution of feeds sent to PureClarity.
+ */
 
 class Cron extends \Magento\Framework\Model\AbstractModel
 {
@@ -57,9 +60,7 @@ class Cron extends \Magento\Framework\Model\AbstractModel
         );
     }
 
-    /**
-     * Runs all feeds, called via cron 3am daily (see /etc/crontab.xml)
-     */
+    // Cron execution
     public function runAllFeeds(\Magento\Cron\Model\Schedule $schedule)
     {
         // Loop round each store and create feed
@@ -162,7 +163,7 @@ class Cron extends \Magento\Framework\Model\AbstractModel
     }
 
     /**
-     * Reindexes products, called via cron every minute (see /etc/crontab.xml)
+     * Reindex Products
      */
     public function reindexData($schedule)
     {
