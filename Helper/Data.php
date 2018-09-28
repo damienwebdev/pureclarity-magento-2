@@ -1,6 +1,10 @@
 <?php
 namespace Pureclarity\Core\Helper;
 
+/**
+ * Helper class for core functionality.
+ */
+
 class Data extends \Magento\Framework\App\Helper\AbstractHelper
 {
 
@@ -40,6 +44,7 @@ class Data extends \Magento\Framework\App\Helper\AbstractHelper
         14 => "sftp-sa-e-1.pureclarity.net"
     ];
 
+    const PLACEHOLDER_UPLOAD_DIR = "pureclarity";
     const PROGRESS_FILE_BASE_NAME = 'pureclarity-feed-progress-';
     const PURECLARITY_EXPORT_URL = 'pureclarity/export/feed?storeid={storeid}&type={type}';
     protected $scopeConfig;
@@ -129,7 +134,6 @@ class Data extends \Magento\Framework\App\Helper\AbstractHelper
         }
         return $region;
     }
-
     
     // General Config
     public function isSearchActive($storeId = null)
@@ -215,6 +219,7 @@ class Data extends \Magento\Framework\App\Helper\AbstractHelper
         }
         return "";
     }
+
     public function getAdminImagePath($store, $image, $type)
     {
         if (is_string($image)) {
@@ -306,7 +311,10 @@ class Data extends \Magento\Framework\App\Helper\AbstractHelper
 
     public function getFeedBody($storeId)
     {
-        $body = ["AccessKey" => $this->getAccessKey($storeId), "SecretKey" => $this->getSecretKey($storeId)];
+        $body = [
+            "AccessKey" => $this->getAccessKey($storeId), 
+            "SecretKey" => $this->getSecretKey($storeId)
+        ];
         return $this->coreHelper->formatFeed($body);
     }
 
@@ -317,8 +325,6 @@ class Data extends \Magento\Framework\App\Helper\AbstractHelper
         }
         return $storeCode . "-" . $feedtype . ".json";
     }
-
-
 
     // MISC/HELPER METHODS
     public function getScriptUrl()
@@ -348,17 +354,16 @@ class Data extends \Magento\Framework\App\Helper\AbstractHelper
         return $this->storeManager->getStore()->getCurrentUrl();
     }
 
-    const PLACEHOLDER_UPLOAD_DIR = "pureclarity";
     public function getPlaceholderDir()
     {
         return $this->directoryList->getPath('media') . DIRECTORY_SEPARATOR . self::PLACEHOLDER_UPLOAD_DIR . DIRECTORY_SEPARATOR;
     }
+
     public function getPlaceholderUrl($store)
     {
         return $store->getBaseUrl(\Magento\Framework\UrlInterface::URL_TYPE_MEDIA) . 'catalog/product';
     }
 
-    
     public function getPureClarityBaseDir()
     {
         $varDir = $this->directoryList->getPath('var') . DIRECTORY_SEPARATOR  . 'pureclarity';
@@ -496,7 +501,10 @@ class Data extends \Magento\Framework\App\Helper\AbstractHelper
             foreach ($allItems as $childItem) {
                 $parentId = $childItem->getParentItemId();
                 if ($parentId && $orderItems[$parentId]) {
-                    $orderItems[$parentId]['children' . $count][] = ["sku" => $childItem->getSku(), "qty" => $childItem->getQtyOrdered()];
+                    $orderItems[$parentId]['children' . $count][] = [
+                        "sku" => $childItem->getSku(), 
+                        "qty" => $childItem->getQtyOrdered()
+                    ];
                 }
             }
         }
