@@ -14,7 +14,7 @@
         </parameter>
         <parameter name="pc_bmz_display_mode" xsi:type="select" visible="true" source_model="Pureclarity\Core\Model\BmzDisplayMode">
             <label translate="true">BMZ Display Mode</label>
-            <description translate="true">Select the display mode for the BMZ. Display mode settings are controlled using responsive style classes to decide when to show based onthe page width.</description>
+            <description translate="true">Select the display mode for the BMZ. Display mode settings are controlled using responsive style classes to decide when to show based on the page width.</description>
         </parameter>
         <parameter name="pc_bmz_buffer" xsi:type="select" visible="true" source_model="Magento\Config\Model\Config\Source\Yesno">
             <label translate="true">Apply margin</label>
