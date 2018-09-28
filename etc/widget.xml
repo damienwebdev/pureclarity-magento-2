@@ -22,7 +22,7 @@
         </parameter>
         <parameter name="pc_bmz_classes" xsi:type="text" required="false" visible="true">
             <label translate="true">CSS Custom Classes</label>
-            <description translate="true">Type in a comma seperated list of additional CSS classes to add to the PureClarity BMZ </description>
+            <description translate="true">Type in a comma-separated list of additional CSS classes to add to the PureClarity BMZ.</description>
         </parameter>
      </parameters>
  </widget>
