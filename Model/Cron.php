@@ -57,7 +57,9 @@ class Cron extends \Magento\Framework\Model\AbstractModel
         );
     }
 
-    // Cron execution
+    /**
+     * Runs all feeds, called via cron 3am daily (see /etc/crontab.xml)
+     */
     public function runAllFeeds(\Magento\Cron\Model\Schedule $schedule)
     {
         // Loop round each store and create feed
@@ -160,7 +162,7 @@ class Cron extends \Magento\Framework\Model\AbstractModel
     }
 
     /**
-     * Reindex Products
+     * Reindexes products, called via cron every minute (see /etc/crontab.xml)
      */
     public function reindexData($schedule)
     {
