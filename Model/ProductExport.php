@@ -3,6 +3,7 @@ namespace Pureclarity\Core\Model;
 
 /**
  * PureClarity Product Export Module
+ * For example, used to create product feed that's sent to PureClarity.
  */
 class ProductExport extends \Magento\Framework\Model\AbstractModel
 {
@@ -319,7 +320,7 @@ class ProductExport extends \Magento\Framework\Model\AbstractModel
                         }
                     }
                     if(count($searchTags)){
-                        $data["SearchTags"] = $searchTags;
+                        $data["SearchTags"] = array_values($searchTags);
                     }
                 }
             }
