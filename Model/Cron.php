@@ -60,7 +60,9 @@ class Cron extends \Magento\Framework\Model\AbstractModel
         );
     }
 
-    // Cron execution
+    /**
+     * Runs all feeds, called via cron 3am daily (see /etc/crontab.xml)
+     */
     public function runAllFeeds(\Magento\Cron\Model\Schedule $schedule)
     {
         // Loop round each store and create feed
@@ -80,7 +82,12 @@ class Cron extends \Magento\Framework\Model\AbstractModel
     // Produce all feeds in one file.
     public function allFeeds($storeId)
     {
-        $this->doFeed(['product', 'category', 'brand', 'user'], $storeId, $this->getFeedFilePath('all', $storeId));
+        $this->doFeed([
+            Feed::FEED_TYPE_PRODUCT, 
+            Feed::FEED_TYPE_CATEGORY, 
+            Feed::FEED_TYPE_BRAND, 
+            Feed::FEED_TYPE_USER
+        ], $storeId, $this->getFeedFilePath('all', $storeId));
     }
 
     public function selectedFeeds($storeId, $feeds)
@@ -99,7 +106,7 @@ class Cron extends \Magento\Framework\Model\AbstractModel
         //can take a while to run the feed
         set_time_limit(0);
 
-        $hasOrder = in_array("orders", $feedTypes);
+        $hasOrder = in_array(Feed::FEED_TYPE_ORDER, $feedTypes);
         $isOrderOnly = ($hasOrder && count($feedTypes) == 1);
 
         $progressFileName = $this->coreHelper->getProgressFileName();
@@ -141,19 +148,25 @@ class Cron extends \Magento\Framework\Model\AbstractModel
     // Produce a product feed and notify PureClarity so that it can fetch it.
     public function fullProductFeed($storeId)
     {
-        $this->doFeed(['product'], $storeId, $this->getFeedFilePath('product', $storeId));
+        $this->doFeed([
+                Feed::FEED_TYPE_PRODUCT
+            ], $storeId, $this->getFeedFilePath(Feed::FEED_TYPE_PRODUCT, $storeId));
     }
 
     // Produce a category feed and notify PureClarity so that it can fetch it.
     public function fullCategoryFeed($storeId)
     {
-        $this->doFeed(['category'], $storeId, $this->getFeedFilePath('category', $storeId));
+        $this->doFeed([
+                Feed::FEED_TYPE_CATEGORY
+            ], $storeId, $this->getFeedFilePath(Feed::FEED_TYPE_CATEGORY, $storeId));
     }
 
     // Produce a brand feed and notify PureClarity so that it can fetch it.
     public function fullBrandFeed($storeId)
     {
-        $this->doFeed(['brand'], $storeId, $this->getFeedFilePath('brand', $storeId));
+        $this->doFeed([
+                Feed::FEED_TYPE_BRAND
+            ], $storeId, $this->getFeedFilePath(Feed::FEED_TYPE_BRAND, $storeId));
     }
 
     private function getFeedFilePath($feedType, $storeId)
@@ -163,7 +176,7 @@ class Cron extends \Magento\Framework\Model\AbstractModel
     }
 
     /**
-     * Reindex Products
+     * Reindexes products, called via cron every minute (see /etc/crontab.xml)
      */
     public function reindexData($schedule)
     {
