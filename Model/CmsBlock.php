@@ -154,17 +154,17 @@ class CmsBlock
     }
 
     /**
-     * Uninstalls all PureClarity BMZ widgets (Magento db table is widget_instance). 
+     * Uninstalls all PureClarity BMZ widgets (Magento db table is widget_instance).
      * Called when PureClarity is uninstalled (/Setup/Uninstall).
      */
-    public function uninstall(){
+    public function uninstall()
+    {
 
         $instanceCollection = $this->appCollectionFactory->create()
             ->addFilter('instance_type', 'Pureclarity\Core\Block\Bmz');
-        foreach($instanceCollection as $widgetInstance){
+        foreach ($instanceCollection as $widgetInstance) {
             $widgetInstance->delete();
         }
-        
     }
 
     /**

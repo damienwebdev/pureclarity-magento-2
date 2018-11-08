@@ -239,11 +239,10 @@ class ProductExport extends \Magento\Framework\Model\AbstractModel
              * \Magento\Catalog\Model\Product\Gallery\ReadHandler does not exist in Magento 2.0
              * - this is a workaround which avoids having the ReadHandler as a constructor parameter
              */
-            if($this->getGalleryReadHandler()){
+            if ($this->getGalleryReadHandler()) {
                 $this->getGalleryReadHandler()->execute($product);
                 $productImages = $product->getMediaGalleryImages();
-            }
-            else{
+            } else {
                 $productImages = [];
                 $productImages[] = $baseProductImageUrl . $product->getImage();
                 $productImages[] = $baseProductImageUrl . $product->getThumbnail();
@@ -310,16 +309,16 @@ class ProductExport extends \Magento\Framework\Model\AbstractModel
 
             // Set PureClarity Custom values
             $searchTagString = $product->getData('pureclarity_search_tags');
-            if (!empty($searchTagString)){
+            if (!empty($searchTagString)) {
                 $searchTags = explode(",", $searchTagString);
-                if(count($searchTags)){
+                if (count($searchTags)) {
                     foreach ($searchTags as $key => &$searchTag) {
                         $searchTag = trim($searchTag);
-                        if(empty($searchTag)){
+                        if (empty($searchTag)) {
                             unset($searchTags[$key]);
                         }
                     }
-                    if(count($searchTags)){
+                    if (count($searchTags)) {
                         $data["SearchTags"] = array_values($searchTags);
                     }
                 }
@@ -558,17 +557,17 @@ class ProductExport extends \Magento\Framework\Model\AbstractModel
      * Returns \Magento\Catalog\Model\Product\Gallery\ReadHandler if the class exists,
      * otherwise returns false
      */
-    protected function getGalleryReadHandler(){
-        if(is_null($this->galleryReadHandler)){
-            if(class_exists('\\Magento\\Catalog\\Model\\Product\\Gallery\\ReadHandler')){
+    protected function getGalleryReadHandler()
+    {
+        if (is_null($this->galleryReadHandler)) {
+            if (class_exists('\\Magento\\Catalog\\Model\\Product\\Gallery\\ReadHandler')) {
                 $this->logger->debug('PureClarity: ReadHandler class exists.');
 
                 //using object manager here for backward compatibility issues
                 $objectManager = \Magento\Framework\App\ObjectManager::getInstance();
                 $this->galleryReadHandler = $objectManager->create('\Magento\Catalog\Model\Product\Gallery\ReadHandler');
                 $this->logger->debug('PureClarity: Have created ReadHandler.');
-            }
-            else{
+            } else {
                 $this->logger->debug('PureClarity: ReadHandler class does not exist.');
                 $this->galleryReadHandler = false;
             }

@@ -291,10 +291,10 @@ class Data extends \Magento\Framework\App\Helper\AbstractHelper
     {
         $url = getenv('PURECLARITY_FEED_HOST');
         $port = getenv('PURECLARITY_FEED_PORT');
-        if (empty($url)){
+        if (empty($url)) {
             $url = $this->sftpRegions[$this->getRegion($storeId)];
         }
-        if (! empty($port)){
+        if (! empty($port)) {
             $url = $url . ":" . $port;
         }
 
@@ -312,7 +312,7 @@ class Data extends \Magento\Framework\App\Helper\AbstractHelper
     public function getFeedBody($storeId)
     {
         $body = [
-            "AccessKey" => $this->getAccessKey($storeId), 
+            "AccessKey" => $this->getAccessKey($storeId),
             "SecretKey" => $this->getSecretKey($storeId)
         ];
         return $this->coreHelper->formatFeed($body);
@@ -502,7 +502,7 @@ class Data extends \Magento\Framework\App\Helper\AbstractHelper
                 $parentId = $childItem->getParentItemId();
                 if ($parentId && $orderItems[$parentId]) {
                     $orderItems[$parentId]['children' . $count][] = [
-                        "sku" => $childItem->getSku(), 
+                        "sku" => $childItem->getSku(),
                         "qty" => $childItem->getQtyOrdered()
                     ];
                 }

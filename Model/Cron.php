@@ -83,9 +83,9 @@ class Cron extends \Magento\Framework\Model\AbstractModel
     public function allFeeds($storeId)
     {
         $this->doFeed([
-            Feed::FEED_TYPE_PRODUCT, 
-            Feed::FEED_TYPE_CATEGORY, 
-            Feed::FEED_TYPE_BRAND, 
+            Feed::FEED_TYPE_PRODUCT,
+            Feed::FEED_TYPE_CATEGORY,
+            Feed::FEED_TYPE_BRAND,
             Feed::FEED_TYPE_USER
         ], $storeId, $this->getFeedFilePath('all', $storeId));
     }
@@ -100,7 +100,7 @@ class Cron extends \Magento\Framework\Model\AbstractModel
      * @param $feedTypes array
      * @param $storeId integer
      * @param $feedFilePath
-     */ 
+     */
     public function doFeed($feedTypes, $storeId, $feedFilePath)
     {
         //can take a while to run the feed
@@ -113,7 +113,7 @@ class Cron extends \Magento\Framework\Model\AbstractModel
         $feedModel = $this->coreFeedFactory
             ->create()
             ->initialise($storeId, $progressFileName);
-        if(! $feedModel){
+        if (! $feedModel) {
             return false;
         }
 
@@ -127,7 +127,7 @@ class Cron extends \Magento\Framework\Model\AbstractModel
                     $feedModel->sendCategories();
                     break;
                 case Feed::FEED_TYPE_BRAND:
-                    if ($this->coreHelper->isBrandFeedEnabled($storeId)){
+                    if ($this->coreHelper->isBrandFeedEnabled($storeId)) {
                         $feedModel->sendBrands();
                     }
                     break;
@@ -140,7 +140,6 @@ class Cron extends \Magento\Framework\Model\AbstractModel
                 default:
                     throw new \Exception("PureClarity feed type not recognised: {$feedType}");
             }
-            
         }
         $feedModel->checkSuccess();
     }

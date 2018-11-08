@@ -66,13 +66,13 @@ class Feed extends \Magento\Framework\Model\AbstractModel
     }
 
     /**
-     * Process the product feed and update the progress file, in page sizes 
+     * Process the product feed and update the progress file, in page sizes
      * of 1 by default to ensure fits POST size
      * @param $pageSize integer
      */
     function sendProducts($pageSize = 1)
     {
-        if(! $this->isInitialised()){
+        if (! $this->isInitialised()) {
             return false;
         }
 
@@ -98,15 +98,14 @@ class Feed extends \Magento\Framework\Model\AbstractModel
             $pages = $result["Pages"];
         
             $json = ($isFirst ? ',"Products":[' : "");
-            foreach ($result["Products"] as $product) 
-            {
-                if (! $isFirst ){ 
+            foreach ($result["Products"] as $product) {
+                if (! $isFirst) {
                     $json .= ',';
                 }
                 $isFirst = false;
                 $json .= $this->coreHelper->formatFeed($product, 'json');
             }
-            if(($currentPage) >= $pages ){
+            if (($currentPage) >= $pages) {
                 $json .= ']';
             }
             $parameters = $this->getParameters($json, self::FEED_TYPE_PRODUCT);
@@ -124,7 +123,7 @@ class Feed extends \Magento\Framework\Model\AbstractModel
      */
     function sendOrders()
     {
-        if(! $this->isInitialised()){
+        if (! $this->isInitialised()) {
             return false;
         }
 
@@ -189,7 +188,7 @@ class Feed extends \Magento\Framework\Model\AbstractModel
                      * Need to set to 0.00 above for 2.0, otherwise invalid pricing format and not accepted
                      * into PureClarity.
                      */
-                    if ( $isMagento20 
+                    if ($isMagento20
                         || ($price > 0 && $linePrice > 0)) {
                         $data .= "{$id},{$customerId},{$email},{$date},{$productId},{$quantity},{$price},{$linePrice}" . PHP_EOL;
                     }
@@ -218,7 +217,7 @@ class Feed extends \Magento\Framework\Model\AbstractModel
      */
     function sendCategories()
     {
-        if(! $this->isInitialised()){
+        if (! $this->isInitialised()) {
             return false;
         }
 
@@ -239,7 +238,6 @@ class Feed extends \Magento\Framework\Model\AbstractModel
         $isFirst = true;
 
         foreach ($categoryCollection as $category) {
-
             if (! $category->getName()) {
                 continue;
             }
@@ -250,8 +248,7 @@ class Feed extends \Magento\Framework\Model\AbstractModel
             $firstImage = $category->getImageUrl();
             if ($firstImage != "") {
                 $imageUrl = $firstImage;
-            } 
-            else {
+            } else {
                 $imageUrl = $this->coreHelper->getCategoryPlaceholderUrl($this->storeId);
             }
             $imageUrl = $this->removeUrlProtocol($imageUrl);
@@ -262,8 +259,7 @@ class Feed extends \Magento\Framework\Model\AbstractModel
             $secondImage = $category->getData('pureclarity_category_image');
             if ($secondImage != "") {
                 $imageUrl2 = sprintf("%scatalog/category/%s", $currentStore->getBaseUrl(\Magento\Framework\UrlInterface::URL_TYPE_MEDIA), $secondImage);
-            } 
-            else {
+            } else {
                 $imageUrl2 = $this->coreHelper->getSecondaryCategoryPlaceholderUrl($this->storeId);
             }
             $imageUrl2 = $this->removeUrlProtocol($imageUrl2);
@@ -302,7 +298,7 @@ class Feed extends \Magento\Framework\Model\AbstractModel
                 $categoryData["PCImage"] = $imageUrl2;
             }
             
-            if (! $isFirst ){
+            if (! $isFirst) {
                 $feedCategories .= ',';
             }
             $isFirst = false;
@@ -310,7 +306,7 @@ class Feed extends \Magento\Framework\Model\AbstractModel
             $feedCategories .= $this->coreHelper->formatFeed($categoryData, 'json');
             
             $currentProgress ++;
-            if($currentProgress >= $maxProgress){
+            if ($currentProgress >= $maxProgress) {
                 $feedCategories .= ']';
             }
 
@@ -327,7 +323,7 @@ class Feed extends \Magento\Framework\Model\AbstractModel
      */
     function sendBrands()
     {
-        if(! $this->isInitialised()){
+        if (! $this->isInitialised()) {
             return false;
         }
 
@@ -364,15 +360,14 @@ class Feed extends \Magento\Framework\Model\AbstractModel
                     $thisBrand['Image'] = $this->removeUrlProtocol($imageUrl);
                 }
 
-                if ( ! $isFirst )
-                {
+                if (! $isFirst) {
                     $feedBrands .= ',';
                 }
                 $isFirst = false;
                 $feedBrands .= $this->coreHelper->formatFeed($thisBrand, 'json');
                 $currentProgress++;
 
-                if($currentProgress >= $maxProgress){
+                if ($currentProgress >= $maxProgress) {
                     $feedBrands .= ']';
                 }
 
@@ -381,8 +376,7 @@ class Feed extends \Magento\Framework\Model\AbstractModel
 
                 $this->coreHelper->setProgressFile($this->progressFileName, self::FEED_TYPE_BRAND, $currentProgress, $maxProgress);
             }
-        }
-        else{
+        } else {
             $this->coreHelper->setProgressFile($this->progressFileName, 'brand', 1, 1);
         }
         $this->end(self::FEED_TYPE_BRAND);
@@ -414,7 +408,7 @@ class Feed extends \Magento\Framework\Model\AbstractModel
     function sendUsers()
     {
 
-        if(! $this->isInitialised()){
+        if (! $this->isInitialised()) {
             return false;
         }
 
@@ -435,7 +429,6 @@ class Feed extends \Magento\Framework\Model\AbstractModel
         $isFirst = true;
 
         foreach ($customerCollection as $customer) {
-
             $users = ($isFirst ? ',"Users":[' : "");
 
             $data = [
@@ -468,8 +461,7 @@ class Feed extends \Magento\Framework\Model\AbstractModel
             $address = null;
             if ($customer->getDefaultShipping()) {
                 $address = $customer->getAddresses()[$customer->getDefaultShipping()];
-            } 
-            elseif ($customer->getAddresses() && sizeof(array_keys($customer->getAddresses())) > 0) {
+            } elseif ($customer->getAddresses() && sizeof(array_keys($customer->getAddresses())) > 0) {
                 $address = $customer->getAddresses()[array_keys($customer->getAddresses())[0]];
             }
             if ($address) {
@@ -484,7 +476,7 @@ class Feed extends \Magento\Framework\Model\AbstractModel
                 }
             }
 
-            if (! $isFirst){
+            if (! $isFirst) {
                 $users .= ',';
             }
             $isFirst = false;
@@ -492,7 +484,7 @@ class Feed extends \Magento\Framework\Model\AbstractModel
             $users .= $this->coreHelper->formatFeed($data, 'json');
             
             $currentProgress += 1;
-            if($currentProgress >= $maxProgress){
+            if ($currentProgress >= $maxProgress) {
                 $users .= ']';
             }
 
@@ -508,9 +500,10 @@ class Feed extends \Magento\Framework\Model\AbstractModel
      * Removes protocol from the start of $url
      * @param $url string
      */
-    protected function removeUrlProtocol($url){
+    protected function removeUrlProtocol($url)
+    {
         return str_replace([
-                "https:", 
+                "https:",
                 "http:"
             ], "", $url);
     }
@@ -520,14 +513,14 @@ class Feed extends \Magento\Framework\Model\AbstractModel
      * sends first row of CSV data, otherwise sends opening string of json.
      * @param $feedType string One of the Feed::FEED_TYPE_... constants
      */
-    protected function start($feedType) {
-        if($feedType == self::FEED_TYPE_ORDER){
+    protected function start($feedType)
+    {
+        if ($feedType == self::FEED_TYPE_ORDER) {
             $startJson = "OrderId,UserId,Email,DateTimeStamp,ProdCode,Quantity,UnityPrice,LinePrice" . PHP_EOL;
-        }
-        else{
+        } else {
             $startJson = '{"Version": 2';
         }
-        $parameters = $this->getParameters( $startJson, $feedType );
+        $parameters = $this->getParameters($startJson, $feedType);
         $this->send("feed-create", $parameters);
         $this->logger->debug("PureClarity: Started feed");
     }
@@ -538,7 +531,8 @@ class Feed extends \Magento\Framework\Model\AbstractModel
      * bracket.
      * @param $feedType string One of the Feed::FEED_TYPE_... constants
      */
-    protected function end($feedType) {
+    protected function end($feedType)
+    {
         $data = ( $feedType == self::FEED_TYPE_ORDER ? '' : '}' );
         $this->send("feed-close", $this->getParameters($data, $feedType));
         // Ensure progress file is set to complete
@@ -550,7 +544,8 @@ class Feed extends \Magento\Framework\Model\AbstractModel
      * @param $endPoint string
      * @param $parameters array
      */
-    protected function send($endPoint, $parameters){
+    protected function send($endPoint, $parameters)
+    {
         
         $url = $this->coreHelper->getFeedBaseUrl($this->storeId) . $endPoint;
         
@@ -570,11 +565,10 @@ class Feed extends \Magento\Framework\Model\AbstractModel
             curl_setopt($ch, CURLOPT_POST, true);
             curl_setopt($ch, CURLOPT_POSTFIELDS, $post_fields);
             curl_setopt($ch, CURLOPT_HTTPHEADER, [
-                    'Content-Type: application/x-www-form-urlencoded', 
+                    'Content-Type: application/x-www-form-urlencoded',
                     'Content-Length: ' . strlen($post_fields)
                 ]);
-        } 
-        else {
+        } else {
             curl_setopt($ch, CURLOPT_POST, false);
         }
 
@@ -583,7 +577,7 @@ class Feed extends \Magento\Framework\Model\AbstractModel
 
         $response = curl_exec($ch);
 
-        if(curl_errno($ch)){
+        if (curl_errno($ch)) {
             $this->logger->debug('PureClarity: Error: ' . curl_error($ch));
             $this->problemFeeds[] = $parameters['feedName'];
         }
@@ -599,8 +593,9 @@ class Feed extends \Magento\Framework\Model\AbstractModel
      * @param $data string
      * @param $feedType string One of Feed::FEED_TYPE... constants
      */
-    protected function getParameters($data, $feedType){
-        if(! $this->isInitialised()){
+    protected function getParameters($data, $feedType)
+    {
+        if (! $this->isInitialised()) {
             return false;
         }
         $parameters = [
@@ -608,7 +603,7 @@ class Feed extends \Magento\Framework\Model\AbstractModel
             "secretKey" => $this->secretKey,
             "feedName" => $feedType
         ];
-        if ( ! empty($data) ){
+        if (! empty($data)) {
             $parameters["payLoad"] = $data;
         }
         return $parameters;
@@ -620,7 +615,8 @@ class Feed extends \Magento\Framework\Model\AbstractModel
      * @param $storeId integer
      * @param $progressFileName string
      */
-    public function initialise($storeId, $progressFileName){
+    public function initialise($storeId, $progressFileName)
+    {
         $this->storeId = $storeId;
         $this->progressFileName = $progressFileName;
         $this->accessKey = $this->coreHelper->getAccessKey($this->storeId);
@@ -637,23 +633,23 @@ class Feed extends \Magento\Framework\Model\AbstractModel
      * needs to be set on instantiation, access and secret keys need to be set in Magento.
      * @return boolean
      */
-    protected function isInitialised(){
-        if( empty($this->accessKey) 
+    protected function isInitialised()
+    {
+        if (empty($this->accessKey)
             || empty($this->secretKey)
             || empty($this->storeId)
             || empty($this->progressFileName)
-            ){
-                if( empty($this->accessKey) 
-                    || empty($this->secretKey)){
-                        $this->logger->debug("PureClarity: No access key or secret key, call initialise() on Model/Feed.php");
-                    }
-                if( empty($this->storeId)
-                    || empty($this->progressFileName)){
-                        $this->logger->debug("PureClarity: No store id or progress file name, call initialise() on Model/Feed.php");
-                    }
+            ) {
+            if (empty($this->accessKey)
+                    || empty($this->secretKey)) {
+                $this->logger->debug("PureClarity: No access key or secret key, call initialise() on Model/Feed.php");
+            }
+            if (empty($this->storeId)
+                    || empty($this->progressFileName)) {
+                $this->logger->debug("PureClarity: No store id or progress file name, call initialise() on Model/Feed.php");
+            }
                 return false;
-        }
-        else{
+        } else {
             return true;
         }
     }
@@ -662,29 +658,26 @@ class Feed extends \Magento\Framework\Model\AbstractModel
      * Checks whether the POSTing of feeds has been successful and displays
      * appropriate message
      */
-    public function checkSuccess(){
+    public function checkSuccess()
+    {
         $problemFeedCount = count($this->problemFeeds);
-        if($problemFeedCount){
+        if ($problemFeedCount) {
             $errorMessage = "There was a problem uploading the ";
             $counter = 1;
-            foreach($this->problemFeeds as $problemFeed){
+            foreach ($this->problemFeeds as $problemFeed) {
                 $errorMessage .= $problemFeed;
-                if($counter < $problemFeedCount && $problemFeedCount !== 2){
+                if ($counter < $problemFeedCount && $problemFeedCount !== 2) {
                     $errorMessage .= ", ";
-                }
-                elseif($problemFeedCount >= 2){
+                } elseif ($problemFeedCount >= 2) {
                     $errorMessage .= " and ";
                 }
-
             }
             $errorMessage .= " feed" . ($problemFeedCount > 1 ? "s" : "");
             $errorMessage .= ". Please see error logs for more information.";
             $this->coreHelper->setProgressFile($this->progressFileName, 'N/A', 1, 1, "true", "false", $errorMessage);
-        }
-        else{
+        } else {
             // Set to uploaded
             $this->coreHelper->setProgressFile($this->progressFileName, 'N/A', 1, 1, "true", "true");
         }
     }
-
 }
