@@ -136,11 +136,20 @@ class Data extends \Magento\Framework\App\Helper\AbstractHelper
     }
     
     // General Config
+    public function isMerchActive($storeId = null)
+    {
+        // if ($this->isActive($this->getStoreId($storeId))) {
+        //     return $this->scopeConfig->getValue("pureclarity/general_config/merch_active", \Magento\Store\Model\ScopeInterface::SCOPE_STORE, $this->getStoreId($storeId));
+        // }
+        // return false;
+        return true;
+    }
+
     public function isSearchActive($storeId = null)
     {
-        if ($this->isActive($this->getStoreId($storeId))) {
-            return $this->scopeConfig->getValue("pureclarity/general_config/search_active", \Magento\Store\Model\ScopeInterface::SCOPE_STORE, $this->getStoreId($storeId));
-        }
+        // if ($this->isActive($this->getStoreId($storeId))) {
+        //     return $this->scopeConfig->getValue("pureclarity/general_config/search_active", \Magento\Store\Model\ScopeInterface::SCOPE_STORE, $this->getStoreId($storeId));
+        // }
         return false;
     }
 
@@ -148,14 +157,6 @@ class Data extends \Magento\Framework\App\Helper\AbstractHelper
     {
         if ($this->isActive($this->getStoreId($storeId))) {
             return $this->scopeConfig->getValue("pureclarity/general_config/prodlisting_active", \Magento\Store\Model\ScopeInterface::SCOPE_STORE, $this->getStoreId($storeId));
-        }
-        return false;
-    }
-
-    public function isMerchActive($storeId = null)
-    {
-        if ($this->isActive($this->getStoreId($storeId))) {
-            return $this->scopeConfig->getValue("pureclarity/general_config/merch_active", \Magento\Store\Model\ScopeInterface::SCOPE_STORE, $this->getStoreId($storeId));
         }
         return false;
     }
@@ -500,7 +501,7 @@ class Data extends \Magento\Framework\App\Helper\AbstractHelper
 
             foreach ($allItems as $childItem) {
                 $parentId = $childItem->getParentItemId();
-                if ($parentId && $orderItems[$parentId]) {
+                if ($parentId && isset($orderItems[$parentId])) {
                     $orderItems[$parentId]['children' . $count][] = [
                         "sku" => $childItem->getSku(),
                         "qty" => $childItem->getQtyOrdered()

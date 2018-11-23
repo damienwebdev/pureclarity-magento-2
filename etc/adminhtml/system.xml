@@ -60,17 +60,19 @@
             </group>
             <group id="general_config" type="text" sortOrder="4" showInDefault="1" showInWebsite="1" showInStore="1">
                 <label>General configuration</label>
-                <comment>Enable or disabled the PureClarity Merchandizing and Search functionality.</comment>
-                <field id="merch_active" translate="label" type="select" showInDefault="1" showInWebsite="1" showInStore="1">
-                    <label>Merchandizing Zones Enabled</label>
-                    <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
-                    <comment>Select if PureClarity should show BMZs.</comment>
-                </field>
-                <field id="search_active" translate="label" type="select" showInDefault="1" showInWebsite="1" showInStore="1">
-                    <label>Search Enabled</label>
-                    <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
-                    <comment>Select if PureClarity Search should be enabled.</comment>
-                </field>
+                <!--  
+                    <comment>Enable or disabled the PureClarity Merchandizing and Search functionality.</comment>
+                    <field id="merch_active" translate="label" type="select" showInDefault="1" showInWebsite="1" showInStore="1">
+                        <label>Merchandizing Zones Enabled</label>
+                        <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
+                        <comment>Select if PureClarity should show BMZs.</comment>
+                    </field>
+                    <field id="search_active" translate="label" type="select" showInDefault="1" showInWebsite="1" showInStore="1">
+                        <label>Search Enabled</label>
+                        <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
+                        <comment>Select if PureClarity Search should be enabled.</comment>
+                    </field> 
+                -->
                 <field id="prodlisting_active" translate="label" type="select" showInDefault="1" showInWebsite="1" showInStore="1">
                     <label>Product Listing Enabled</label>
                     <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
