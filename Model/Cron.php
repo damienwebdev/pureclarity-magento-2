@@ -65,6 +65,7 @@ class Cron extends \Magento\Framework\Model\AbstractModel
      */
     public function runAllFeeds(\Magento\Cron\Model\Schedule $schedule)
     {
+        $this->logger->debug('PureClarity: In Cron->runAllFeeds()');
         // Loop round each store and create feed
         foreach ($this->storeManager->getWebsites() as $website) {
             foreach ($website->getGroups() as $group) {
@@ -72,7 +73,7 @@ class Cron extends \Magento\Framework\Model\AbstractModel
                 foreach ($stores as $store) {
                     // Only generate feeds when feed notification is active
                     if (!$this->coreHelper->isFeedNotificationActive($store->getId())) {
-                        allFeeds($store->getId());
+                        $this->allFeeds($store->getId());
                     }
                 }
             }
