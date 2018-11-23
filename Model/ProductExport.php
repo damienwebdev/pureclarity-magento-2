@@ -19,7 +19,7 @@ class ProductExport extends \Magento\Framework\Model\AbstractModel
 
     
     protected $storeManager;
-    protected $storeStoreFactory;
+    protected $storeFactory;
     protected $directoryCurrencyFactory;
     protected $coreHelper;
     protected $coreFeedFactory;
@@ -44,7 +44,7 @@ class ProductExport extends \Magento\Framework\Model\AbstractModel
         \Magento\Framework\Model\Context $context,
         \Magento\Framework\Registry $registry,
         \Magento\Store\Model\StoreManagerInterface $storeManager,
-        \Magento\Store\Model\StoreFactory $storeStoreFactory,
+        \Magento\Store\Model\StoreFactory $storeFactory,
         \Magento\Directory\Model\CurrencyFactory $directoryCurrencyFactory,
         \Pureclarity\Core\Helper\Data $coreHelper,
         \Pureclarity\Core\Model\FeedFactory $coreFeedFactory,
@@ -68,7 +68,7 @@ class ProductExport extends \Magento\Framework\Model\AbstractModel
         array $data = []
     ) {
         $this->storeManager = $storeManager;
-        $this->storeStoreFactory = $storeStoreFactory;
+        $this->storeFactory = $storeFactory;
         $this->directoryCurrencyFactory = $directoryCurrencyFactory;
         $this->coreHelper = $coreHelper;
         $this->coreFeedFactory = $coreFeedFactory;
@@ -107,7 +107,7 @@ class ProductExport extends \Magento\Framework\Model\AbstractModel
             $this->storeId = $this->storeManager->getStore()->getId();
         }
         
-        $this->currentStore = $this->storeStoreFactory->create()->load($this->storeId);
+        $this->currentStore = $this->storeFactory->create()->load($this->storeId);
 
         // Set Currency list
         $currencyModel = $this->directoryCurrencyFactory->create();
@@ -160,9 +160,13 @@ class ProductExport extends \Magento\Framework\Model\AbstractModel
     public function getFullProductFeed($pageSize = 1000000, $currentPage = 1)
     {
         // Get product collection
-        $validVisiblity = ['in' => [\Magento\Catalog\Model\Product\Visibility::VISIBILITY_BOTH,
-                                              \Magento\Catalog\Model\Product\Visibility::VISIBILITY_IN_CATALOG,
-                                              \Magento\Catalog\Model\Product\Visibility::VISIBILITY_IN_SEARCH]];
+        $validVisiblity = [
+            'in' => [
+                \Magento\Catalog\Model\Product\Visibility::VISIBILITY_BOTH,
+                \Magento\Catalog\Model\Product\Visibility::VISIBILITY_IN_CATALOG,
+                \Magento\Catalog\Model\Product\Visibility::VISIBILITY_IN_SEARCH
+            ]
+        ];
         $products = $this->coreResourceProductCollectionFactory->create()
             ->setStoreId($this->storeId)
             ->addStoreFilter($this->storeId)
@@ -170,6 +174,8 @@ class ProductExport extends \Magento\Framework\Model\AbstractModel
             ->addAttributeToSelect('*')
             ->addAttributeToFilter("status", ["eq" => \Magento\Catalog\Model\Product\Attribute\Source\Status::STATUS_ENABLED])
             ->addFieldToFilter('visibility', $validVisiblity)
+            ->addMinimalPrice()
+            ->addTaxPercents()
             ->setPageSize($pageSize)
             ->setCurPage($currentPage);
             
@@ -182,7 +188,7 @@ class ProductExport extends \Magento\Framework\Model\AbstractModel
         // Loop through products
         $feedProducts = [];
         foreach ($products as $product) {
-            $data = $this->processProduct($product, count($feedProducts)+($pageSize * $currentPage)+1);
+            $data = $this->processProduct($product, count($feedProducts) + ($pageSize * $currentPage) + 1);
             if ($data != null) {
                 $feedProducts[] = $data;
             }
@@ -197,6 +203,8 @@ class ProductExport extends \Magento\Framework\Model\AbstractModel
     // Gets the data for a product.
     public function processProduct(&$product, $index)
     {
+        session_write_close(); //ensures progress feed in GUI is updated
+
         // Check hash that we've not already seen this product
         if (!array_key_exists($product->getId(), $this->seenProductIds) || $this->seenProductIds[$product->getId()]===null) {
             // Set Category Ids for product
@@ -275,7 +283,6 @@ class ProductExport extends \Magento\Framework\Model\AbstractModel
 
             // Swatch renderer
             if ($product->getTypeId() == \Magento\ConfigurableProduct\Model\Product\Type\Configurable::TYPE_CODE) {
-                session_write_close();
                 $swatchBlock = $this->blockFactory
                                     ->createBlock('\Magento\Swatches\Block\Product\Renderer\Listing\Configurable')
                                     ->setData("product", $product);
@@ -290,9 +297,9 @@ class ProductExport extends \Magento\Framework\Model\AbstractModel
                     "jsonSwatchConfig" => json_decode($swatchBlock->getJsonSwatchConfig()),
                     "mediaCallback" => $this->currentStore->getBaseUrl() . "swatches/ajax/media/"
                 ]);
+
                 $swatchBlock = null;
             }
-            
             
             // Set the visibility for PureClarity
             $visibility = $product->getVisibility();
@@ -350,12 +357,16 @@ class ProductExport extends \Magento\Framework\Model\AbstractModel
             $childProducts = [];
             switch ($product->getTypeId()) {
                 case \Magento\ConfigurableProduct\Model\Product\Type\Configurable::TYPE_CODE:
-                    $childIds = $this->configurableProductProductTypeConfigurableFactory->create()->getChildrenIds($product->getId());
+                    $childIds = $this->configurableProductProductTypeConfigurableFactory->create()
+                        ->getChildrenIds($product->getId());
                     if (count($childIds[0]) > 0) {
-                        $childProducts = $this->coreResourceProductCollectionFactory->create()->addAttributeToSelect('*')
-                            ->addFieldToFilter('entity_id', ['in'=> $childIds[0]]);
+                        $childProducts = $this->coreResourceProductCollectionFactory->create()
+                            ->addAttributeToSelect('*')
+                            ->addFieldToFilter('entity_id', [
+                                'in' => $childIds[0]
+                            ]);
                     } else {
-                        //configurable with no children - exlude from feed
+                        //configurable with no children - exclude from feed
                         return null;
                     }
                     break;
@@ -415,21 +426,22 @@ class ProductExport extends \Magento\Framework\Model\AbstractModel
 
     protected function setProductPrices($product, &$data, &$childProducts = null)
     {
-        $basePrices = $this->getProductPrice($product, false, true, $childProducts);
-        $baseFinalPrices = $this->getProductPrice($product, true, true, $childProducts);
+        // $basePrices = $this->getProductPrice($product, false, true, $childProducts);
+        // $baseFinalPrices = $this->getProductPrice($product, true, true, $childProducts);
+        $prices = $this->getProductPrices($product, true, $childProducts);
         foreach ($this->currenciesToProcess as $currency) {
             // Process currency for min price
-            $minPrice = $this->convertCurrency($basePrices['min'], $currency);
+            $minPrice = $this->convertCurrency($prices['basePrices']['min'], $currency);
             $this->addValueToDataArray($data, 'Prices', number_format($minPrice, 2, '.', '').' '.$currency);
-            $minFinalPrice = $this->convertCurrency($baseFinalPrices['min'], $currency);
+            $minFinalPrice = $this->convertCurrency($prices['baseFinalPrices']['min'], $currency);
             if ($minFinalPrice !== null && $minFinalPrice < $minPrice) {
                 $this->addValueToDataArray($data, 'SalePrices', number_format($minFinalPrice, 2, '.', '').' '.$currency);
             }
             // Process currency for max price if it's different to min price
-            $maxPrice = $this->convertCurrency($basePrices['max'], $currency);
+            $maxPrice = $this->convertCurrency($prices['basePrices']['max'], $currency);
             if ($minPrice<$maxPrice) {
                 $this->addValueToDataArray($data, 'Prices', number_format($maxPrice, 2, '.', '').' '.$currency);
-                $maxFinalPrice = $this->convertCurrency($baseFinalPrices['max'], $currency);
+                $maxFinalPrice = $this->convertCurrency($prices['baseFinalPrices']['max'], $currency);
                 if ($maxFinalPrice !== null && $maxFinalPrice < $maxPrice) {
                     $this->addValueToDataArray($data, 'SalePrices', number_format($maxFinalPrice, 2, '.', '').' '.$currency);
                 }
@@ -445,36 +457,32 @@ class ProductExport extends \Magento\Framework\Model\AbstractModel
         return $this->directoryHelper->currencyConvert($price, $this->baseCurrencyCode, $to);
     }
 
-    protected function getProductPrice(\Magento\Catalog\Model\Product $product, $getFinalPrice = false, $includeTax = true, &$childProducts = null)
+    protected function getProductPrices(\Magento\Catalog\Model\Product $product, $includeTax = true, $childProducts = null)
     {
         $minPrice = 0;
         $maxPrice = 0;
         switch ($product->getTypeId()) {
             case \Magento\GroupedProduct\Model\Product\Type\Grouped::TYPE_CODE:
             case \Magento\Bundle\Model\Product\Type::TYPE_CODE:
-                $config = $this->catalogConfig;
-                $groupProduct = $this->coreResourceProductCollectionFactory->create()
-                    ->setStoreId($this->storeId)
-                    ->addAttributeToSelect($config->getProductAttributes())
-                    ->addAttributeToFilter('entity_id', $product->getId())
-                    ->setPage(1, 1)
-                    ->addMinimalPrice()
-                    ->addTaxPercents()
-                    ->load()
-                    ->getFirstItem();
-                if ($groupProduct) {
-                    $minPrice = $groupProduct->getMinimalPrice();
-                    $maxPrice = $groupProduct->getMaxPrice();
+                if ($product) {
+                    $minPrice = $product->getMinimalPrice();
+                    $maxPrice = $product->getMaxPrice();
                     if ($includeTax) {
-                        $minPrice = $this->catalogHelper->getTaxPrice($groupProduct, $minPrice, true);
-                        $maxPrice = $this->catalogHelper->getTaxPrice($groupProduct, $maxPrice, true);
+                        $minPrice = $this->catalogHelper->getTaxPrice($product, $minPrice, true);
+                        $maxPrice = $this->catalogHelper->getTaxPrice($product, $maxPrice, true);
                     }
+                    $prices['basePrices']['min'] = $minPrice;
+                    $prices['baseFinalPrices']['min'] = $minPrice;
+                    $prices['basePrices']['max'] = $maxPrice;
+                    $prices['baseFinalPrices']['max'] = $maxPrice;
                 }
                 break;
             case \Magento\ConfigurableProduct\Model\Product\Type\Configurable::TYPE_CODE:
                 $price = null;
                 $lowestPrice = 0;
                 $highestPrice = 0;
+                $lowestFinalPrice = 0;
+                $highestFinalPrice = 0;
                 $associatedProducts = ($childProducts !== null) ?
                                         $childProducts :
                                         $this->configurableProductProductTypeConfigurableFactory->create()
@@ -482,31 +490,44 @@ class ProductExport extends \Magento\Framework\Model\AbstractModel
                 foreach ($associatedProducts as $associatedProduct) {
                     if (!$associatedProduct->isDisabled()) {
                         $productModel = $this->catalogProductFactory->create()->load($associatedProduct->getId());
-                        $variationPrices = $this->getProductPrice($productModel, $getFinalPrice, true);
+
+                        //base prices
+                        $variationPrices = $this->getProductPrices($productModel, true);
+                        if ($lowestPrice == 0 || $variationPrices['basePrices']['min'] < $lowestPrice) {
+                            $lowestPrice = $variationPrices['basePrices']['min'];
+                        }
+                        if ($highestPrice == 0 || $variationPrices['basePrices']['max'] > $highestPrice) {
+                            $highestPrice = $variationPrices['basePrices']['max'];
+                        }
                         
-                        if ($lowestPrice == 0 || $variationPrices['min'] < $lowestPrice) {
-                            $lowestPrice = $variationPrices['min'];
+                        //final prices
+                        if ($lowestFinalPrice == 0 || $variationPrices['baseFinalPrices']['min'] < $lowestFinalPrice) {
+                            $lowestFinalPrice = $variationPrices['baseFinalPrices']['min'];
                         }
-                        if ($highestPrice == 0 || $variationPrices['max'] > $highestPrice) {
-                            $highestPrice = $variationPrices['max'];
+                        if ($highestFinalPrice == 0 || $variationPrices['baseFinalPrices']['max'] > $highestFinalPrice) {
+                            $highestFinalPrice = $variationPrices['baseFinalPrices']['max'];
                         }
+                        
                     }
                 }
-                
-                $minPrice = $lowestPrice;
-                $maxPrice = $highestPrice;
+                $prices['basePrices']['min'] = $lowestPrice;
+                $prices['basePrices']['max'] = $highestPrice;
+                $prices['baseFinalPrices']['min'] = $lowestFinalPrice;
+                $prices['baseFinalPrices']['max'] = $highestFinalPrice;
                 break;
             default:
-                $minPrice = $this->getDefaultFromProduct($product, $getFinalPrice, $includeTax);
-                $maxPrice = $minPrice;
+                $prices['basePrices']['min'] = $this->getDefaultFromProduct($product, false, $includeTax);
+                $prices['baseFinalPrices']['min'] = $this->getDefaultFromProduct($product, true, $includeTax);
+                $prices['basePrices']['max'] = $prices['basePrices']['min'];
+                $prices['baseFinalPrices']['max'] = $prices['baseFinalPrices']['min'];
                 break;
         }
-        return ['min' => $minPrice, 'max' => $maxPrice];
+        return $prices;
     }
 
     protected function getDefaultFromProduct(\Magento\Catalog\Model\Product $product, $getFinalPrice = false, $includeTax = true)
     {
-        $price = $getFinalPrice ? $product->getPriceInfo()->getPrice('final_price')->getValue() : $product->getPrice();
+        $price = ( $getFinalPrice ? $product->getPriceInfo()->getPrice('final_price')->getValue() : $product->getPrice() );
         if ($includeTax) {
             $price = $this->catalogHelper->getTaxPrice($product, $price, true);
         }
