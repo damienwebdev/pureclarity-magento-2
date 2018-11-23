@@ -21,6 +21,8 @@ class Feed extends \Magento\Framework\Model\AbstractModel
     protected $progressFileName;
     protected $problemFeeds = [];
 
+    private $uniqueId;
+
     const FEED_TYPE_BRAND = "brand";
     const FEED_TYPE_CATEGORY = "category";
     const FEED_TYPE_PRODUCT = "product";
@@ -586,7 +588,11 @@ class Feed extends \Magento\Framework\Model\AbstractModel
 
         if (curl_errno($ch)) {
             $this->logger->debug('PureClarity: Error: ' . curl_error($ch));
-            $this->problemFeeds[] = $parameters['feedName'];
+            $feedTypeParts = explode("-", $parameters['feedName']);
+            $feedType = $feedTypeParts[0];
+            if(! in_array($feedType, $this->problemFeeds)){
+                $this->problemFeeds[] = $feedType;
+            }
         }
 
         curl_close($ch);
@@ -608,12 +614,20 @@ class Feed extends \Magento\Framework\Model\AbstractModel
         $parameters = [
             "accessKey" => $this->accessKey,
             "secretKey" => $this->secretKey,
-            "feedName" => $feedType
+            "feedName" => $feedType . "-" . $this->getUniqueId()
         ];
         if (! empty($data)) {
             $parameters["payLoad"] = $data;
         }
         return $parameters;
+    }
+
+    private function getUniqueId()
+    {
+        if(is_null($this->uniqueId)){
+            $this->uniqueId = uniqid();
+        }
+        return $this->uniqueId;
     }
 
     /**
