@@ -76,11 +76,13 @@ class Feed extends \Magento\Framework\Model\AbstractModel
 
     /**
      * Process the product feed and update the progress file, in page sizes
-     * of 1 by default to ensure fits POST size
+     * of 1 by default, speed gains for higher batches were negligible vs 
+     * degrading progress feedback for user
      * @param $pageSize integer
      */
     function sendProducts($pageSize = 1)
     {
+
         if (! $this->isInitialised()) {
             return false;
         }
@@ -92,16 +94,18 @@ class Feed extends \Magento\Framework\Model\AbstractModel
         $productExportModel->init($this->storeId);
         $this->logger->debug("PureClarity: Initialised ProductExport");
 
+        $this->coreHelper->setProgressFile($this->progressFileName, self::FEED_TYPE_PRODUCT, 0, 1);
+        $this->logger->debug("PureClarity: Set progress");
+    
         $currentPage = 0;
         $pages = 0;
         $feedProducts = [];
-        $this->coreHelper->setProgressFile($this->progressFileName, self::FEED_TYPE_PRODUCT, 0, 1);
-        $this->logger->debug("PureClarity: Set progress");
 
         // loop through products, POSTing string for each page as it loops through
         $isFirst = true;
         do {
             $result = $productExportModel->getFullProductFeed($pageSize, $currentPage);
+
             $this->logger->debug("PureClarity: Got result from product export model");
 
             $pages = $result["Pages"];
@@ -114,15 +118,17 @@ class Feed extends \Magento\Framework\Model\AbstractModel
                 $isFirst = false;
                 $json .= $this->coreHelper->formatFeed($product, 'json');
             }
-            if (($currentPage) >= $pages) {
-                $json .= ']';
-            }
             $parameters = $this->getParameters($json, self::FEED_TYPE_PRODUCT);
             $this->send("feed-append", $parameters);
 
             $this->coreHelper->setProgressFile($this->progressFileName, self::FEED_TYPE_PRODUCT, $currentPage, $pages);
             $currentPage++;
         } while ($currentPage <= $pages);
+
+        
+        $hasSentItemData = (! $isFirst);
+        $this->endFeedAppend(self::FEED_TYPE_PRODUCT, $hasSentItemData);
+
         $this->end(self::FEED_TYPE_PRODUCT);
         $this->logger->debug("PureClarity: Finished sending product data");
     }
@@ -217,6 +223,10 @@ class Feed extends \Magento\Framework\Model\AbstractModel
                 $this->coreHelper->setProgressFile($this->progressFileName, self::FEED_TYPE_ORDER, $currentProgress, $maxProgress);
             }
         }
+        
+        $hasSentItemData = (! $isFirst);
+        $this->endFeedAppend(self::FEED_TYPE_ORDER, $hasSentItemData);
+
         $this->end(self::FEED_TYPE_ORDER, true);
         $this->logger->debug("PureClarity: Finished sending order data");
     }
@@ -315,15 +325,16 @@ class Feed extends \Magento\Framework\Model\AbstractModel
             $feedCategories .= $this->coreHelper->formatFeed($categoryData, 'json');
             
             $currentProgress ++;
-            if ($currentProgress >= $maxProgress) {
-                $feedCategories .= ']';
-            }
 
             $parameters = $this->getParameters($feedCategories, self::FEED_TYPE_CATEGORY);
             $this->send("feed-append", $parameters);
 
             $this->coreHelper->setProgressFile($this->progressFileName, self::FEED_TYPE_CATEGORY, $currentProgress, $maxProgress);
         }
+        
+        $hasSentItemData = (! $isFirst);
+        $this->endFeedAppend(self::FEED_TYPE_CATEGORY, $hasSentItemData);
+
         $this->end(self::FEED_TYPE_CATEGORY);
     }
 
@@ -376,15 +387,15 @@ class Feed extends \Magento\Framework\Model\AbstractModel
                 $feedBrands .= $this->coreHelper->formatFeed($thisBrand, 'json');
                 $currentProgress++;
 
-                if ($currentProgress >= $maxProgress) {
-                    $feedBrands .= ']';
-                }
-
                 $parameters = $this->getParameters($feedBrands, self::FEED_TYPE_BRAND);
                 $this->send("feed-append", $parameters);
 
                 $this->coreHelper->setProgressFile($this->progressFileName, self::FEED_TYPE_BRAND, $currentProgress, $maxProgress);
             }
+        
+            $hasSentItemData = (! $isFirst);
+            $this->endFeedAppend(self::FEED_TYPE_BRAND, $hasSentItemData);
+        
         } else {
             $this->coreHelper->setProgressFile($this->progressFileName, 'brand', 1, 1);
         }
@@ -493,15 +504,16 @@ class Feed extends \Magento\Framework\Model\AbstractModel
             $users .= $this->coreHelper->formatFeed($data, 'json');
             
             $currentProgress += 1;
-            if ($currentProgress >= $maxProgress) {
-                $users .= ']';
-            }
 
             $parameters = $this->getParameters($users, self::FEED_TYPE_USER);
             $this->send("feed-append", $parameters);
 
             $this->coreHelper->setProgressFile($this->progressFileName, self::FEED_TYPE_USER, $currentProgress, $maxProgress);
         }
+        
+        $hasSentItemData = (! $isFirst);
+        $this->endFeedAppend(self::FEED_TYPE_USER, $hasSentItemData);
+
         $this->end(self::FEED_TYPE_USER);
     }
 
@@ -548,6 +560,18 @@ class Feed extends \Magento\Framework\Model\AbstractModel
         $this->coreHelper->setProgressFile($this->progressFileName, 'N/A', 1, 1, "true", "false");
     }
 
+
+    protected function endFeedAppend($feedType, $hasSentItemData){
+
+        /*
+         * Close the array if we've had at least one user
+         */    
+        if($hasSentItemData){
+            $parameters = $this->getParameters(']', $feedType);
+            $this->send("feed-append", $parameters);
+        }
+    }
+
     /**
      * Sends the data to the specified end point, i.e. sends feed to PureClarity
      * @param $endPoint string
@@ -558,7 +582,7 @@ class Feed extends \Magento\Framework\Model\AbstractModel
         
         $url = $this->coreHelper->getFeedBaseUrl($this->storeId) . $endPoint;
         
-        $this->logger->debug("PureClarity: About to send data to {$url}: " . print_r($parameters, true));
+        $this->logger->debug("PureClarity: About to send data to {$url} for " . $parameters['feedName'] . ": " . print_r($parameters, true));
 
         $post_fields = http_build_query($parameters);
         $ch = curl_init();
