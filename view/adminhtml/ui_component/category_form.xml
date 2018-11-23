@@ -26,28 +26,21 @@
                 </item>
             </argument>
         </field>
-        <field name="pureclarity_hide_from_feed" formElement="checkbox">
+        <field name="pureclarity_hide_from_feed">
             <argument name="data" xsi:type="array">
                 <item name="config" xsi:type="array">
+                    <item name="dataType" xsi:type="string">boolean</item>
+                    <item name="formElement" xsi:type="string">checkbox</item>
+                    <item name="label" xsi:type="string" translate="true">Exclude from Recommenders</item>
+                    <item name="prefer" xsi:type="string">toggle</item>
+                    <item name="valueMap" xsi:type="array">
+                        <item name="true" xsi:type="string">1</item>
+                        <item name="false" xsi:type="string">0</item>
+                    </item>
                     <item name="source" xsi:type="string">category</item>
                     <item name="default" xsi:type="number">0</item>
                 </item>
             </argument>
-            <settings>
-                <dataType>boolean</dataType>
-                <label translate="true">Exclude from Recommenders</label>
-            </settings>
-            <formElements>
-                <checkbox>
-                    <settings>
-                        <valueMap>
-                            <map name="false" xsi:type="string">0</map>
-                            <map name="true" xsi:type="string">1</map>
-                        </valueMap>
-                        <prefer>toggle</prefer>
-                    </settings>
-                </checkbox>
-            </formElements>
         </field>
     </fieldset>
 </form>
