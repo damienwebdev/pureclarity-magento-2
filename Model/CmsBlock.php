@@ -2,7 +2,6 @@
 
 namespace Pureclarity\Core\Model;
 
-use Magento\Framework\Serialize\Serializer\Json;
 use Magento\Framework\Component\ComponentRegistrar;
 
 class CmsBlock
@@ -15,7 +14,6 @@ class CmsBlock
     protected $appCollectionFactory;
     protected $fixtureManager;
     protected $csvProcessor;
-    private $serializer;
     protected $componentRegistrar;
     protected $logger;
 
@@ -27,8 +25,7 @@ class CmsBlock
         \Magento\Cms\Model\BlockFactory $cmsBlockFactory,
         \Magento\Widget\Model\ResourceModel\Widget\Instance\CollectionFactory $appCollectionFactory,
         \Magento\Catalog\Model\ResourceModel\Category\CollectionFactory $categoryFactory,
-        \Psr\Log\LoggerInterface $logger,
-        Json $serializer = null
+        \Psr\Log\LoggerInterface $logger
     ) {
         $this->csvProcessor = $csvProcessor;
         $this->widgetFactory = $widgetFactory;
@@ -38,7 +35,6 @@ class CmsBlock
         $this->categoryFactory = $categoryFactory;
         $this->componentRegistrar = $componentRegistrar;
         $this->logger = $logger;
-        $this->serializer = $serializer ?: \Magento\Framework\App\ObjectManager::getInstance()->get(Json::class);
     }
 
 
@@ -51,7 +47,7 @@ class CmsBlock
     public function install(array $files, $storeId, $themeId)
     {
         $path = $this->componentRegistrar->getPath(ComponentRegistrar::MODULE, 'Pureclarity_Core') . DIRECTORY_SEPARATOR . 'data' . DIRECTORY_SEPARATOR;
-        
+
         $pageGroupConfig = [
             'pages' => [
                 'block' => '',
@@ -109,7 +105,6 @@ class CmsBlock
                     $alreadyExists[] = $row['title'];
                     continue;
                 }
-
         
                 $widgetInstance = $this->widgetFactory->create();
 
@@ -118,10 +113,11 @@ class CmsBlock
                 $pageGroup = [];
                 $group = $row['page_group'];
                 $pageGroup['page_group'] = $group;
+
                 $pageGroup[$group] = array_merge(
                     $pageGroupConfig[$group],
-                    $this->serializer->unserialize($row['group_data'])
-                );
+                    json_decode($row['group_data'], true)
+                ); 
                 if (!empty($pageGroup[$group]['entities'])) {
                     $pageGroup[$group]['entities'] = $this->getCategoryByUrlKey(
                         $pageGroup[$group]['entities']
