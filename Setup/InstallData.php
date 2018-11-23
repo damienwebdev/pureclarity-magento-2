@@ -47,52 +47,63 @@ class InstallData implements InstallDataInterface
                 'setup' => $setup
             ]
         );
+
+
+        /*
+         * Magento 2 does not properly support category attributes until version 2.1 or above
+         * so don't install them if on 2.0
+         */
+
+        $isMagento20 = defined("\\Magento\\Framework\\AppInterface::VERSION");
+
+        if(! $isMagento20){
  
-        // Add PureClarity CATEGORY Attribute group
-        $eavSetup->addAttributeGroup(
-            Category::ENTITY,
-            'Default',
-            'PureClarity',
-            1000
-        );
+            // Add PureClarity CATEGORY Attribute group
+            $eavSetup->addAttributeGroup(
+                Category::ENTITY,
+                'Default',
+                'PureClarity',
+                1000
+            );
 
-        // Add attribute for secondary image is added
-        $eavSetup->addAttribute(
-            Category::ENTITY,
-            'pureclarity_category_image',
-            [
-                'group' => 'PureClarity',
-                'input' => 'image',
-                'type' => 'varchar',
-                'backend' => 'Pureclarity\Core\Model\Attribute\Backend\Image',
-                'label' => 'PureClarity image',
-                'visible' => 1,
-                'required' => 0,
-                'user_defined' => 1,
-                'sort_order' => 6,
-                'global' => ScopedAttributeInterface::SCOPE_STORE
-            ]
-        );
+            // Add attribute for secondary image is added
+            $eavSetup->addAttribute(
+                Category::ENTITY,
+                'pureclarity_category_image',
+                [
+                    'group' => 'PureClarity',
+                    'input' => 'image',
+                    'type' => 'varchar',
+                    'backend' => 'Pureclarity\Core\Model\Attribute\Backend\Image',
+                    'label' => 'PureClarity image',
+                    'visible' => 1,
+                    'required' => 0,
+                    'user_defined' => 1,
+                    'sort_order' => 6,
+                    'global' => ScopedAttributeInterface::SCOPE_STORE
+                ]
+            );
 
-        // Add attribute for hiding product from recommenders
-        $eavSetup->addAttribute(
-            Category::ENTITY,
-            'pureclarity_hide_from_feed',
-            [
-                'group' => 'PureClarity',
-                'input' => 'boolean',
-                'type' => 'int',
-                'backend' => '',
-                'source' => 'Magento\Eav\Model\Entity\Attribute\Source\Boolean',
-                'label' => 'Exclude from recommenders',
-                'visible' => 1,
-                'required' => 0,
-                'user_defined' => 1,
-                'default' => 0,
-                'global' => ScopedAttributeInterface::SCOPE_STORE,
-                'visible_on_front' => true
-            ]
-        );
+            // Add attribute for hiding product from recommenders
+            $eavSetup->addAttribute(
+                Category::ENTITY,
+                'pureclarity_hide_from_feed',
+                [
+                    'group' => 'PureClarity',
+                    'input' => 'boolean',
+                    'type' => 'int',
+                    'backend' => '',
+                    'source' => 'Magento\Eav\Model\Entity\Attribute\Source\Boolean',
+                    'label' => 'Exclude from recommenders',
+                    'visible' => 1,
+                    'required' => 0,
+                    'user_defined' => 1,
+                    'default' => 0,
+                    'global' => ScopedAttributeInterface::SCOPE_STORE,
+                    'visible_on_front' => true
+                ]
+            );
+        }
 
         // Add PureClarity PRODUCT Attribute group
         $eavSetup->addAttributeGroup(
