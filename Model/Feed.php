@@ -56,6 +56,13 @@ class Feed extends \Magento\Framework\Model\AbstractModel
         $this->customerFactory = $customerFactory;
         $this->customerGroup = $customerGroup;
         $this->orderFactory = $orderFactory;
+
+        /*
+         * If Magento does not have the recommended level of memory for PHP, can cause the feeds
+         * to fail. If this happens, an appropriate message is logged.
+         */
+        register_shutdown_function("Pureclarity\Core\Model\Feed::logShutdown");
+
         parent::__construct(
             $context,
             $registry,
@@ -678,6 +685,19 @@ class Feed extends \Magento\Framework\Model\AbstractModel
         } else {
             // Set to uploaded
             $this->coreHelper->setProgressFile($this->progressFileName, 'N/A', 1, 1, "true", "true");
+        }
+    }
+
+    /**
+     * If PHP has run out of memory to run the feeds, outputs an appropriate message to the logs. It's not possible to output to 
+     * the GUI as e.g. the PHP process that monitors the progress file is also no longer responsive and just returns null.
+     */
+    public static function logShutdown()
+    {
+        $error = error_get_last();
+        if ($error !== null && strpos($error['message'], 'Allowed memory size') !== false) {
+            $errorMessage = "PureClarity: PHP does not have enough memory to run the feeds. Please increase to the recommended level of 768Mb and try again.";
+            file_put_contents(BP . '/var/log/debug.log', $errorMessage, FILE_APPEND);
         }
     }
 }
