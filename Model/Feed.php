@@ -687,11 +687,12 @@ class Feed extends \Magento\Framework\Model\AbstractModel
             $counter = 1;
             foreach ($this->problemFeeds as $problemFeed) {
                 $errorMessage .= $problemFeed;
-                if ($counter < $problemFeedCount && $problemFeedCount !== 2) {
+                if ($counter < ($problemFeedCount - 1) && $problemFeedCount !== 2) {
                     $errorMessage .= ", ";
-                } elseif ($problemFeedCount >= 2) {
+                } elseif ($problemFeedCount >= 2 && $counter == ($problemFeedCount - 1)) {
                     $errorMessage .= " and ";
                 }
+                $counter++;
             }
             $errorMessage .= " feed" . ($problemFeedCount > 1 ? "s" : "");
             $errorMessage .= ". Please see error logs for more information.";
