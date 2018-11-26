@@ -1,6 +1,12 @@
 <?php
 namespace Pureclarity\Core\Model;
 
+use Pureclarity\Core\Model\Feed;
+
+/**
+ * Controls the execution of feeds sent to PureClarity.
+ */
+
 class Cron extends \Magento\Framework\Model\AbstractModel
 {
 
@@ -54,11 +60,12 @@ class Cron extends \Magento\Framework\Model\AbstractModel
         );
     }
 
-    
-
-    // Cron execution
+    /**
+     * Runs all feeds, called via cron 3am daily (see /etc/crontab.xml)
+     */
     public function runAllFeeds(\Magento\Cron\Model\Schedule $schedule)
     {
+        $this->logger->debug('PureClarity: In Cron->runAllFeeds()');
         // Loop round each store and create feed
         foreach ($this->storeManager->getWebsites() as $website) {
             foreach ($website->getGroups() as $group) {
@@ -66,17 +73,22 @@ class Cron extends \Magento\Framework\Model\AbstractModel
                 foreach ($stores as $store) {
                     // Only generate feeds when feed notification is active
                     if (!$this->coreHelper->isFeedNotificationActive($store->getId())) {
-                        allFeeds($store->getId());
+                        $this->allFeeds($store->getId());
                     }
                 }
             }
         }
     }
 
-    // Product All feeds in one file.
+    // Produce all feeds in one file.
     public function allFeeds($storeId)
     {
-        $this->doFeed(['product', 'category', 'brand', 'user'], $storeId, $this->getFeedFilePath('all', $storeId));
+        $this->doFeed([
+            Feed::FEED_TYPE_PRODUCT,
+            Feed::FEED_TYPE_CATEGORY,
+            Feed::FEED_TYPE_BRAND,
+            Feed::FEED_TYPE_USER
+        ], $storeId, $this->getFeedFilePath('all', $storeId));
     }
 
     public function selectedFeeds($storeId, $feeds)
@@ -84,125 +96,77 @@ class Cron extends \Magento\Framework\Model\AbstractModel
         $this->doFeed($feeds, $storeId, $this->getFeedFilePath('all', $storeId));
     }
 
-    // Produce a feed and notify PureClarity so that it can fetch it.
-    public function doFeed($feedTypes, $storeId, $feedFilePath, $doNdjson = false)
+    /**
+     * Produce a feed and POST to PureClarity.
+     * @param $feedTypes array
+     * @param $storeId integer
+     * @param $feedFilePath
+     */
+    public function doFeed($feedTypes, $storeId, $feedFilePath)
     {
-        
         //can take a while to run the feed
         set_time_limit(0);
 
-        $hasOrder = in_array("orders", $feedTypes);
-        $orderOnly = ($hasOrder && count($feedTypes) == 1);
+        $hasOrder = in_array(Feed::FEED_TYPE_ORDER, $feedTypes);
+        $isOrderOnly = ($hasOrder && count($feedTypes) == 1);
 
-        $progressFileName = $progressFileName = $this->coreHelper->getProgressFileName();
-        $feedModel = $this->coreFeedFactory->create();
-
-        // Do validations
-        $host = $this->coreHelper->getSftpHost($storeId);
-        $port = $this->coreHelper->getSftpPort($storeId);
-        $appKey = $this->coreHelper->getAccessKey($storeId);
-        $secretKey = $this->coreHelper->getSecretKey($storeId);
-        if ($host == null || $port == null || $appKey == null || $secretKey == null) {
-            $this->coreHelper->setProgressFile($progressFileName, 'N/A', 1, 1, "false", "false", "", "Access Key and Secret Key must be set.");
-            return;
+        $progressFileName = $this->coreHelper->getProgressFileName();
+        $feedModel = $this->coreFeedFactory
+            ->create()
+            ->initialise($storeId, $progressFileName);
+        if (! $feedModel) {
+            return false;
         }
 
-        if (!$orderOnly) {
-            $feedFile = @fopen($feedFilePath, "w+");
-            if ((!$feedFile) || !flock($feedFile, LOCK_EX | LOCK_NB)) {
-                throw new \Exception("Error: Cannot open feed file for writing under var/pureclarity directory. It could be locked or there maybe insufficient permissions to write to the directory. You must delete locked files or ensure PureClarity has permission to write to the var directory. File: " . $feedFilePath);
-            }
-
-            fwrite($feedFile, $doNdjson?'{"FileType":"ndjson", "Version": 2}' . PHP_EOL:'{ "Version": 2');
-        }
-
-        foreach ($feedTypes as &$feedType) {
-            if (!$orderOnly && !$doNdjson && $feedType != "orders") {
-                fwrite($feedFile, ',');
-            }
-            
-            // Initialise Progress File.
-            $this->coreHelper->setProgressFile($progressFileName, $feedType, 0, 1);
-            
-            // Get the feed data for the specified feed type
+        // Post the feed data for the specified feed type
+        foreach ($feedTypes as $key => $feedType) {
             switch ($feedType) {
-                case 'product':
-                    fwrite($feedFile, $doNdjson?'{"Type":"Products"}' . PHP_EOL:'"Products":[');
-                    $feedModel->ProductFeed($storeId, $progressFileName, $feedFile, $doNdjson);
+                case Feed::FEED_TYPE_PRODUCT:
+                    $feedModel->sendProducts();
                     break;
-                case 'category':
-                    fwrite($feedFile, $doNdjson?'{"Type":"Categories","Version":2}' . PHP_EOL:'"Categories":[');
-                    $feedData= $feedModel->CategoryFeed($progressFileName, $storeId, $doNdjson);
-                    fwrite($feedFile, $feedData);
+                case Feed::FEED_TYPE_CATEGORY:
+                    $feedModel->sendCategories();
                     break;
-                case 'brand':
-                    fwrite($feedFile, $doNdjson?'{"Type":"Brands","Version":2}' . PHP_EOL:'"Brands":[');
+                case Feed::FEED_TYPE_BRAND:
                     if ($this->coreHelper->isBrandFeedEnabled($storeId)) {
-                        $feedData = $feedModel->BrandFeed($progressFileName, $storeId, $doNdjson);
-                        fwrite($feedFile, $feedData);
+                        $feedModel->sendBrands();
                     }
                     break;
-                case 'user':
-                    fwrite($feedFile, $doNdjson?'{"Type":"Users","Version":2}' . PHP_EOL:'"Users":[');
-                    $feedData= $feedModel->UserFeed($progressFileName, $storeId, $doNdjson);
-                    fwrite($feedFile, $feedData);
+                case Feed::FEED_TYPE_USER:
+                    $feedModel->sendUsers();
                     break;
-                case 'orders':
-                    $orderFilePath = $this->getFeedFilePath('orders', $storeId);
-                    $feedModel->OrderFeed($storeId, $progressFileName, $orderFilePath);
+                case Feed::FEED_TYPE_ORDER:
+                    $feedModel->sendOrders();
                     break;
                 default:
-                    throw new \Exception("Pureclarity feed type not recognised: $feedType");
-            }
-            
-            if (!$orderOnly && !$doNdjson && $feedType != "orders") {
-                fwrite($feedFile, ']');
+                    throw new \Exception("PureClarity feed type not recognised: {$feedType}");
             }
         }
-        
-        if (!$orderOnly) {
-            if (!$doNdjson) {
-                fwrite($feedFile, '}');
-            }
-            fclose($feedFile);
-        }
-
-        // Ensure progress file is set to complete
-        $this->coreHelper->setProgressFile($progressFileName, 'N/A', 1, 1, "true", "false");
-
-        // Uploade to sftp
-        if (!$orderOnly) {
-            $uniqueId = 'PureClarityFeed-' . uniqid() . ".ndjson";
-            $uploadSuccess = $this->coreSftpHelper->send($host, $port, $appKey, $secretKey, $uniqueId, $feedFilePath, 'magento-feeds');
-        }
-        if ($hasOrder) {
-            $uniqueId = 'Orders-' . uniqid() . ".csv";
-            $uploadSuccess = $this->coreSftpHelper->send($host, $port, $appKey, $secretKey, $uniqueId, $orderFilePath);
-        }
-        if ($uploadSuccess) {
-            // Set to uploaded
-            $this->coreHelper->setProgressFile($progressFileName, 'N/A', 1, 1, "true", "true");
-        } else {
-            $this->coreHelper->setProgressFile($progressFileName, 'N/A', 1, 1, "true", "false", "There was a problem uploading the feed. Please see error logs for more information.");
-        }
+        $feedModel->checkSuccess();
     }
-    
 
-    
     // Produce a product feed and notify PureClarity so that it can fetch it.
     public function fullProductFeed($storeId)
     {
-        $this->doFeed(['product'], $storeId, $this->getFeedFilePath('product', $storeId));
+        $this->doFeed([
+                Feed::FEED_TYPE_PRODUCT
+            ], $storeId, $this->getFeedFilePath(Feed::FEED_TYPE_PRODUCT, $storeId));
     }
+
     // Produce a category feed and notify PureClarity so that it can fetch it.
     public function fullCategoryFeed($storeId)
     {
-        $this->doFeed(['category'], $storeId, $this->getFeedFilePath('category', $storeId));
+        $this->doFeed([
+                Feed::FEED_TYPE_CATEGORY
+            ], $storeId, $this->getFeedFilePath(Feed::FEED_TYPE_CATEGORY, $storeId));
     }
+
     // Produce a brand feed and notify PureClarity so that it can fetch it.
     public function fullBrandFeed($storeId)
     {
-        $this->doFeed(['brand'], $storeId, $this->getFeedFilePath('brand', $storeId));
+        $this->doFeed([
+                Feed::FEED_TYPE_BRAND
+            ], $storeId, $this->getFeedFilePath(Feed::FEED_TYPE_BRAND, $storeId));
     }
 
     private function getFeedFilePath($feedType, $storeId)
@@ -211,10 +175,8 @@ class Cron extends \Magento\Framework\Model\AbstractModel
         return $this->coreHelper->getPureClarityBaseDir() . DIRECTORY_SEPARATOR . $this->coreHelper->getFileNameForFeed($feedType, $store->getCode());
     }
 
-
-
     /**
-     * Reindex Products
+     * Reindexes products, called via cron every minute (see /etc/crontab.xml)
      */
     public function reindexData($schedule)
     {
@@ -235,8 +197,6 @@ class Cron extends \Magento\Framework\Model\AbstractModel
                         $this->logger->debug('PureClarity: Checking Reindex for StoreID: ' . $store->getId());
                     
                         $deleteProducts = $feedProducts = [];
-
-                        
                         
                         // Check we have something
                         if ($collection->count() > 0) {

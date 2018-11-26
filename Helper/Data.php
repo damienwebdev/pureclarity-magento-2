@@ -1,41 +1,50 @@
 <?php
 namespace Pureclarity\Core\Helper;
 
+/**
+ * Helper class for core functionality.
+ */
+
 class Data extends \Magento\Framework\App\Helper\AbstractHelper
 {
 
     // ENDPOINTS
     protected $scriptUrl = '//pcs.pureclarity.net';
-    protected $regions =[   1 => "api-eu-w-1.pureclarity.net",
-                            2 => "api-eu-w-2.pureclarity.net",
-                            3 => "api-eu-c-1.pureclarity.net",
-                            4 => "api-us-e-1.pureclarity.net",
-                            5 => "api-us-e-2.pureclarity.net",
-                            6 => "api-us-w-1.pureclarity.net",
-                            7 => "api-us-w-2.pureclarity.net",
-                            8 => "api-ap-s-1.pureclarity.net",
-                            9 => "api-ap-ne-1.pureclarity.net",
-                            10 => "api-ap-ne-2.pureclarity.net",
-                            11 => "api-ap-se-1.pureclarity.net",
-                            12 => "api-ap-se-2.pureclarity.net",
-                            13 => "api-ca-c-1.pureclarity.net",
-                            14 => "api-sa-e-1.pureclarity.net"];
+    protected $regions = [
+        1 => "api-eu-w-1.pureclarity.net",
+        2 => "api-eu-w-2.pureclarity.net",
+        3 => "api-eu-c-1.pureclarity.net",
+        4 => "api-us-e-1.pureclarity.net",
+        5 => "api-us-e-2.pureclarity.net",
+        6 => "api-us-w-1.pureclarity.net",
+        7 => "api-us-w-2.pureclarity.net",
+        8 => "api-ap-s-1.pureclarity.net",
+        9 => "api-ap-ne-1.pureclarity.net",
+        10 => "api-ap-ne-2.pureclarity.net",
+        11 => "api-ap-se-1.pureclarity.net",
+        12 => "api-ap-se-2.pureclarity.net",
+        13 => "api-ca-c-1.pureclarity.net",
+        14 => "api-sa-e-1.pureclarity.net"
+    ];
 
-    protected $sftpRegions =   [1 => "sftp-eu-w-1.pureclarity.net",
-                                2 => "sftp-eu-w-2.pureclarity.net",
-                                3 => "sftp-eu-c-1.pureclarity.net",
-                                4 => "sftp-us-e-1.pureclarity.net",
-                                5 => "sftp-us-e-2.pureclarity.net",
-                                6 => "sftp-us-w-1.pureclarity.net",
-                                7 => "sftp-us-w-2.pureclarity.net",
-                                8 => "sftp-ap-s-1.pureclarity.net",
-                                9 => "sftp-ap-ne-1.pureclarity.net",
-                                10 => "sftp-ap-ne-2.pureclarity.net",
-                                11 => "sftp-ap-se-1.pureclarity.net",
-                                12 => "sftp-ap-se-2.pureclarity.net",
-                                13 => "sftp-ca-c-1.pureclarity.net",
-                                14 => "sftp-sa-e-1.pureclarity.net"];
+    protected $sftpRegions = [
+        1 => "sftp-eu-w-1.pureclarity.net",
+        2 => "sftp-eu-w-2.pureclarity.net",
+        3 => "sftp-eu-c-1.pureclarity.net",
+        4 => "sftp-us-e-1.pureclarity.net",
+        5 => "sftp-us-e-2.pureclarity.net",
+        6 => "sftp-us-w-1.pureclarity.net",
+        7 => "sftp-us-w-2.pureclarity.net",
+        8 => "sftp-ap-s-1.pureclarity.net",
+        9 => "sftp-ap-ne-1.pureclarity.net",
+        10 => "sftp-ap-ne-2.pureclarity.net",
+        11 => "sftp-ap-se-1.pureclarity.net",
+        12 => "sftp-ap-se-2.pureclarity.net",
+        13 => "sftp-ca-c-1.pureclarity.net",
+        14 => "sftp-sa-e-1.pureclarity.net"
+    ];
 
+    const PLACEHOLDER_UPLOAD_DIR = "pureclarity";
     const PROGRESS_FILE_BASE_NAME = 'pureclarity-feed-progress-';
     const PURECLARITY_EXPORT_URL = 'pureclarity/export/feed?storeid={storeid}&type={type}';
     protected $scopeConfig;
@@ -125,14 +134,22 @@ class Data extends \Magento\Framework\App\Helper\AbstractHelper
         }
         return $region;
     }
-
     
     // General Config
+    public function isMerchActive($storeId = null)
+    {
+        // if ($this->isActive($this->getStoreId($storeId))) {
+        //     return $this->scopeConfig->getValue("pureclarity/general_config/merch_active", \Magento\Store\Model\ScopeInterface::SCOPE_STORE, $this->getStoreId($storeId));
+        // }
+        // return false;
+        return true;
+    }
+
     public function isSearchActive($storeId = null)
     {
-        if ($this->isActive($this->getStoreId($storeId))) {
-            return $this->scopeConfig->getValue("pureclarity/general_config/search_active", \Magento\Store\Model\ScopeInterface::SCOPE_STORE, $this->getStoreId($storeId));
-        }
+        // if ($this->isActive($this->getStoreId($storeId))) {
+        //     return $this->scopeConfig->getValue("pureclarity/general_config/search_active", \Magento\Store\Model\ScopeInterface::SCOPE_STORE, $this->getStoreId($storeId));
+        // }
         return false;
     }
 
@@ -140,14 +157,6 @@ class Data extends \Magento\Framework\App\Helper\AbstractHelper
     {
         if ($this->isActive($this->getStoreId($storeId))) {
             return $this->scopeConfig->getValue("pureclarity/general_config/prodlisting_active", \Magento\Store\Model\ScopeInterface::SCOPE_STORE, $this->getStoreId($storeId));
-        }
-        return false;
-    }
-
-    public function isMerchActive($storeId = null)
-    {
-        if ($this->isActive($this->getStoreId($storeId))) {
-            return $this->scopeConfig->getValue("pureclarity/general_config/merch_active", \Magento\Store\Model\ScopeInterface::SCOPE_STORE, $this->getStoreId($storeId));
         }
         return false;
     }
@@ -211,6 +220,7 @@ class Data extends \Magento\Framework\App\Helper\AbstractHelper
         }
         return "";
     }
+
     public function getAdminImagePath($store, $image, $type)
     {
         if (is_string($image)) {
@@ -278,6 +288,19 @@ class Data extends \Magento\Framework\App\Helper\AbstractHelper
         return $this->getHost($storeId) . '/api/productdelta';
     }
 
+    public function getFeedBaseUrl($storeId)
+    {
+        $url = getenv('PURECLARITY_FEED_HOST');
+        $port = getenv('PURECLARITY_FEED_PORT');
+        if (empty($url)) {
+            $url = $this->sftpRegions[$this->getRegion($storeId)];
+        }
+        if (! empty($port)) {
+            $url = $url . ":" . $port;
+        }
+
+        return $url . "/";
+    }
 
     public function getFeedNotificationEndpoint($storeId, $websiteDomain, $feedType)
     {
@@ -289,7 +312,10 @@ class Data extends \Magento\Framework\App\Helper\AbstractHelper
 
     public function getFeedBody($storeId)
     {
-        $body = ["AccessKey" => $this->getAccessKey($storeId), "SecretKey" => $this->getSecretKey($storeId)];
+        $body = [
+            "AccessKey" => $this->getAccessKey($storeId),
+            "SecretKey" => $this->getSecretKey($storeId)
+        ];
         return $this->coreHelper->formatFeed($body);
     }
 
@@ -300,8 +326,6 @@ class Data extends \Magento\Framework\App\Helper\AbstractHelper
         }
         return $storeCode . "-" . $feedtype . ".json";
     }
-
-
 
     // MISC/HELPER METHODS
     public function getScriptUrl()
@@ -331,17 +355,16 @@ class Data extends \Magento\Framework\App\Helper\AbstractHelper
         return $this->storeManager->getStore()->getCurrentUrl();
     }
 
-    const PLACEHOLDER_UPLOAD_DIR = "pureclarity";
     public function getPlaceholderDir()
     {
         return $this->directoryList->getPath('media') . DIRECTORY_SEPARATOR . self::PLACEHOLDER_UPLOAD_DIR . DIRECTORY_SEPARATOR;
     }
+
     public function getPlaceholderUrl($store)
     {
         return $store->getBaseUrl(\Magento\Framework\UrlInterface::URL_TYPE_MEDIA) . 'catalog/product';
     }
 
-    
     public function getPureClarityBaseDir()
     {
         $varDir = $this->directoryList->getPath('var') . DIRECTORY_SEPARATOR  . 'pureclarity';
@@ -478,8 +501,11 @@ class Data extends \Magento\Framework\App\Helper\AbstractHelper
 
             foreach ($allItems as $childItem) {
                 $parentId = $childItem->getParentItemId();
-                if ($parentId && $orderItems[$parentId]) {
-                    $orderItems[$parentId]['children' . $count][] = ["sku" => $childItem->getSku(), "qty" => $childItem->getQtyOrdered()];
+                if ($parentId && isset($orderItems[$parentId])) {
+                    $orderItems[$parentId]['children' . $count][] = [
+                        "sku" => $childItem->getSku(),
+                        "qty" => $childItem->getQtyOrdered()
+                    ];
                 }
             }
         }
