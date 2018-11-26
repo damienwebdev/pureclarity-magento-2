@@ -1,5 +1,4 @@
-define(['jquery', 'Magento_Swatches/js/swatch-renderer', 'priceBox'], function ($, SwatchRenderer, priceBox) {
-
+define(['jquery', 'priceBox'], function ($, priceBox) {
     // Before initialise, check we're active
     if (!pureclarityConfig.state.isActive) {
         return; 
@@ -229,11 +228,12 @@ define(['jquery', 'Magento_Swatches/js/swatch-renderer', 'priceBox'], function (
                         var swatchOptions = $item.find(".swatch-opt");
                         $(swatchOptions).each(function () {
                             var option = $(this);
+                            console.log(option.data().pureclarityJsonconfig);
                             var jsonConfig = option.data().pureclarityJsonconfig;
                             var swatchRenderJson = option.data().pureclaritySwatchrenderjson;
                             if (jsonConfig && swatchRenderJson) {
                                 swatchRenderJson.numberToShow = pureclarityConfig.swatchesToShow;
-                                option.SwatchRenderer(swatchRenderJson);
+                                window.pureclarityConfig.swatchRenderer(swatchRenderJson);
                                 var priceBoxSelector = "[data-role=priceBox][data-product-id=" + id + "]";
                                 $(priceBoxSelector).priceBox({
                                     'priceConfig': {

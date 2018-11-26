@@ -6,6 +6,10 @@ use Zend\Http\Client;
 use Zend\Http\Request;
 use Zend\Json\Json;
 
+/**
+ * Helper class for core service functions.
+ */
+
 class Service extends \Magento\Framework\App\Helper\AbstractHelper
 {
     protected $logger;
@@ -64,8 +68,7 @@ class Service extends \Magento\Framework\App\Helper\AbstractHelper
 
     public function setAction($action)
     {
-        if ($action == 'customer_section_load' ||
-            $action == 'customer_section_load') {
+        if ($action == 'customer_section_load') {
             return;
         }
         $this->action = $action;

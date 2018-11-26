@@ -35,17 +35,17 @@
                 <field id="product_index" translate="label" type="select" showInDefault="1" showInWebsite="1" showInStore="1">
                     <label>Product Indexing Enabled</label>
                     <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
-                    <comment>Choose if the PureClarity Product Reindexing should be enabled</comment>
+                    <comment>Choose if the PureClarity Product Reindexing should be enabled.</comment>
                 </field>
                 <field id="notify_feed" translate="label" type="select" showInDefault="1" showInWebsite="1" showInStore="1">
                     <label>Daily Feed Enabled</label>
                     <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
-                    <comment>Choose if a full data set of Products, Categories and Users should be pushed to PureClarity in the early hours each day</comment>
+                    <comment>Choose if a full data set of Products, Categories and Users should be pushed to PureClarity in the early hours each day.</comment>
                 </field>
                 <field id="brand_feed_enabled" translate="label" type="select" showInDefault="1" showInWebsite="1" showInStore="1">
                     <label>Brand Feed Enabled</label>
                     <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
-                    <comment>If this is enabled the brand parent category value should be set below.</comment>
+                    <comment>If this is enabled, the brand parent category value should be set below.</comment>
                 </field>
                 <field id="brand_parent_category" translate="label" type="select" showInDefault="1" showInWebsite="1" showInStore="1">
                     <label>Brand Parent Category</label>
@@ -60,21 +60,23 @@
             </group>
             <group id="general_config" type="text" sortOrder="4" showInDefault="1" showInWebsite="1" showInStore="1">
                 <label>General configuration</label>
-                <comment>Enable or disabled the PureClarity Merchandizing and Search functionality.</comment>
-                <field id="merch_active" translate="label" type="select" showInDefault="1" showInWebsite="1" showInStore="1">
-                    <label>Merchandizing Zones Enabled</label>
-                    <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
-                    <comment>Select if PureClarity should show BMZs</comment>
-                </field>
-                <field id="search_active" translate="label" type="select" showInDefault="1" showInWebsite="1" showInStore="1">
-                    <label>Search Enabled</label>
-                    <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
-                    <comment>Select if PureClarity Search should be enabled</comment>
-                </field>
+                <!--  
+                    <comment>Enable or disabled the PureClarity Merchandizing and Search functionality.</comment>
+                    <field id="merch_active" translate="label" type="select" showInDefault="1" showInWebsite="1" showInStore="1">
+                        <label>Merchandizing Zones Enabled</label>
+                        <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
+                        <comment>Select if PureClarity should show BMZs.</comment>
+                    </field>
+                    <field id="search_active" translate="label" type="select" showInDefault="1" showInWebsite="1" showInStore="1">
+                        <label>Search Enabled</label>
+                        <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
+                        <comment>Select if PureClarity Search should be enabled.</comment>
+                    </field> 
+                -->
                 <field id="prodlisting_active" translate="label" type="select" showInDefault="1" showInWebsite="1" showInStore="1">
                     <label>Product Listing Enabled</label>
                     <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
-                    <comment>Select if PureClarity product listing should be used on all product listing pages</comment>
+                    <comment>Select if PureClarity product listing should be used on all product listing pages.</comment>
                 </field>
             </group>
             <group id="actions" type="text" sortOrder="5" showInDefault="1" showInWebsite="1" showInStore="1">
@@ -94,15 +96,15 @@
                 <label>Placeholder images</label>
                 <field id="placeholder_product" translate="label" type="text" showInDefault="1" showInWebsite="1" showInStore="1">
                     <label>Product image placeholder</label>
-                    <comment>Leave this blank to use the magento default placeholder</comment>
+                    <comment>Leave this blank to use the Magento default placeholder.</comment>
                 </field>
                 <field id="placeholder_category" translate="label" type="text" showInDefault="1" showInWebsite="1" showInStore="1">
                     <label>Category image placeholder</label>
-                    <comment>Leave this blank to use the magento default placeholder</comment>
+                    <comment>Leave this blank to use the Magento default placeholder.</comment>
                 </field>
                 <field id="placeholder_category_secondary" translate="label" type="text" showInDefault="1" showInWebsite="1" showInStore="1">
                     <label>Secondary category image placeholder</label>
-                    <comment>Leave this blank to use the magento default placeholder</comment>
+                    <comment>Leave this blank to use the Magento default placeholder.</comment>
                 </field>
             </group>
             <group id="advanced" type="text" sortOrder="7" showInDefault="1" showInWebsite="1" showInStore="1">
@@ -140,7 +142,7 @@
 
                 <field id="pureclarity_search_selector" translate="label" type="text" showInDefault="1" showInWebsite="1" showInStore="1">
                     <label>DOM Element for client side search results to be injected into</label>
-                    <comment>Leave this blank to use the default ".columns" class</comment>
+                    <comment>Leave this blank to use the default ".columns" class.</comment>
                 </field>
 
             </group>

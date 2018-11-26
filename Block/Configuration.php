@@ -18,6 +18,7 @@ class Configuration extends Template
     public $category;
     public $order;
     public $orderitems = [];
+    private $productMetadata;
 
     public function __construct(
         Context $context,
@@ -29,6 +30,7 @@ class Configuration extends Template
         \Magento\Catalog\Model\ResourceModel\Product\CollectionFactory $productCollection,
         \Magento\Framework\App\Request\Http $request,
         \Magento\Framework\Registry $registry,
+        \Magento\Framework\App\ProductMetadataInterface $productMetadata,
         array $data = []
     ) {
         $this->logger = $logger;
@@ -40,6 +42,7 @@ class Configuration extends Template
         $this->request = $request;
         $this->product = $registry->registry("product");
         $this->category = $registry->registry("current_category");
+        $this->productMetadata = $productMetadata;
         parent::__construct($context, $data);
     }
 
@@ -68,7 +71,8 @@ class Configuration extends Template
             "wishListUrl" =>  $this->getUrl('wishlist/index/add'),
             "compareUrl" =>  $this->getUrl('catalog/product_compare/add'),
             "showSwatches" => (int)$this->showSwatches(),
-            "swatchesToShow" => $this->getNumberSwatchesPerProduct()
+            "swatchesToShow" => $this->getNumberSwatchesPerProduct(),
+            "swatchRenderer" => $this->getSwatchRendererPath(),
         ];
     }
 
@@ -211,5 +215,15 @@ class Configuration extends Template
             ];
         }
         return null;
+    }
+
+    private function getSwatchRendererPath()
+    {
+        if (version_compare($this->productMetadata->getVersion(), '2.1.0', '<')){
+            return 'Magento_Swatches/js/SwatchRenderer';
+        }
+        else{
+            return 'Magento_Swatches/js/swatch-renderer';
+        }
     }
 }

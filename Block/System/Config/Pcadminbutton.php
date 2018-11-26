@@ -51,11 +51,13 @@ class Pcadminbutton extends Field
     public function getButtonHtml()
     {
         $button = $this->getLayout()->createBlock('Magento\Backend\Block\Widget\Button')
-            ->setData([
+            ->setData(
+                [
                 'id' => 'PC_Admin',
                 'label' => "Go to admin",
                 'onclick' => 'javascript:pureclarity_magento_go_to_admin(); return false;'
-            ]);
+                ]
+            );
 
         return $button->toHtml();
     }

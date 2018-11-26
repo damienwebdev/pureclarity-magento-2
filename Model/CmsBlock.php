@@ -2,7 +2,6 @@
 
 namespace Pureclarity\Core\Model;
 
-use Magento\Framework\Serialize\Serializer\Json;
 use Magento\Framework\Component\ComponentRegistrar;
 
 class CmsBlock
@@ -15,7 +14,6 @@ class CmsBlock
     protected $appCollectionFactory;
     protected $fixtureManager;
     protected $csvProcessor;
-    private $serializer;
     protected $componentRegistrar;
     protected $logger;
 
@@ -27,8 +25,7 @@ class CmsBlock
         \Magento\Cms\Model\BlockFactory $cmsBlockFactory,
         \Magento\Widget\Model\ResourceModel\Widget\Instance\CollectionFactory $appCollectionFactory,
         \Magento\Catalog\Model\ResourceModel\Category\CollectionFactory $categoryFactory,
-        \Psr\Log\LoggerInterface $logger,
-        Json $serializer = null
+        \Psr\Log\LoggerInterface $logger
     ) {
         $this->csvProcessor = $csvProcessor;
         $this->widgetFactory = $widgetFactory;
@@ -38,13 +35,19 @@ class CmsBlock
         $this->categoryFactory = $categoryFactory;
         $this->componentRegistrar = $componentRegistrar;
         $this->logger = $logger;
-        $this->serializer = $serializer ?: \Magento\Framework\App\ObjectManager::getInstance()->get(Json::class);
     }
 
+
+    /**
+     * Installs PureClarity BMZs based on the CSV files provided.
+     * @param $files array CSV file(s) to be parsed
+     * @param $storeId integer The store id
+     * @param $themeId integer Theme of the id to install the BMZs for
+     */
     public function install(array $files, $storeId, $themeId)
     {
         $path = $this->componentRegistrar->getPath(ComponentRegistrar::MODULE, 'Pureclarity_Core') . DIRECTORY_SEPARATOR . 'data' . DIRECTORY_SEPARATOR;
-        
+
         $pageGroupConfig = [
             'pages' => [
                 'block' => '',
@@ -102,7 +105,7 @@ class CmsBlock
                     $alreadyExists[] = $row['title'];
                     continue;
                 }
-
+        
                 $widgetInstance = $this->widgetFactory->create();
 
                 $code = $row['type_code'];
@@ -110,10 +113,11 @@ class CmsBlock
                 $pageGroup = [];
                 $group = $row['page_group'];
                 $pageGroup['page_group'] = $group;
+
                 $pageGroup[$group] = array_merge(
                     $pageGroupConfig[$group],
-                    $this->serializer->unserialize($row['group_data'])
-                );
+                    json_decode($row['group_data'], true)
+                ); 
                 if (!empty($pageGroup[$group]['entities'])) {
                     $pageGroup[$group]['entities'] = $this->getCategoryByUrlKey(
                         $pageGroup[$group]['entities']
@@ -125,7 +129,9 @@ class CmsBlock
                     $customParameters['pc_bmz_buffer'] = 1;
                 }
 
-                $widgetInstance->setType($type)->setCode($code)->setThemeId($themeId);
+                $widgetInstance->setType($type)
+                    ->setCode($code)
+                    ->setThemeId($themeId);
                 $widgetInstance->setTitle($row['title'])
                     ->setStoreIds([$storeId])
                     ->setWidgetParameters($customParameters)
@@ -141,6 +147,20 @@ class CmsBlock
             "alreadyExists" => $alreadyExists,
             "installed" => $installed
         ];
+    }
+
+    /**
+     * Uninstalls all PureClarity BMZ widgets (Magento db table is widget_instance).
+     * Called when PureClarity is uninstalled (/Setup/Uninstall).
+     */
+    public function uninstall()
+    {
+
+        $instanceCollection = $this->appCollectionFactory->create()
+            ->addFilter('instance_type', 'Pureclarity\Core\Block\Bmz');
+        foreach ($instanceCollection as $widgetInstance) {
+            $widgetInstance->delete();
+        }
     }
 
     /**

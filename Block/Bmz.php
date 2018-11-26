@@ -97,7 +97,7 @@ class Bmz extends Template implements BlockInterface
 
             // Set category data
             $categoryObject = $this->registry->registry('current_category');
-            if(is_object($categoryObject)){
+            if (is_object($categoryObject)) {
                 $this->addBmzData('categoryid', $categoryObject->getId());
             }
         }
@@ -220,14 +220,12 @@ class Bmz extends Template implements BlockInterface
                             ->setData('bmz_data', $resultData)
                             ->setTemplate($this->coreHelper->getProductRecommenderTemplate())
                             ->toHtml();
-                    break;
                 case "recommender-category":
                 case "recommender-brand":
                 case "staticimage":
                 case "carousel":
                 case "html":
                     return $resultData['html'];
-                    break;
             }
         }
         return "";
