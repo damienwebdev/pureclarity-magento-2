@@ -58,28 +58,26 @@
                     <comment>Under normal conditions you don't need to run feeds manually, this is done automatically every night.</comment>
                 </field>
             </group>
-            <!-- 
-                <group id="general_config" type="text" sortOrder="4" showInDefault="1" showInWebsite="1" showInStore="1">
-                    <label>General configuration</label>
-                     
-                        <comment>Enable or disabled the PureClarity Merchandizing and Search functionality.</comment>
-                        <field id="merch_active" translate="label" type="select" showInDefault="1" showInWebsite="1" showInStore="1">
-                            <label>Merchandizing Zones Enabled</label>
-                            <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
-                            <comment>Select if PureClarity should show BMZs.</comment>
-                        </field>
-                        <field id="search_active" translate="label" type="select" showInDefault="1" showInWebsite="1" showInStore="1">
-                            <label>Search Enabled</label>
-                            <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
-                            <comment>Select if PureClarity Search should be enabled.</comment>
-                        </field>
-                        <field id="prodlisting_active" translate="label" type="select" showInDefault="1" showInWebsite="1" showInStore="1">
-                            <label>Product Listing Enabled</label>
-                            <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
-                            <comment>Select if PureClarity product listing should be used on all product listing pages.</comment>
-                        </field> 
-                </group>
-            -->
+            <group id="general_config" type="text" sortOrder="4" showInDefault="1" showInWebsite="1" showInStore="1">
+                <label>General configuration</label>
+                 
+                    <comment>Enable or disabled the PureClarity Merchandizing and Search functionality.</comment>
+                    <field id="merch_active" translate="label" type="select" showInDefault="1" showInWebsite="1" showInStore="1">
+                        <label>Merchandizing Zones Enabled</label>
+                        <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
+                        <comment>Select if PureClarity should show BMZs.</comment>
+                    </field>
+                    <field id="search_active" translate="label" type="select" showInDefault="1" showInWebsite="1" showInStore="1">
+                        <label>Search Enabled</label>
+                        <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
+                        <comment>Select if PureClarity Search should be enabled.</comment>
+                    </field>
+                    <field id="prodlisting_active" translate="label" type="select" showInDefault="1" showInWebsite="1" showInStore="1">
+                        <label>Product Listing Enabled</label>
+                        <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
+                        <comment>Select if PureClarity product listing should be used on all product listing pages.</comment>
+                    </field> 
+            </group>
             <group id="actions" type="text" sortOrder="5" showInDefault="1" showInWebsite="1" showInStore="1">
                 <label>Actions</label>
                 <field id="intall_bmzs_button" translate="label" type="button" showInDefault="1" showInWebsite="1" showInStore="1">
@@ -120,7 +118,7 @@
                     <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
                     <comment>PureClarity is best implemented using Client Side integration. However, for greater control over the PureClarity implementation you may wish use the Server Side option, which uses Templates that are built in the PureClarity Plugin. This is generally used for highly customized Magento implementations where developers may want greater control, for example, over prices. Please read the documentation for further information.</comment>
                 </field>
-                <!-- 
+                
                 <field id="seo_friendly" translate="label" type="select" showInDefault="1" showInWebsite="1" showInStore="1">
                     <label>SEO Friendly Searches</label>
                     <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
@@ -135,17 +133,17 @@
                     <label>Search/Product List Template Overide</label>
                     <comment>Leave this blank to use the PureClarity default template when using Server Side implementation.</comment>
                 </field>
-                -->
+               
                 <field id="prod_rec_template" translate="label" type="text" showInDefault="1" showInWebsite="1" showInStore="1">
                     <label>Product Recommender Template Overide</label>
                     <comment>Leave this blank to use the PureClarity default template when using Server Side implementation</comment>
                 </field>
-                <!-- 
+                
                 <field id="pureclarity_search_selector" translate="label" type="text" showInDefault="1" showInWebsite="1" showInStore="1">
                     <label>DOM Element for client side search results to be injected into</label>
                     <comment>Leave this blank to use the default ".columns" class.</comment>
                 </field>
-                -->
+               
             </group>
         </section>
     </system>

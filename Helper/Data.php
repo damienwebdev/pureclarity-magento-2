@@ -138,18 +138,17 @@ class Data extends \Magento\Framework\App\Helper\AbstractHelper
     // General Config
     public function isMerchActive($storeId = null)
     {
-        // if ($this->isActive($this->getStoreId($storeId))) {
-        //     return $this->scopeConfig->getValue("pureclarity/general_config/merch_active", \Magento\Store\Model\ScopeInterface::SCOPE_STORE, $this->getStoreId($storeId));
-        // }
-        // return false;
-        return true;
+        if ($this->isActive($this->getStoreId($storeId))) {
+            return $this->scopeConfig->getValue("pureclarity/general_config/merch_active", \Magento\Store\Model\ScopeInterface::SCOPE_STORE, $this->getStoreId($storeId));
+        }
+        return false;
     }
 
     public function isSearchActive($storeId = null)
     {
-        // if ($this->isActive($this->getStoreId($storeId))) {
-        //     return $this->scopeConfig->getValue("pureclarity/general_config/search_active", \Magento\Store\Model\ScopeInterface::SCOPE_STORE, $this->getStoreId($storeId));
-        // }
+        if ($this->isActive($this->getStoreId($storeId))) {
+            return $this->scopeConfig->getValue("pureclarity/general_config/search_active", \Magento\Store\Model\ScopeInterface::SCOPE_STORE, $this->getStoreId($storeId));
+        }
         return false;
     }
 
