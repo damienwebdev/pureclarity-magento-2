@@ -125,17 +125,17 @@
                     <comment>When PureClarity doesn't use Server Side integration set this value to Yes to record searches within Magento for SEO purposes.</comment>
                 </field>
                 <field id="search_result_template" translate="label" type="text" showInDefault="1" showInWebsite="1" showInStore="1">
-                    <label>Search Result Template Overide</label>
+                    <label>Search Result Template Override</label>
                     <comment>Leave this blank to use the PureClarity default template when using Server Side implementation.</comment>
                 </field>
 
                 <field id="prod_list_template" translate="label" type="text" showInDefault="1" showInWebsite="1" showInStore="1">
-                    <label>Search/Product List Template Overide</label>
+                    <label>Search/Product List Template Override</label>
                     <comment>Leave this blank to use the PureClarity default template when using Server Side implementation.</comment>
                 </field>
                
                 <field id="prod_rec_template" translate="label" type="text" showInDefault="1" showInWebsite="1" showInStore="1">
-                    <label>Product Recommender Template Overide</label>
+                    <label>Product Recommender Template Override</label>
                     <comment>Leave this blank to use the PureClarity default template when using Server Side implementation</comment>
                 </field>
                 
