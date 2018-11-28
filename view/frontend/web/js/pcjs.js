@@ -273,7 +273,7 @@ define(['jquery', 'priceBox'], function ($, priceBox) {
                 _pc(event, value);
             }
         },
-        sectionUpdated(dataId, section){
+        sectionUpdated: function(dataId, section){
             var cookieSections = $.cookieStorage.get('section_data_ids');
             return dataId && cookieSections &&
                    cookieSections[section] != dataId;

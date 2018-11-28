@@ -147,7 +147,7 @@ class Feed extends \Magento\Framework\Model\AbstractModel
         $this->logger->debug("PureClarity: In Feed->sendOrders()");
         
         // Get the collection
-        $fromDate = date('Y-m-d H:i:s', strtotime("-6 month"));
+        $fromDate = date('Y-m-d H:i:s', strtotime("-12 month"));
         $toDate = date('Y-m-d H:i:s', strtotime("now"));
         $objectManager =  \Magento\Framework\App\ObjectManager::getInstance();
         $this->logger->debug("PureClarity: About to initialise orderCollection");
