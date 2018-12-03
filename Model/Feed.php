@@ -8,7 +8,7 @@ class Feed extends \Magento\Framework\Model\AbstractModel
     protected $categoryRepository;
     protected $coreHelper;
     protected $eavConfig;
-    protected $storeStoreFactory;
+    protected $storeFactory;
     protected $categoryHelper;
     protected $coreProductExportFactory;
     protected $logger;
@@ -22,6 +22,7 @@ class Feed extends \Magento\Framework\Model\AbstractModel
     protected $problemFeeds = [];
 
     private $uniqueId;
+    private $currentStore;
 
     const FEED_TYPE_BRAND = "brand";
     const FEED_TYPE_CATEGORY = "category";
@@ -37,7 +38,7 @@ class Feed extends \Magento\Framework\Model\AbstractModel
         \Magento\Sales\Model\OrderFactory $orderFactory,
         \Pureclarity\Core\Helper\Data $coreHelper,
         \Magento\Eav\Model\Config $eavConfig,
-        \Magento\Store\Model\StoreFactory $storeStoreFactory,
+        \Magento\Store\Model\StoreFactory $storeFactory,
         \Magento\Catalog\Helper\Category $categoryHelper,
         \Pureclarity\Core\Model\ProductExportFactory $coreProductExportFactory,
         \Psr\Log\LoggerInterface $logger,
@@ -51,7 +52,7 @@ class Feed extends \Magento\Framework\Model\AbstractModel
         $this->categoryRepository = $categoryRepository;
         $this->coreHelper = $coreHelper;
         $this->eavConfig = $eavConfig;
-        $this->storeStoreFactory = $storeStoreFactory;
+        $this->storeFactory = $storeFactory;
         $this->categoryHelper = $categoryHelper;
         $this->coreProductExportFactory = $coreProductExportFactory;
         $this->logger = $logger;
@@ -242,12 +243,12 @@ class Feed extends \Magento\Framework\Model\AbstractModel
 
         $this->start(self::FEED_TYPE_CATEGORY);
      
-        $currentStore = $this->storeStoreFactory->create()->load($this->storeId);
         $categoryCollection = $this->catalogResourceModelCategoryCollectionFactory->create()
-            ->setStore($currentStore)
+            ->setStore($this->getCurrentStore())
             ->addAttributeToSelect('name')
             ->addAttributeToSelect('is_active')
             ->addAttributeToSelect('image')
+            ->addAttributeToSelect('pureclarity_category_image')
             ->addAttributeToSelect('pureclarity_hide_from_feed')
             ->addUrlRewriteToResult();
         $this->coreHelper->setProgressFile($this->progressFileName, self::FEED_TYPE_CATEGORY, 0, 1);
@@ -277,7 +278,7 @@ class Feed extends \Magento\Framework\Model\AbstractModel
             $imageUrl2 = null;
             $secondImage = $category->getData('pureclarity_category_image');
             if ($secondImage != "") {
-                $imageUrl2 = sprintf("%scatalog/category/%s", $currentStore->getBaseUrl(\Magento\Framework\UrlInterface::URL_TYPE_MEDIA), $secondImage);
+                $imageUrl2 = sprintf("%scatalog/pureclarity_category_image/%s", $this->getCurrentStore()->getBaseUrl(\Magento\Framework\UrlInterface::URL_TYPE_MEDIA), $secondImage);
             } else {
                 $imageUrl2 = $this->coreHelper->getSecondaryCategoryPlaceholderUrl($this->storeId);
             }
@@ -293,11 +294,7 @@ class Feed extends \Magento\Framework\Model\AbstractModel
 
             // Set URL and Parent ID
             if ($category->getLevel() > 1) {
-                $categoryUrl = str_replace($currentStore->getBaseUrl(), '', $category->getUrl($category));
-                if (substr($categoryUrl, 0, 1) != '/') {
-                    $categoryUrl = '/' . $categoryUrl;
-                }
-                $categoryData["Link"] = $categoryUrl;
+                $categoryData["Link"] = $this->removeUrlProtocol($category->getUrl($category));
                 $categoryData["ParentIds"] = [
                         $category->getParentCategory()->getId()
                     ];
@@ -324,7 +321,7 @@ class Feed extends \Magento\Framework\Model\AbstractModel
 
             $feedCategories .= $this->coreHelper->formatFeed($categoryData, 'json');
             
-            $currentProgress ++;
+            $currentProgress++;
 
             $parameters = $this->getParameters($feedCategories, self::FEED_TYPE_CATEGORY);
             $this->send("feed-append", $parameters);
@@ -355,36 +352,38 @@ class Feed extends \Magento\Framework\Model\AbstractModel
         $brandCategoryId = $this->coreHelper->getBrandParentCategory($this->storeId);
         
         if ($brandCategoryId && $brandCategoryId != "-1") {
-            $category = $this->categoryRepository->get($brandCategoryId);
+            $brandParentCategory = $this->categoryRepository->get($brandCategoryId);
             
-            $subcategories = $this->catalogResourceModelCategoryCollectionFactory->create()
+            $brands = $this->catalogResourceModelCategoryCollectionFactory->create()
                 ->addAttributeToSelect('name')
                 ->addAttributeToSelect('image')
-                ->addIdFilter($category->getChildren());
+                ->addIdFilter($brandParentCategory ->getChildren());
 
-            $maxProgress = count($subcategories);
+            $maxProgress = count($brands);
             $feedBrands = "";
             $currentProgress = 0;
             $isFirst = true;
 
-            foreach ($subcategories as $subcategory) {
+            foreach ($brands as $brand) {
                 $feedBrands = ($isFirst ? ',"Brands":[' : "");
 
-                $thisBrand = [
-                    "Id" => $subcategory->getId(),
-                    "DisplayName" =>  $subcategory->getName()
+                $brandData = [
+                    "Id" => $brand->getId(),
+                    "DisplayName" =>  $brand->getName()
                 ];
                 
-                $imageUrl = $subcategory->getImageUrl();
+                $imageUrl = $brand->getImageUrl();
                 if ($imageUrl) {
-                    $thisBrand['Image'] = $this->removeUrlProtocol($imageUrl);
+                    $brandData['Image'] = $this->removeUrlProtocol($imageUrl);
                 }
+
+                $brandData["Link"] = $this->removeUrlProtocol($brand->getUrl($brand));
 
                 if (! $isFirst) {
                     $feedBrands .= ',';
                 }
                 $isFirst = false;
-                $feedBrands .= $this->coreHelper->formatFeed($thisBrand, 'json');
+                $feedBrands .= $this->coreHelper->formatFeed($brandData, 'json');
                 $currentProgress++;
 
                 $parameters = $this->getParameters($feedBrands, self::FEED_TYPE_BRAND);
@@ -397,7 +396,7 @@ class Feed extends \Magento\Framework\Model\AbstractModel
             $this->endFeedAppend(self::FEED_TYPE_BRAND, $hasSentItemData);
         
         } else {
-            $this->coreHelper->setProgressFile($this->progressFileName, 'brand', 1, 1);
+            $this->coreHelper->setProgressFile($this->progressFileName, self::FEED_TYPE_BRAND, 1, 1);
         }
         $this->end(self::FEED_TYPE_BRAND);
     }
@@ -438,9 +437,10 @@ class Feed extends \Magento\Framework\Model\AbstractModel
         $customerGroups = $this->customerGroup->toOptionArray();
         
         $users = "";
-        $currentStore = $this->storeStoreFactory->create()->load($this->storeId);
         $customerCollection = $this->customerFactory->create()->getCollection()
-            ->addAttributeToFilter("website_id", ["eq" => $currentStore->getWebsiteId()])
+            ->addAttributeToFilter("website_id", [
+                    "eq" => $this->getCurrentStore()->getWebsiteId()
+                ])
             ->addAttributeToSelect("*")
             ->load();
 
@@ -738,5 +738,12 @@ class Feed extends \Magento\Framework\Model\AbstractModel
             $errorMessage = "PureClarity: PHP does not have enough memory to run the feeds. Please increase to the recommended level of 768Mb and try again.";
             file_put_contents(BP . '/var/log/debug.log', $errorMessage, FILE_APPEND);
         }
+    }
+
+    private function getCurrentStore(){
+        if(empty($this->currentStore)){
+            $this->currentStore = $this->storeFactory->create()->load($this->storeId);
+        }
+        return $this->currentStore;
     }
 }
