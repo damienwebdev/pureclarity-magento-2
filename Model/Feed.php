@@ -264,31 +264,31 @@ class Feed extends \Magento\Framework\Model\AbstractModel
 
             $feedCategories = ($isFirst ? ',"Categories":[' : "");
 
-            // Get first image
-            $firstImage = $category->getImageUrl();
-            if ($firstImage != "") {
-                $imageUrl = $firstImage;
+            // Get category image
+            $categoryImage = $category->getImageUrl();
+            if ($categoryImage != "") {
+                $categoryImageUrl = $categoryImage;
             } else {
-                $imageUrl = $this->coreHelper->getCategoryPlaceholderUrl($this->storeId);
+                $categoryImageUrl = $this->coreHelper->getCategoryPlaceholderUrl($this->storeId);
             }
-            $imageUrl = $this->removeUrlProtocol($imageUrl);
+            $categoryImageUrl = $this->removeUrlProtocol($categoryImageUrl);
 
             
-            // Get second image
-            $imageUrl2 = null;
-            $secondImage = $category->getData('pureclarity_category_image');
-            if ($secondImage != "") {
-                $imageUrl2 = sprintf("%scatalog/pureclarity_category_image/%s", $this->getCurrentStore()->getBaseUrl(\Magento\Framework\UrlInterface::URL_TYPE_MEDIA), $secondImage);
+            // Get override image
+            $overrideImageUrl = null;
+            $overrideImage = $category->getData('pureclarity_category_image');
+            if ($overrideImage != "") {
+                $overrideImageUrl = sprintf("%scatalog/pureclarity_category_image/%s", $this->getCurrentStore()->getBaseUrl(\Magento\Framework\UrlInterface::URL_TYPE_MEDIA), $overrideImage);
             } else {
-                $imageUrl2 = $this->coreHelper->getSecondaryCategoryPlaceholderUrl($this->storeId);
+                $overrideImageUrl = $this->coreHelper->getSecondaryCategoryPlaceholderUrl($this->storeId);
             }
-            $imageUrl2 = $this->removeUrlProtocol($imageUrl2);
+            $overrideImageUrl = $this->removeUrlProtocol($overrideImageUrl);
 
             // Build data
             $categoryData = [
                 "Id" => $category->getId(),
                 "DisplayName" => $category->getName(),
-                "Image" => $imageUrl,
+                "Image" => $categoryImageUrl,
                 "Link" => "/"
             ];
 
@@ -310,8 +310,8 @@ class Feed extends \Magento\Framework\Model\AbstractModel
                  $categoryData["IsActive"] = false;
             }
 
-            if ($imageUrl2 != null) {
-                $categoryData["PCImage"] = $imageUrl2;
+            if ($overrideImageUrl != null) {
+                $categoryData["OverrideImage"] = $overrideImageUrl;
             }
             
             if (! $isFirst) {
@@ -371,13 +371,35 @@ class Feed extends \Magento\Framework\Model\AbstractModel
                     "Id" => $brand->getId(),
                     "DisplayName" =>  $brand->getName()
                 ];
-                
-                $imageUrl = $brand->getImageUrl();
-                if ($imageUrl) {
-                    $brandData['Image'] = $this->removeUrlProtocol($imageUrl);
+
+                // Get brand image
+                $brandImage = $brand->getImageUrl();
+                if ($brandImage != "") {
+                    $brandImageUrl = $brandImage;
+                } else {
+                    $brandImageUrl = $this->coreHelper->getCategoryPlaceholderUrl($this->storeId);
+                }
+                $brandData['Image'] = $this->removeUrlProtocol($brandImageUrl);
+
+                // Get override image
+                $overrideImageUrl = null;
+                $overrideImage = $brand->getData('pureclarity_category_image');
+                if ($overrideImage != "") {
+                    $overrideImageUrl = sprintf("%scatalog/pureclarity_category_image/%s", $this->getCurrentStore()->getBaseUrl(\Magento\Framework\UrlInterface::URL_TYPE_MEDIA), $overrideImage);
+                } else {
+                    $overrideImageUrl = $this->coreHelper->getSecondaryCategoryPlaceholderUrl($this->storeId);
+                }
+                $overrideImageUrl = $this->removeUrlProtocol($overrideImageUrl);
+                if ($overrideImageUrl != null) {
+                    $brandData["OverrideImage"] = $overrideImageUrl;
                 }
 
                 $brandData["Link"] = $this->removeUrlProtocol($brand->getUrl($brand));
+
+                // Check whether to ignore this brand in recommenders
+                if ($brand->getData('pureclarity_hide_from_feed') == '1') {
+                     $brandData["ExcludeFromRecommenders"] = true;
+                }
 
                 if (! $isFirst) {
                     $feedBrands .= ',';
