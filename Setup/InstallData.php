@@ -66,7 +66,7 @@ class InstallData implements InstallDataInterface
                 1000
             );
 
-            // Add attribute for secondary image is added
+            // Add attribute for secondary image
             $eavSetup->addAttribute(
                 Category::ENTITY,
                 'pureclarity_category_image',
