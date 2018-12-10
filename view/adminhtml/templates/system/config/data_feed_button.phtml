@@ -164,9 +164,14 @@
                     },
                     manageProgressResponse: function(response){
                         if (response && response.error){
-                            this.message("ERROR: Sorry but an error occurred. " + response.error);
-                            this.isComplete = true;
-                            this.resetState();
+                            if(response.error == "true"){ // session has ended, reload to force login
+                                location.reload();
+                            }
+                            else{
+                                this.message("ERROR: Sorry but an error occurred. " + response.error);
+                                this.isComplete = true;
+                                this.resetState();
+                            }
                         }
                         else if (response && response.isUploaded){
                             this.message("SUCCESS: Data feed(s) successfully submitted to PureClarity.")
