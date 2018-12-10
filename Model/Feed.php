@@ -357,6 +357,8 @@ class Feed extends \Magento\Framework\Model\AbstractModel
             $brands = $this->catalogResourceModelCategoryCollectionFactory->create()
                 ->addAttributeToSelect('name')
                 ->addAttributeToSelect('image')
+                ->addAttributeToSelect('pureclarity_category_image')
+                ->addAttributeToSelect('pureclarity_hide_from_feed')
                 ->addIdFilter($brandParentCategory ->getChildren());
 
             $maxProgress = count($brands);
@@ -398,7 +400,7 @@ class Feed extends \Magento\Framework\Model\AbstractModel
 
                 // Check whether to ignore this brand in recommenders
                 if ($brand->getData('pureclarity_hide_from_feed') == '1') {
-                     $brandData["ExcludeFromRecommenders"] = true;
+                    $brandData["ExcludeFromRecommenders"] = true;
                 }
 
                 if (! $isFirst) {
