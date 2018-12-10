@@ -66,7 +66,7 @@ class InstallData implements InstallDataInterface
                 1000
             );
 
-            // Add attribute for secondary image
+            // Add attribute for override image for categories and brands
             $eavSetup->addAttribute(
                 Category::ENTITY,
                 'pureclarity_category_image',
