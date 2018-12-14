@@ -41,7 +41,6 @@ class Feed extends \Magento\Framework\Model\AbstractModel
         \Magento\Store\Model\StoreFactory $storeFactory,
         \Magento\Catalog\Helper\Category $categoryHelper,
         \Pureclarity\Core\Model\ProductExportFactory $coreProductExportFactory,
-        \Psr\Log\LoggerInterface $logger,
         \Magento\Customer\Model\CustomerFactory $customerFactory,
         \Magento\Customer\Model\ResourceModel\Group\Collection $customerGroup,
         \Magento\Framework\Model\ResourceModel\AbstractResource $resource = null,
@@ -55,7 +54,7 @@ class Feed extends \Magento\Framework\Model\AbstractModel
         $this->storeFactory = $storeFactory;
         $this->categoryHelper = $categoryHelper;
         $this->coreProductExportFactory = $coreProductExportFactory;
-        $this->logger = $logger;
+        $this->logger = $context->getLogger();
         $this->customerFactory = $customerFactory;
         $this->customerGroup = $customerGroup;
         $this->orderFactory = $orderFactory;

@@ -8,11 +8,10 @@ class Sftp extends \Magento\Framework\App\Helper\AbstractHelper
 
     public function __construct(
         \Magento\Framework\App\Helper\Context $context,
-        \Psr\Log\LoggerInterface $logger,
         \Magento\Framework\Filesystem\Io\Sftp $sftp
     ) {
         $this->sftp = $sftp;
-        $this->logger = $logger;
+        $this->logger = $context->getLogger();
         parent::__construct(
             $context
         );

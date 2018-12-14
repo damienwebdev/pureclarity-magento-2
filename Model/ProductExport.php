@@ -58,7 +58,6 @@ class ProductExport extends \Magento\Framework\Model\AbstractModel
         \Magento\Catalog\Model\Config $catalogConfig,
         \Magento\Catalog\Helper\Data $catalogHelper,
         \Magento\Catalog\Model\ProductFactory $catalogProductFactory,
-        \Psr\Log\LoggerInterface $logger,
         \Magento\Eav\Model\Config $eavConfig,
         \Magento\Swatches\Helper\Data $swatchHelper,
         \Magento\Swatches\Helper\Media $swatchMediaHelper,
@@ -82,7 +81,7 @@ class ProductExport extends \Magento\Framework\Model\AbstractModel
         $this->catalogConfig = $catalogConfig;
         $this->catalogHelper = $catalogHelper;
         $this->catalogProductFactory = $catalogProductFactory;
-        $this->logger = $logger;
+        $this->logger = $context->getLogger();
         $this->eavConfig = $eavConfig;
         $this->swatchHelper = $swatchHelper;
         $this->swatchMediaHelper = $swatchMediaHelper;

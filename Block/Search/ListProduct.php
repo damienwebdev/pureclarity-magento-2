@@ -13,7 +13,6 @@ class ListProduct extends \Magento\Catalog\Block\Product\ListProduct
     public function __construct(
         \Magento\Catalog\Block\Product\Context $context,
         \Pureclarity\Core\Helper\Data $coreHelper,
-        \Psr\Log\LoggerInterface $logger,
         \Pureclarity\Core\Helper\Service $pureClarityService,
         \Magento\Framework\Data\Helper\PostHelper $postDataHelper,
         \Magento\Catalog\Model\Layer\Resolver $layerResolver,
@@ -23,7 +22,7 @@ class ListProduct extends \Magento\Catalog\Block\Product\ListProduct
     ) {
         $this->coreHelper = $coreHelper;
         $this->pureClarityService = $pureClarityService;
-        $this->logger = $logger;
+        $this->logger = $context->getLogger();
         
         parent::__construct(
             $context,

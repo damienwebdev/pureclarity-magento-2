@@ -27,18 +27,16 @@ class Bmz extends Template implements BlockInterface
     public function __construct(
         \Magento\Framework\View\Element\Template\Context $context,
         \Pureclarity\Core\Helper\Data $coreHelper,
-        \Magento\Store\Model\StoreManagerInterface $storeManager,
-        \Psr\Log\LoggerInterface $logger,
         \Magento\Framework\Registry $registry,
         \Magento\Cms\Model\BlockFactory $cmsBlockFactory,
         \Pureclarity\Core\Helper\Service $service,
         array $data = []
     ) {
         $this->coreHelper = $coreHelper;
-        $this->logger = $logger;
+        $this->logger = $context->getLogger();
         $this->registry = $registry;
         $this->cmsBlockFactory = $cmsBlockFactory;
-        $this->storeManager = $storeManager;
+        $this->storeManager = $context->getStoreManager();
         $this->service = $service;
         parent::__construct(
             $context,

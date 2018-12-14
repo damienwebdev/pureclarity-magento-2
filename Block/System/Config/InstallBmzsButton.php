@@ -16,15 +16,13 @@ class InstallBmzsButton extends Field
     public function __construct(
         Context $context,
         \Magento\Backend\Model\UrlInterface $urlBuilder,
-        \Magento\Store\Model\StoreManagerInterface $storeManagerInterface,
         \Magento\Framework\View\Design\Theme\LabelFactory $labelFactory,
-        \Psr\Log\LoggerInterface $logger,
         array $data = []
     ) {
         parent::__construct($context, $data);
         $this->urlBuilder = $urlBuilder;
-        $this->storeManagerInterface = $storeManagerInterface;
-        $this->logger = $logger;
+        $this->storeManagerInterface = $context->getStoreManager();
+        $this->logger = $context->getLogger();
         $this->labelFactory = $labelFactory;
     }
 
