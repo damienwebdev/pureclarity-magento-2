@@ -23,7 +23,6 @@ class Configuration extends Template
     public function __construct(
         Context $context,
         \Pureclarity\Core\Helper\Data $coreHelper,
-        \Psr\Log\LoggerInterface $logger,
         \Magento\Checkout\Model\Cart $cart,
         \Magento\Checkout\Model\Session $checkoutSession,
         \Magento\Customer\Model\Session $customerSession,
@@ -33,7 +32,7 @@ class Configuration extends Template
         \Magento\Framework\App\ProductMetadataInterface $productMetadata,
         array $data = []
     ) {
-        $this->logger = $logger;
+        $this->logger = $context->getLogger();
         $this->coreHelper = $coreHelper;
         $this->checkoutSession = $checkoutSession;
         $this->customerSession = $customerSession;

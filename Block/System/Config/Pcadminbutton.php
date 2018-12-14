@@ -10,15 +10,16 @@ class Pcadminbutton extends Field
 {
     protected $_template = 'Pureclarity_Core::system/config/pcadminbutton.phtml';
     protected $coreHelper;
+    private $logger;
 
     public function __construct(
         Context $context,
         \Pureclarity\Core\Helper\Data $coreHelper,
-        \Psr\Log\LoggerInterface $logger,
         array $data = []
     ) {
         parent::__construct($context, $data);
         $this->coreHelper = $coreHelper;
+        $this->logger = $context->getLogger();
     }
 
     public function render(AbstractElement $element)

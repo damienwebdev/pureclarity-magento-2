@@ -23,14 +23,13 @@ class Categories implements \Magento\Framework\Option\ArrayInterface
         \Pureclarity\Core\Helper\Data $coreHelper,
         \Magento\Store\Model\StoreManagerInterface $storeManager,
         \Pureclarity\Core\Model\ProductExportFactory $coreProductExportFactory,
-        \Psr\Log\LoggerInterface $logger,
         array $data = []
     ) {
         $this->categoryRepository = $categoryRepository;
         $this->coreHelper = $coreHelper;
         $this->storeManager = $storeManager;
         $this->coreProductExportFactory = $coreProductExportFactory;
-        $this->logger = $logger;
+        $this->logger = $context->getLogger();
     }
 
     public function buildCategories()

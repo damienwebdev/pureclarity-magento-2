@@ -23,12 +23,11 @@ class Result extends \Magento\CatalogSearch\Block\Result
         Data $catalogSearchData,
         QueryFactory $queryFactory,
         \Pureclarity\Core\Helper\Data $coreHelper,
-        \Psr\Log\LoggerInterface $logger,
         \Pureclarity\Core\Helper\Service $pureClarityService,
         array $data = []
     ) {
         $this->coreHelper = $coreHelper;
-        $this->logger = $logger;
+        $this->logger = $context->getLogger();
         $this->pureClarityService = $pureClarityService;
         
         parent::__construct(

@@ -13,12 +13,11 @@ class ProductRecommender extends Template implements BlockInterface
     public function __construct(
         \Magento\Framework\View\Element\Template\Context $context,
         \Pureclarity\Core\Helper\Data $coreHelper,
-        \Psr\Log\LoggerInterface $logger,
         \Pureclarity\Core\Helper\Service $service,
         array $data = []
     ) {
         $this->coreHelper = $coreHelper;
-        $this->logger = $logger;
+        $this->logger = $context->getLogger();
         $this->service = $service;
         parent::__construct(
             $context,

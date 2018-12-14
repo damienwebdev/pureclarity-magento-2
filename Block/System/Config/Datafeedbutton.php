@@ -15,14 +15,12 @@ class Datafeedbutton extends Field
     public function __construct(
         Context $context,
         \Magento\Backend\Model\UrlInterface $urlBuilder,
-        \Magento\Store\Model\StoreManagerInterface $storeManagerInterface,
-        \Psr\Log\LoggerInterface $logger,
         array $data = []
     ) {
         parent::__construct($context, $data);
         $this->urlBuilder = $urlBuilder;
-        $this->storeManagerInterface = $storeManagerInterface;
-        $this->logger = $logger;
+        $this->storeManagerInterface = $context->getStoreManager();
+        $this->logger = $context->getLogger();
     }
 
     public function render(AbstractElement $element)

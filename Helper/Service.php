@@ -36,7 +36,6 @@ class Service extends \Magento\Framework\App\Helper\AbstractHelper
 
     public function __construct(
         \Magento\Framework\App\Helper\Context $context,
-        \Psr\Log\LoggerInterface $logger,
         \Magento\Checkout\Model\Session $checkoutSession,
         \Pureclarity\Core\Helper\Data $coreHelper,
         \Magento\Store\Model\StoreManagerInterface $storeManager,
@@ -49,7 +48,7 @@ class Service extends \Magento\Framework\App\Helper\AbstractHelper
         \Magento\Framework\App\Request\Http $request,
         \Magento\Framework\Registry $registry
     ) {
-        $this->logger = $logger;
+        $this->logger = $context->getLogger();
         $this->registry = $registry;
         $this->coreHelper = $coreHelper;
         $this->storeManager = $storeManager;

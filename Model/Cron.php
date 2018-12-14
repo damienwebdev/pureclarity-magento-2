@@ -32,7 +32,6 @@ class Cron extends \Magento\Framework\Model\AbstractModel
         \Pureclarity\Core\Model\ResourceModel\ProductFeed\CollectionFactory $coreResourceProductFeedCollectionFactory,
         \Pureclarity\Core\Model\ProductExportFactory $coreProductExportFactory,
         \Magento\Catalog\Model\ProductFactory $catalogProductFactory,
-        \Psr\Log\LoggerInterface $logger,
         \Pureclarity\Core\Model\FeedFactory $coreFeedFactory,
         \Magento\Store\Model\StoreFactory $storeStoreFactory,
         \Magento\Framework\App\Config\ScopeConfigInterface $scopeConfig,
@@ -47,7 +46,7 @@ class Cron extends \Magento\Framework\Model\AbstractModel
         $this->coreResourceProductFeedCollectionFactory = $coreResourceProductFeedCollectionFactory;
         $this->coreProductExportFactory = $coreProductExportFactory;
         $this->catalogProductFactory = $catalogProductFactory;
-        $this->logger = $logger;
+        $this->logger = $context->getLogger();
         $this->coreFeedFactory = $coreFeedFactory;
         $this->storeStoreFactory = $storeStoreFactory;
         $this->scopeConfig = $scopeConfig;
