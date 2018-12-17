@@ -2,21 +2,28 @@
 
 namespace Pureclarity\Core\Model\Product;
 
+use Magento\Backend\Model\Url as BackendUrl;
+use Magento\Catalog\Model\Product;
+use Magento\CatalogUrlRewrite\Model\ProductUrlRewriteGenerator;
 use Magento\Framework\Filter\FilterManager;
-use Magento\Framework\ObjectManagerInterface;
 use Magento\Framework\Session\SidResolverInterface;
+use Magento\Framework\Url as FrontendUrl;
 use Magento\Framework\UrlFactory;
 use Magento\Store\Model\StoreManagerInterface;
 use Magento\UrlRewrite\Model\UrlFinderInterface;
 use Magento\UrlRewrite\Service\V1\Data\UrlRewrite;
+
+use \Psr\Log\LoggerInterface;
 
 class Url extends \Magento\Catalog\Model\Product\Url
 {
     const FRONTEND_URL = 'Magento\Framework\Url';
     const BACKEND_URL = 'Magento\Backend\Model\Url';
 
-    protected $objectManager;
     protected $logger;
+
+    private $backendUrl;
+    private $frontendUrl;
 
     public function __construct(
         UrlFactory $urlFactory,
@@ -24,84 +31,96 @@ class Url extends \Magento\Catalog\Model\Product\Url
         FilterManager $filter,
         SidResolverInterface $sidResolver,
         UrlFinderInterface $urlFinder,
-        ObjectManagerInterface $objectManager,
-        \Psr\Log\LoggerInterface $logger,
+        LoggerInterface $logger,
+        BackendUrl $backendUrl,
+        FrontendUrl $frontendUrl,
         array $data = []
     ) {
-        $this->objectManager = $objectManager;
         $this->logger = $logger;
+        $this->backendUrl = $backendUrl;
+        $this->frontendUrl = $frontendUrl;
         parent::__construct($urlFactory, $storeManager, $filter, $sidResolver, $urlFinder, $data);
     }
 
-    public function getUrl(\Magento\Catalog\Model\Product $product, $params = [])
+    /**
+     * Adapted from \Magento\Catalog\Model\Product\Url->getUrl(), the following
+     * copyright notice applies.
+     * Copyright © Magento, Inc. All rights reserved.
+     * See COPYING.txt for license details.
+     */
+    public function getUrl(Product $sourceProduct, $parameters = [])
     {
-        $routePath = '';
-        $routeParams = $params;
+        $routeUrl = '';
+        $routeParameters = $parameters;
+        $storeId = $sourceProduct->getStoreId();
+        $categoryId = $this->getCategoryId( $parameters, $sourceProduct );
 
-        $storeId = $product->getStoreId();
-
-        $categoryId = null;
-
-        if (!isset($params['_ignore_category']) && $product->getCategoryId() && !$product->getDoNotUseCategoryId()) {
-            $categoryId = $product->getCategoryId();
-        }
-
-        if ($product->hasUrlDataObject()) {
-            $requestPath = $product->getUrlDataObject()->getUrlRewrite();
-            $routeParams['_scope'] = $product->getUrlDataObject()->getStoreId();
-        } else {
-            $requestPath = $product->getRequestPath();
-            if (empty($requestPath) && $requestPath !== false) {
-                $filterData = [
-                    UrlRewrite::ENTITY_ID   => $product->getId(),
-                    UrlRewrite::ENTITY_TYPE => \Magento\CatalogUrlRewrite\Model\ProductUrlRewriteGenerator::ENTITY_TYPE,
-                    UrlRewrite::STORE_ID    => $storeId,
-                ];
+        if ( $sourceProduct->hasUrlDataObject() ) {
+            $routeParameters['_scope'] = $sourceProduct->getUrlDataObject()->getStoreId();
+            $requestUrl = $sourceProduct->getUrlDataObject()->getUrlRewrite();
+        } 
+        else {
+            $requestUrl = $sourceProduct->getRequestPath();
+            if ( empty( $requestUrl ) && $requestUrl !== false ) {
+                $searchData = [];
+                $searchData[UrlRewrite::ENTITY_ID] = $sourceProduct->getId();
+                $searchData[UrlRewrite::ENTITY_TYPE] = ProductUrlRewriteGenerator::ENTITY_TYPE;
+                $searchData[UrlRewrite::STORE_ID] = $storeId;
                 if ($categoryId) {
-                    $filterData[UrlRewrite::METADATA]['category_id'] = $categoryId;
+                    $searchData[UrlRewrite::METADATA]['category_id'] = $categoryId;
                 }
-                $rewrite = $this->urlFinder->findOneByData($filterData);
-                if ($rewrite) {
-                    $requestPath = $rewrite->getRequestPath();
-                    $product->setRequestPath($requestPath);
-                } else {
-                    $product->setRequestPath(false);
+                $urlRewrite = $this->urlFinder->findOneByData($searchData);
+                if ( $urlRewrite ) {
+                    $requestUrl = $urlRewrite->getRequestPath();
+                    $sourceProduct->setRequestPath( $requestUrl );
+                } 
+                else {
+                    $sourceProduct->setRequestPath( false );
                 }
             }
         }
 
-        if (isset($routeParams['_scope'])) {
-            $storeId = $this->storeManager->getStore($routeParams['_scope'])->getId();
+        if ( isset( $routeParameters['_scope'] ) ) {
+            $storeId = $this->storeManager->getStore( $routeParameters['_scope'] )->getId();
         }
 
-        // if ($storeId != $this->storeManager->getStore()->getId()) {
-        //     $routeParams['_scope_to_url'] = true;
+        // if ( $storeId != $this->storeManager->getStore()->getId() ) {
+        //     $routeParameters['_scope_to_url'] = true;
         // }
 
-        if (!empty($requestPath)) {
-            $routePath = $requestPath;
-        } else {
-            $routePath = 'catalog/product/view';
-            $routeParams['id'] = $product->getId();
-            $routeParams['s'] = $product->getUrlKey();
-            if ($categoryId) {
-                $routeParams['category'] = $categoryId;
+        if ( ! empty( $requestUrl ) ) {
+            $routeUrl = $requestUrl;
+        } 
+        else {
+            $routeUrl = 'catalog/product/view';
+            $routeParameters['id'] = $sourceProduct->getId();
+            $routeParameters['s'] = $sourceProduct->getUrlKey();
+            if ( $categoryId ) {
+                $routeParameters['category'] = $categoryId;
             }
         }
 
-        if (!isset($routeParams['_query'])) {
-            $routeParams['_query'] = [];
+        if ( ! isset( $routeParameters['_query'] ) ) {
+            $routeParameters['_query'] = [];
         }
 
-        return $this->getStoreScopeUrlInstance($storeId)->getUrl($routePath, $routeParams);
+        return $this->getStoreScopeUrlInstance( $storeId )->getUrl( $routeUrl, $routeParameters );
     }
 
     public function getStoreScopeUrlInstance($storeId)
     {
-        if ($storeId == 0) {
-            return $this->objectManager->create(self::BACKEND_URL);
-        } else {
-            return $this->objectManager->create(self::FRONTEND_URL);
+        return ( $storeId == 0 ? $this->backendUrl : $this->frontendUrl );
+    }
+
+    private function getCategoryId($parameters, $sourceProduct) 
+    {
+        $categoryId = null;
+
+        if ( ! isset( $parameters['_ignore_category'] )  
+            && ! $sourceProduct->getDoNotUseCategoryId()
+            && $sourceProduct->getCategoryId() ) {
+            $categoryId = $sourceProduct->getCategoryId();
         }
+        return $categoryId;
     }
 }
