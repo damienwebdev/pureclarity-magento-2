@@ -93,9 +93,9 @@ class Data extends \Magento\Framework\App\Helper\AbstractHelper
 
     public function isServerSide($storeId = null)
     {
-        if ($this->isActive($this->getStoreId($storeId))) {
-            return $this->scopeConfig->getValue("pureclarity/advanced/server_side_integration", \Magento\Store\Model\ScopeInterface::SCOPE_STORE, $this->getStoreId($storeId));
-        }
+        // if ($this->isActive($this->getStoreId($storeId))) {
+        //     return $this->scopeConfig->getValue("pureclarity/advanced/server_side_integration", \Magento\Store\Model\ScopeInterface::SCOPE_STORE, $this->getStoreId($storeId));
+        // }
         return false;
     }
 
