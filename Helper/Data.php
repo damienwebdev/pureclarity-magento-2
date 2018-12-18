@@ -59,25 +59,23 @@ class Data extends \Magento\Framework\App\Helper\AbstractHelper
 
     public function __construct(
         \Magento\Framework\App\Helper\Context $context,
-        \Magento\Framework\App\Config\ScopeConfigInterface $scopeConfig,
         \Magento\Store\Model\StoreManagerInterface $storeManager,
         \Magento\Checkout\Model\Session $checkoutSession,
         \Magento\Sales\Model\OrderFactory $salesOrderFactory,
         \Magento\Catalog\Model\ProductFactory $catalogProductFactory,
         \Magento\Catalog\Model\ResourceModel\Product\CollectionFactory $productCollection,
         \Magento\Framework\Filesystem\Io\FileFactory $ioFileFactory,
-        \Psr\Log\LoggerInterface $logger,
         \Magento\Framework\App\Filesystem\DirectoryList $directoryList
     ) {
         $this->ioFileFactory = $ioFileFactory;
-        $this->scopeConfig = $scopeConfig;
+        $this->scopeConfig = $context->getScopeConfig();
         $this->storeManager = $storeManager;
         $this->checkoutSession = $checkoutSession;
         $this->salesOrderFactory = $salesOrderFactory;
         $this->catalogProductFactory = $catalogProductFactory;
         $this->productCollection = $productCollection;
         $this->directoryList = $directoryList;
-        $this->logger = $logger;
+        $this->logger = $context->getLogger();
         parent::__construct(
             $context
         );
@@ -95,9 +93,9 @@ class Data extends \Magento\Framework\App\Helper\AbstractHelper
 
     public function isServerSide($storeId = null)
     {
-        if ($this->isActive($this->getStoreId($storeId))) {
-            return $this->scopeConfig->getValue("pureclarity/advanced/server_side_integration", \Magento\Store\Model\ScopeInterface::SCOPE_STORE, $this->getStoreId($storeId));
-        }
+        // if ($this->isActive($this->getStoreId($storeId))) {
+        //     return $this->scopeConfig->getValue("pureclarity/advanced/server_side_integration", \Magento\Store\Model\ScopeInterface::SCOPE_STORE, $this->getStoreId($storeId));
+        // }
         return false;
     }
 
