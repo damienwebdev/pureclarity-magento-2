@@ -9,11 +9,9 @@ class Upload extends \Magento\Backend\App\Action
     protected $logger;
  
     public function __construct(
-        \Magento\Backend\App\Action\Context $context,
-        \Magento\Catalog\Model\ImageUploader $imageUploader
+        \Magento\Backend\App\Action\Context $context
     ) {
         parent::__construct($context);
-        $this->imageUploader = $imageUploader;
     }
  
     protected function _isAllowed()
@@ -31,6 +29,14 @@ class Upload extends \Magento\Backend\App\Action
             }
             
             $basePath = 'catalog/' . $attributeCode;
+            /*
+             * Using object manager rather than instantiating \Magento\Catalog\Model\ImageUploader in constructor, 
+             * as class does not exist on Magento 2.0, potentially causing setup:di:compile errors. 
+             * Creating the Pureclarity\Core\ImageUpload class here, as it then uses arguments set in di.xml rather
+             * than needing to e.g. pass in baseTmpPath here.
+             */
+            $objectManager = \Magento\Framework\App\ObjectManager::getInstance();
+            $this->imageUploader = $objectManager->create('Pureclarity\Core\ImageUpload');
             $this->imageUploader->setBasePath($basePath);
             $result = $this->imageUploader->saveFileToTmpDir($attributeCode);
  
