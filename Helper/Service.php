@@ -232,11 +232,7 @@ class Service extends \Magento\Framework\App\Helper\AbstractHelper
     public function executeRequest($storeId, $requestBody)
     {
         // Set Url
-        $protocol = "http://";
-        if ($this->coreHelper->useSSL($storeId)) {
-            $protocol = "https://";
-        }
-        $url = $protocol . $this->coreHelper->getServerSideEndpoint($storeId);
+        $url = $this->coreHelper->getServerSideEndpoint($storeId);
         
         // Build request
         $client = new Client($url);

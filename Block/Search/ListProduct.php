@@ -76,10 +76,10 @@ class ListProduct extends \Magento\Catalog\Block\Product\ListProduct
             $products = $searchResult['personalizedProducts'];
             
             if ($products && sizeof($products) > 0) {
-                $ids = [];
+                $skus = [];
                 $clickEvents = [];
                 foreach ($products as $item) {
-                    $ids[] = $item['Id'];
+                    $skus[] = $item['Sku'];
                     $clickEvents[$item['Id']] = $this->getPureClarityClickEvent($item['Id']);
                 }
                 

@@ -236,12 +236,15 @@ class Data extends \Magento\Framework\App\Helper\AbstractHelper
         return $this->scopeConfig->getValue("pureclarity/advanced/bmz_debug", \Magento\Store\Model\ScopeInterface::SCOPE_STORE, $this->getStoreId($storeId));
     }
 
-
     // END POINTS
     public function getHost($storeId)
     {
         $pureclarityHostEnv = getenv('PURECLARITY_MAGENTO_HOST');
         if ($pureclarityHostEnv != null && $pureclarityHostEnv != '') {
+            $parsed = parse_url($pureclarityHostEnv);
+            if (empty($parsed['scheme'])) {
+                $pureclarityHostEnv = 'http://' . $pureclarityHostEnv;
+            }
             return $pureclarityHostEnv;
         }
         $region = $this->getRegion($storeId);
