@@ -3,17 +3,18 @@
 namespace PureClarity\Test\Unit\Helper;
 
 use Pureclarity\Core\Helper\Data;
-use \Magento\Framework\App\Config\ScopeConfigInterface;
-use \Magento\Framework\App\Helper\Context;
-use \Magento\Store\Model\StoreManagerInterface;
-use \Magento\Checkout\Model\Session as CheckoutSession;
-use \Magento\Sales\Model\OrderFactory;
+
 use \Magento\Catalog\Model\ProductFactory;
 use \Magento\Catalog\Model\ResourceModel\Product\CollectionFactory;
-use \Magento\Framework\Filesystem\Io\FileFactory;
-use \Psr\Log\LoggerInterface;
+use \Magento\Checkout\Model\Session as CheckoutSession;
+use \Magento\Framework\App\Config\ScopeConfigInterface;
 use \Magento\Framework\App\Filesystem\DirectoryList;
+use \Magento\Framework\App\Helper\Context;
+use \Magento\Framework\Filesystem\Io\FileFactory;
+use \Magento\Sales\Model\OrderFactory;
 use \Magento\Store\Model\ScopeInterface;
+use \Magento\Store\Model\StoreManagerInterface;
+use \Psr\Log\LoggerInterface;
 
 /**
  * Class DataTest
@@ -37,36 +38,36 @@ class DataTest extends \PHPUnit\Framework\TestCase
 
     protected function setUp()
     {
-        $this->scopeConfigMock = $this->createMock(ScopeConfigInterface::class);
-        $this->contextMock = $this->createMock(Context::class);
-        $this->storeManagerMock = $this->createMock(StoreManagerInterface::class);
-        $this->checkoutSessionMock = $this->createMock(CheckoutSession::class);
-        $this->loggerMock = $this->createMock(LoggerInterface::class);
-        $this->directoryListMock = $this->createMock(DirectoryList::class);
+        $this->scopeConfigMock = $this->createMock( ScopeConfigInterface::class );
+        $this->contextMock = $this->createMock( Context::class );
+        $this->storeManagerMock = $this->createMock( StoreManagerInterface::class );
+        $this->checkoutSessionMock = $this->createMock( CheckoutSession::class );
+        $this->loggerMock = $this->createMock( LoggerInterface::class );
+        $this->directoryListMock = $this->createMock( DirectoryList::class );
 
         /**
          * Different construct needed for Factory classes, others generates error e.g.
          * Cannot stub or mock class or interface "Magento\Sales\Model\OrderFactory" which does not exist
          */
-        $this->orderFactoryMock = $this->getMockBuilder(OrderFactory::class)
+        $this->orderFactoryMock = $this->getMockBuilder( OrderFactory::class )
             ->disableOriginalConstructor()
-            ->setMethods(['create'])
+            ->setMethods( [ 'create' ] )
             ->getMock();
-        $this->productFactoryMock = $this->getMockBuilder(ProductFactory::class)
+        $this->productFactoryMock = $this->getMockBuilder( ProductFactory::class )
             ->disableOriginalConstructor()
-            ->setMethods(['create'])
+            ->setMethods( [ 'create' ] )
             ->getMock();
-        $this->productFactoryMock = $this->getMockBuilder(ProductFactory::class)
+        $this->productFactoryMock = $this->getMockBuilder( ProductFactory::class )
             ->disableOriginalConstructor()
-            ->setMethods(['create'])
+            ->setMethods( [ 'create' ] )
             ->getMock();
-        $this->collectionFactoryMock = $this->getMockBuilder(CollectionFactory::class)
+        $this->collectionFactoryMock = $this->getMockBuilder( CollectionFactory::class )
             ->disableOriginalConstructor()
-            ->setMethods(['create'])
+            ->setMethods( [ 'create' ] )
             ->getMock();
-        $this->fileFactoryMock = $this->getMockBuilder(FileFactory::class)
+        $this->fileFactoryMock = $this->getMockBuilder( FileFactory::class )
             ->disableOriginalConstructor()
-            ->setMethods(['create'])
+            ->setMethods( [ 'create' ] )
             ->getMock();
 
         /**
@@ -75,156 +76,238 @@ class DataTest extends \PHPUnit\Framework\TestCase
          * constructor)
          */
         $this->contextMock
-            ->method('getScopeConfig')
-            ->willReturn($this->scopeConfigMock);
+            ->method( 'getScopeConfig' )
+            ->willReturn( $this->scopeConfigMock );
     }
 
 
     /**
-     * @dataProvider providerTestGetAccessKeyReturnsKeyWhenStoreIdIsValid
+     * Tests Pureclarity\Core\Helper\Data->getAccessKey() returns the correct key
+     * for a valid store id.
+     * @dataProvider validStoreIdDataProvider
      */
-    public function testGetAccessKeyReturnsKeyWhenStoreIdIsValid()
+    public function testGetAccessKeyReturnsKeyWhenStoreIdIsValid( $storeId )
     {
+        $map = [
+            [
+                'pureclarity/credentials/access_key', 
+                ScopeInterface::SCOPE_STORE, 
+                $storeId, 
+                'accesskey'
+            ]
+        ];
+        $this->setScopeConfigGetValueReturnValue( $map );
 
-        $map = array(
-            array('pureclarity/credentials/access_key', ScopeInterface::SCOPE_STORE, 1, 'accesskey')
-          );  
+        $accessKey = $this->getData()->getAccessKey( $storeId );
+        $this->assertEquals( $accessKey, 'accesskey' );
+    }
 
-        $this->scopeConfigMock
-            ->method('getValue')
-            ->will($this->returnValueMap($map));
+    /**
+     * Tests Pureclarity\Core\Helper\Data->getAccessKey() correctly returns null if the 
+     * store id is invalid.
+     * @dataProvider invalidStoreIdDataProvider
+     */
+    public function testGetAccessKeyReturnsNullWhenStoreIdIsInvalid( $storeId, $invalidStoreId )
+    {
+        $map = [
+            [
+                'pureclarity/credentials/access_key', 
+                ScopeInterface::SCOPE_STORE, 
+                $storeId, 
+                'accesskey'
+            ]
+        ];
+        $this->setScopeConfigGetValueReturnValue( $map );
 
-        $accessKey = $this->getData()->getAccessKey(1);
-        $this->assertEquals($accessKey, 'accesskey');
-
+        $accessKey = $this->getData()->getAccessKey( $invalidStoreId );
+        $this->assertEquals( $accessKey, NULL );
     }
 
      /**
-     * @dataProvider providerTestGetAccessKeyReturnsKeyWhenStoreIdIsValid
+     * Tests that if PureClarity is enabled, Pureclarity\Core\Helper\Data->isSearchActive()
+     * returns true if search is turned on in the configuration settings.
+     * @dataProvider validStoreIdDataProvider
      */
-    public function testGetAccessKeyReturnsKeyWhenStoreIdIsNotKnown()
+    public function testisSearchActiveIfPureClarityEnabled( $storeId )
     {
+        $map = [
+            [
+                'pureclarity/credentials/access_key', 
+                ScopeInterface::SCOPE_STORE, 
+                $storeId, 
+                'accesskey'
+            ],
+            [
+                'pureclarity/environment/active', 
+                ScopeInterface::SCOPE_STORE, 
+                $storeId, 
+                true
+            ],
+            [
+                'pureclarity/general_config/search_active', 
+                ScopeInterface::SCOPE_STORE, 
+                $storeId, 
+                true
+            ],
+        ];
+        $this->setScopeConfigGetValueReturnValue( $map );
 
-        $map = array(
-            array('pureclarity/credentials/access_key', ScopeInterface::SCOPE_STORE, 1, 'accesskey')
-          );  
-
-        $this->scopeConfigMock
-            ->method('getValue')
-            ->will($this->returnValueMap($map));
-
-        $accessKey = $this->getData()->getAccessKey(0);
-        $this->assertEquals($accessKey, NULL);
-
-    }
-
-     /**
-     * Test that if module is disabled, it ignores the search_active setting
-     */
-    public function testisSearchActiveIfPureClarityEnabled()
-    {
-        $map = array(
-            array('pureclarity/credentials/access_key', ScopeInterface::SCOPE_STORE, 1, 'accesskey'),
-            array('pureclarity/environment/active', ScopeInterface::SCOPE_STORE, 1, true),
-            array('pureclarity/general_config/search_active', ScopeInterface::SCOPE_STORE, 1, true),
-          );  
-
-        $this->scopeConfigMock
-            ->method('getValue')
-            ->will($this->returnValueMap($map));
-
-        $accessKey = $this->getData()->isSearchActive(1);
-        $this->assertEquals($accessKey, true);
-
-    }
-
-     /**
-     * @dataProvider providerTestGetAccessKeyReturnsKeyWhenStoreIdIsValid
-     */
-    public function testisSearchActiveIfPureClarityNotEnabled()
-    {
-
-        $map = array(
-            array('pureclarity/credentials/access_key', ScopeInterface::SCOPE_STORE, 1, 'accesskey'),
-            array('pureclarity/environment/active', ScopeInterface::SCOPE_STORE, 1, false),
-            array('pureclarity/general_config/search_active', ScopeInterface::SCOPE_STORE, 1, true),
-          );  
-
-        $this->scopeConfigMock
-            ->method('getValue')
-            ->will($this->returnValueMap($map));
-
-        $accessKey = $this->getData()->isSearchActive(1);
-        $this->assertEquals($accessKey, false);
-
+        $isSearchActive = $this->getData()->isSearchActive( $storeId );
+        $this->assertEquals( $isSearchActive, true );
     }
 
     /**
-    * Test that if module is disabled, it ignores the search_active setting
-    */
-    public function testisProdListingActiveIfPureClarityEnabled()
-    {
-        $map = array(
-            array('pureclarity/credentials/access_key', ScopeInterface::SCOPE_STORE, 1, 'accesskey'),
-            array('pureclarity/environment/active', ScopeInterface::SCOPE_STORE, 1, true),
-            array('pureclarity/general_config/prodlisting_active', ScopeInterface::SCOPE_STORE, 1, true),
-            );  
-
-        $this->scopeConfigMock
-            ->method('getValue')
-            ->will($this->returnValueMap($map));
-
-        $accessKey = $this->getData()->isProdListingActive(1);
-        $this->assertEquals($accessKey, true);
-
-    }
-
-    /**
-    * @dataProvider providerTestGetAccessKeyReturnsKeyWhenStoreIdIsValid
-    */
-    public function testisProdListingActiveIfPureClarityNotEnabled()
-    {
-
-        $map = array(
-            array('pureclarity/credentials/access_key', ScopeInterface::SCOPE_STORE, 1, 'accesskey'),
-            array('pureclarity/environment/active', ScopeInterface::SCOPE_STORE, 1, false),
-            array('pureclarity/general_config/prodlisting_active', ScopeInterface::SCOPE_STORE, 1, true),
-            );  
-
-        $this->scopeConfigMock
-            ->method('getValue')
-            ->will($this->returnValueMap($map));
-
-        $accessKey = $this->getData()->isProdListingActive(1);
-        $this->assertEquals($accessKey, false);
-
-    }
-
-    /**
-     * @return array
+     * Tests that if PureClarity is disabled, Pureclarity\Core\Helper\Data->isSearchActive()
+     * returns false, even if search is registered as being turned on within the configuration
+     * settings.
+     * @dataProvider validStoreIdDataProvider
      */
-    public function providerTestGetAccessKeyReturnsKeyWhenStoreIdIsValid()
+    public function testisSearchActiveIfPureClarityDisabled( $storeId )
+    {
+        $map = [
+            [
+                'pureclarity/credentials/access_key', 
+                ScopeInterface::SCOPE_STORE, 
+                $storeId, 
+                'accesskey'
+            ],
+            [
+                'pureclarity/environment/active', 
+                ScopeInterface::SCOPE_STORE, 
+                $storeId, 
+                false
+            ],
+            [
+                'pureclarity/general_config/search_active', 
+                ScopeInterface::SCOPE_STORE, 
+                $storeId, 
+                true
+            ],
+        ];
+        $this->setScopeConfigGetValueReturnValue( $map );
+
+        $isSearchActive = $this->getData()->isSearchActive( $storeId );
+        $this->assertEquals( $isSearchActive, false );
+    }
+
+    /**
+     * Tests that if PureClarity is enabled, Pureclarity\Core\Helper\Data->isProdListingActive()
+     * returns true if product listing is registered as being turned on within the configuration settings.
+     * @dataProvider validStoreIdDataProvider
+     */
+    public function testisProdListingActiveIfPureClarityEnabled( $storeId )
+    {
+        $map = [
+            [
+                'pureclarity/credentials/access_key', 
+                ScopeInterface::SCOPE_STORE, 
+                $storeId, 
+                'accesskey'
+            ],
+            [
+                'pureclarity/environment/active', 
+                ScopeInterface::SCOPE_STORE, 
+                $storeId, 
+                true
+            ],
+            [
+                'pureclarity/general_config/prodlisting_active', 
+                ScopeInterface::SCOPE_STORE, 
+                $storeId, 
+                true
+            ],
+        ];
+        $this->setScopeConfigGetValueReturnValue( $map );
+
+        $isProdListingActive = $this->getData()->isProdListingActive( $storeId );
+        $this->assertEquals( $isProdListingActive, true );
+    }
+
+    /**
+     * Tests that if PureClarity is disabled, Pureclarity\Core\Helper\Data->isProdListingActive()
+     * returns false even if product listing is registered as being turned on within the configuration settings.
+     * @dataProvider validStoreIdDataProvider
+     */
+    public function testisProdListingActiveIfPureClarityDisabled( $storeId )
+    {
+        $map = [
+            [
+                'pureclarity/credentials/access_key', 
+                ScopeInterface::SCOPE_STORE, 
+                $storeId, 
+                'accesskey'
+            ],
+            [
+                'pureclarity/environment/active',
+                ScopeInterface::SCOPE_STORE,
+                $storeId,
+                false
+            ],
+            [
+                'pureclarity/general_config/prodlisting_active',
+                ScopeInterface::SCOPE_STORE,
+                $storeId,
+                true
+            ],
+        ];
+        $this->setScopeConfigGetValueReturnValue( $map );
+
+        $isProdListingActive = $this->getData()->isProdListingActive( $storeId );
+        $this->assertEquals( $isProdListingActive, false );
+    }
+
+    /**
+     * @return array valid store ids
+     */
+    public function validStoreIdDataProvider()
     {
         return [
-            [1],
+            [ 
+                1,
+            ],
         ];
     }
 
-    private function getData(){
-        if(!is_object($this->data)){
+    /**
+     * @return array invalid store ids
+     */
+    public function invalidStoreIdDataProvider()
+    {
+        return [
+            [ 
+                1,
+                0,
+            ],
+        ];
+    }
+
+    private function getData()
+    {
+        if( ! is_object( $this->data ) ) {
             $this->data = new Data(
                 $this->contextMock,
-                $this->scopeConfigMock,
                 $this->storeManagerMock,
                 $this->checkoutSessionMock,
                 $this->orderFactoryMock,
                 $this->productFactoryMock,
                 $this->collectionFactoryMock,
                 $this->fileFactoryMock,
-                $this->loggerMock,
-                $this->directoryListMock
+                $this->directoryListMock,
+                $this->loggerMock
             );
         }
         return $this->data;
+    }
+
+    /**
+     * Sets what the return value will be of the getValue() method, of the scopeConfig
+     * object returned by the \Magento\Framework\App\Helper\Context->getScopeConfig() 
+     * function.
+     */
+    private function setScopeConfigGetValueReturnValue( $map )
+    {
+        $this->scopeConfigMock
+            ->method( 'getValue' )
+            ->will( $this->returnValueMap( $map ) );
     }
 }
