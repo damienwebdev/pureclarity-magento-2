@@ -2,7 +2,7 @@
 
 namespace Pureclarity\Core\Block\Search;
 
-class ListProduct extends \Magento\Framework\View\Element\Template
+class Autocomplete extends \Magento\Framework\View\Element\Template
 {
     
     protected $coreHelper;
