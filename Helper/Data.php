@@ -154,7 +154,7 @@ class Data extends \Magento\Framework\App\Helper\AbstractHelper
     public function isProdListingActive($storeId = null)
     {
         if ($this->isActive($this->getStoreId($storeId))) {
-            return $this->scopeConfig->getValue("pureclarity/general_config/prodlisting_active", \Magento\Store\Model\ScopeInterface::SCOPE_STORE, $this->getStoreId($storeId));
+             return $this->scopeConfig->getValue("pureclarity/general_config/prodlisting_active", \Magento\Store\Model\ScopeInterface::SCOPE_STORE, $this->getStoreId($storeId));
         }
         return false;
     }
