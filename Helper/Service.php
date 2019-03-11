@@ -306,7 +306,6 @@ class Service extends \Magento\Framework\App\Helper\AbstractHelper
             !empty($this->result['search']['redirectUrl'])
         ) {
             $this->responseFactory->create()->setRedirect($this->result['search']['redirectUrl'])->sendResponse();
-            exit();
         }
         
         if ($this->result &&
