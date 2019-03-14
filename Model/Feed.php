@@ -283,8 +283,6 @@ class Feed extends \Magento\Framework\Model\AbstractModel
         $writtenCategories = false;
         
         if ($maxProgress > 0) {
-            $this->start(self::FEED_TYPE_CATEGORY);
-
             foreach ($categoryCollection as $category) {
                 if (! $category->getName()) {
                     continue;
@@ -349,13 +347,16 @@ class Feed extends \Magento\Framework\Model\AbstractModel
                     $feedCategories .= ',';
                 }
                 
-                $writtenCategories = true;
-
                 $feedCategories .= $this->coreHelper->formatFeed($categoryData, 'json');
                 
                 $currentProgress++;
 
                 $parameters = $this->getParameters($feedCategories, self::FEED_TYPE_CATEGORY);
+                
+                if (!$writtenCategories) {
+                    $this->start(self::FEED_TYPE_CATEGORY);
+                }
+                
                 $this->send("feed-append", $parameters);
 
                 $this->coreHelper->setProgressFile(
@@ -364,11 +365,15 @@ class Feed extends \Magento\Framework\Model\AbstractModel
                     $currentProgress,
                     $maxProgress
                 );
+                
+                $writtenCategories = true;
             }
             
             $this->endFeedAppend(self::FEED_TYPE_CATEGORY, $writtenCategories);
 
-            $this->end(self::FEED_TYPE_CATEGORY);
+            if ($writtenCategories) {
+                $this->end(self::FEED_TYPE_CATEGORY);
+            }
         }
     }
 
@@ -660,7 +665,7 @@ class Feed extends \Magento\Framework\Model\AbstractModel
         $url = $this->coreHelper->getFeedBaseUrl($this->storeId) . $endPoint;
         
         $this->logger->debug("PureClarity: About to send data to {$url} for " . $parameters['feedName'] . ": " . print_r($parameters, true));
-
+echo $parameters['payLoad'];
         $post_fields = http_build_query($parameters);
         $ch = curl_init();
         curl_setopt($ch, CURLOPT_URL, $url);
