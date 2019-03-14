@@ -242,6 +242,18 @@ class Feed extends \Magento\Framework\Model\AbstractModel
                 }
             }
             
+            // send any left-over data
+            if ($counter > 0) {
+                $parameters = $this->getParameters($data, self::FEED_TYPE_ORDER);
+                $this->send("feed-append", $parameters);
+                $this->coreHelper->setProgressFile(
+                    $this->progressFileName,
+                    self::FEED_TYPE_ORDER,
+                    $currentProgress,
+                    $maxProgress
+                );
+            }
+            
             $this->end(self::FEED_TYPE_ORDER, true);
             $this->logger->debug("PureClarity: Finished sending order data");
         }
