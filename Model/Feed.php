@@ -76,7 +76,7 @@ class Feed extends \Magento\Framework\Model\AbstractModel
 
     /**
      * Process the product feed and update the progress file, in page sizes
-     * of 1 by default, speed gains for higher batches were negligible vs
+     * of 50 by default, speed gains for higher batches were negligible vs
      * degrading progress feedback for user
      * @param $pageSize integer
      */
