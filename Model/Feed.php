@@ -629,7 +629,6 @@ class Feed extends \Magento\Framework\Model\AbstractModel
         }
 
         curl_setopt($ch, CURLOPT_FAILONERROR, true);
-        curl_setopt($ch, CURLOPT_VERBOSE, true);
 
         $response = curl_exec($ch);
 
