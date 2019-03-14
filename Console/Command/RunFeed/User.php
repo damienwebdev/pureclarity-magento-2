@@ -44,7 +44,7 @@ class User extends Command
     public function configure()
     {
         $this->setName('pureclarity:runfeed:user')
-             ->setDescription('Run USer Data Feed');
+             ->setDescription('Run User Data Feed');
             
         parent::configure();
     }
@@ -75,7 +75,10 @@ class User extends Command
             }
         }
         
-        $mem_usage = memory_get_usage();
-        $mem_peak = memory_get_peak_usage();
+        $memUsage = round((memory_get_usage() / 1024) / 1024, 2);
+        $memPeak = round((memory_get_peak_usage() / 1024) / 1024, 2);
+        $output->writeln('User Feed finished, memory usage:');
+        $output->writeln('Current: ' . $memUsage . 'Mb');
+        $output->writeln('Peak: ' . $memPeak . 'Mb');
     }
 }
