@@ -76,11 +76,11 @@ class Feed extends \Magento\Framework\Model\AbstractModel
 
     /**
      * Process the product feed and update the progress file, in page sizes
-     * of 1 by default, speed gains for higher batches were negligible vs 
+     * of 1 by default, speed gains for higher batches were negligible vs
      * degrading progress feedback for user
      * @param $pageSize integer
      */
-    function sendProducts($pageSize = 50)
+    public function sendProducts($pageSize = 50)
     {
         if (! $this->isInitialised()) {
             return false;
@@ -150,7 +150,7 @@ class Feed extends \Magento\Framework\Model\AbstractModel
     /**
      * Sends orders feed.
      */
-    function sendOrders()
+    public function sendOrders()
     {
         if (! $this->isInitialised()) {
             return false;
@@ -167,7 +167,6 @@ class Feed extends \Magento\Framework\Model\AbstractModel
             ->getCollection()
             ->addAttributeToFilter('store_id', $this->storeId)
             ->addAttributeToFilter('created_at', ['from'=>$fromDate, 'to'=>$toDate]);
-            // ->addAttributeToFilter('status', array('eq' => \Magento\Sales\Model\Order::STATE_COMPLETE));
         $this->logger->debug("PureClarity: Initialised orderCollection");
 
         // Set size and initiate vars
@@ -251,7 +250,7 @@ class Feed extends \Magento\Framework\Model\AbstractModel
     /**
      * Sends categories feed.
      */
-    function sendCategories()
+    public function sendCategories()
     {
         if (! $this->isInitialised()) {
             return false;
@@ -364,7 +363,7 @@ class Feed extends \Magento\Framework\Model\AbstractModel
     /**
      * Sends brands feed.
      */
-    function sendBrands()
+    public function sendBrands()
     {
         if (! $this->isInitialised()) {
             return false;
@@ -459,7 +458,7 @@ class Feed extends \Magento\Framework\Model\AbstractModel
         }
     }
 
-    function BrandFeedArray($storeId)
+    public function BrandFeedArray($storeId)
     {
 
         $feedBrands = [];
@@ -482,7 +481,7 @@ class Feed extends \Magento\Framework\Model\AbstractModel
     /**
      * Sends users feed
      */
-    function sendUsers()
+    public function sendUsers()
     {
 
         if (! $this->isInitialised()) {
@@ -626,12 +625,13 @@ class Feed extends \Magento\Framework\Model\AbstractModel
     }
 
 
-    protected function endFeedAppend($feedType, $hasSentItemData){
+    protected function endFeedAppend($feedType, $hasSentItemData)
+    {
 
         /*
          * Close the array if we've had at least one user
-         */    
-        if($hasSentItemData){
+         */
+        if ($hasSentItemData) {
             $parameters = $this->getParameters(']', $feedType);
             $this->send("feed-append", $parameters);
         }
@@ -679,7 +679,7 @@ class Feed extends \Magento\Framework\Model\AbstractModel
             $this->logger->debug('PureClarity: Error: ' . curl_error($ch));
             $feedTypeParts = explode("-", $parameters['feedName']);
             $feedType = $feedTypeParts[0];
-            if(! in_array($feedType, $this->problemFeeds)){
+            if (! in_array($feedType, $this->problemFeeds)) {
                 $this->problemFeeds[] = $feedType;
             }
         }
@@ -713,7 +713,7 @@ class Feed extends \Magento\Framework\Model\AbstractModel
 
     private function getUniqueId()
     {
-        if(is_null($this->uniqueId)){
+        if (is_null($this->uniqueId)) {
             $this->uniqueId = uniqid();
         }
         return $this->uniqueId;
@@ -732,7 +732,16 @@ class Feed extends \Magento\Framework\Model\AbstractModel
         $this->accessKey = $this->coreHelper->getAccessKey($this->storeId);
         $this->secretKey = $this->coreHelper->getSecretKey($this->storeId);
         if (empty($this->accessKey) || empty($this->secretKey)) {
-            $this->coreHelper->setProgressFile($this->progressFileName, 'N/A', 1, 1, "false", "false", "", "Access Key and Secret Key must be set.");
+            $this->coreHelper->setProgressFile(
+                $this->progressFileName,
+                'N/A',
+                1,
+                1,
+                "false",
+                "false",
+                "",
+                "Access Key and Secret Key must be set."
+            );
             return false;
         }
         return $this;
@@ -756,7 +765,9 @@ class Feed extends \Magento\Framework\Model\AbstractModel
             }
             if (empty($this->storeId)
                     || empty($this->progressFileName)) {
-                $this->logger->debug("PureClarity: No store id or progress file name, call initialise() on Model/Feed.php");
+                $this->logger->debug(
+                    "PureClarity: No store id or progress file name, call initialise() on Model/Feed.php"
+                );
             }
                 return false;
         } else {
@@ -793,20 +804,23 @@ class Feed extends \Magento\Framework\Model\AbstractModel
     }
 
     /**
-     * If PHP has run out of memory to run the feeds, outputs an appropriate message to the logs. It's not possible to output to 
-     * the GUI as e.g. the PHP process that monitors the progress file is also no longer responsive and just returns null.
+     * If PHP has run out of memory to run the feeds, outputs an appropriate message to the logs.
+     * It's not possible to output to the GUI as e.g. the PHP process that monitors the progress
+     * file is also no longer responsive and just returns null.
      */
     public static function logShutdown()
     {
         $error = error_get_last();
         if ($error !== null && strpos($error['message'], 'Allowed memory size') !== false) {
-            $errorMessage = "PureClarity: PHP does not have enough memory to run the feeds. Please increase to the recommended level of 768Mb and try again.";
+            $errorMessage = "PureClarity: PHP does not have enough memory to run the feeds. "
+                          . "Please increase to the recommended level of 768Mb and try again.";
             file_put_contents(BP . '/var/log/debug.log', $errorMessage, FILE_APPEND);
         }
     }
 
-    private function getCurrentStore(){
-        if(empty($this->currentStore)){
+    private function getCurrentStore()
+    {
+        if (empty($this->currentStore)) {
             $this->currentStore = $this->storeFactory->create()->load($this->storeId);
         }
         return $this->currentStore;
