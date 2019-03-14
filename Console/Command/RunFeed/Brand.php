@@ -73,5 +73,11 @@ class Brand extends Command
                 }
             }
         }
+        
+        $memUsage = round((memory_get_usage() / 1024) / 1024, 2);
+        $memPeak = round((memory_get_peak_usage() / 1024) / 1024, 2);
+        $output->writeln('Brand Feed finished, memory usage:');
+        $output->writeln('Current: ' . $memUsage . 'Mb');
+        $output->writeln('Peak: ' . $memPeak . 'Mb');
     }
 }

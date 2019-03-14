@@ -74,7 +74,11 @@ class Product extends Command
                 }
             }
         }
-        $mem_usage = memory_get_usage();
-        $mem_peak = memory_get_peak_usage();
+        
+        $memUsage = round((memory_get_usage() / 1024) / 1024, 2);
+        $memPeak = round((memory_get_peak_usage() / 1024) / 1024, 2);
+        $output->writeln('Product Feed finished, memory usage:');
+        $output->writeln('Current: ' . $memUsage . 'Mb');
+        $output->writeln('Peak: ' . $memPeak . 'Mb');
     }
 }
