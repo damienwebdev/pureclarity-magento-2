@@ -665,7 +665,7 @@ class Feed extends \Magento\Framework\Model\AbstractModel
         $url = $this->coreHelper->getFeedBaseUrl($this->storeId) . $endPoint;
         
         $this->logger->debug("PureClarity: About to send data to {$url} for " . $parameters['feedName'] . ": " . print_r($parameters, true));
-echo $parameters['payLoad'];
+        
         $post_fields = http_build_query($parameters);
         $ch = curl_init();
         curl_setopt($ch, CURLOPT_URL, $url);
