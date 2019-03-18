@@ -114,7 +114,7 @@
                                 this.message("Error: You must select at least one feed type to create.");
                                 return;
                             }
-                            this.message("Initialising...");
+                            this.message("Waiting for feed run to start (may take up to a minute)...");
                             this.selectedStore = this.selectStore.find(":selected").val();
                             this.selectStore.prop("disabled", true);
                             this.runButton.prop("disabled", true);
