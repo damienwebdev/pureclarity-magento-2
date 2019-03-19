@@ -298,11 +298,7 @@ class Cron extends \Magento\Framework\Model\AbstractModel
                                     $url = $this->coreHelper->getDeltaEndpoint($store->getId());
                                     $useSSL = $this->coreHelper->useSSL($store->getId());
 
-                                    $response = $this->coreSoapHelper->request($url, $useSSL, $body);
-                                    $response = json_decode($response);
-                                    if (!is_object($response)) {
-                                        $this->logger->error('ERROR: Reindex Issue from PC - '.var_export($productHash, true));
-                                    }
+                                    $this->coreSoapHelper->request($url, $useSSL, $body);
                                 }
 
                                 $productExportModel = null;
