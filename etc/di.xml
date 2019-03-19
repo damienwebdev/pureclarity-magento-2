@@ -30,4 +30,18 @@
             </argument>
         </arguments>
     </type>
+    
+    <type name="Magento\Framework\Console\CommandList">
+        <arguments>
+            <argument name="commands" xsi:type="array">
+                <item name="pureclarity_run_all_feeds" xsi:type="object">Pureclarity\Core\Console\Command\RunFeed\All</item>
+                <item name="pureclarity_run_brand_feed" xsi:type="object">Pureclarity\Core\Console\Command\RunFeed\Brand</item>
+                <item name="pureclarity_run_category_feed" xsi:type="object">Pureclarity\Core\Console\Command\RunFeed\Category</item>
+                <item name="pureclarity_run_order_history_feed" xsi:type="object">Pureclarity\Core\Console\Command\RunFeed\OrderHistory</item>
+                <item name="pureclarity_run_product_feed" xsi:type="object">Pureclarity\Core\Console\Command\RunFeed\Product</item>
+                <item name="pureclarity_run_user_feed" xsi:type="object">Pureclarity\Core\Console\Command\RunFeed\User</item>
+            </argument>
+        </arguments>
+    </type>
+    
 </config>

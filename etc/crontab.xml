@@ -9,5 +9,9 @@
             <!-- 3am each day -->
             <schedule>0 3 * * *</schedule>
         </job>
+        <job name="pureclarity_core_scheduled_feed" instance="Pureclarity\Core\Cron\RunScheduled" method="execute">
+            <!-- Every minute -->
+            <schedule>*/1 * * * *</schedule>
+        </job>
     </group>
 </config>

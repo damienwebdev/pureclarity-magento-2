@@ -2,6 +2,7 @@
 namespace Pureclarity\Core\Model;
 
 use Pureclarity\Core\Model\Feed;
+use Magento\Framework\App\Filesystem\DirectoryList;
 
 /**
  * Controls the execution of feeds sent to PureClarity.
@@ -21,6 +22,9 @@ class Cron extends \Magento\Framework\Model\AbstractModel
     protected $coreFeedFactory;
     protected $storeStoreFactory;
     protected $scopeConfig;
+    
+    /** @var \Magento\Framework\Filesystem */
+    private $fileSystem;
 
     public function __construct(
         \Magento\Framework\Model\Context $context,
@@ -35,6 +39,7 @@ class Cron extends \Magento\Framework\Model\AbstractModel
         \Pureclarity\Core\Model\FeedFactory $coreFeedFactory,
         \Magento\Store\Model\StoreFactory $storeStoreFactory,
         \Magento\Framework\App\Config\ScopeConfigInterface $scopeConfig,
+        \Magento\Framework\Filesystem $fileSystem,
         \Magento\Framework\Model\ResourceModel\AbstractResource $resource = null,
         \Magento\Framework\Data\Collection\AbstractDb $resourceCollection = null,
         array $data = []
@@ -50,6 +55,7 @@ class Cron extends \Magento\Framework\Model\AbstractModel
         $this->coreFeedFactory = $coreFeedFactory;
         $this->storeStoreFactory = $storeStoreFactory;
         $this->scopeConfig = $scopeConfig;
+        $this->fileSystem = $fileSystem;
         parent::__construct(
             $context,
             $registry,
@@ -71,14 +77,14 @@ class Cron extends \Magento\Framework\Model\AbstractModel
                 $stores = $group->getStores();
                 foreach ($stores as $store) {
                     // Only generate feeds when feed notification is active
-                    if (!$this->coreHelper->isFeedNotificationActive($store->getId())) {
+                    if ($this->coreHelper->isFeedNotificationActive($store->getId())) {
                         $this->allFeeds($store->getId());
                     }
                 }
             }
         }
     }
-
+    
     // Produce all feeds in one file.
     public function allFeeds($storeId)
     {
@@ -90,6 +96,31 @@ class Cron extends \Magento\Framework\Model\AbstractModel
         ], $storeId, $this->getFeedFilePath('all', $storeId));
     }
 
+    /**
+     * Sets selected feeds to be run by cron asap
+     *
+     * @param integer $storeId
+     * @param string[] $feeds
+     */
+    public function scheduleSelectedFeeds($storeId, $feeds)
+    {
+        $scheduleFilePath = $this->coreHelper->getPureClarityBaseDir() . DIRECTORY_SEPARATOR .  'scheduled_feed';
+        
+        $schedule = [
+            'store' => $storeId,
+            'feeds' => $feeds
+        ];
+        
+        $fileReader = $this->fileSystem->getDirectoryRead(DirectoryList::VAR_DIR);
+        $fileWriter = $this->fileSystem->getDirectoryWrite(DirectoryList::VAR_DIR);
+        
+        if ($fileReader->isExist($this->coreHelper->getProgressFileName())) {
+            $fileWriter->delete($this->coreHelper->getProgressFileName());
+        }
+        
+        $fileWriter->writeFile($scheduleFilePath, json_encode($schedule), 'w');
+    }
+    
     public function selectedFeeds($storeId, $feeds)
     {
         $this->doFeed($feeds, $storeId, $this->getFeedFilePath('all', $storeId));
@@ -267,11 +298,7 @@ class Cron extends \Magento\Framework\Model\AbstractModel
                                     $url = $this->coreHelper->getDeltaEndpoint($store->getId());
                                     $useSSL = $this->coreHelper->useSSL($store->getId());
 
-                                    $response = $this->coreSoapHelper->request($url, $useSSL, $body);
-                                    $response = json_decode($response);
-                                    if (!is_object($response)) {
-                                        $this->logger->error('ERROR: Reindex Issue from PC - '.var_export($productHash, true));
-                                    }
+                                    $this->coreSoapHelper->request($url, $useSSL, $body);
                                 }
 
                                 $productExportModel = null;

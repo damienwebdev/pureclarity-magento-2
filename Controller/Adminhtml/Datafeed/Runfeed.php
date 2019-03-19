@@ -43,7 +43,7 @@ class Runfeed extends \Magento\Backend\App\Action
             if ($this->getRequest()->getParam('orders') == 'true') {
                 $feeds[] = 'orders';
             }
-            $model->selectedFeeds($storeId, $feeds);
+            $model->scheduleSelectedFeeds($storeId, $feeds);
         } catch (\Exception $e) {
             $this->getResponse()
                 ->clearHeaders()
