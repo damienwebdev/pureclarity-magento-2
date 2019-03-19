@@ -11,7 +11,8 @@ use Magento\Framework\App\State;
 
 class All extends Command
 {
-    const RUN_FEEDS = [
+    /** @var string[] */
+    private $feeds = [
         Feed::FEED_TYPE_PRODUCT,
         Feed::FEED_TYPE_CATEGORY,
         Feed::FEED_TYPE_BRAND,
@@ -76,7 +77,7 @@ class All extends Command
             foreach ($website->getGroups() as $group) {
                 $stores = $group->getStores();
                 foreach ($stores as $store) {
-                    foreach (self::RUN_FEEDS as $feedType) {
+                    foreach ($this->feeds as $feedType) {
                         $output->writeln('Running ' . ucfirst($feedType) . ' Feed for Store ID ' . $store->getId());
                         $feedRunner->selectedFeeds($store->getId(), [$feedType]);
                     }
