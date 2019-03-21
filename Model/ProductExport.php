@@ -7,7 +7,13 @@ namespace Pureclarity\Core\Model;
  */
 class ProductExport extends \Magento\Framework\Model\AbstractModel
 {
-
+    /** @var string[] */
+    private $selectAttributeTypes = [
+        'select',
+        'multiselect',
+        'boolean'
+    ];
+    
     public $storeId = null;
     public $baseCurrencyCode = null;
     public $currenciesToProcess = [];
@@ -136,10 +142,15 @@ class ProductExport extends \Magento\Framework\Model\AbstractModel
 
         // Get list of attributes to include
         foreach ($attributes as $attribute) {
+            /** @var $attribute \Magento\Catalog\Model\ResourceModel\Eav\Attribute */
             $code = $attribute->getAttributecode();
             
             if (!in_array(strtolower($code), $attributesToExclude) && !empty($attribute->getFrontendLabel())) {
-                $this->attributesToInclude[] = [$code, $attribute->getFrontendLabel()];
+                $this->attributesToInclude[] = [
+                    'code' => $code,
+                    'label' => $attribute->getFrontendLabel(),
+                    'type' => $attribute->getFrontendInput()
+                ];
             }
         }
 
@@ -535,16 +546,21 @@ class ProductExport extends \Magento\Framework\Model\AbstractModel
     protected function setAttributes(\Magento\Catalog\Model\Product $product, &$data)
     {
         foreach ($this->attributesToInclude as $attribute) {
-            $code = $attribute[0];
-            $name = $attribute[1];
-            if ($product->getData($code) != null) {
+            $code = $attribute['code'];
+            $name = $attribute['label'];
+            
+            if ($product->getData($code) !== null) {
                 try {
-                    $attrValue = $product->getAttributeText($code);
+                    if (in_array($attribute['type'], $this->selectAttributeTypes)) {
+                        $attrValue = $product->getAttributeText($code);
+                    } else {
+                        $attrValue = $product->getData($code);
+                    }
                 } catch (\Exception $e) {
                     // Unable to read attribute text
                     continue;
                 }
-                if (!empty($attrValue)) {
+                if ($attrValue !== null) {
                     if (is_array($attrValue)) {
                         foreach ($attrValue as $value) {
                             $this->addValueToDataArray($data, $name, $value);
