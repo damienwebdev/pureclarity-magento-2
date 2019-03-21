@@ -31,7 +31,7 @@ class Data extends \Magento\Framework\App\Helper\AbstractHelper
         1 => "https://sftp-eu-w-1.pureclarity.net",
         2 => "https://sftp-eu-w-2.pureclarity.net",
         3 => "https://sftp-eu-c-1.pureclarity.net",
-        4 => "sftp-us-e-1.pureclarity.net",
+        4 => "https://sftp-us-e-1.pureclarity.net",
         5 => "https://sftp-us-e-2.pureclarity.net",
         6 => "https://sftp-us-w-1.pureclarity.net",
         7 => "https://sftp-us-w-2.pureclarity.net",
