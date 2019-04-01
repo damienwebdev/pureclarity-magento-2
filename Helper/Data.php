@@ -338,6 +338,7 @@ class Data extends \Magento\Framework\App\Helper\AbstractHelper
     {
         $pureclarityScriptUrl = getenv('PURECLARITY_SCRIPT_URL');
         if ($pureclarityScriptUrl != null && $pureclarityScriptUrl != '') {
+            $pureclarityScriptUrl .= $this->getAccessKey($this->getStoreId()) . '/dev.js';
             return $pureclarityScriptUrl;
         }
         return $this->getScriptUrl() . '/' . $this->getAccessKey($this->getStoreId()) . '/cs.js';
