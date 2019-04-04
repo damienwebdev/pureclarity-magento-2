@@ -19,6 +19,9 @@ class Configuration extends Template
     public $order;
     public $orderitems = [];
     private $productMetadata;
+    
+    /** @var \Pureclarity\Core\Helper\Service\CustomerDetails */
+    private $customerDetails;
 
     public function __construct(
         Context $context,
@@ -30,6 +33,7 @@ class Configuration extends Template
         \Magento\Framework\App\Request\Http $request,
         \Magento\Framework\Registry $registry,
         \Magento\Framework\App\ProductMetadataInterface $productMetadata,
+        \Pureclarity\Core\Helper\Service\CustomerDetails $customerDetails,
         array $data = []
     ) {
         $this->logger = $context->getLogger();
@@ -42,6 +46,7 @@ class Configuration extends Template
         $this->product = $registry->registry("product");
         $this->category = $registry->registry("current_category");
         $this->productMetadata = $productMetadata;
+        $this->customerDetails = $customerDetails;
         parent::__construct($context, $data);
     }
 
@@ -50,6 +55,12 @@ class Configuration extends Template
         $objectManager = \Magento\Framework\App\ObjectManager::getInstance();
         $formKey = $objectManager->get('Magento\Framework\Data\Form\FormKey');
 
+        if ($this->isServerSide()) {
+            $customerDetails = $this->customerDetails->getEmptyCustomerDetails();
+        } else {
+            $customerDetails = $this->customerDetails->getCustomerDetails();
+        }
+        
         return [
             "apiUrl" => $this->getApiStartUrl(),
             "currency" => $this->getCurrencyCode(),
@@ -64,6 +75,7 @@ class Configuration extends Template
                 "DOMSelector" => $this->getDOMSelector(),
                 "dataValue" => $this->getSearchDataValue()
             ],
+            "customerDetails" => $customerDetails,
             "order" => $this->getOrder(),
             "baseUrl" => $this->coreHelper->getBaseUrl(),
             "formkey" => $formKey->getFormKey(),
