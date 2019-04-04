@@ -1,6 +1,6 @@
 define(['jquery', 'priceBox'], function ($, priceBox) {
     // Before initialise, check we're active
-    if (!pureclarityConfig.state.isActive) {
+    if (typeof pureclarityConfig === 'undefined' || !pureclarityConfig.state.isActive) {
         return; 
     }
 
