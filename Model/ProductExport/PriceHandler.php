@@ -106,7 +106,7 @@ class PriceHandler
             foreach ($this->getAllCustomerGroupIds() as $customerGroupId) {
                 $this->registry->unregister(self::REGISTRY_KEY_CUSTOMER_GROUP);
                 $this->registry->register(self::REGISTRY_KEY_CUSTOMER_GROUP, $customerGroupId);
-                $priceInfo['Group_' . $customerGroupId] = $this->getPriceInfo(
+                $priceInfo['group'][$customerGroupId] = $this->getPriceInfo(
                     $product,
                     $customerGroupId,
                     $includeTax,

@@ -443,43 +443,89 @@ class ProductExport extends \Magento\Framework\Model\AbstractModel
 
     protected function setProductPrices($product, &$data, &$childProducts = null)
     {
-        $prices = $this->corePriceHandler->getProductPrices(
+        $priceData = $this->corePriceHandler->getProductPrices(
             $this->currentStore,
             $product,
             true,
             $childProducts
         );
+        
+        $prices = [];
+        $salePrices = [];
+        $groupPrices = [];
+        
         foreach ($this->currenciesToProcess as $currency) {
-            foreach ($prices as $priceType => $priceData) {
-                $priceKey = $priceType == 'base' ? 'Prices' : 'Prices_' . $priceType;
-                $saleKey = $priceType == 'base' ? 'SalePrices' : 'SalePrices_' . $priceType;
-                // Process currency for min price
-                $minPrice = $this->convertCurrency($priceData['min'], $currency);
-                $this->addValueToDataArray($data, $priceKey, number_format($minPrice, 2, '.', '') . ' ' . $currency);
-                $minFinalPrice = $this->convertCurrency($priceData['min-final'], $currency);
-                
-                if ($minFinalPrice !== null && $minFinalPrice < $minPrice) {
-                    $this->addValueToDataArray(
-                        $data,
-                        $saleKey,
-                        number_format($minFinalPrice, 2, '.', '') . ' ' . $currency
-                    );
-                }
-                // Process currency for max price if it's different to min price
-                $maxPrice = $this->convertCurrency($priceData['max'], $currency);
-                if ($minPrice < $maxPrice) {
-                    $this->addValueToDataArray($data, $priceKey, number_format($maxPrice, 2, '.', '').' '.$currency);
-                    $maxFinalPrice = $this->convertCurrency($priceData['max-final'], $currency);
-                    if ($maxFinalPrice !== null && $maxFinalPrice < $maxPrice) {
-                        $this->addValueToDataArray(
-                            $data,
-                            $saleKey,
-                            number_format($maxFinalPrice, 2, '.', '') . ' ' . $currency
-                        );
+            // Process currency for min price
+            $basePrices = $this->preparePriceData($priceData['base'], $currency);
+            $prices = array_merge($prices, $basePrices['Prices']);
+            if (!empty($basePrices['SalePrices'])) {
+                $salePrices = array_merge($salePrices, $basePrices['SalePrices']);
+            }
+            
+            if (isset($priceData['group'])) {
+                foreach ($priceData['group'] as $groupId => $groupPriceData) {
+                    $groupKey = 'group' . $groupId;
+                    $basePrices = $this->preparePriceData($groupPriceData, $currency);
+                    
+                    if (!isset($groupPrices[$groupKey])) {
+                        $groupPrices[$groupKey] = [
+                            'Prices' => [],
+                            'SalePrices' => []
+                        ];
                     }
+                    
+                    $groupPrices[$groupKey]['Prices'] = array_merge(
+                        $groupPrices[$groupKey]['Prices'],
+                        $basePrices['Prices']
+                    );
+                    
+                    $groupPrices[$groupKey]['SalePrices'] = array_merge(
+                        $groupPrices[$groupKey]['SalePrices'],
+                        $basePrices['SalePrices']
+                    );
                 }
             }
         }
+        
+        $data['Prices'] = $prices;
+        $data['SalePrices'] = $salePrices;
+        $data['GroupPrices'] = $groupPrices;
+    }
+    
+    /**
+     * Checks product pricing data and returns prices that need to be added to the feed
+     *
+     * @param mixed[] $priceData
+     * @param string $currency
+     *
+     * @return array
+     */
+    private function preparePriceData(array $priceData, string $currency)
+    {
+        $prices = [
+            'Prices' => [],
+            'SalePrices' => []
+        ];
+        
+        // Process currency for min price
+        $minPrice = $this->convertCurrency($priceData['min'], $currency);
+        $minFinalPrice = $this->convertCurrency($priceData['min-final'], $currency);
+        $prices['Prices'][] = number_format($minPrice, 2, '.', '') . ' ' . $currency;
+        if ($minFinalPrice !== null && $minFinalPrice < $minPrice) {
+            $prices['SalePrices'][] = number_format($minFinalPrice, 2, '.', '') . ' ' . $currency;
+        }
+        
+        // Process currency for max price if it's different to min price
+        $maxPrice = $this->convertCurrency($priceData['max'], $currency);
+        if ($minPrice < $maxPrice) {
+            $prices['Prices'][] = number_format($maxPrice, 2, '.', '') . ' ' . $currency;
+            $maxFinalPrice = $this->convertCurrency($priceData['max-final'], $currency);
+            if ($maxFinalPrice !== null && $maxFinalPrice < $maxPrice) {
+                $prices['SalePrices'][] = number_format($maxFinalPrice, 2, '.', '') . ' ' . $currency;
+            }
+        }
+        
+        return $prices;
     }
 
     protected function convertCurrency($price, $to)
