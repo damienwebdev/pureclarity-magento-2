@@ -34,6 +34,9 @@ class Service extends \Magento\Framework\App\Helper\AbstractHelper
     protected $toolBar;
     protected $request;
     protected $responseFactory;
+    
+    /** @var \Pureclarity\Core\Helper\Service\CustomerDetails */
+    private $customerDetails;
 
     public function __construct(
         \Magento\Framework\App\Helper\Context $context,
@@ -48,7 +51,8 @@ class Service extends \Magento\Framework\App\Helper\AbstractHelper
         \Magento\Catalog\Model\Product\ProductList\Toolbar $toolBar,
         \Magento\Framework\App\Request\Http $request,
         \Magento\Framework\Registry $registry,
-        \Magento\Framework\App\ResponseFactory $responseFactory
+        \Magento\Framework\App\ResponseFactory $responseFactory,
+        \Pureclarity\Core\Helper\Service\CustomerDetails $customerDetails
     ) {
         $this->logger = $context->getLogger();
         $this->registry = $registry;
@@ -63,6 +67,7 @@ class Service extends \Magento\Framework\App\Helper\AbstractHelper
         $this->toolBar = $toolBar;
         $this->request = $request;
         $this->responseFactory = $responseFactory;
+        $this->customerDetails = $customerDetails;
 
         $this->category = $this->registry->registry('current_category');
         parent::__construct($context);
@@ -163,6 +168,11 @@ class Service extends \Magento\Framework\App\Helper\AbstractHelper
                 case "checkout_onepage_success":
                     $this->addTrackingEvent('order_track', $this->coreHelper->getOrderForTracking());
                     break;
+            }
+            
+            $customerDetails = $this->customerDetails->getCustomerDetails();
+            if ($customerDetails['trigger'] === true) {
+                $this->addTrackingEvent('customer_details', $customerDetails['customer']);
             }
         }
         
