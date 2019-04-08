@@ -25,8 +25,8 @@ use Magento\Bundle\Pricing\Adjustment\BundleCalculatorInterfaceFactory;
  */
 class PriceHandler
 {
-    public const REGISTRY_KEY_CUSTOMER_GROUP = 'pc_bundle_customer_group';
-    private const CONFIG_PATH_CUSTOMER_GROUPS = 'pureclarity/feeds/product_send_customer_group_pricing';
+    const REGISTRY_KEY_CUSTOMER_GROUP = 'pc_bundle_customer_group';
+    const CONFIG_PATH_CUSTOMER_GROUPS = 'pureclarity/feeds/product_send_customer_group_pricing';
     
     /** @var string[] */
     private $allCustomerGroupIds;
@@ -80,12 +80,12 @@ class PriceHandler
      * @param Product $product
      * @param boolean $includeTax
      * @param Product[] $childProducts
-     * @return void
+     * @return mixed[]
      */
     public function getProductPrices(
         Store $store,
         Product $product,
-        bool $includeTax = true,
+        $includeTax = true,
         array $childProducts = null
     ) {
         $this->registry->register(self::REGISTRY_KEY_CUSTOMER_GROUP, null);
@@ -132,7 +132,7 @@ class PriceHandler
     private function getPriceInfo(
         Product $product,
         $customerGroupId = null,
-        bool $includeTax = true,
+        $includeTax = true,
         array $childProducts = null
     ) {
         $product->setCustomerGroupId($customerGroupId);
