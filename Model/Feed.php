@@ -1,6 +1,8 @@
 <?php
 namespace Pureclarity\Core\Model;
 
+use Magento\Framework\Exception\LocalizedException;
+
 class Feed extends \Magento\Framework\Model\AbstractModel
 {
 
@@ -13,7 +15,10 @@ class Feed extends \Magento\Framework\Model\AbstractModel
     protected $coreProductExportFactory;
     protected $logger;
     protected $customerGroup;
-    protected $customerFactory;
+
+    /** @var \Magento\Customer\Model\ResourceModel\Customer\CollectionFactory */
+    private $customerCollectionFactory;
+
     protected $orderFactory;
     protected $accessKey;
     protected $secretKey;
@@ -41,7 +46,7 @@ class Feed extends \Magento\Framework\Model\AbstractModel
         \Magento\Store\Model\StoreFactory $storeFactory,
         \Magento\Catalog\Helper\Category $categoryHelper,
         \Pureclarity\Core\Model\ProductExportFactory $coreProductExportFactory,
-        \Magento\Customer\Model\CustomerFactory $customerFactory,
+        \Magento\Customer\Model\ResourceModel\Customer\CollectionFactory $customerCollectionFactory,
         \Magento\Customer\Model\ResourceModel\Group\Collection $customerGroup,
         \Magento\Framework\Model\ResourceModel\AbstractResource $resource = null,
         \Magento\Framework\Data\Collection\AbstractDb $resourceCollection = null,
@@ -55,7 +60,7 @@ class Feed extends \Magento\Framework\Model\AbstractModel
         $this->categoryHelper = $categoryHelper;
         $this->coreProductExportFactory = $coreProductExportFactory;
         $this->logger = $context->getLogger();
-        $this->customerFactory = $customerFactory;
+        $this->customerCollectionFactory = $customerCollectionFactory;
         $this->customerGroup = $customerGroup;
         $this->orderFactory = $orderFactory;
 
@@ -497,36 +502,37 @@ class Feed extends \Magento\Framework\Model\AbstractModel
 
     /**
      * Sends users feed
+     * @return boolean
      */
     public function sendUsers()
     {
-
-        if (! $this->isInitialised()) {
+        if (!$this->isInitialised()) {
             return false;
         }
-        
+
         $this->logger->debug("PureClarity: In Feed->sendUsers()");
         $customerGroups = $this->customerGroup->toOptionArray();
-        
-        $users = "";
-        $customerCollection = $this->customerFactory->create()->getCollection()
-            ->addAttributeToFilter("website_id", [
-                    "eq" => $this->getCurrentStore()->getWebsiteId()
-                ])
-            ->addAttributeToSelect("*")
-            ->load();
 
-        $maxProgress = count($customerCollection);
+        $customerCollection = $this->getCustomerCollection();
+
+        if (!$customerCollection) {
+            return false;
+        }
+
+        $maxProgress = $customerCollection->getSize();
+
         $currentProgress = 0;
-        
         $writtenCustomers = false;
         $this->logger->debug("PureClarity: {$maxProgress} users");
         if ($maxProgress > 0) {
             $this->start(self::FEED_TYPE_USER);
-        
-            foreach ($customerCollection as $customer) {
-                $users = (!$writtenCustomers ? ',"Users":[' : "");
 
+            $parameters = $this->getParameters(',"Users":[', self::FEED_TYPE_USER);
+            $this->send("feed-append", $parameters);
+            $users = '';
+
+            /** @var \Magento\Customer\Model\Customer $customer */
+            foreach ($customerCollection as $customer) {
                 $data = [
                     'UserId' => $customer->getId(),
                     'Email' => $customer->getEmail(),
@@ -554,23 +560,9 @@ class Feed extends \Magento\Framework\Model\AbstractModel
                     }
                 }
 
-                $address = null;
-                if ($customer->getDefaultShipping()) {
-                    $address = $customer->getAddresses()[$customer->getDefaultShipping()];
-                } elseif ($customer->getAddresses() && sizeof(array_keys($customer->getAddresses())) > 0) {
-                    $address = $customer->getAddresses()[array_keys($customer->getAddresses())[0]];
-                }
-                if ($address) {
-                    if ($address->getCity()) {
-                        $data['City'] = $address->getCity();
-                    }
-                    if ($address->getRegion()) {
-                        $data['State'] = $address->getRegion();
-                    }
-                    if ($address->getCountry()) {
-                        $data['Country'] = $address->getCountry();
-                    }
-                }
+                $data['City'] = $customer->getData('city');
+                $data['State'] = $customer->getData('region');
+                $data['Country'] = $customer->getData('country_id');
 
                 if ($writtenCustomers) {
                     $users .= ',';
@@ -581,8 +573,11 @@ class Feed extends \Magento\Framework\Model\AbstractModel
                 
                 $currentProgress++;
 
-                $parameters = $this->getParameters($users, self::FEED_TYPE_USER);
-                $this->send("feed-append", $parameters);
+                if ($currentProgress %100 === 0 || $currentProgress === $maxProgress) {
+                    $parameters = $this->getParameters($users, self::FEED_TYPE_USER);
+                    $this->send("feed-append", $parameters);
+                    $users = '';
+                }
 
                 $this->coreHelper->setProgressFile(
                     $this->progressFileName,
@@ -593,9 +588,40 @@ class Feed extends \Magento\Framework\Model\AbstractModel
             }
             
             $this->endFeedAppend(self::FEED_TYPE_USER, $writtenCustomers);
-
             $this->end(self::FEED_TYPE_USER);
         }
+
+        return true;
+    }
+
+    /**
+     * Builds the customer collection for user feed, includes default shipping / first address found
+     * @return bool|\Magento\Customer\Model\ResourceModel\Customer\Collection
+     */
+    private function getCustomerCollection()
+    {
+        try {
+            $customerCollection = $this->customerCollectionFactory->create();
+            $customerCollection->addAttributeToFilter(
+                'website_id',
+                [ "eq" => $this->getCurrentStore()->getWebsiteId()]
+            );
+
+            $table = $customerCollection->getTable('customer_address_entity');
+            $customerCollection->joinTable(
+                ['cad' => $table],
+                'parent_id = entity_id',
+                ['city', 'region', 'country_id'],
+                '`cad`.entity_id=`e`.default_shipping OR cad.parent_id = e.entity_id',
+                'left'
+            );
+            $customerCollection->groupByAttribute('entity_id');
+            return $customerCollection;
+        } catch (LocalizedException $e) {
+            $this->logger->error('PureClarity, could not load users: ' . $e->getMessage());
+        }
+
+        return false;
     }
 
     /**
