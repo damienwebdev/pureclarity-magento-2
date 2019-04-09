@@ -481,6 +481,7 @@ class Data extends \Magento\Framework\App\Helper\AbstractHelper
             "lastname" => $lastOrder['customer_lastname'],
             "postcode" => $lastOrder->getShippingAddress()['postcode'],
             "userid" => $lastOrder['customer_id'],
+            "groupid" => $lastOrder['customer_group_id'],
             "ordertotal" => $lastOrder['grand_total']
         ];
 
