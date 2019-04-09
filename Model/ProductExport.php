@@ -464,23 +464,22 @@ class ProductExport extends \Magento\Framework\Model\AbstractModel
             
             if (isset($priceData['group'])) {
                 foreach ($priceData['group'] as $groupId => $groupPriceData) {
-                    $groupKey = 'group' . $groupId;
                     $basePrices = $this->preparePriceData($groupPriceData, $currency);
                     
-                    if (!isset($groupPrices[$groupKey])) {
-                        $groupPrices[$groupKey] = [
+                    if (!isset($groupPrices[$groupId])) {
+                        $groupPrices[$groupId] = [
                             'Prices' => [],
                             'SalePrices' => []
                         ];
                     }
                     
-                    $groupPrices[$groupKey]['Prices'] = array_merge(
-                        $groupPrices[$groupKey]['Prices'],
+                    $groupPrices[$groupId]['Prices'] = array_merge(
+                        $groupPrices[$groupId]['Prices'],
                         $basePrices['Prices']
                     );
                     
-                    $groupPrices[$groupKey]['SalePrices'] = array_merge(
-                        $groupPrices[$groupKey]['SalePrices'],
+                    $groupPrices[$groupId]['SalePrices'] = array_merge(
+                        $groupPrices[$groupId]['SalePrices'],
                         $basePrices['SalePrices']
                     );
                 }
