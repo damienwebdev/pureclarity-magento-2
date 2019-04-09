@@ -21,6 +21,11 @@
     <type name="Magento\Catalog\Model\Category\DataProvider">
         <plugin name="pureclarity_core_dataprovider_plugin" type="Pureclarity\Core\Plugin\Category\DataProvider" />
     </type>
+
+    <type name="Magento\Customer\Model\Session">
+        <plugin name="pureclarity_customer_session" type="Pureclarity\Core\Plugin\Customer\Session" sortOrder="10"/>
+    </type>
+    
     <preference for="Magento\Framework\Search\Adapter\Mysql\Adapter" type="Pureclarity\Core\Adapter\Search" />
 
     <type name="Magento\Framework\HTTP\PhpEnvironment\RemoteAddress">

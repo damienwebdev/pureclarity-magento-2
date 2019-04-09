@@ -198,6 +198,7 @@ class Configuration extends Template
                 "lastname" => $lastOrder['customer_lastname'],
                 "postcode" => $lastOrder->getShippingAddress()['postcode'],
                 "userid" => $lastOrder['customer_id'],
+                "groupid" => $lastOrder['customer_group_id'],
                 "ordertotal" => $lastOrder['grand_total']
             ];
 
