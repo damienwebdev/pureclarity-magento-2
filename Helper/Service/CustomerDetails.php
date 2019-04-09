@@ -39,7 +39,8 @@ class CustomerDetails
                 'email' => $customer->getEmail(),
                 'firstname' => $customer->getFirstname(),
                 'lastname' => $customer->getLastname(),
-                'prefix' => $customer->getPrefix()
+                'prefix' => $customer->getPrefix(),
+                'groupid' => $customer->getGroupId()
             ];
             $this->customerSession->setPureclarityTriggerCustomerDetails(false);
         }
