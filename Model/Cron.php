@@ -285,20 +285,35 @@ class Cron extends \Magento\Framework\Model\AbstractModel
                                 }
 
                                 if (count($feedProducts) > 0 || count($deleteProducts) > 0) {
-                                    $request = [
+                                    $requestBase = [
                                         'AppKey'            => $this->coreHelper->getAccessKey($store->getId()),
                                         'Secret'            => $this->coreHelper->getSecretKey($store->getId()),
-                                        'Products'          => $feedProducts,
-                                        'DeleteProducts'    => $deleteProducts,
+                                        'Products'          => [],
+                                        'DeleteProducts'    => [],
                                         'Format'            => 'magentoplugin1.0.0'
                                     ];
-                                    $requests[] = $request;
-                                    $body = $this->coreHelper->formatFeed($request, 'json');
 
                                     $url = $this->coreHelper->getDeltaEndpoint($store->getId());
                                     $useSSL = $this->coreHelper->useSSL($store->getId());
 
-                                    $this->coreSoapHelper->request($url, $useSSL, $body);
+                                    if ($deleteProducts) {
+                                        $deleteRequest = $requestBase;
+                                        $deleteRequest['DeleteProducts'] = $deleteProducts;
+                                        $requests[] = $deleteRequest;
+                                        $body = $this->coreHelper->formatFeed($deleteRequest, 'json');
+                                        $this->coreSoapHelper->request($url, $useSSL, $body);
+                                    }
+
+                                    if ($feedProducts) {
+                                        $chunks = array_chunk($feedProducts, 10);
+                                        foreach ($chunks as $products) {
+                                            $productRequest = $requestBase;
+                                            $productRequest['Products'] = $products;
+                                            $body = $this->coreHelper->formatFeed($productRequest, 'json');
+                                            $this->coreSoapHelper->request($url, $useSSL, $body);
+                                            $requests[] = $productRequest;
+                                        }
+                                    }
                                 }
 
                                 $productExportModel = null;
