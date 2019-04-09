@@ -1,6 +1,6 @@
 require(['jquery', 'priceBox'], function ($, priceBox) {
     // Before initialise, check we're active
-    if (!pureclarityConfig.state.isActive) {
+    if (typeof pureclarityConfig === 'undefined' || !pureclarityConfig.state.isActive) {
         return; 
     }
 
@@ -149,12 +149,17 @@ require(['jquery', 'priceBox'], function ($, priceBox) {
     })(window, document, 'script', window.pureclarityConfig.apiUrl, '_pc');
 
     // Execute tracking events
-    
     if (pureclarityConfig.state.isLogout) {
         _pc('customer_logout');
     }
 
     if (!pureclarityConfig.state.serversideMode) {
+        
+        // Execute customer details event if needed
+        if (pureclarityConfig.customerDetails.trigger) {
+            _pc("customer_details", pureclarityConfig.customerDetails.customer);
+        }
+        
         _pc('currency', pureclarityConfig.currency);
         _pc('page_view');
         _pc('callback_event', function (type) {
