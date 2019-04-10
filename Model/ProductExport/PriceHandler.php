@@ -10,6 +10,7 @@ use Magento\CatalogRule\Model\RuleFactory;
 use Magento\Customer\Model\ResourceModel\Group\Collection;
 use Magento\Catalog\Model\Product;
 use Magento\ConfigurableProduct\Model\Product\Type\Configurable;
+use Magento\Framework\Exception\NoSuchEntityException;
 use Magento\GroupedProduct\Model\Product\Type\Grouped;
 use Magento\Bundle\Model\Product\Type as BundleType;
 use Magento\Catalog\Helper\Data;
@@ -18,6 +19,8 @@ use Magento\Framework\App\Config\ScopeConfigInterface;
 use Magento\Store\Model\ScopeInterface;
 use Magento\Framework\Registry;
 use Magento\Bundle\Pricing\Adjustment\BundleCalculatorInterfaceFactory;
+use Magento\Store\Model\StoreManagerInterface;
+use Psr\Log\LoggerInterface;
 
 /**
  * PureClarity Product Export Price Handler
@@ -31,23 +34,29 @@ class PriceHandler
     /** @var string[] */
     private $allCustomerGroupIds;
     
-    /** @var \Magento\CatalogRule\Model\RuleFactory */
+    /** @var RuleFactory */
     private $ruleFactory;
     
-    /** @var \Magento\Customer\Model\ResourceModel\Group\Collection */
+    /** @var Collection */
     private $customerGroupCollection;
     
-    /** @var \Magento\Catalog\Helper\Data */
+    /** @var Data */
     private $catalogHelper;
     
-    /** @var \Magento\Framework\App\Config\ScopeConfigInterface */
+    /** @var ScopeConfigInterface */
     private $scopeConfig;
     
-    /** @var \Magento\Framework\Registry */
+    /** @var Registry */
     private $registry;
     
-    /** @var \Magento\Bundle\Pricing\Adjustment\BundleCalculatorInterfaceFactory */
+    /** @var BundleCalculatorInterfaceFactory */
     private $bundleCalculatorFactory;
+
+    /** @var StoreManagerInterface */
+    private $storeManager;
+
+    /** @var LoggerInterface */
+    private $logger;
     
     /**
      * @param RuleFactory $ruleFactory
@@ -56,6 +65,8 @@ class PriceHandler
      * @param ScopeConfigInterface $scopeConfig
      * @param Registry $registry
      * @param BundleCalculatorInterfaceFactory $bundleCalculatorFactory
+     * @param StoreManagerInterface $storeManager
+     * @param LoggerInterface $logger
      */
     public function __construct(
         RuleFactory $ruleFactory,
@@ -63,7 +74,9 @@ class PriceHandler
         Data $catalogHelper,
         ScopeConfigInterface $scopeConfig,
         Registry $registry,
-        BundleCalculatorInterfaceFactory $bundleCalculatorFactory
+        BundleCalculatorInterfaceFactory $bundleCalculatorFactory,
+        StoreManagerInterface $storeManager,
+        LoggerInterface $logger
     ) {
         $this->ruleFactory               = $ruleFactory;
         $this->customerGroupCollection   = $customerGroupCollection;
@@ -71,6 +84,8 @@ class PriceHandler
         $this->scopeConfig               = $scopeConfig;
         $this->registry                  = $registry;
         $this->bundleCalculatorFactory   = $bundleCalculatorFactory;
+        $this->storeManager              = $storeManager;
+        $this->logger                    = $logger;
     }
     
     /**
@@ -89,15 +104,24 @@ class PriceHandler
         array $childProducts = null
     ) {
         $this->registry->register(self::REGISTRY_KEY_CUSTOMER_GROUP, null);
+
+        try {
+            $currentStore = $this->storeManager->getStore();
+            $this->storeManager->setCurrentStore($store->getId());
+        } catch (NoSuchEntityException $e) {
+            $this->logger->error('PureClarity: cannot load current store:' . $e->getMessage());
+        }
+
         $priceInfo = [
             'base' => $this->getPriceInfo(
+                $store,
                 $product,
                 null,
                 $includeTax,
                 $childProducts
             )
         ];
-        
+
         if ($this->scopeConfig->isSetFlag(
             self::CONFIG_PATH_CUSTOMER_GROUPS,
             ScopeInterface::SCOPE_STORE,
@@ -107,6 +131,7 @@ class PriceHandler
                 $this->registry->unregister(self::REGISTRY_KEY_CUSTOMER_GROUP);
                 $this->registry->register(self::REGISTRY_KEY_CUSTOMER_GROUP, $customerGroupId);
                 $priceInfo['group'][$customerGroupId] = $this->getPriceInfo(
+                    $store,
                     $product,
                     $customerGroupId,
                     $includeTax,
@@ -114,15 +139,20 @@ class PriceHandler
                 );
             }
         }
-        
+
         $this->registry->unregister(self::REGISTRY_KEY_CUSTOMER_GROUP);
-        
+
+        if (isset($currentStore)) {
+            $this->storeManager->setCurrentStore($currentStore->getId());
+        }
+
         return $priceInfo;
     }
     
     /**
      * Gets min and max prices for the supplied product
      *
+     * @param Store $store
      * @param Product $product
      * @param string $customerGroupId
      * @param boolean $includeTax
@@ -130,21 +160,23 @@ class PriceHandler
      * @return mixed[]
      */
     private function getPriceInfo(
+        Store $store,
         Product $product,
         $customerGroupId = null,
         $includeTax = true,
         array $childProducts = null
     ) {
+        $product->setStoreId($store->getId());
         $product->setCustomerGroupId($customerGroupId);
         $product->reloadPriceInfo();
-        
+
         switch ($product->getTypeId()) {
             case BundleType::TYPE_CODE:
-                $prices = $this->getBundlePricing($product, $customerGroupId);
+                $prices = $this->getBundlePricing($product);
                 break;
             case Grouped::TYPE_CODE:
             case Configurable::TYPE_CODE:
-                $prices = $this->getChildPricing($childProducts, $customerGroupId, $includeTax);
+                $prices = $this->getChildPricing($store, $childProducts, $customerGroupId, $includeTax);
                 break;
             default:
                 $prices = $this->getSimplePricing($product, $customerGroupId);
@@ -164,13 +196,12 @@ class PriceHandler
      * Gets prices for Bundle Products
      *
      * @param Product $product
-     * @param string $customerGroupId
      * @return mixed[]
      */
-    private function getBundlePricing(Product $product, $customerGroupId = null)
+    private function getBundlePricing(Product $product)
     {
         $calculator = $this->bundleCalculatorFactory->create();
-        
+
         $minPrice = $calculator->getMinRegularAmount(0, $product)->getValue();
         $maxPrice = $calculator->getMaxRegularAmount(0, $product)->getValue();
         $minFinalPrice = $calculator->getAmount(0, $product)->getValue();
@@ -187,25 +218,29 @@ class PriceHandler
     /**
      * Gets prices for a Group/Configurable Products
      *
-     * @param Product $product
+     * @param Store $store
      * @param string $customerGroupId
      * @param Product[] $childProducts
+     * @param bool $includeTax
      * @return mixed[]
      */
-    private function getChildPricing(array $childProducts, $customerGroupId = null, $includeTax = true)
+    private function getChildPricing(Store $store, array $childProducts, $customerGroupId = null, $includeTax = true)
     {
         $lowestPrice = 0;
         $highestPrice = 0;
         $lowestFinalPrice = 0;
         $highestFinalPrice = 0;
+
         foreach ($childProducts as $associatedProduct) {
             if (!$associatedProduct->isDisabled()) {
                 //base prices
                 $variationPrices = $this->getPriceInfo(
+                    $store,
                     $associatedProduct,
                     $customerGroupId,
                     $includeTax
                 );
+
                 if ($lowestPrice == 0 || $variationPrices['min'] < $lowestPrice) {
                     $lowestPrice = $variationPrices['min'];
                 }
@@ -223,7 +258,7 @@ class PriceHandler
                 }
             }
         }
-        
+
         return [
             'min' => $lowestPrice,
             'min-final' => $lowestFinalPrice,
@@ -262,7 +297,8 @@ class PriceHandler
      * Returns a price if a product is on sale
      *
      * @param Product $product
-     * @param integer $product
+     * @param string $customerGroupId
+     * @param float $price
      * @return float|null
      */
     private function getSalePrice(Product $product, $customerGroupId, $price)
