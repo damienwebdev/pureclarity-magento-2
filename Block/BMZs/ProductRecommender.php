@@ -76,6 +76,7 @@ class ProductRecommender extends Template implements BlockInterface
             ->setData('products_count', 20)
             ->setData('cache_lifetime', 5)
             ->setData('pureclarity_click_events', $clickEvents)
+            ->setData('pureclarity_custom_sku_order', $skus)
             ->setConditionsEncoded($conditionsEncoded)
             ->setTemplate("Pureclarity_Core::grid.phtml")
             ->toHtml();

@@ -338,6 +338,7 @@ class Data extends \Magento\Framework\App\Helper\AbstractHelper
     {
         $pureclarityScriptUrl = getenv('PURECLARITY_SCRIPT_URL');
         if ($pureclarityScriptUrl != null && $pureclarityScriptUrl != '') {
+            $pureclarityScriptUrl .= $this->getAccessKey($this->getStoreId()) . '/dev.js';
             return $pureclarityScriptUrl;
         }
         return $this->getScriptUrl() . '/' . $this->getAccessKey($this->getStoreId()) . '/cs.js';
@@ -481,6 +482,7 @@ class Data extends \Magento\Framework\App\Helper\AbstractHelper
             "lastname" => $lastOrder['customer_lastname'],
             "postcode" => $lastOrder->getShippingAddress()['postcode'],
             "userid" => $lastOrder['customer_id'],
+            "groupid" => $lastOrder['customer_group_id'],
             "ordertotal" => $lastOrder['grand_total']
         ];
 

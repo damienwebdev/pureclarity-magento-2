@@ -26,7 +26,8 @@ class Customer implements \Magento\Customer\CustomerData\SectionSourceInterface
                         'userid' => $customer->getId(),
                         'email' => $customer->getEmail(),
                         'firstname' => $customer->getFirstname(),
-                        'lastname' => $customer->getLastname()
+                        'lastname' => $customer->getLastname(),
+                        'groupid' => $customer->getGroupId()
                     ]
                 ];
                 if ($customer->getDob()) {

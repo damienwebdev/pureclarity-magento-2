@@ -9,8 +9,16 @@
             </argument>
         </arguments>
     </type>
-                    
+    <type name="Pureclarity\Core\Observer\CustomerLogin">
+        <arguments>
+            <argument name="customerSession" xsi:type="object">Magento\Customer\Model\Session\Proxy</argument>
+        </arguments>
+    </type>
     <preference for="Magento\CatalogSearch\Block\Result" type="Pureclarity\Core\Block\Search\Result" />
     <preference for="Magento\CatalogSearch\Block\SearchResult\ListProduct" type="Pureclarity\Core\Block\Search\ListProduct" />
     <preference for="Magento\Catalog\Block\Product\ListProduct" type="Pureclarity\Core\Block\Search\ListProduct" />
+    
+    <type name="Magento\CatalogWidget\Block\Product\ProductsList">
+        <plugin name="pureclarity_core_catalogwidget_productslist" type="Pureclarity\Core\Plugin\CatalogWidget\ProductsList" />
+    </type>
 </config>

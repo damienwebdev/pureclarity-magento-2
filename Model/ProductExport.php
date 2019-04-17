@@ -1,4 +1,9 @@
 <?php
+/**
+ * Copyright © PureClarity. All rights reserved.
+ * See LICENSE.txt for license details.
+ */
+
 namespace Pureclarity\Core\Model;
 
 /**
@@ -19,10 +24,10 @@ class ProductExport extends \Magento\Framework\Model\AbstractModel
     public $currenciesToProcess = [];
     public $attributesToInclude = [];
     public $seenProductIds = [];
+    /** @var \Magento\Store\Model\Store */
     public $currentStore = null;
     public $brandLookup = [];
     protected $categoryCollection = [];
-
     
     protected $storeManager;
     protected $storeFactory;
@@ -38,13 +43,15 @@ class ProductExport extends \Magento\Framework\Model\AbstractModel
     protected $directoryHelper;
     protected $catalogConfig;
     protected $catalogProductFactory;
-    protected $catalogHelper;
     protected $logger;
     protected $eavConfig;
     protected $swatchHelper;
     protected $swatchMediaHelper;
     protected $blockFactory;
     protected $galleryReadHandler;
+    
+    /** @var \Pureclarity\Core\Model\ProductExport\PriceHandler */
+    private $corePriceHandler;
 
     public function __construct(
         \Magento\Framework\Model\Context $context,
@@ -62,12 +69,12 @@ class ProductExport extends \Magento\Framework\Model\AbstractModel
         \Magento\ConfigurableProduct\Model\Product\Type\ConfigurableFactory $configurableProductProductTypeConfigurableFactory,
         \Magento\Directory\Helper\Data $directoryHelper,
         \Magento\Catalog\Model\Config $catalogConfig,
-        \Magento\Catalog\Helper\Data $catalogHelper,
         \Magento\Catalog\Model\ProductFactory $catalogProductFactory,
         \Magento\Eav\Model\Config $eavConfig,
         \Magento\Swatches\Helper\Data $swatchHelper,
         \Magento\Swatches\Helper\Media $swatchMediaHelper,
         \Magento\Framework\View\Element\BlockFactory $blockFactory,
+        \Pureclarity\Core\Model\ProductExport\PriceHandler $corePriceHandler,
         \Magento\Framework\Model\ResourceModel\AbstractResource $resource = null,
         \Magento\Framework\Data\Collection\AbstractDb $resourceCollection = null,
         array $data = []
@@ -85,13 +92,13 @@ class ProductExport extends \Magento\Framework\Model\AbstractModel
         $this->configurableProductProductTypeConfigurableFactory = $configurableProductProductTypeConfigurableFactory;
         $this->directoryHelper = $directoryHelper;
         $this->catalogConfig = $catalogConfig;
-        $this->catalogHelper = $catalogHelper;
         $this->catalogProductFactory = $catalogProductFactory;
         $this->logger = $context->getLogger();
         $this->eavConfig = $eavConfig;
         $this->swatchHelper = $swatchHelper;
         $this->swatchMediaHelper = $swatchMediaHelper;
         $this->blockFactory = $blockFactory;
+        $this->corePriceHandler = $corePriceHandler;
 
         parent::__construct(
             $context,
@@ -163,8 +170,6 @@ class ProductExport extends \Magento\Framework\Model\AbstractModel
             $this->categoryCollection[$category->getId()] = $category->getName();
         }
     }
-
-
     
     // Get the full product feed for the given page and size
     public function getFullProductFeed($pageSize = 1000000, $currentPage = 1)
@@ -238,10 +243,11 @@ class ProductExport extends \Magento\Framework\Model\AbstractModel
                 '_scope' => $this->storeId
             ];
             $productUrl = $product->setStoreId($this->storeId)->getUrlModel()->getUrl($product, $urlParams);
+            
             if ($productUrl) {
                 $productUrl = str_replace(["https:", "http:"], "", $productUrl);
             }
-
+            
             // Get Product Image URL
             $baseProductImageUrl = $this->currentStore->getBaseUrl(\Magento\Framework\UrlInterface::URL_TYPE_MEDIA) . "catalog/product/";
             $productImageUrl = $baseProductImageUrl;
@@ -251,7 +257,6 @@ class ProductExport extends \Magento\Framework\Model\AbstractModel
                 $productImageUrl .= "placeholder/". $this->currentStore->getConfig("catalog/placeholder/image_placeholder");
             }
             $productImageUrl = str_replace(["https:", "http:"], "", $productImageUrl);
-
 
             /**
              * \Magento\Catalog\Model\Product\Gallery\ReadHandler does not exist in Magento 2.0
@@ -361,7 +366,6 @@ class ProductExport extends \Magento\Framework\Model\AbstractModel
 
             // Add attributes
             $this->setAttributes($product, $data);
-            
 
             // Look for child products in Configurable, Grouped or Bundled products
             $childProducts = [];
@@ -375,6 +379,8 @@ class ProductExport extends \Magento\Framework\Model\AbstractModel
                             ->addFieldToFilter('entity_id', [
                                 'in' => $childIds[0]
                             ]);
+                            
+                        $childProducts = $childProducts->getItems();
                     } else {
                         //configurable with no children - exclude from feed
                         return null;
@@ -385,6 +391,7 @@ class ProductExport extends \Magento\Framework\Model\AbstractModel
                     break;
                 case \Magento\Bundle\Model\Product\Type::TYPE_CODE:
                     $childProducts = $product->getTypeInstance(true)->getSelectionsCollection($product->getTypeInstance(true)->getOptionsIds($product), $product);
+                    $childProducts = $childProducts->getItems();
                     break;
             }
 
@@ -436,27 +443,88 @@ class ProductExport extends \Magento\Framework\Model\AbstractModel
 
     protected function setProductPrices($product, &$data, &$childProducts = null)
     {
-        // $basePrices = $this->getProductPrice($product, false, true, $childProducts);
-        // $baseFinalPrices = $this->getProductPrice($product, true, true, $childProducts);
-        $prices = $this->getProductPrices($product, true, $childProducts);
+        $priceData = $this->corePriceHandler->getProductPrices(
+            $this->currentStore,
+            $product,
+            true,
+            $childProducts
+        );
+        
+        $prices = [];
+        $salePrices = [];
+        $groupPrices = [];
+        
         foreach ($this->currenciesToProcess as $currency) {
             // Process currency for min price
-            $minPrice = $this->convertCurrency($prices['basePrices']['min'], $currency);
-            $this->addValueToDataArray($data, 'Prices', number_format($minPrice, 2, '.', '').' '.$currency);
-            $minFinalPrice = $this->convertCurrency($prices['baseFinalPrices']['min'], $currency);
-            if ($minFinalPrice !== null && $minFinalPrice < $minPrice) {
-                $this->addValueToDataArray($data, 'SalePrices', number_format($minFinalPrice, 2, '.', '').' '.$currency);
+            $basePrices = $this->preparePriceData($priceData['base'], $currency);
+            $prices = array_merge($prices, $basePrices['Prices']);
+            if (!empty($basePrices['SalePrices'])) {
+                $salePrices = array_merge($salePrices, $basePrices['SalePrices']);
             }
-            // Process currency for max price if it's different to min price
-            $maxPrice = $this->convertCurrency($prices['basePrices']['max'], $currency);
-            if ($minPrice<$maxPrice) {
-                $this->addValueToDataArray($data, 'Prices', number_format($maxPrice, 2, '.', '').' '.$currency);
-                $maxFinalPrice = $this->convertCurrency($prices['baseFinalPrices']['max'], $currency);
-                if ($maxFinalPrice !== null && $maxFinalPrice < $maxPrice) {
-                    $this->addValueToDataArray($data, 'SalePrices', number_format($maxFinalPrice, 2, '.', '').' '.$currency);
+            
+            if (isset($priceData['group'])) {
+                foreach ($priceData['group'] as $groupId => $groupPriceData) {
+                    $basePrices = $this->preparePriceData($groupPriceData, $currency);
+                    
+                    if (!isset($groupPrices[$groupId])) {
+                        $groupPrices[$groupId] = [
+                            'Prices' => [],
+                            'SalePrices' => []
+                        ];
+                    }
+                    
+                    $groupPrices[$groupId]['Prices'] = array_merge(
+                        $groupPrices[$groupId]['Prices'],
+                        $basePrices['Prices']
+                    );
+                    
+                    $groupPrices[$groupId]['SalePrices'] = array_merge(
+                        $groupPrices[$groupId]['SalePrices'],
+                        $basePrices['SalePrices']
+                    );
                 }
             }
         }
+        
+        $data['Prices'] = $prices;
+        $data['SalePrices'] = $salePrices;
+        $data['GroupPrices'] = $groupPrices;
+    }
+    
+    /**
+     * Checks product pricing data and returns prices that need to be added to the feed
+     *
+     * @param mixed[] $priceData
+     * @param string $currency
+     *
+     * @return array
+     */
+    private function preparePriceData(array $priceData, string $currency)
+    {
+        $prices = [
+            'Prices' => [],
+            'SalePrices' => []
+        ];
+        
+        // Process currency for min price
+        $minPrice = $this->convertCurrency($priceData['min'], $currency);
+        $minFinalPrice = $this->convertCurrency($priceData['min-final'], $currency);
+        $prices['Prices'][] = number_format($minPrice, 2, '.', '') . ' ' . $currency;
+        if ($minFinalPrice !== null && $minFinalPrice < $minPrice) {
+            $prices['SalePrices'][] = number_format($minFinalPrice, 2, '.', '') . ' ' . $currency;
+        }
+        
+        // Process currency for max price if it's different to min price
+        $maxPrice = $this->convertCurrency($priceData['max'], $currency);
+        if ($minPrice < $maxPrice) {
+            $prices['Prices'][] = number_format($maxPrice, 2, '.', '') . ' ' . $currency;
+            $maxFinalPrice = $this->convertCurrency($priceData['max-final'], $currency);
+            if ($maxFinalPrice !== null && $maxFinalPrice < $maxPrice) {
+                $prices['SalePrices'][] = number_format($maxFinalPrice, 2, '.', '') . ' ' . $currency;
+            }
+        }
+        
+        return $prices;
     }
 
     protected function convertCurrency($price, $to)
@@ -466,82 +534,6 @@ class ProductExport extends \Magento\Framework\Model\AbstractModel
         }
         return $this->directoryHelper->currencyConvert($price, $this->baseCurrencyCode, $to);
     }
-
-    protected function getProductPrices(\Magento\Catalog\Model\Product $product, $includeTax = true, $childProducts = null)
-    {
-        $minPrice = 0;
-        $maxPrice = 0;
-        switch ($product->getTypeId()) {
-            case \Magento\GroupedProduct\Model\Product\Type\Grouped::TYPE_CODE:
-            case \Magento\Bundle\Model\Product\Type::TYPE_CODE:
-                if ($product) {
-                    $minPrice = $product->getMinimalPrice();
-                    $maxPrice = $product->getMaxPrice();
-                    if ($includeTax) {
-                        $minPrice = $this->catalogHelper->getTaxPrice($product, $minPrice, true);
-                        $maxPrice = $this->catalogHelper->getTaxPrice($product, $maxPrice, true);
-                    }
-                    $prices['basePrices']['min'] = $minPrice;
-                    $prices['baseFinalPrices']['min'] = $minPrice;
-                    $prices['basePrices']['max'] = $maxPrice;
-                    $prices['baseFinalPrices']['max'] = $maxPrice;
-                }
-                break;
-            case \Magento\ConfigurableProduct\Model\Product\Type\Configurable::TYPE_CODE:
-                $price = null;
-                $lowestPrice = 0;
-                $highestPrice = 0;
-                $lowestFinalPrice = 0;
-                $highestFinalPrice = 0;
-                $associatedProducts = ($childProducts !== null) ?
-                                        $childProducts :
-                                        $this->configurableProductProductTypeConfigurableFactory->create()
-                                        ->getUsedProducts(null, $product);
-                foreach ($associatedProducts as $associatedProduct) {
-                    if (!$associatedProduct->isDisabled()) {
-                        //base prices
-                        $variationPrices = $this->getProductPrices($associatedProduct, true);
-                        if ($lowestPrice == 0 || $variationPrices['basePrices']['min'] < $lowestPrice) {
-                            $lowestPrice = $variationPrices['basePrices']['min'];
-                        }
-                        if ($highestPrice == 0 || $variationPrices['basePrices']['max'] > $highestPrice) {
-                            $highestPrice = $variationPrices['basePrices']['max'];
-                        }
-                        
-                        //final prices
-                        if ($lowestFinalPrice == 0 || $variationPrices['baseFinalPrices']['min'] < $lowestFinalPrice) {
-                            $lowestFinalPrice = $variationPrices['baseFinalPrices']['min'];
-                        }
-                        if ($highestFinalPrice == 0 || $variationPrices['baseFinalPrices']['max'] > $highestFinalPrice) {
-                            $highestFinalPrice = $variationPrices['baseFinalPrices']['max'];
-                        }
-                        
-                    }
-                }
-                $prices['basePrices']['min'] = $lowestPrice;
-                $prices['basePrices']['max'] = $highestPrice;
-                $prices['baseFinalPrices']['min'] = $lowestFinalPrice;
-                $prices['baseFinalPrices']['max'] = $highestFinalPrice;
-                break;
-            default:
-                $prices['basePrices']['min'] = $this->getDefaultFromProduct($product, false, $includeTax);
-                $prices['baseFinalPrices']['min'] = $this->getDefaultFromProduct($product, true, $includeTax);
-                $prices['basePrices']['max'] = $prices['basePrices']['min'];
-                $prices['baseFinalPrices']['max'] = $prices['baseFinalPrices']['min'];
-                break;
-        }
-        return $prices;
-    }
-
-    protected function getDefaultFromProduct(\Magento\Catalog\Model\Product $product, $getFinalPrice = false, $includeTax = true)
-    {
-        $price = ( $getFinalPrice ? $product->getPriceInfo()->getPrice('final_price')->getValue() : $product->getPrice() );
-        if ($includeTax) {
-            $price = $this->catalogHelper->getTaxPrice($product, $price, true);
-        }
-        return $price;
-    }
-
 
     protected function setAttributes(\Magento\Catalog\Model\Product $product, &$data)
     {
@@ -571,20 +563,6 @@ class ProductExport extends \Magento\Framework\Model\AbstractModel
                 }
             }
         }
-    }
-
-    protected function convertPrice($price, $round = false)
-    {
-        if (empty($price)) {
-            return 0;
-        }
-
-        $price = $this->currentStore->convertPrice($price);
-        if ($round) {
-            $price = $this->currentStore->roundPrice($price);
-        }
-
-        return $price;
     }
 
     /**
