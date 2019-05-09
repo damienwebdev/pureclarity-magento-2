@@ -6,6 +6,8 @@
 
 namespace Pureclarity\Core\Model;
 
+use Magento\Framework\Exception\NoSuchEntityException;
+
 /**
  * PureClarity Product Export Module
  * For example, used to create product feed that's sent to PureClarity.
@@ -298,6 +300,15 @@ class ProductExport extends \Magento\Framework\Model\AbstractModel
 
             // Swatch renderer
             if ($product->getTypeId() == \Magento\ConfigurableProduct\Model\Product\Type\Configurable::TYPE_CODE) {
+                
+                try {
+                    $currentStore = $this->storeManager->getStore();
+                    $this->storeManager->setCurrentStore($this->currentStore->getId());
+                } catch (NoSuchEntityException $e) {
+                    $this->logger->error('PureClarity: cannot load current store:' . $e->getMessage());
+                }
+                
+                /** @var \Magento\Swatches\Block\Product\Renderer\Listing\Configurable $swatchBlock */
                 $swatchBlock = $this->blockFactory
                                     ->createBlock('\Magento\Swatches\Block\Product\Renderer\Listing\Configurable')
                                     ->setData("product", $product);
@@ -312,6 +323,10 @@ class ProductExport extends \Magento\Framework\Model\AbstractModel
                     "jsonSwatchConfig" => json_decode($swatchBlock->getJsonSwatchConfig()),
                     "mediaCallback" => $this->currentStore->getBaseUrl() . "swatches/ajax/media/"
                 ]);
+                
+                if (isset($currentStore)) {
+                    $this->storeManager->setCurrentStore($currentStore->getId());
+                }
 
                 $swatchBlock = null;
             }
