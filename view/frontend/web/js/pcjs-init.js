@@ -237,12 +237,15 @@ require(['jquery', 'priceBox'], function ($, priceBox) {
                                 swatchRenderJson.numberToShow = pureclarityConfig.swatchesToShow;
                                 option.SwatchRenderer(swatchRenderJson);
                                 var priceBoxSelector = "[data-role=priceBox][data-product-id=" + id + "]";
-                                $(priceBoxSelector).priceBox({
-                                    'priceConfig': {
-                                        priceFormat: jsonConfig.priceFormat,
-                                        prices: jsonConfig.prices
-                                    }
-                                });
+                                var itemPriceBox = $item.find(priceBoxSelector);
+                                if (itemPriceBox) {
+                                    itemPriceBox.priceBox({
+                                        'priceConfig': {
+                                            priceFormat: jsonConfig.priceFormat,
+                                            prices: jsonConfig.prices
+                                        }
+                                    });
+                                }
                             }
                         });
                     }
