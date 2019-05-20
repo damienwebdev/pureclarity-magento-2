@@ -11,7 +11,7 @@ class Bmz extends Template implements BlockInterface
 
     public $debug;
     public $isServerSide = false;
-
+    
     protected $bmzId;
     protected $content;
     protected $classes;
@@ -23,6 +23,9 @@ class Bmz extends Template implements BlockInterface
     protected $storeManager;
     protected $_template = "bmz.phtml";
     protected $service;
+    
+    /** @var mixed[] */
+    private $zoneContextData;
 
     public function __construct(
         \Magento\Framework\View\Element\Template\Context $context,
@@ -47,11 +50,10 @@ class Bmz extends Template implements BlockInterface
     public function setData($key, $value = null)
     {
         if ($key == 'bmz_id' && $this->coreHelper->isServerSide()) {
-            $this->service->addZone($value);
+            $this->service->addZone($value, $this->getZoneContextData());
         }
         parent::setData($key, $value);
     }
-
 
     protected function _toHtml()
     {
@@ -64,6 +66,37 @@ class Bmz extends Template implements BlockInterface
     public function addBmzData($field, $value)
     {
         $this->bmzData = $this->bmzData . $field . ':' . $value . ';';
+    }
+
+    /**
+     * Gets the context data for this zone (relevant category / product id)
+     *
+     * @return mixed[]
+     */
+    public function getZoneContextData()
+    {
+        if ($this->zoneContextData === null) {
+            $this->zoneContextData = [];
+            // Set product data
+            $product = $this->registry->registry("product");
+            if ($product != null) {
+                $this->zoneContextData[] = [
+                    'key' => 'sku',
+                    'value' => $product->getId()
+                ];
+            }
+
+            // Set category data
+            $categoryObject = $this->registry->registry('current_category');
+            if (is_object($categoryObject)) {
+                $this->zoneContextData[] = [
+                    'key' => 'categoryid',
+                    'value' => $categoryObject->getId()
+                ];
+            }
+        }
+        
+        return $this->zoneContextData;
     }
 
     public function _beforeToHtml()
@@ -80,23 +113,14 @@ class Bmz extends Template implements BlockInterface
         $this->debug = $this->coreHelper->isBMZDebugActive();
         $this->bmzId = $this->escapeHtml($this->getData('bmz_id'));
         $this->isServerSide = $this->coreHelper->isServerSide();
-        
 
         if ($this->bmzId == null or $this->bmzId == "") {
             $this->logger->error("PureClarity: BMZ block instantiated without a BMZ Id.");
         } else {
             $this->addBmzData('bmz', $this->bmzId);
 
-            // Set product data
-            $product = $this->registry->registry("product");
-            if ($product != null) {
-                $this->addBmzData('sku', $product->getId());
-            }
-
-            // Set category data
-            $categoryObject = $this->registry->registry('current_category');
-            if (is_object($categoryObject)) {
-                $this->addBmzData('categoryid', $categoryObject->getId());
+            foreach ($this->getZoneContextData() as $contextData) {
+                $this->addBmzData($contextData['key'], $contextData['value']);
             }
         }
 
