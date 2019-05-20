@@ -135,15 +135,16 @@ class Search implements AdapterInterface
 
                     $result['personalizedProducts'] = $parsedPersonalProducts;
                     $this->service->updateSearchResult($result);
-                    
                 }
             }
-        } else {
+        }
+
+        // If no results returned from PC or search / serverside disabled then default to Magento search
+        if ($table === null) {
             $query = $this->mapper->buildQuery($request);
             $table = $temporaryStorage->storeDocumentsFromSelect($query);
             $documents = $this->getDocuments($table);
         }
-        
  
         $aggregations = $this->aggregationBuilder->build($request, $table);
  
