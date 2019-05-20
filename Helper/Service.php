@@ -81,9 +81,15 @@ class Service extends \Magento\Framework\App\Helper\AbstractHelper
         $this->action = $action;
     }
 
-    public function addZone($zoneId)
+    public function addZone($zoneId, $data = [])
     {
-        $this->zones[] = [ "id" => $zoneId ];
+        $zone = [ 'id' => $zoneId ];
+        
+        if (!empty($data)) {
+            $zone['data'] = $data;
+        }
+        
+        $this->zones[] = $zone;
     }
 
     public function addTrackingEvent($event, $data)
@@ -104,7 +110,6 @@ class Service extends \Magento\Framework\App\Helper\AbstractHelper
         $this->sort = $sort;
         $this->size = $size;
     }
-
 
     public function processSearch()
     {
@@ -266,7 +271,6 @@ class Service extends \Magento\Framework\App\Helper\AbstractHelper
         try {
             $response = $client->send();
             $this->result = json_decode($response->getBody(), true);
-        
             if (array_key_exists('errors', $this->result)) {
                 $this->logger->error('PURECLARITY ERROR: Errors return from PureClarity - ' . var_export($this->result['errors'], true));
                 return;
