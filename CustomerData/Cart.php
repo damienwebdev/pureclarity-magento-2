@@ -24,10 +24,16 @@ class Cart implements \Magento\Customer\CustomerData\SectionSourceInterface
         $visibleItems = $this->cart->getQuote()->getAllVisibleItems();
         $allItems = $this->cart->getQuote()->getAllItems();
         foreach ($visibleItems as $item) {
-            $items[$item->getItemId()] = ["id" => $item->getProductId(), "qty" => $item->getQty(), "refid" => $item->getItemId(), "children" => []];
+            $items[$item->getItemId()] = [
+                'id' => $item->getProductId(),
+                'qty' => $item->getQty(),
+                'unitprice' => $item->getPrice(),
+                'refid' => $item->getItemId(),
+                'children' => []
+            ];
         }
         foreach ($allItems as $item) {
-            if ($item->getParentItemId() && $items[$item->getParentItemId()]) {
+            if ($item->getParentItemId() && isset($items[$item->getParentItemId()])) {
                 $items[$item->getParentItemId()]['children'][] = ["sku" => $item->getSku(), "qty" => $item->getQty()];
             }
         }
