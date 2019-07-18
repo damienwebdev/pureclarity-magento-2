@@ -16,12 +16,14 @@ class ProductRecommender extends Template implements BlockInterface
         \Pureclarity\Core\Helper\Data $coreHelper,
         \Pureclarity\Core\Helper\Service $service,
         \Magento\Framework\App\ProductMetadataInterface $productMetadata,
+        \Magento\Widget\Helper\Conditions $conditionsHelper,
         array $data = []
     ) {
         $this->coreHelper = $coreHelper;
         $this->logger = $context->getLogger();
         $this->service = $service;
         $this->productMetadata = $productMetadata;
+        $this->conditionsHelper = $conditionsHelper;
         parent::__construct(
             $context,
             $data
@@ -53,8 +55,6 @@ class ProductRecommender extends Template implements BlockInterface
 
         $condition = implode(', ', $skus);
         
-        // IF >=2.2, json_encode, otherwise serialize:
-        $isMagentoUsesJson = ( !defined("\\Magento\\Framework\\AppInterface::VERSION") && version_compare($this->productMetadata->getVersion(), '2.2.0', '>=') );
         $conditions = [
                 1 => [
                     'type' => \Magento\CatalogWidget\Model\Rule\Condition\Combine::class,
@@ -69,10 +69,8 @@ class ProductRecommender extends Template implements BlockInterface
                     'value' => $condition,
                 ]
             ];
-        $conditionsEncoded = ( $isMagentoUsesJson ? json_encode($conditions) : serialize($conditions) );
-        // $conditionsEncoded = "^[`1`:^[`type`:`Magento||CatalogWidget||Model||Rule||Condition||Combine`,`aggregator`:`all`,`value`:`1`,`new_child`:``^],`1--1`:^[`type`:`Magento||CatalogWidget||Model||Rule||Condition||Product`,`attribute`:`sku`,`operator`:`()`,`value`:`$condition`^]^]";
-
-        // print_r($clickEvents);exit;
+            
+        $conditionsEncoded = $this->conditionsHelper->encode($conditions);
 
         $this->productListHtml = $this->getLayout()
             ->createBlock("Magento\CatalogWidget\Block\Product\ProductsList", "pc_bmz_serverside_prodrec_" . $this->getBmzId())
