@@ -44,7 +44,11 @@ class ProductRecommender extends Template implements BlockInterface
         $clickEvents = [];
         foreach ($this->getProducts() as $item) {
             $skus[] = $item['Sku'];
-            $clickEvents[$item['Id']] = $item['ClickEvt'];
+            if (isset($item['ClickEvt'])) {
+                $clickEvents[$item['Id']] = $item['ClickEvt'];
+            } elseif (isset($item['clickEvt'])) {
+                $clickEvents[$item['Id']] = $item['clickEvt'];
+            }
         }
 
         $condition = implode(', ', $skus);
