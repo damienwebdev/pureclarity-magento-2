@@ -217,14 +217,16 @@ class Configuration extends Template
             }
             foreach ($allItems as $item) {
                 if ($item->getParentItemId() && $orderItems[$item->getParentItemId()]) {
-                    $orderItems[$item->getParentItemId()]['children'][] = ["sku" => $item->getSku(), "qty" => $item->getQtyOrdered()];
+                    $orderItems[$item->getParentItemId()]['children'][] = [
+                        "sku" => $item->getSku(),
+                        "qty" => $item->getQtyOrdered()
+                    ];
                 }
             }
-
-            return [
-                "transaction" => $order,
-                "items" => array_values($orderItems)
-            ];
+            
+            $order['items'] = array_values($orderItems);
+            
+            return $order;
         }
         return null;
     }
