@@ -257,8 +257,6 @@ require(['jquery', 'priceBox'], function ($, priceBox) {
         if (pureclarityConfig.order) {
             _pc('order', pureclarityConfig.order);
         }
-    } else {
-        _pc('set_cache_filter', { _size: 2000, requesttype: "both" });
     }
 
 });
