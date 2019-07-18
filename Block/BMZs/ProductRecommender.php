@@ -1,28 +1,32 @@
 <?php
+/**
+ * Copyright © PureClarity. All rights reserved.
+ * See LICENSE.txt for license details.
+ */
 
 namespace Pureclarity\Core\Block\BMZs;
 
 use Magento\Framework\View\Element\Template;
 use Magento\Framework\View\Element\Template\Context;
 use Magento\Widget\Block\BlockInterface;
+use Magento\Widget\Helper\Conditions;
+use Magento\CatalogWidget\Model\Rule\Condition\Combine;
+use Magento\CatalogWidget\Model\Rule\Condition\Product;
+use Magento\CatalogWidget\Block\Product\ProductsList;
 
 class ProductRecommender extends Template implements BlockInterface
 {
-    private $productListHtml = "";
-    private $productMetadata;
+    /** @var string */
+    private $productListHtml = '';
+    
+    /** @var \Magento\Widget\Helper\Conditions */
+    private $conditionsHelper;
 
     public function __construct(
-        \Magento\Framework\View\Element\Template\Context $context,
-        \Pureclarity\Core\Helper\Data $coreHelper,
-        \Pureclarity\Core\Helper\Service $service,
-        \Magento\Framework\App\ProductMetadataInterface $productMetadata,
-        \Magento\Widget\Helper\Conditions $conditionsHelper,
+        Context $context,
+        Conditions $conditionsHelper,
         array $data = []
     ) {
-        $this->coreHelper = $coreHelper;
-        $this->logger = $context->getLogger();
-        $this->service = $service;
-        $this->productMetadata = $productMetadata;
         $this->conditionsHelper = $conditionsHelper;
         parent::__construct(
             $context,
@@ -57,13 +61,13 @@ class ProductRecommender extends Template implements BlockInterface
         
         $conditions = [
                 1 => [
-                    'type' => \Magento\CatalogWidget\Model\Rule\Condition\Combine::class,
+                    'type' => Combine::class,
                     'aggregator' => 'all',
                     'value' => '1',
                     'new_child' => '',
                 ],
                 '1--1' => [
-                    'type' => \Magento\CatalogWidget\Model\Rule\Condition\Product::class,
+                    'type' => Product::class,
                     'attribute' => 'sku',
                     'operator' => '()',
                     'value' => $condition,
@@ -73,7 +77,7 @@ class ProductRecommender extends Template implements BlockInterface
         $conditionsEncoded = $this->conditionsHelper->encode($conditions);
 
         $this->productListHtml = $this->getLayout()
-            ->createBlock("Magento\CatalogWidget\Block\Product\ProductsList", "pc_bmz_serverside_prodrec_" . $this->getBmzId())
+            ->createBlock(ProductsList::class, 'pc_bmz_serverside_prodrec_' . $this->getBmzId())
             ->setData('products_per_page', 20)
             ->setData('products_count', 20)
             ->setData('cache_lifetime', 5)
