@@ -255,14 +255,8 @@ require(['jquery', 'priceBox'], function ($, priceBox) {
         }
 
         if (pureclarityConfig.order) {
-            _pc('order:addTrans', pureclarityConfig.order.transaction);
-            for (var i=0; i<pureclarityConfig.order.items.length; i++) {
-                _pc('order:addItem', pureclarityConfig.order.items[i]);
-            }
-            _pc('order:track');
+            _pc('order', pureclarityConfig.order);
         }
-    } else {
-        _pc('set_cache_filter', { _size: 2000, requesttype: "both" });
     }
 
 });
