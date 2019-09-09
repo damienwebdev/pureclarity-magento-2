@@ -63,7 +63,6 @@ class Mapper extends \Magento\Framework\Search\Adapter\Mysql\Mapper
         );
     }
 
-
     public function buildQuery(RequestInterface $request, $tableName = 'ian_test')
     {
         if (!array_key_exists($request->getIndex(), $this->indexProviders)) {
@@ -101,7 +100,6 @@ class Mapper extends \Magento\Framework\Search\Adapter\Mysql\Mapper
         $select->order('relevance ' . Select::SQL_DESC)->order('entity_id ' . Select::SQL_DESC);
         return $select;
     }
-
 
     private function createAroundSelect(Select $select, ScoreBuilder $scoreBuilder)
     {

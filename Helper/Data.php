@@ -107,7 +107,6 @@ class Data extends \Magento\Framework\App\Helper\AbstractHelper
         return false;
     }
 
-
     public function getAdminUrl()
     {
         return "https://admin.pureclarity.net";
@@ -188,7 +187,6 @@ class Data extends \Magento\Framework\App\Helper\AbstractHelper
         return $this->scopeConfig->getValue("pureclarity/feeds/brand_parent_category", \Magento\Store\Model\ScopeInterface::SCOPE_STORE, $storeId);
     }
 
-
     // Placeholders
     public function getProductPlaceholderUrl($storeId)
     {
@@ -227,8 +225,6 @@ class Data extends \Magento\Framework\App\Helper\AbstractHelper
         }
         return "";
     }
-    
-
 
     // ADVANCED
     public function isBMZDebugActive($storeId = null)

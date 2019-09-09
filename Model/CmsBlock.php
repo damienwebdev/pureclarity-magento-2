@@ -37,7 +37,6 @@ class CmsBlock
         $this->logger = $logger;
     }
 
-
     /**
      * Installs PureClarity BMZs based on the CSV files provided.
      * @param $files array CSV file(s) to be parsed

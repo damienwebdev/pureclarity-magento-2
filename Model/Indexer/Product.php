@@ -50,7 +50,6 @@ class Product implements \Magento\Framework\Indexer\ActionInterface, \Magento\Fr
         }
     }
 
-
     public function executeFull()
     {
         $this->execute(null);

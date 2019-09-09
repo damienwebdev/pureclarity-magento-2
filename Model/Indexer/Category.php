@@ -34,7 +34,6 @@ class Category implements \Magento\Framework\Indexer\ActionInterface, \Magento\F
         $deltaProduct->save();
     }
 
-
     public function executeFull()
     {
         $this->execute(null);

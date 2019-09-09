@@ -326,7 +326,6 @@ class Service extends \Magento\Framework\App\Helper\AbstractHelper
         return null;
     }
 
-
     private function isCategoryPage()
     {
         return ($this->request->getControllerName() == 'category');

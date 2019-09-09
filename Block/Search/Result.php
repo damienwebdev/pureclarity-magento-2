@@ -38,7 +38,6 @@ class Result extends \Magento\CatalogSearch\Block\Result
 
     public function _beforeToHtml()
     {
-        
 
         if ($this->coreHelper->isSearchActive() && $this->coreHelper->isServerSide()) {
             $this->setTemplate($this->coreHelper->getResultTemplate());

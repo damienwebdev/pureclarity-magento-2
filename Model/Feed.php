@@ -667,7 +667,6 @@ class Feed extends \Magento\Framework\Model\AbstractModel
         $this->coreHelper->setProgressFile($this->progressFileName, 'N/A', 1, 1, "true", "false");
     }
 
-
     protected function endFeedAppend($feedType, $hasSentItemData)
     {
 

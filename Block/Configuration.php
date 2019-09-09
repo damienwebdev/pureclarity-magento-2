@@ -86,7 +86,6 @@ class Configuration extends Template
             "swatchRenderer" => $this->getSwatchRendererPath(),
         ];
     }
-
     
     public function isActive()
     {

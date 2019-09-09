@@ -18,7 +18,6 @@ class Runfeed extends \Magento\Backend\App\Action
             $context
         );
     }
-
     
     public function execute()
     {

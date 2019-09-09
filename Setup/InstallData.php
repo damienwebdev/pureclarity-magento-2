@@ -48,7 +48,6 @@ class InstallData implements InstallDataInterface
             ]
         );
 
-
         /*
          * Magento 2 does not properly support category attributes until version 2.1 or above
          * so don't install them if on 2.0

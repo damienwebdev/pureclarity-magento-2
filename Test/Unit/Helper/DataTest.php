@@ -80,7 +80,6 @@ class DataTest extends \PHPUnit\Framework\TestCase
             ->willReturn($this->scopeConfigMock);
     }
 
-
     /**
      * Tests Pureclarity\Core\Helper\Data->getAccessKey() returns the correct key
      * for a valid store id.
