@@ -211,7 +211,10 @@ class Bmz extends Template implements BlockInterface
             switch ($result['zones'][$this->bmzId]['type']) {
                 case "recommender-product":
                     return $this->getLayout()
-                            ->createBlock("Pureclarity\Core\Block\BMZs\ProductRecommender", "pc_bmz_serverside_" . $this->bmzId)
+                            ->createBlock(
+                                "Pureclarity\Core\Block\BMZs\ProductRecommender",
+                                "pc_bmz_serverside_" . $this->bmzId
+                            )
                             ->setData('bmz_id', $this->bmzId)
                             ->setData('bmz_data', $resultData)
                             ->setTemplate($this->coreHelper->getProductRecommenderTemplate())

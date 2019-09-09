@@ -6,6 +6,8 @@
 
 namespace Pureclarity\Core\Model;
 
+use Magento\Catalog\Model\Product\Attribute\Source\Status;
+
 /**
  * PureClarity Product Export Module
  * For example, used to create product feed that's sent to PureClarity.
@@ -187,7 +189,7 @@ class ProductExport extends \Magento\Framework\Model\AbstractModel
             ->addStoreFilter($this->storeId)
             ->addUrlRewrite()
             ->addAttributeToSelect('*')
-            ->addAttributeToFilter("status", ["eq" => \Magento\Catalog\Model\Product\Attribute\Source\Status::STATUS_ENABLED])
+            ->addAttributeToFilter("status", ["eq" => Status::STATUS_ENABLED])
             ->addFieldToFilter('visibility', $validVisiblity)
             ->addMinimalPrice()
             ->addTaxPercents()
@@ -221,7 +223,9 @@ class ProductExport extends \Magento\Framework\Model\AbstractModel
         session_write_close(); //ensures progress feed in GUI is updated
 
         // Check hash that we've not already seen this product
-        if (!array_key_exists($product->getId(), $this->seenProductIds) || $this->seenProductIds[$product->getId()]===null) {
+        if (!array_key_exists($product->getId(), $this->seenProductIds) ||
+            $this->seenProductIds[$product->getId()] === null
+        ) {
             // Set Category Ids for product
             $categoryIds = $product->getCategoryIds();
 
@@ -249,12 +253,14 @@ class ProductExport extends \Magento\Framework\Model\AbstractModel
             }
             
             // Get Product Image URL
-            $baseProductImageUrl = $this->currentStore->getBaseUrl(\Magento\Framework\UrlInterface::URL_TYPE_MEDIA) . "catalog/product/";
+            $baseProductImageUrl = $this->currentStore->getBaseUrl(\Magento\Framework\UrlInterface::URL_TYPE_MEDIA)
+                                 . "catalog/product/";
             $productImageUrl = $baseProductImageUrl;
             if ($product->getImage() && $product->getImage() != 'no_selection') {
                 $productImageUrl .= $product->getImage();
             } else {
-                $productImageUrl .= "placeholder/". $this->currentStore->getConfig("catalog/placeholder/image_placeholder");
+                $productImageUrl .= "placeholder/"
+                                 . $this->currentStore->getConfig("catalog/placeholder/image_placeholder");
             }
             $productImageUrl = str_replace(["https:", "http:"], "", $productImageUrl);
 
@@ -283,7 +289,10 @@ class ProductExport extends \Magento\Framework\Model\AbstractModel
                 "Id" => $product->getId(),
                 "Sku" => $product->getSku(),
                 "Title" => $product->getName(),
-                "Description" => [strip_tags($product->getData('description')), strip_tags($product->getShortDescription())],
+                "Description" => [
+                    strip_tags($product->getData('description')),
+                    strip_tags($product->getShortDescription())
+                ],
                 "Link" => $productUrl,
                 "Image" => $productImageUrl,
                 "Categories" => $categoryIds,
@@ -390,7 +399,11 @@ class ProductExport extends \Magento\Framework\Model\AbstractModel
                     $childProducts = $product->getTypeInstance(true)->getAssociatedProducts($product);
                     break;
                 case \Magento\Bundle\Model\Product\Type::TYPE_CODE:
-                    $childProducts = $product->getTypeInstance(true)->getSelectionsCollection($product->getTypeInstance(true)->getOptionsIds($product), $product);
+                    $childProducts = $product->getTypeInstance(true)
+                                            ->getSelectionsCollection(
+                                                $product->getTypeInstance(true)->getOptionsIds($product),
+                                                $product
+                                            );
                     $childProducts = $childProducts->getItems();
                     break;
             }
@@ -577,7 +590,9 @@ class ProductExport extends \Magento\Framework\Model\AbstractModel
 
                 //using object manager here for backward compatibility issues
                 $objectManager = \Magento\Framework\App\ObjectManager::getInstance();
-                $this->galleryReadHandler = $objectManager->create('\Magento\Catalog\Model\Product\Gallery\ReadHandler');
+                $this->galleryReadHandler = $objectManager->create(
+                    '\Magento\Catalog\Model\Product\Gallery\ReadHandler'
+                );
                 $this->logger->debug('PureClarity: Have created ReadHandler.');
             } else {
                 $this->logger->debug('PureClarity: ReadHandler class does not exist.');

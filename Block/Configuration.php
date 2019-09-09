@@ -169,7 +169,9 @@ class Configuration extends Template
 
     public function isSearchPage($storeId = null)
     {
-        if ($this->coreHelper->isSearchActive($storeId) && $this->request->getFullActionName() === 'catalogsearch_result_index') {
+        if ($this->coreHelper->isSearchActive($storeId) &&
+            $this->request->getFullActionName() === 'catalogsearch_result_index'
+        ) {
             return true;
         }
         return false;

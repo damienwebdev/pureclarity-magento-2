@@ -41,7 +41,10 @@ class ListProduct extends \Magento\Catalog\Block\Product\ListProduct
 
         if ($this->coreHelper->isSearchActive() && $this->coreHelper->isServerSide()) {
             $searchResult = $this->pureClarityService->getSearchResult();
-            if ($searchResult && array_key_exists('refId', $searchResult) && array_key_exists('clickEventName', $searchResult)) {
+            if ($searchResult &&
+                array_key_exists('refId', $searchResult) &&
+                array_key_exists('clickEventName', $searchResult)
+            ) {
                 $this->setPureClarityClickData([
                     "event" => $searchResult['clickEventName'],
                     "refId" => $searchResult['refId']
@@ -85,13 +88,21 @@ class ListProduct extends \Magento\Catalog\Block\Product\ListProduct
                 
                 $condition = implode(', ', $skus);
                 $this->personalizedProductListHtml = $this->getLayout()
-                    ->createBlock("Magento\CatalogWidget\Block\Product\ProductsList", "pc_bmz_serverside_prodrec_" . $this->getBmzId())
+                    ->createBlock(
+                        "Magento\CatalogWidget\Block\Product\ProductsList",
+                        "pc_bmz_serverside_prodrec_" . $this->getBmzId()
+                    )
                     ->setData('products_per_page', 20)
                     ->setData('products_count', 20)
                     ->setData('cache_lifetime', 5)
                     ->setData('title', $searchResult['personalizedProductsTitle'])
                     ->setData('pureclarity_click_events', $clickEvents)
-                    ->setData('conditions_encoded', "^[`1`:^[`type`:`Magento||CatalogWidget||Model||Rule||Condition||Combine`,`aggregator`:`all`,`value`:`1`,`new_child`:``^],`1--1`:^[`type`:`Magento||CatalogWidget||Model||Rule||Condition||Product`,`attribute`:`sku`,`operator`:`()`,`value`:`$condition`^]^]")
+                    ->setData(
+                        'conditions_encoded',
+                        "^[`1`:^[`type`:`Magento||CatalogWidget||Model||Rule||Condition||Combine`,`aggregator`:`all` "
+                        . ",`value`:`1`,`new_child`:``^],`1--1`:^[`type`:`Magento||CatalogWidget||Model||Rule||"
+                        . "Condition||Product`,`attribute`:`sku`,`operator`:`()`,`value`:`$condition`^]^]"
+                    )
                     ->setTemplate("Pureclarity_Core::grid.phtml")
                     ->toHtml();
             }

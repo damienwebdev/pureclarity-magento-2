@@ -105,17 +105,21 @@ class Service extends \Magento\Framework\App\Helper\AbstractHelper
         $this->size = $size;
     }
 
-
     public function processSearch()
     {
         $this->isCategory = $this->isCategoryPage();
         if (($this->coreHelper->isSearchActive() &&
             ($this->coreHelper->isServerSide() || $this->coreHelper->seoSearchFriendly()) &&
             (
-                ($this->isCategory && !empty($this->category) && $this->category->getId() && $this->coreHelper->isProdListingActive()) ||
+                (
+                    $this->isCategory && !empty($this->category) &&
+                    $this->category->getId() &&
+                    $this->coreHelper->isProdListingActive()
+                ) ||
                 $this->isSearchPage())
             )) {
-                $this->query = $this->isCategoryPage()?$this->category->getId():$this->catalogSearchHelper->getEscapedQueryText();
+                $this->query = $this->isCategoryPage() ? $this->category->getId()
+                               : $this->catalogSearchHelper->getEscapedQueryText();
                 $sortOrder = $this->toolBar->getOrder();
                 $sortDirection = $this->toolBar->getDirection();
                 $this->size = $this->coreHelper->isServerSide()?"2000":null;
@@ -268,7 +272,9 @@ class Service extends \Magento\Framework\App\Helper\AbstractHelper
             $this->result = json_decode($response->getBody(), true);
         
             if (array_key_exists('errors', $this->result)) {
-                $this->logger->error('PURECLARITY ERROR: Errors return from PureClarity - ' . var_export($this->result['errors'], true));
+                $this->logger->error(
+                    'PURECLARITY ERROR: Errors return from PureClarity - ' . var_export($this->result['errors'], true)
+                );
                 return;
             }
         
@@ -279,7 +285,10 @@ class Service extends \Magento\Framework\App\Helper\AbstractHelper
                 $this->setCookie('pc_sessid', $this->result['sessionId'], 300);
             }
         } catch (\Exception $e) {
-            $this->logger->error('PURECLARITY ERROR: There was a problem communicating with the PureClarity Endpoint: ' . $e->getMessage());
+            $this->logger->error(
+                'PURECLARITY ERROR: There was a problem communicating with the PureClarity Endpoint: '
+                . $e->getMessage()
+            );
         }
     }
 

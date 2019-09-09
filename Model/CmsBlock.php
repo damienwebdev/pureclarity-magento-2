@@ -45,7 +45,8 @@ class CmsBlock
      */
     public function install(array $files, $storeId, $themeId)
     {
-        $path = $this->componentRegistrar->getPath(ComponentRegistrar::MODULE, 'Pureclarity_Core') . DIRECTORY_SEPARATOR . 'data' . DIRECTORY_SEPARATOR;
+        $path = $this->componentRegistrar->getPath(ComponentRegistrar::MODULE, 'Pureclarity_Core')
+              . DIRECTORY_SEPARATOR . 'data' . DIRECTORY_SEPARATOR;
 
         $pageGroupConfig = [
             'pages' => [

@@ -38,9 +38,17 @@ class DataProvider
             }
         }
 
-        $categoryImageUrl = $this->coreHelper->getAdminImageUrl($this->storeManager->getStore(), $imageName, "pureclarity_category_image");
+        $categoryImageUrl = $this->coreHelper->getAdminImageUrl(
+            $this->storeManager->getStore(),
+            $imageName,
+            "pureclarity_category_image"
+        );
 
-        $imagePath = $this->coreHelper->getAdminImagePath($this->storeManager->getStore(), $imageName, "pureclarity_category_image");
+        $imagePath = $this->coreHelper->getAdminImagePath(
+            $this->storeManager->getStore(),
+            $imageName,
+            "pureclarity_category_image"
+        );
         $fileSize = 0;
         if ($imagePath) {
             $fileSize = filesize($imagePath);

@@ -79,13 +79,21 @@ class Result extends \Magento\CatalogSearch\Block\Result
                 
                 $condition = implode(', ', $skus);
                 $html = $html . $this->getLayout()
-                    ->createBlock("Magento\CatalogWidget\Block\Product\ProductsList", "pc_search_serverside_rec_" . $count)
+                    ->createBlock(
+                        "Magento\CatalogWidget\Block\Product\ProductsList",
+                        "pc_search_serverside_rec_" . $count
+                    )
                     ->setData('products_per_page', 6)
                     ->setData('products_count', 6)
                     ->setData('cache_lifetime', 5)
                     ->setData('title', $recommender['title'])
                     ->setData('pureclarity_click_events', $clickEvents)
-                    ->setData('conditions_encoded', "^[`1`:^[`type`:`Magento||CatalogWidget||Model||Rule||Condition||Combine`,`aggregator`:`all`,`value`:`1`,`new_child`:``^],`1--1`:^[`type`:`Magento||CatalogWidget||Model||Rule||Condition||Product`,`attribute`:`sku`,`operator`:`()`,`value`:`$condition`^]^]")
+                    ->setData(
+                        'conditions_encoded',
+                        "^[`1`:^[`type`:`Magento||CatalogWidget||Model||Rule||Condition||Combine`,`aggregator`:`all`"
+                        . ",`value`:`1`,`new_child`:``^],`1--1`:^[`type`:`Magento||CatalogWidget||Model||Rule||"
+                        . "Condition||Product`,`attribute`:`sku`,`operator`:`()`,`value`:`$condition`^]^]"
+                    )
                     ->setTemplate("Pureclarity_Core::grid.phtml")
                     ->toHtml();
 

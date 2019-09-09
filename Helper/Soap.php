@@ -29,7 +29,11 @@ class Soap
         if ($payload != null) {
             curl_setopt($soap_do, CURLOPT_POST, true);
             curl_setopt($soap_do, CURLOPT_POSTFIELDS, $payload);
-            curl_setopt($soap_do, CURLOPT_HTTPHEADER, ['Content-Type: application/json', 'Content-Length: ' . strlen($payload)]);
+            curl_setopt(
+                $soap_do,
+                CURLOPT_HTTPHEADER,
+                ['Content-Type: application/json', 'Content-Length: ' . strlen($payload)]
+            );
         } else {
             curl_setopt($soap_do, CURLOPT_POST, false);
         }

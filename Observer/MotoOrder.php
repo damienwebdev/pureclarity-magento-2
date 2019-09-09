@@ -71,7 +71,10 @@ class MotoOrder implements ObserverInterface
             return;
         }
 
-        $motoOrder = $this->salesOrder->loadByIncrementIdAndStoreId($observerOrder->getIncrementId(), $observerOrder->getStoreId());
+        $motoOrder = $this->salesOrder->loadByIncrementIdAndStoreId(
+            $observerOrder->getIncrementId(),
+            $observerOrder->getStoreId()
+        );
 
         $this->service->addTrackingEvent('moto_order_track', $this->coreHelper->getOrderForTracking($motoOrder));
         $this->service->dispatch(true);
