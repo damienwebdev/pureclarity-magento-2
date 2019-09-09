@@ -86,7 +86,6 @@ class Configuration extends Template
             "swatchRenderer" => $this->getSwatchRendererPath(),
         ];
     }
-
     
     public function isActive()
     {
@@ -170,7 +169,9 @@ class Configuration extends Template
 
     public function isSearchPage($storeId = null)
     {
-        if ($this->coreHelper->isSearchActive($storeId) && $this->request->getFullActionName() === 'catalogsearch_result_index') {
+        if ($this->coreHelper->isSearchActive($storeId) &&
+            $this->request->getFullActionName() === 'catalogsearch_result_index'
+        ) {
             return true;
         }
         return false;
@@ -233,10 +234,9 @@ class Configuration extends Template
 
     private function getSwatchRendererPath()
     {
-        if (version_compare($this->productMetadata->getVersion(), '2.1.0', '<')){
+        if (version_compare($this->productMetadata->getVersion(), '2.1.0', '<')) {
             return 'Magento_Swatches/js/SwatchRenderer';
-        }
-        else{
+        } else {
             return 'Magento_Swatches/js/swatch-renderer';
         }
     }

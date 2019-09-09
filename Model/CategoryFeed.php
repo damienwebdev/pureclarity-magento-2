@@ -20,7 +20,6 @@ class CategoryFeed extends \Magento\Framework\Model\AbstractModel
         );
     }
 
-
     protected function _construct()
     {
         $this->_init('Pureclarity\Core\Model\Resource\CategoryFeed');

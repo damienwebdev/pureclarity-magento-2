@@ -52,7 +52,6 @@ class Bmz extends Template implements BlockInterface
         parent::setData($key, $value);
     }
 
-
     protected function _toHtml()
     {
         if ($this->coreHelper->isMerchActive()) {
@@ -80,7 +79,6 @@ class Bmz extends Template implements BlockInterface
         $this->debug = $this->coreHelper->isBMZDebugActive();
         $this->bmzId = $this->escapeHtml($this->getData('bmz_id'));
         $this->isServerSide = $this->coreHelper->isServerSide();
-        
 
         if ($this->bmzId == null or $this->bmzId == "") {
             $this->logger->error("PureClarity: BMZ block instantiated without a BMZ Id.");
@@ -213,7 +211,10 @@ class Bmz extends Template implements BlockInterface
             switch ($result['zones'][$this->bmzId]['type']) {
                 case "recommender-product":
                     return $this->getLayout()
-                            ->createBlock("Pureclarity\Core\Block\BMZs\ProductRecommender", "pc_bmz_serverside_" . $this->bmzId)
+                            ->createBlock(
+                                "Pureclarity\Core\Block\BMZs\ProductRecommender",
+                                "pc_bmz_serverside_" . $this->bmzId
+                            )
                             ->setData('bmz_id', $this->bmzId)
                             ->setData('bmz_data', $resultData)
                             ->setTemplate($this->coreHelper->getProductRecommenderTemplate())

@@ -22,7 +22,9 @@ class Image extends \Magento\Eav\Model\Entity\Attribute\Backend\AbstractBackend
     private function getImageUploader()
     {
         if ($this->imageUploader === null) {
-            $this->imageUploader = \Magento\Framework\App\ObjectManager::getInstance()->get('Pureclarity\Core\ImageUpload');
+            $this->imageUploader = \Magento\Framework\App\ObjectManager::getInstance()->get(
+                'Pureclarity\Core\ImageUpload'
+            );
         }
         return $this->imageUploader;
     }

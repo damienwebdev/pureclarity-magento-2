@@ -42,7 +42,6 @@ class Datafeedbutton extends Field
         return $stores;
     }
 
-
     /**
      * Return element html
      *

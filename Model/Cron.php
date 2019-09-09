@@ -3,6 +3,8 @@ namespace Pureclarity\Core\Model;
 
 use Pureclarity\Core\Model\Feed;
 use Magento\Framework\App\Filesystem\DirectoryList;
+use Magento\Catalog\Model\Product\Attribute\Source\Status;
+use Magento\Catalog\Model\Product\Visibility;
 
 /**
  * Controls the execution of feeds sent to PureClarity.
@@ -202,7 +204,9 @@ class Cron extends \Magento\Framework\Model\AbstractModel
     private function getFeedFilePath($feedType, $storeId)
     {
         $store = $this->storeStoreFactory->create()->load($storeId);
-        return $this->coreHelper->getPureClarityBaseDir() . DIRECTORY_SEPARATOR . $this->coreHelper->getFileNameForFeed($feedType, $store->getCode());
+        return $this->coreHelper->getPureClarityBaseDir()
+                . DIRECTORY_SEPARATOR
+                . $this->coreHelper->getFileNameForFeed($feedType, $store->getCode());
     }
 
     /**
@@ -264,8 +268,8 @@ class Cron extends \Magento\Framework\Model\AbstractModel
                                     // Check product is loaded
                                     if ($product != null) {
                                         // Is deleted?
-                                        $deleted = $product->getData('status') == \Magento\Catalog\Model\Product\Attribute\Source\Status::STATUS_DISABLED ||
-                                                $product->getVisibility() == \Magento\Catalog\Model\Product\Visibility::VISIBILITY_NOT_VISIBLE;
+                                        $deleted = $product->getData('status') == Status::STATUS_DISABLED ||
+                                                $product->getVisibility() == Visibility::VISIBILITY_NOT_VISIBLE;
 
                                         // Check if deleted or if product is no longer visible
                                         if ($deleted == true) {
@@ -273,12 +277,19 @@ class Cron extends \Magento\Framework\Model\AbstractModel
                                         } else {
                                             // Get data from product exporter
                                             try {
-                                                $data = $productExportModel->processProduct($product, count($feedProducts)+1);
+                                                $data = $productExportModel->processProduct(
+                                                    $product,
+                                                    count($feedProducts)+1
+                                                );
                                                 if ($data != null) {
                                                     $feedProducts[] = $data;
                                                 }
                                             } catch (\Exception $e) {
-                                                $this->logger->error('ERROR: Reindex Issue from PC - Can\'t create product model for export: '.var_export($productHash, true));
+                                                $this->logger->error(
+                                                    'ERROR: Reindex Issue from PC - Can\'t'
+                                                    . ' create product model for export: '
+                                                    . var_export($productHash, true)
+                                                );
                                             }
                                         }
                                     }

@@ -30,8 +30,8 @@ class Upload extends \Magento\Backend\App\Action
             
             $basePath = 'catalog/' . $attributeCode;
             /*
-             * Using object manager rather than instantiating \Magento\Catalog\Model\ImageUploader in constructor, 
-             * as class does not exist on Magento 2.0, potentially causing setup:di:compile errors. 
+             * Using object manager rather than instantiating \Magento\Catalog\Model\ImageUploader in constructor,
+             * as class does not exist on Magento 2.0, potentially causing setup:di:compile errors.
              * Creating the Pureclarity\Core\ImageUpload class here, as it then uses arguments set in di.xml rather
              * than needing to e.g. pass in baseTmpPath here.
              */

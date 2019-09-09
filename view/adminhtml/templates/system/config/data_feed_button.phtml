@@ -10,7 +10,7 @@
 
     <div>
         <select id="pc-selectStore" class="select admin__controle-select">
-            <?php foreach ($block->getStores() as $store): ?>
+            <?php foreach ($block->getStores() as $store) : ?>
                 <option value="<?php echo $store['id']; ?>" ><?php echo $store['website'] . " - " . $store['name']; ?></option>
             <?php endforeach; ?>
         </select>
@@ -31,7 +31,7 @@
         </div>
     </div>
 
-    <?php if ($block->showOrderImportOption()):  ?>
+    <?php if ($block->showOrderImportOption()) :  ?>
         <div id="orderhistory" style="margin:30px 0">
             <h2>Order History Initialization</h2>
             <h4 style="color:red">WARNING: This can only be run once per application. Importing your orders helps to initialize PureClarity with the purchasing behavior of your visitors.</h4>
@@ -78,7 +78,7 @@
                     chkUsers: $('#pc-chkUsers'),
                     chkOrders: $('#pc-chkOrders'),
                     selectedStore: 0,
-		    callError: null,
+            callError: null,
 
                     // Initialise function
                     init: function(){
@@ -133,30 +133,30 @@
                             if (this.showImportOption)
                                 urlParts.push('orders='+this.chkOrders.is(':checked'));
                             var self = this;
-			    $.ajax({
+                $.ajax({
                                 url: urlParts.join('&'),
                                 data: {form_key: window.FORM_KEY, storeid: this.selectedStore},
                             }).done(function(response) {
                             }).fail(function(jqXHR, status, err) {
-				self.callError = jqXHR.responseText;
-			    });
+                self.callError = jqXHR.responseText;
+                });
                             var progressCheck = this.progressCheck.bind(this);
                             setTimeout(progressCheck, 1000);
                         }
                     },
                     progressCheck: function(){
-			if (this.callError){
+            if (this.callError){
                                 this.message(this.callError);
                                 this.isComplete = true;
                                 this.resetState();
                         }
-			else {
-                        	var manageProgressResponse = this.manageProgressResponse.bind(this);
-                        	$.ajax({
-                            		url: this.progressFeedUrl,
-                            		data: {form_key: window.FORM_KEY, storeid: this.selectedStore},
-                        	}).done(manageProgressResponse);
-			}
+            else {
+                            var manageProgressResponse = this.manageProgressResponse.bind(this);
+                            $.ajax({
+                                    url: this.progressFeedUrl,
+                                    data: {form_key: window.FORM_KEY, storeid: this.selectedStore},
+                            }).done(manageProgressResponse);
+            }
                     },
                     message: function(message){
                         this.messageContainer.show();

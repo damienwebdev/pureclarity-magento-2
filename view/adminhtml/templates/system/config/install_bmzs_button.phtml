@@ -10,7 +10,7 @@
     <div>
         <h4>Select the Store that you would like to install the Bmz widgets on:</h4>
         <select id="pc-bmz-selectStore" class="select admin__controle-select">
-            <?php foreach ($block->getStores() as $store): ?>
+            <?php foreach ($block->getStores() as $store) : ?>
                 <option value="<?php echo $store['id']; ?>" ><?php echo $store['name']  ?></option>
             <?php endforeach; ?>
         </select>
@@ -19,7 +19,7 @@
     <div class="pc-topbuffer">
         <h4>Select the Theme that you would like to install the Bmz widgets on:</h4>
         <select id="pc-bmz-selectTheme" class="select admin__controle-select">
-            <?php foreach ($block->getThemes() as $theme): ?>
+            <?php foreach ($block->getThemes() as $theme) : ?>
                 <option value="<?php echo $theme['value']; ?>" ><?php echo $theme['label'];  ?></option>
             <?php endforeach; ?>
         </select>

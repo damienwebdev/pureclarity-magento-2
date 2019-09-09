@@ -37,7 +37,6 @@ class CmsBlock
         $this->logger = $logger;
     }
 
-
     /**
      * Installs PureClarity BMZs based on the CSV files provided.
      * @param $files array CSV file(s) to be parsed
@@ -46,7 +45,8 @@ class CmsBlock
      */
     public function install(array $files, $storeId, $themeId)
     {
-        $path = $this->componentRegistrar->getPath(ComponentRegistrar::MODULE, 'Pureclarity_Core') . DIRECTORY_SEPARATOR . 'data' . DIRECTORY_SEPARATOR;
+        $path = $this->componentRegistrar->getPath(ComponentRegistrar::MODULE, 'Pureclarity_Core')
+              . DIRECTORY_SEPARATOR . 'data' . DIRECTORY_SEPARATOR;
 
         $pageGroupConfig = [
             'pages' => [
@@ -117,7 +117,7 @@ class CmsBlock
                 $pageGroup[$group] = array_merge(
                     $pageGroupConfig[$group],
                     json_decode($row['group_data'], true)
-                ); 
+                );
                 if (!empty($pageGroup[$group]['entities'])) {
                     $pageGroup[$group]['entities'] = $this->getCategoryByUrlKey(
                         $pageGroup[$group]['entities']

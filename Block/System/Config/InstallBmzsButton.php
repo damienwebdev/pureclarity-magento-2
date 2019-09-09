@@ -54,7 +54,6 @@ class InstallBmzsButton extends Field
         return $label->getLabelsCollection();
     }
 
-
     /**
      * Return element html
      *
