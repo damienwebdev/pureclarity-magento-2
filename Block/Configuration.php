@@ -233,10 +233,9 @@ class Configuration extends Template
 
     private function getSwatchRendererPath()
     {
-        if (version_compare($this->productMetadata->getVersion(), '2.1.0', '<')){
+        if (version_compare($this->productMetadata->getVersion(), '2.1.0', '<')) {
             return 'Magento_Swatches/js/SwatchRenderer';
-        }
-        else{
+        } else {
             return 'Magento_Swatches/js/swatch-renderer';
         }
     }

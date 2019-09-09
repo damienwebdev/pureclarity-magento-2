@@ -56,7 +56,7 @@ class InstallData implements InstallDataInterface
 
         $isMagento20 = defined("\\Magento\\Framework\\AppInterface::VERSION");
 
-        if(! $isMagento20){
+        if (! $isMagento20) {
  
             // Add PureClarity CATEGORY Attribute group
             $eavSetup->addAttributeGroup(

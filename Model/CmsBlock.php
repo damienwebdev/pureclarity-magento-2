@@ -117,7 +117,7 @@ class CmsBlock
                 $pageGroup[$group] = array_merge(
                     $pageGroupConfig[$group],
                     json_decode($row['group_data'], true)
-                ); 
+                );
                 if (!empty($pageGroup[$group]['entities'])) {
                     $pageGroup[$group]['entities'] = $this->getCategoryByUrlKey(
                         $pageGroup[$group]['entities']

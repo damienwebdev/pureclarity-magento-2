@@ -38,36 +38,36 @@ class DataTest extends \PHPUnit\Framework\TestCase
 
     protected function setUp()
     {
-        $this->scopeConfigMock = $this->createMock( ScopeConfigInterface::class );
-        $this->contextMock = $this->createMock( Context::class );
-        $this->storeManagerMock = $this->createMock( StoreManagerInterface::class );
-        $this->checkoutSessionMock = $this->createMock( CheckoutSession::class );
-        $this->loggerMock = $this->createMock( LoggerInterface::class );
-        $this->directoryListMock = $this->createMock( DirectoryList::class );
+        $this->scopeConfigMock = $this->createMock(ScopeConfigInterface::class);
+        $this->contextMock = $this->createMock(Context::class);
+        $this->storeManagerMock = $this->createMock(StoreManagerInterface::class);
+        $this->checkoutSessionMock = $this->createMock(CheckoutSession::class);
+        $this->loggerMock = $this->createMock(LoggerInterface::class);
+        $this->directoryListMock = $this->createMock(DirectoryList::class);
 
         /**
          * Different construct needed for Factory classes, others generates error e.g.
          * Cannot stub or mock class or interface "Magento\Sales\Model\OrderFactory" which does not exist
          */
-        $this->orderFactoryMock = $this->getMockBuilder( OrderFactory::class )
+        $this->orderFactoryMock = $this->getMockBuilder(OrderFactory::class)
             ->disableOriginalConstructor()
-            ->setMethods( [ 'create' ] )
+            ->setMethods([ 'create' ])
             ->getMock();
-        $this->productFactoryMock = $this->getMockBuilder( ProductFactory::class )
+        $this->productFactoryMock = $this->getMockBuilder(ProductFactory::class)
             ->disableOriginalConstructor()
-            ->setMethods( [ 'create' ] )
+            ->setMethods([ 'create' ])
             ->getMock();
-        $this->productFactoryMock = $this->getMockBuilder( ProductFactory::class )
+        $this->productFactoryMock = $this->getMockBuilder(ProductFactory::class)
             ->disableOriginalConstructor()
-            ->setMethods( [ 'create' ] )
+            ->setMethods([ 'create' ])
             ->getMock();
-        $this->collectionFactoryMock = $this->getMockBuilder( CollectionFactory::class )
+        $this->collectionFactoryMock = $this->getMockBuilder(CollectionFactory::class)
             ->disableOriginalConstructor()
-            ->setMethods( [ 'create' ] )
+            ->setMethods([ 'create' ])
             ->getMock();
-        $this->fileFactoryMock = $this->getMockBuilder( FileFactory::class )
+        $this->fileFactoryMock = $this->getMockBuilder(FileFactory::class)
             ->disableOriginalConstructor()
-            ->setMethods( [ 'create' ] )
+            ->setMethods([ 'create' ])
             ->getMock();
 
         /**
@@ -76,8 +76,8 @@ class DataTest extends \PHPUnit\Framework\TestCase
          * constructor)
          */
         $this->contextMock
-            ->method( 'getScopeConfig' )
-            ->willReturn( $this->scopeConfigMock );
+            ->method('getScopeConfig')
+            ->willReturn($this->scopeConfigMock);
     }
 
 
@@ -86,74 +86,74 @@ class DataTest extends \PHPUnit\Framework\TestCase
      * for a valid store id.
      * @dataProvider validStoreIdDataProvider
      */
-    public function testGetAccessKeyReturnsKeyWhenStoreIdIsValid( $storeId )
+    public function testGetAccessKeyReturnsKeyWhenStoreIdIsValid($storeId)
     {
         $map = [
             [
-                'pureclarity/credentials/access_key', 
-                ScopeInterface::SCOPE_STORE, 
-                $storeId, 
+                'pureclarity/credentials/access_key',
+                ScopeInterface::SCOPE_STORE,
+                $storeId,
                 'accesskey'
             ]
         ];
-        $this->setScopeConfigGetValueReturnValue( $map );
+        $this->setScopeConfigGetValueReturnValue($map);
 
-        $accessKey = $this->getData()->getAccessKey( $storeId );
-        $this->assertEquals( $accessKey, 'accesskey' );
+        $accessKey = $this->getData()->getAccessKey($storeId);
+        $this->assertEquals($accessKey, 'accesskey');
     }
 
     /**
-     * Tests Pureclarity\Core\Helper\Data->getAccessKey() correctly returns null if the 
+     * Tests Pureclarity\Core\Helper\Data->getAccessKey() correctly returns null if the
      * store id is invalid.
      * @dataProvider invalidStoreIdDataProvider
      */
-    public function testGetAccessKeyReturnsNullWhenStoreIdIsInvalid( $storeId, $invalidStoreId )
+    public function testGetAccessKeyReturnsNullWhenStoreIdIsInvalid($storeId, $invalidStoreId)
     {
         $map = [
             [
-                'pureclarity/credentials/access_key', 
-                ScopeInterface::SCOPE_STORE, 
-                $storeId, 
+                'pureclarity/credentials/access_key',
+                ScopeInterface::SCOPE_STORE,
+                $storeId,
                 'accesskey'
             ]
         ];
-        $this->setScopeConfigGetValueReturnValue( $map );
+        $this->setScopeConfigGetValueReturnValue($map);
 
-        $accessKey = $this->getData()->getAccessKey( $invalidStoreId );
-        $this->assertEquals( $accessKey, NULL );
+        $accessKey = $this->getData()->getAccessKey($invalidStoreId);
+        $this->assertEquals($accessKey, null);
     }
 
      /**
-     * Tests that if PureClarity is enabled, Pureclarity\Core\Helper\Data->isSearchActive()
-     * still returns false, even if search is turned on in the configuration settings.
-     * @dataProvider validStoreIdDataProvider
-     */
-    public function testisSearchActiveIfPureClarityEnabled( $storeId )
+      * Tests that if PureClarity is enabled, Pureclarity\Core\Helper\Data->isSearchActive()
+      * still returns false, even if search is turned on in the configuration settings.
+      * @dataProvider validStoreIdDataProvider
+      */
+    public function testisSearchActiveIfPureClarityEnabled($storeId)
     {
         $map = [
             [
-                'pureclarity/credentials/access_key', 
-                ScopeInterface::SCOPE_STORE, 
-                $storeId, 
+                'pureclarity/credentials/access_key',
+                ScopeInterface::SCOPE_STORE,
+                $storeId,
                 'accesskey'
             ],
             [
-                'pureclarity/environment/active', 
-                ScopeInterface::SCOPE_STORE, 
-                $storeId, 
+                'pureclarity/environment/active',
+                ScopeInterface::SCOPE_STORE,
+                $storeId,
                 true
             ],
             [
-                'pureclarity/general_config/search_active', 
-                ScopeInterface::SCOPE_STORE, 
-                $storeId, 
+                'pureclarity/general_config/search_active',
+                ScopeInterface::SCOPE_STORE,
+                $storeId,
                 true
             ],
         ];
-        $this->setScopeConfigGetValueReturnValue( $map );
+        $this->setScopeConfigGetValueReturnValue($map);
 
-        $isSearchActive = $this->getData()->isSearchActive( $storeId );
-        $this->assertEquals( $isSearchActive, false );
+        $isSearchActive = $this->getData()->isSearchActive($storeId);
+        $this->assertEquals($isSearchActive, false);
     }
 
     /**
@@ -162,32 +162,32 @@ class DataTest extends \PHPUnit\Framework\TestCase
      * turned on within the configuration settings.
      * @dataProvider validStoreIdDataProvider
      */
-    public function testisSearchActiveIfPureClarityDisabled( $storeId )
+    public function testisSearchActiveIfPureClarityDisabled($storeId)
     {
         $map = [
             [
-                'pureclarity/credentials/access_key', 
-                ScopeInterface::SCOPE_STORE, 
-                $storeId, 
+                'pureclarity/credentials/access_key',
+                ScopeInterface::SCOPE_STORE,
+                $storeId,
                 'accesskey'
             ],
             [
-                'pureclarity/environment/active', 
-                ScopeInterface::SCOPE_STORE, 
-                $storeId, 
+                'pureclarity/environment/active',
+                ScopeInterface::SCOPE_STORE,
+                $storeId,
                 false
             ],
             [
-                'pureclarity/general_config/search_active', 
-                ScopeInterface::SCOPE_STORE, 
-                $storeId, 
+                'pureclarity/general_config/search_active',
+                ScopeInterface::SCOPE_STORE,
+                $storeId,
                 true
             ],
         ];
-        $this->setScopeConfigGetValueReturnValue( $map );
+        $this->setScopeConfigGetValueReturnValue($map);
 
-        $isSearchActive = $this->getData()->isSearchActive( $storeId );
-        $this->assertEquals( $isSearchActive, false );
+        $isSearchActive = $this->getData()->isSearchActive($storeId);
+        $this->assertEquals($isSearchActive, false);
     }
 
     /**
@@ -196,32 +196,32 @@ class DataTest extends \PHPUnit\Framework\TestCase
      * turned on within the configuration settings.
      * @dataProvider validStoreIdDataProvider
      */
-    public function testisProdListingActiveIfPureClarityEnabled( $storeId )
+    public function testisProdListingActiveIfPureClarityEnabled($storeId)
     {
         $map = [
             [
-                'pureclarity/credentials/access_key', 
-                ScopeInterface::SCOPE_STORE, 
-                $storeId, 
+                'pureclarity/credentials/access_key',
+                ScopeInterface::SCOPE_STORE,
+                $storeId,
                 'accesskey'
             ],
             [
-                'pureclarity/environment/active', 
-                ScopeInterface::SCOPE_STORE, 
-                $storeId, 
+                'pureclarity/environment/active',
+                ScopeInterface::SCOPE_STORE,
+                $storeId,
                 true
             ],
             [
-                'pureclarity/general_config/prodlisting_active', 
-                ScopeInterface::SCOPE_STORE, 
-                $storeId, 
+                'pureclarity/general_config/prodlisting_active',
+                ScopeInterface::SCOPE_STORE,
+                $storeId,
                 true
             ],
         ];
-        $this->setScopeConfigGetValueReturnValue( $map );
+        $this->setScopeConfigGetValueReturnValue($map);
 
-        $isProdListingActive = $this->getData()->isProdListingActive( $storeId );
-        $this->assertEquals( $isProdListingActive, false );
+        $isProdListingActive = $this->getData()->isProdListingActive($storeId);
+        $this->assertEquals($isProdListingActive, false);
     }
 
     /**
@@ -230,13 +230,13 @@ class DataTest extends \PHPUnit\Framework\TestCase
      * turned on within the configuration settings.
      * @dataProvider validStoreIdDataProvider
      */
-    public function testisProdListingActiveIfPureClarityDisabled( $storeId )
+    public function testisProdListingActiveIfPureClarityDisabled($storeId)
     {
         $map = [
             [
-                'pureclarity/credentials/access_key', 
-                ScopeInterface::SCOPE_STORE, 
-                $storeId, 
+                'pureclarity/credentials/access_key',
+                ScopeInterface::SCOPE_STORE,
+                $storeId,
                 'accesskey'
             ],
             [
@@ -252,10 +252,10 @@ class DataTest extends \PHPUnit\Framework\TestCase
                 true
             ],
         ];
-        $this->setScopeConfigGetValueReturnValue( $map );
+        $this->setScopeConfigGetValueReturnValue($map);
 
-        $isProdListingActive = $this->getData()->isProdListingActive( $storeId );
-        $this->assertEquals( $isProdListingActive, false );
+        $isProdListingActive = $this->getData()->isProdListingActive($storeId);
+        $this->assertEquals($isProdListingActive, false);
     }
 
     /**
@@ -264,7 +264,7 @@ class DataTest extends \PHPUnit\Framework\TestCase
     public function validStoreIdDataProvider()
     {
         return [
-            [ 
+            [
                 1,
             ],
         ];
@@ -276,7 +276,7 @@ class DataTest extends \PHPUnit\Framework\TestCase
     public function invalidStoreIdDataProvider()
     {
         return [
-            [ 
+            [
                 1,
                 0,
             ],
@@ -285,7 +285,7 @@ class DataTest extends \PHPUnit\Framework\TestCase
 
     private function getData()
     {
-        if( ! is_object( $this->data ) ) {
+        if (! is_object($this->data)) {
             $this->data = new Data(
                 $this->contextMock,
                 $this->storeManagerMock,
@@ -303,13 +303,13 @@ class DataTest extends \PHPUnit\Framework\TestCase
 
     /**
      * Sets what the return value will be of the getValue() method, of the scopeConfig
-     * object returned by the \Magento\Framework\App\Helper\Context->getScopeConfig() 
+     * object returned by the \Magento\Framework\App\Helper\Context->getScopeConfig()
      * function.
      */
-    private function setScopeConfigGetValueReturnValue( $map )
+    private function setScopeConfigGetValueReturnValue($map)
     {
         $this->scopeConfigMock
-            ->method( 'getValue' )
-            ->will( $this->returnValueMap( $map ) );
+            ->method('getValue')
+            ->will($this->returnValueMap($map));
     }
 }

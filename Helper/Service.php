@@ -310,9 +310,9 @@ class Service extends \Magento\Framework\App\Helper\AbstractHelper
 
     public function getSearchResult()
     {
-        if($this->result && 
-            isset($this->result['search']) && 
-            isset($this->result['search']['redirectUrl']) && 
+        if ($this->result &&
+            isset($this->result['search']) &&
+            isset($this->result['search']['redirectUrl']) &&
             !empty($this->result['search']['redirectUrl'])
         ) {
             $this->responseFactory->create()->setRedirect($this->result['search']['redirectUrl'])->sendResponse();

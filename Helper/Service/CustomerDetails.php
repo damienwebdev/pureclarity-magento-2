@@ -61,5 +61,4 @@ class CustomerDetails
         
         return $customerData;
     }
-    
 }
