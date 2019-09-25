@@ -97,7 +97,7 @@ $store = $block->getPureclarityStoreViewModel();
                     </p>
                     <p class="field">
                         <label class="label" for="pureclarity_password"><?= $block->escapeHtml(__('Password')) ?></label>
-                        <input data-validate='{"required":true}' type="password" name="password" id="pureclarity_password"/>
+                        <input data-validate='{"required":true, "validate-admin-password":true}' type="password" name="password" id="pureclarity_password"/>
                     </p>
                 </div>
                 <div class="right">

@@ -1,7 +1,23 @@
 require(
-    ['jquery', 'Magento_Ui/js/modal/modal', 'mage/validation', 'Magento_Ui/js/modal/alert'],
+    [
+        'jquery',
+        'Magento_Ui/js/modal/modal',
+        'mage/validation',
+        'Magento_Ui/js/modal/alert',
+        'jquery/ui',
+        'jquery/validate',
+        'mage/translate'
+    ],
     function ($, modal, validation, modalAlert) {
         'use strict';
+
+        $.validator.addMethod(
+            'validate-admin-password',
+            function (value) {
+                return value.match(/^(?=.*[a-z])(?=.*[A-Z])(?=.*[0-9])(?=.{8,})/g);
+            },
+            $.mage.__('Password not strong enough, must contain 1 lowercase letter, 1 uppercase letter, 1 number and be 8 characters or longer')
+        );
 
         let currentState = $('#pureclarity_current_state').val();
         let signUpButton = $('#sign_up_button');
