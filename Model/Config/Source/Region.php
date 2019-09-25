@@ -1,21 +1,63 @@
 <?php
+/**
+ * Copyright © PureClarity. All rights reserved.
+ * See LICENSE.txt for license details.
+ */
 
 namespace Pureclarity\Core\Model\Config\Source;
 
-class Region implements \Magento\Framework\Option\ArrayInterface
-{
+use \Magento\Framework\Option\ArrayInterface;
 
+/**
+ * class Region
+ *
+ * contains list of valid regions for use in config & signup validation
+ */
+class Region implements ArrayInterface
+{
+    /**
+     * Default list of valid regions to use with PureClarity
+     *
+     * @var string[]
+     */
+    private $validRegions = [
+        1 => 'Europe',
+        4 => 'USA'
+    ];
+
+    /**
+     * Gets array of valid regions
+     *
+     * @return array[]
+     */
+    public function getValidRegions()
+    {
+        $regions = [];
+        foreach ($this->validRegions as $value => $label) {
+            $regions[] = [
+                'label' => $label,
+                'value' => $value
+            ];
+        }
+
+        return $regions;
+    }
+
+    /**
+     * Gets array of valid regions for use in a dropdown
+     *
+     * @return array[]
+     */
     public function toOptionArray()
     {
-        return [
-            [
-                'label' => 'Europe',
-                'value' => 1
-            ],
-            [
-                'label' => 'USA',
-                'value' => 4
-            ]
-        ];
+        $regions = [];
+        foreach ($this->validRegions as $value => $label) {
+            $regions[] = [
+                'label' => $label,
+                'value' => $value
+            ];
+        }
+
+        return $regions;
     }
 }

@@ -1,0 +1,164 @@
+<?php
+/**
+ * Copyright © PureClarity. All rights reserved.
+ * See LICENSE.txt for license details.
+ */
+
+/** @var $block \Pureclarity\Core\Block\Adminhtml\InstallZonesModal */
+
+/** @var \Pureclarity\Core\ViewModel\Adminhtml\Stores $stores */
+$stores = $block->getPureclarityStoresViewModel();
+/** @var \Pureclarity\Core\ViewModel\Adminhtml\Themes $themes */
+$themes = $block->getPureclarityThemesViewModel();
+
+?>
+<style>
+    #pc-zone-outputContainer {
+        margin:20px 0;
+    }
+    .pc-topbuffer {
+        margin-top:25px;
+    }
+    .pc-install-zones .modal-inner-wrap {
+        width:450px;
+    }
+
+    #pc-zone-modal-content label {
+        display: block;
+        float:left;
+        width: 100px;
+        padding:5px;
+        text-align: right;
+        margin-right: 20px;
+    }
+
+    #pc-zone-modal-content select {
+        display: block;
+        float:left;
+    }
+
+    #pc-zone-modal-content .pc-zone-field {
+        clear:both;
+        margin: 10px 0;
+        display:block;
+        height: 50px;
+    }
+</style>
+
+<div id="pc-zone-modal-popup" style="display:none">
+    <div id="pc-zone-modal-content">
+        <h3><?= $block->escapeHtml('Please select the Store and Theme that you would like to install the PureClarity zone widgets on:') ?></h3>
+        <div class="pc-zone-field">
+            <label for="pc-zone-selectStore"><?= $block->escapeHtml('Store') ?></label>
+            <select id="pc-zone-selectStore" class="select admin__controle-select">
+                <?php foreach ($stores->getStoreList() as $storeId => $name) : ?>
+                    <option value="<?= $block->escapeHtmlAttr($storeId) ?>" ><?= $block->escapeHtml($name) ?></option>
+                <?php endforeach; ?>
+            </select>
+        </div>
+        <div class="pc-zone-field pc-topbuffer">
+            <label for="pc-zone-selectTheme"><?= $block->escapeHtml('Theme') ?></label>
+            <select id="pc-zone-selectTheme" class="select admin__controle-select">
+                <?php foreach ($themes->getThemes() as $theme) : ?>
+                    <option value="<?= $theme['value']; ?>" ><?= $theme['label'];  ?></option>
+                <?php endforeach; ?>
+            </select>
+        </div>
+        <div id="pc-zone-outputContainer">
+            <div id="pc-zone-statusMessage" style="display:none"></div>
+        </div>
+    </div>
+</div>
+<script>
+    require(['jquery','Magento_Ui/js/modal/modal'],
+        function($, modal){
+            let pureclarityZoneObj = {
+                // Set vars
+                installUrl: '<?= $block->escapeUrl($block->getUrl('pureclarity/bmz/install')) ?>',
+                modal: modal,
+                selectStore: $('#pc-zone-selectStore'),
+                selectTheme: $('#pc-zone-selectTheme'),
+                runButton: $('#pc-runzoneInstall'),
+                messageContainer: $('#pc-zone-statusMessage'),
+                selectedStore: 0,
+                selectedTheme: 0,
+                isComplete: true,
+
+                // Function to execute running of feed
+                message: function (message) {
+                    this.messageContainer.show();
+                    this.messageContainer.html("<strong>Status: </strong>" + message);
+                },
+                resetState: function (hideMessage) {
+                    this.isComplete = true;
+                    this.selectStore.prop("disabled", false);
+                    this.selectTheme.prop("disabled", false);
+                    this.runButton.prop("disabled", false);
+                }
+            };
+
+            function installPcZones() {
+                if (pureclarityZoneObj.isComplete) {
+                    pureclarityZoneObj.message("Installing...");
+                    pureclarityZoneObj.selectedStore = pureclarityZoneObj.selectStore.find(":selected").val();
+                    pureclarityZoneObj.selectedTheme = pureclarityZoneObj.selectTheme.find(":selected").val();
+                    pureclarityZoneObj.selectStore.prop("disabled", true);
+                    pureclarityZoneObj.selectTheme.prop("disabled", true);
+
+                    var urlParts = [pureclarityZoneObj.installUrl + '?'];
+                    urlParts.push('storeid=' + pureclarityZoneObj.selectedStore);
+                    urlParts.push('themeid=' + pureclarityZoneObj.selectedTheme);
+
+                    $.ajax({
+                        url: urlParts.join('&'),
+                        data: {form_key: window.FORM_KEY, storeid: pureclarityZoneObj.selectedStore},
+                    }).done(function (response) {
+                        if (response) {
+                            messageParts = ['Installation finished.</br />'];
+                            if (response.alreadyExists && response.alreadyExists.length > 0) {
+                                messageParts.push('The following zones are ALREADY installed for the current store/theme selection: ' + response.alreadyExists.join(', '));
+                                messageParts.push(' ');
+                            }
+                            if (response.installed && response.installed.length > 0) {
+                                messageParts.push('The following zones were SUCCESSFULLY installed: ' + response.installed.join(', '));
+                                messageParts.push('<br />NOTE: You may need to clear the Magento cache before the zones display.');
+                            }
+                            pureclarityZoneObj.message(messageParts.join('<br />'));
+                        } else {
+                            pureclarityZoneObj.message('Error. There has been an error install zones. The error has been logged.');
+                        }
+                        pureclarityZoneObj.resetState();
+                    });
+                }
+            }
+
+            // Initialise pc
+            var options = {
+                type: 'popup',
+                responsive: true,
+                innerScroll: true,
+                modalClass: 'pc-install-zones',
+                title: $.mage.__('Install PureClarity Zones'),
+                buttons: [{
+                    text: $.mage.__('Install Zones'),
+                    class: 'primary',
+                    click: installPcZones
+                }]
+            };
+
+            modal(options, $('#pc-zone-modal-popup'));
+
+            $("#pc-zonepopupbutton").click(function () {
+                // Ensure state is reset
+                if (pureclarityZoneObj.isComplete) {
+                    pureclarityZoneObj.resetState();
+                    pureclarityZoneObj.messageContainer.hide();
+                }
+                $("#pc-zone-modal-popup").modal("openModal");
+            });
+        }
+    );
+</script>
+
+
+

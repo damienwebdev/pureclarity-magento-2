@@ -1,0 +1,21 @@
+<?xml version="1.0"?>
+<page xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="urn:magento:framework:View/Layout/etc/page_configuration.xsd">
+    <head>
+        <title>
+            PureClarity
+        </title>
+        <css src="Pureclarity_Core::css/dashboard.css"/>
+        <link src="Pureclarity_Core::js/dashboard.js"/>
+    </head>
+    <body>
+        <referenceContainer name="content">
+            <block class="Pureclarity\Core\Block\Adminhtml\Dashboard" name="pureclarity.dashboard.content" as="pureclarity_dashboard_content" template="Pureclarity_Core::dashboard.phtml">
+                <block class="Pureclarity\Core\Block\Adminhtml\Dashboard\Signup" name="pureclarity.dashboard.content.signup" as="pureclarity_dashboard_content_signup" template="Pureclarity_Core::dashboard/signup.phtml" />
+                <block name="pureclarity.dashboard.content.waiting" as="pureclarity_dashboard_content_waiting" template="Pureclarity_Core::dashboard/waiting.phtml" />
+                <block class="Pureclarity\Core\Block\Adminhtml\Dashboard\Configured" name="pureclarity.dashboard.content.configured" as="pureclarity_dashboard_content_configured" template="Pureclarity_Core::dashboard/configured.phtml">
+                    <block class="Pureclarity\Core\Block\Adminhtml\InstallZonesModal" name="pureclarity.dashboard.content.installzones" as="pureclarity_dashboard_content_installzones" template="Pureclarity_Core::install_zones_modal.phtml" />
+                </block>
+            </block>
+        </referenceContainer>
+    </body>
+</page>

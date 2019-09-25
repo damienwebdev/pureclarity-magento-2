@@ -1,0 +1,26 @@
+<?php
+/**
+ * Copyright © PureClarity. All rights reserved.
+ * See LICENSE.txt for license details.
+ */
+/** @var \Magento\Framework\View\Element\Template $block */
+?>
+<div id="pureclarity_dashboard">
+    <div id="marketing_info" class="box">
+        <h2><?= $block->escapeHtml(__('Welcome to PureClarity')) ?></h2>
+        <p><?= $block->escapeHtml(__('the most powerful ecommerce personalization platform')) ?></p>
+    </div>
+    <div id="sign_up_waiting" class="box wide">
+        <div class="box-title_bar"><h3><?= $block->escapeHtml(__('Setting up account')) ?></h3></div>
+        <div class="box-content">
+            <div class="loader">
+                <div class="outer"></div>
+                <div class="middle"></div>
+                <div class="inner"></div>
+            </div>
+            <p class="banner"><?= $block->escapeHtml(__('Please wait while we set up your account')) ?></p>
+        </div>
+        <div class="box-action"></div>
+    </div>
+    <input type="hidden" id="sign_up_waiting_call_url" value="<?= $block->escapeUrl($block->getUrl('pureclarity/dashboard/signupStatus')) ?>" />
+</div>

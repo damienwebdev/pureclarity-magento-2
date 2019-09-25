@@ -1,0 +1,23 @@
+<?php
+/**
+ * Copyright © PureClarity. All rights reserved.
+ * See LICENSE.txt for license details.
+ */
+
+/** @var \Pureclarity\Core\Block\Adminhtml\Dashboard $block */
+/** @var \Pureclarity\Core\ViewModel\Adminhtml\Dashboard\State $state */
+$state = $block->getPureclarityStateViewModel();
+
+?>
+<div id="pureclarity_dashboard">
+    <input type="hidden" id="pureclarity_current_state" value="<?= $state->getStateName(); ?>"/>
+    <?php if ($state->isNotConfigured()) : ?>
+        <?= $block->getChildHtml('pureclarity_dashboard_content_signup') ?>
+    <?php endif; ?>
+    <div id="pureclarity_waiting" <?php if ($state->isWaiting() === false) : ?>style="display:none"<?php endif; ?>>
+        <?= $block->getChildHtml('pureclarity_dashboard_content_waiting') ?>
+    </div>
+    <div id="pureclarity_content" <?php if ($state->isNotConfigured() || $state->isWaiting()) : ?>style="display:none"<?php endif; ?>>
+        <?= $block->getChildHtml('pureclarity_dashboard_content_configured') ?>
+    </div>
+</div>

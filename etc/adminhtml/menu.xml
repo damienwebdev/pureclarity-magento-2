@@ -1,6 +1,7 @@
 <?xml version="1.0"?>
 <config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="urn:magento:module:Magento_Backend:etc/menu.xsd">
     <menu>
-	   <add id="Pureclarity_Core::configuration" title="PureClarity" module="Pureclarity_Core" sortOrder="60"  action="adminhtml/system_config/edit/section/pureclarity" resource="Pureclarity_Core::config"/>
+        <add id="Pureclarity_Core::dashboard" title="PureClarity" translate="title" module="Pureclarity_Core" parent="Magento_Backend::content" sortOrder="50" dependsOnModule="Pureclarity_Core" resource="Pureclarity_Core::dashboard"/>
+        <add id="Pureclarity_Core::dashboard_index" title="Dashboard" translate="title" module="Pureclarity_Core" parent="Pureclarity_Core::dashboard" sortOrder="10" dependsOnModule="Pureclarity_Core" action="pureclarity/dashboard" resource="Pureclarity_Core::dashboard"/>
     </menu>
 </config>

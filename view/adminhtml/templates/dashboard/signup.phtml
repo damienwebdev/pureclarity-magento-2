@@ -1,0 +1,148 @@
+<?php
+/**
+ * Copyright © PureClarity. All rights reserved.
+ * See LICENSE.txt for license details.
+ */
+/** @var \Pureclarity\Core\Block\Adminhtml\Dashboard\Signup $block */
+/** @var \Pureclarity\Core\ViewModel\Adminhtml\Dashboard\Regions $regions */
+$regions = $block->getPureclarityRegionsViewModel();
+/** @var \Pureclarity\Core\ViewModel\Adminhtml\Stores $stores */
+$stores = $block->getPureclarityStoresViewModel();
+/** @var \Pureclarity\Core\ViewModel\Adminhtml\Dashboard\Store $store */
+$store = $block->getPureclarityStoreViewModel();
+?>
+<div id="pureclarity_welcome">
+    <div id="marketing_info" class="box">
+        <h2><?= $block->escapeHtml(__('Welcome to PureClarity')) ?></h2>
+        <p><?= $block->escapeHtml(__('the most powerful ecommerce personalization platform')) ?></p>
+    </div>
+    <div id="sign_up" class="box">
+        <div class="box-title_bar"><h3><?= $block->escapeHtml(__('Sign up for a free 14 day trial')) ?></h3></div>
+        <div class="box-content">
+            <p class="banner"><?= $block->escapeHtml(__('You can enjoy the following benefits during a free trial:')) ?></p>
+            <ul>
+                <li><?= $block->escapeHtml(__('Unlimited access to all PureClarity features')) ?></li>
+                <li><?= $block->escapeHtml(__('Access to PureClarity Academy')) ?></li>
+                <li><?= $block->escapeHtml(__('Step by step implementation guide')) ?></li>
+                <li><?= $block->escapeHtml(__('Full support if needed')) ?></li>
+                <li><?= $block->escapeHtml(__('No credit card required')) ?></li>
+            </ul>
+        </div>
+        <div class="box-action">
+            <button id="sign_up_button" type="submit" title="Save Details" class="action-default scalable primary"><?= $block->escapeHtml(__('Sign up')) ?></button>
+        </div>
+    </div>
+    <div id="existing_account" class="box">
+        <form id="save_details_form" method="post" action="<?= $block->escapeUrl($block->getUrl('pureclarity/dashboard/configure')) ?>" data-mage-init='{"validation":{}}'>
+            <div class="box-title_bar"><h3><?= $block->escapeHtml(__('Already have an account?')) ?></h3></div>
+            <div class="box-content">
+                <p class="banner"><?= $block->escapeHtml(__('Enter your account details to get started')) ?></p>
+                <p class="field">
+                    <label for="pureclarity_access_key"><?= $block->escapeHtml(__('Access Key')) ?></label>
+                    <input data-validate='{"required":true}' type="text" name="access_key" id="pureclarity_access_key"/>
+                </p>
+                <p class="field">
+                    <label for="pureclarity_secret_key"><?= $block->escapeHtml(__('Secret Key')) ?></label>
+                    <input data-validate='{"required":true}' type="text" name="secret_key" id="pureclarity_secret_key"/>
+                </p>
+                <?php if ($stores->hasMultipleStores()) : ?>
+                    <p class="field">
+                        <label class="label" for="pureclarity_details_store_id"><?= $block->escapeHtml(__('Store')) ?></label>
+                        <select data-validate='{"required":true}' name="store_id" id="pureclarity_details_store_id">
+                            <option value="0"><?= $block->escapeHtml(__('Chose a store')) ?></option>
+                            <?php foreach ($stores->getStoreList() as $storeId => $storeName) : ?>
+                                <?php $selected = ($storeId === $stores->getDefaultStore()->getId()) ? 'selected="selected"' : '' ?>
+                                <option value="<?= $block->escapeHtmlAttr($storeId) ?>" <?= $selected ?>><?= $block->escapeHtmlAttr($storeName) ?></option>
+                            <?php endforeach ?>
+                        </select>
+                    </p>
+                <?php else : ?>
+                    <input type="hidden" name="store_id" id="pureclarity_details_store_id" value="0"/>
+                <?php endif; ?>
+                <p class="field">
+                    <label for="pureclarity_region"><?= $block->escapeHtml(__('Region')) ?></label>
+                    <select data-validate='{"required":true}' name="region" id="pureclarity_region">
+                        <?php foreach ($regions->getPureClarityRegions() as $region) : ?>
+                            <option value="<?= $block->escapeHtml($region['value']) ?>"><?= $block->escapeHtml($region['label']) ?></option>
+                        <?php endforeach ?>
+                    </select>
+                </p>
+            </div>
+            <div class="box-action">
+                <button id="save_details_button" type="button" title="Save Details" class="action-default scalable primary"><?= $block->escapeHtml(__('Save Details')) ?></button>
+            </div>
+        </form>
+    </div>
+    <div id="sign_up_form_holder">
+        <div id="sign_up_form_content">
+            <form id="sign_up_form" method="post" action="<?= $block->escapeUrl($block->getUrl('pureclarity/dashboard/signup')) ?>" data-mage-init='{"validation":{}}'>
+                <input type="hidden" name="form_key" value="<?= $block->escapeHtmlAttr($block->getFormKey()) ?>" />
+                <div class="left">
+                    <h3><?= $block->escapeHtml(__('About you')) ?></h3>
+                    <p class="field">
+                        <label class="label" for="pureclarity_firstname"><?= $block->escapeHtml(__('First Name')) ?></label>
+                        <input data-validate='{"required":true}' type="text" name="firstname" id="pureclarity_firstname"/>
+                    </p>
+                    <p class="field">
+                        <label class="label" for="pureclarity_lastname"><?= $block->escapeHtml(__('Last Name')) ?></label>
+                        <input data-validate='{"required":true}' type="text" name="lastname" id="pureclarity_lastname"/>
+                    </p>
+                    <p class="field">
+                        <label class="label" for="pureclarity_email"><?= $block->escapeHtml(__('Email')) ?></label>
+                        <input data-validate='{"required":true, "email": true}' type="text" name="email" id="pureclarity_email"/>
+                    </p>
+                    <p class="field">
+                        <label class="label" for="pureclarity_company"><?= $block->escapeHtml(__('Company')) ?></label>
+                        <input data-validate='{"required":true}' type="text" name="company" id="pureclarity_company"/>
+                    </p>
+                    <p class="field">
+                        <label class="label" for="pureclarity_password"><?= $block->escapeHtml(__('Password')) ?></label>
+                        <input data-validate='{"required":true}' type="password" name="password" id="pureclarity_password"/>
+                    </p>
+                </div>
+                <div class="right">
+                    <h3><?= $block->escapeHtml(__('About the site')) ?></h3>
+                    <?php if ($stores->hasMultipleStores()) : ?>
+                        <p class="field">
+                            <label class="label" for="pureclarity_store_id"><?= $block->escapeHtml(__('Store')) ?></label>
+                            <select data-validate='{"required":true}' name="store_id" id="pureclarity_store_id">
+                                <option value="0"><?= $block->escapeHtml(__('Chose a store')) ?></option>
+                                <?php foreach ($stores->getStoreList() as $storeId => $storeName) : ?>
+                                    <?php $selected = ($storeId === $stores->getDefaultStore()->getId()) ? 'selected="selected"' : '' ?>
+                                    <option value="<?= $block->escapeHtmlAttr($storeId) ?>" <?= $selected ?>><?= $block->escapeHtmlAttr($storeName) ?></option>
+                                <?php endforeach ?>
+                            </select>
+                        </p>
+                    <?php else : ?>
+                        <input type="hidden" name="store_id" id="pureclarity_store_id" value="0"/>
+                    <?php endif; ?>
+                    <p class="field">
+                        <label class="label" for="pureclarity_store_name"><?= $block->escapeHtml(__('Store Name')) ?></label>
+                        <input data-validate='{"required":true}' type="text" name="store_name" id="pureclarity_store_name" value="" />
+                    </p>
+                    <p class="field">
+                        <label class="label" for="pureclarity_url"><?= $block->escapeHtml(__('URL')) ?></label>
+                        <input data-validate='{"required":true}' type="text" name="url" id="pureclarity_url" value="<?= $block->escapeHtmlAttr($store->getStoreURL($stores->getDefaultStore()->getId())) ?>"/>
+                    </p>
+                    <p class="details">
+                        <span class="label"><?= $block->escapeHtml(__('Currency')) ?></span>
+                        <span class="value"><?= $block->escapeHtml($store->getStoreCurrency($stores->getDefaultStore()->getId())) ?></span>
+                    </p>
+                    <p class="details">
+                        <span class="label"><?= $block->escapeHtml(__('Timezone')) ?></span>
+                        <span class="value"><?= $block->escapeHtml($store->getStoreTimezone($stores->getDefaultStore()->getId())) ?></span>
+                    </p>
+                    <p class="field">
+                        <label class="label" for="pureclarity_region"><?= $block->escapeHtml(__('Region')) ?></label>
+                        <select data-validate='{"required":true}' name="region" id="pureclarity_region">
+                            <?php foreach ($regions->getPureClarityRegions() as $region) : ?>
+                                <option value="<?= $block->escapeHtml($region['value']) ?>"><?= $block->escapeHtml($region['label']) ?></option>
+                            <?php endforeach ?>
+                        </select>
+                    </p>
+                </div>
+            </form>
+            <div id="response_holder"></div>
+        </div>
+    </div>
+</div>

@@ -1,0 +1,305 @@
+.pureclarity-dashboard-index .page-title-wrapper {
+    width: 356px;
+    height: 75px;
+    background-image: url('images/logo.png');
+    background-repeat: no-repeat;
+    background-size: 191px 75px;
+}
+
+.pureclarity-dashboard-index .page-title-wrapper .page-title {
+    display:none;
+}
+
+#pureclarity_dashboard .box {
+    float:left;
+    width: 30%;
+    min-width: 250px;
+    margin-left: 1.5%;
+    margin-right: 1.5%;
+}
+
+#pureclarity_dashboard .box.wide {
+    float:left;
+    width: 60%;
+    min-width: 250px;
+    margin-left: 1.5%;
+    margin-right: 1.5%;
+}
+
+#pureclarity_dashboard .box .box-title_bar {
+    border-top-left-radius: 3px;
+    border-top-right-radius: 3px;
+    border: 1px solid #ccc;
+    text-align:center;
+    vertical-align: middle;
+    padding: 10px;
+    background: #eee;
+}
+
+#pureclarity_dashboard .box .box-title_bar h3 {
+    font-size:1.3em;
+    vertical-align: middle;
+    margin:0;
+    padding:0;
+}
+
+#pureclarity_dashboard .box .box-content {
+    border: 1px solid #ccc;
+    border-top: none;
+    border-bottom: none;
+    padding:1.5em;
+    height: 225px;
+}
+
+#pureclarity_dashboard .box.short .box-content {
+    padding: 20px 20px 0;
+    height: 100px;
+}
+
+#pureclarity_dashboard .box.short .box-action {
+    padding: 10px 0 20px 0;
+}
+
+#pureclarity_dashboard .box.medium .box-content {
+    padding: 20px 20px 0;
+    height: 175px;
+}
+
+#pureclarity_dashboard .box.medium .box-action {
+    padding: 10px 0 20px 0;
+}
+
+
+
+#pureclarity_dashboard .box .box-content p.banner {
+    text-align: center;
+    clear:both;
+}
+
+#pureclarity_dashboard #sign_up_waiting p.banner {
+    font-size: 1.25em;
+}
+
+#pureclarity_dashboard .box .box-content ul {
+    list-style-type: none;
+    list-style-position: inside;
+    text-align: center;
+    margin-top: 2em;
+}
+
+#pureclarity_dashboard .box .box-content ul li:before {
+    content: "\2013\a0";
+}
+
+#pureclarity_dashboard .box .box-content ul li {
+    margin: 1em 0;
+}
+
+#pureclarity_dashboard .box .box-content p.field {
+    margin-top: 0.75em;
+    clear: both;
+    padding: 10px;
+    vertical-align: middle;
+    text-align: center;
+}
+
+#pureclarity_dashboard .box .box-content label {
+    display: block;
+    margin-bottom: 0.25em;
+    margin-top: 0.75em;
+    width: 20%;
+    float: left;
+    clear: left;
+    text-align: right;
+}
+
+#pureclarity_dashboard .box .box-content input,
+#pureclarity_dashboard .box .box-content select {
+    width: 50%;
+    padding: 5px;
+    margin-left: 2em;
+    float: left;
+}
+
+#pureclarity_dashboard .box .box-action {
+    text-align: center;
+    border: 1px solid #ccc;
+    border-top: none;
+    border-bottom-left-radius: 3px;
+    border-bottom-right-radius: 3px;
+    padding:2em 0;
+}
+
+#pureclarity_dashboard #sign_up_form_holder {
+    display:none;
+}
+
+#sign_up_form_content .left {
+    float:left;
+    width:45%;
+}
+
+#sign_up_form_content .right {
+    float:right;
+    width:45%;
+}
+
+#sign_up_form_content p.field,
+#sign_up_form_content p.details {
+    clear: both;
+    vertical-align: middle;
+    height: 50px;
+}
+
+#sign_up_form_content label.label,
+#sign_up_form_content span.label {
+    display: block;
+    margin: 0.5em 0.25em;
+    width: 20%;
+    float: left;
+    clear: left;
+    text-align: right;
+}
+
+#sign_up_form_content label:after {
+    color: #e22626;
+    content: '*';
+    display: inline-block;
+    font-size: 1.6rem;
+    font-weight: 500;
+    line-height: 1;
+    margin-left: 10px;
+    margin-top: .2rem;
+    position: absolute;
+    z-index: 1;
+}
+
+#sign_up_form_content label.mage-error {
+    clear: both;
+    background: #fff;
+    color: #f00;
+    width: 50%;
+    margin: 0 0 0 13em;
+    border: 0;
+    padding:0;
+}
+
+#sign_up_form_content input.mage-error {
+    border: 1px solid #f00;
+}
+
+#sign_up_form_content span.value {
+    display: block;
+    float: left;
+    margin: 0.5em 0.25em 0.5em 2em;
+    font-weight:bold;
+}
+
+#sign_up_form_content input,
+#sign_up_form_content select {
+    width: 50%;
+    padding: 5px;
+    margin-left: 2em;
+    float: left;
+}
+
+#sign_up_form_content #response_holder {
+    clear: both;
+    width: 80%;
+    padding: 1em;
+    float: left;
+    position: absolute;
+    bottom: 1.6em;
+}
+
+#sign_up_form_content #response_holder.error {
+    background-color: rgba(255, 0, 0, 0.4);
+}
+
+#sign_up_form_content #response_holder.success {
+    background-color:rgba(0,255,0,0.4);
+}
+
+.loader {
+    position: relative;
+    top: -10px;
+    display: block;
+    height: 200px;
+}
+
+.outer,
+.middle,
+.inner {
+    border: 5px solid transparent;
+    border-top-color: #359ABD;
+    border-right-color: #359ABD;
+    border-radius: 50%;
+    position: absolute;
+    top: 50%;
+    left: 50%;
+}
+
+.outer {
+    width: 120px;
+    height: 120px;
+    margin-left: -60px;
+    margin-top: -60px;
+    animation: spin 2s linear infinite;
+}
+
+.middle {
+    width: 100px;
+    height: 100px;
+    margin-left: -50px;
+    margin-top: -50px;
+    animation: spin 1.75s linear reverse infinite;
+}
+
+.inner {
+    width: 80px;
+    height: 80px;
+    margin-left: -40px;
+    margin-top: -40px;
+    animation: spin 1.5s linear infinite;
+}
+
+@keyframes spin {
+    to {
+        transform: rotate(360deg);
+    }
+}
+
+#pureclarity_dashboard #pc_version {
+    padding: 5px 0;
+    font-size: 0.9em;
+}
+
+#pureclarity_dashboard #pc_version #pc_version_number {
+    float:left;
+    margin-right: 10px;
+}
+
+#pureclarity_dashboard #pc_version #pc_version_status.up-to-date {
+    color:#006700;
+}
+
+#pureclarity_dashboard #pc_thanks {
+    padding: 20px 0;
+    font-size: 1.4em;
+}
+
+#pureclarity_dashboard #pc_layer1 {
+    height: 185px;
+}
+
+#pureclarity_dashboard #pc_layer2 {
+    clear: both;
+    margin-top: 50px;
+}
+
+#pureclarity_dashboard #pureclarity_content .action-default {
+    background-color: #359abd;
+    border:0;
+    color: white !important;
+}
+
