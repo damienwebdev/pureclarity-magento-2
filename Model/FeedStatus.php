@@ -73,7 +73,7 @@ class FeedStatus implements ArgumentInterface
         $requested = $this->hasFeedBeenRequested($type);
 
         if ($requested) {
-            $status = __('Feed scheduled');
+            $status = __('Waiting for feed run to start');
         }
 
         // check is it's in progress

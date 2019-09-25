@@ -81,8 +81,9 @@ $feeds = $block->getPureclarityFeedsViewModel();
             <p><?= $block->escapeHtml(__('Order History')) ?>: <?= $block->escapeHtml($feeds->getOrderHistoryFeedStatus()) ?></p>
         </div>
         <div class="box-action">
-            <p><a class="action-default" id="pc-zonepopupbutton" target="_blank" title="<?= $block->escapeHtml(__('Send Feeds')) ?>"><?= $block->escapeHtml(__('Send Feeds')) ?></a></p>
+            <p><a class="action-default" id="pc-feedpopupbutton" target="_blank" title="<?= $block->escapeHtml(__('Send Feeds')) ?>"><?= $block->escapeHtml(__('Run Feeds')) ?></a></p>
         </div>
     </div>
 </div>
-<?= $block->getChildHtml('pureclarity_dashboard_content_installzones') ?>
+<?= $block->getChildHtml('pureclarity_dashboard_content_install_zones') ?>
+<?= $block->getChildHtml('pureclarity_dashboard_content_run_feeds') ?>

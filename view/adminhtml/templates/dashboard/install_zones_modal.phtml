@@ -4,7 +4,7 @@
  * See LICENSE.txt for license details.
  */
 
-/** @var $block \Pureclarity\Core\Block\Adminhtml\InstallZonesModal */
+/** @var $block \Pureclarity\Core\Block\Adminhtml\Dashboard\InstallZonesModal */
 
 /** @var \Pureclarity\Core\ViewModel\Adminhtml\Stores $stores */
 $stores = $block->getPureclarityStoresViewModel();
@@ -45,7 +45,7 @@ $themes = $block->getPureclarityThemesViewModel();
     }
 </style>
 
-<div id="pc-zone-modal-popup" style="display:none">
+<div id="pc-zone-modal-popup" style="display:none" class="admin__scope-old">
     <div id="pc-zone-modal-content">
         <h3><?= $block->escapeHtml('Please select the Store and Theme that you would like to install the PureClarity zone widgets on:') ?></h3>
         <div class="pc-zone-field">
