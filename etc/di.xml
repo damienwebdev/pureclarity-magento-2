@@ -52,5 +52,9 @@
             <argument name="customerSession" xsi:type="object">Magento\Customer\Model\Session\Proxy</argument>
         </arguments>
     </type>
+
+    <preference for="Pureclarity\Core\Api\StateRepositoryInterface" type="Pureclarity\Core\Model\StateRepository"/>
+    <preference for="Pureclarity\Core\Api\Data\StateInterface" type="Pureclarity\Core\Model\State"/>
+    <preference for="Pureclarity\Core\Api\Data\StateSearchResultInterface" type="Pureclarity\Core\Model\StateSearchResult"/>
     
 </config>
