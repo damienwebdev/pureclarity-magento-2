@@ -6,7 +6,8 @@
 
 namespace Pureclarity\Core\Model\Signup;
 
-use Magento\Framework\App\Cache\TypeListInterface;
+use Magento\Framework\App\Cache\Manager;
+use Magento\Framework\App\Cache\Type\Config as CacheTypeConfig;
 use Magento\Framework\Exception\CouldNotSaveException;
 use Magento\Store\Model\StoreManagerInterface;
 use Pureclarity\Core\Api\StateRepositoryInterface;
@@ -33,28 +34,28 @@ class Process
     /** @var StoreManagerInterface $storeManager */
     private $storeManager;
 
-    /** @var TypeListInterface $cache */
-    private $cache;
+    /** @var Manager $cacheManager */
+    private $cacheManager;
 
     /**
      * @param StateRepositoryInterface $stateRepository
      * @param CoreConfig $coreConfig
      * @param CronFactory $cronFactory
      * @param StoreManagerInterface $storeManager
-     * @param TypeListInterface $cache
+     * @param Manager $cacheManager
      */
     public function __construct(
         StateRepositoryInterface $stateRepository,
         CoreConfig $coreConfig,
         CronFactory $cronFactory,
         StoreManagerInterface $storeManager,
-        TypeListInterface $cache
+        Manager $cacheManager
     ) {
         $this->stateRepository = $stateRepository;
         $this->coreConfig      = $coreConfig;
         $this->cronFactory     = $cronFactory;
         $this->storeManager    = $storeManager;
-        $this->cache           = $cache;
+        $this->cacheManager    = $cacheManager;
     }
 
     /**
@@ -123,7 +124,7 @@ class Process
         $this->coreConfig->setSecretKey($requestData['secret_key'], (int)$requestData['store_id']);
         $this->coreConfig->setRegion($requestData['region'], (int)$requestData['store_id']);
         $this->coreConfig->setIsActive(1, (int)$requestData['store_id']);
-        $this->cache->invalidate('config');
+        $this->cacheManager->clean([CacheTypeConfig::TYPE_IDENTIFIER]);
     }
 
     /**
