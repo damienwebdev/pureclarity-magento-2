@@ -1,0 +1,78 @@
+<?php
+/**
+ * Copyright © PureClarity. All rights reserved.
+ * See LICENSE.txt for license details.
+ */
+
+/** @var $block \Pureclarity\Core\Block\Adminhtml\Dashboard\Feeds */
+
+/** @var \Pureclarity\Core\ViewModel\Adminhtml\Stores $stores */
+$stores = $block->getPureclarityStoresViewModel();
+
+/** @var \Pureclarity\Core\ViewModel\Adminhtml\Dashboard\FeedStatus $feeds */
+$feeds = $block->getPureclarityFeedStatusViewModel();
+
+?>
+
+<div class="box-title_bar"><h3><?= $block->escapeHtml(__('Data Feeds')) ?></h3></div>
+<div class="box-content">
+    <p><?= $block->escapeHtml(__('Products')) ?>: <span id="pc-productFeedStatus"><?= $block->escapeHtml($feeds->getProductFeedStatusLabel($stores->getDefaultStore()->getId())) ?></span></p>
+    <p><?= $block->escapeHtml(__('Categories')) ?>: <span id="pc-categoryFeedStatus"><?= $block->escapeHtml($feeds->getCategoryFeedStatusLabel($stores->getDefaultStore()->getId())) ?></span></p>
+    <p><?= $block->escapeHtml(__('Users')) ?>: <span id="pc-userFeedStatus"><?= $block->escapeHtml($feeds->getUserFeedStatusLabel($stores->getDefaultStore()->getId())) ?></span></p>
+    <p><?= $block->escapeHtml(__('Brands')) ?>: <span id="pc-brandFeedStatus"><?= $block->escapeHtml($feeds->getBrandFeedStatusLabel($stores->getDefaultStore()->getId())) ?></span></p>
+    <p><?= $block->escapeHtml(__('Order History')) ?>: <span id="pc-ordersFeedStatus"><?= $block->escapeHtml($feeds->getOrdersFeedStatusLabel($stores->getDefaultStore()->getId())) ?></span></p>
+</div>
+<div class="box-action">
+    <p><a class="action-default" id="pc-feedpopupbutton" target="_blank" title="<?= $block->escapeHtml(__('Send Feeds')) ?>"><?= $block->escapeHtml(__('Run Feeds')) ?></a></p>
+</div>
+
+<div id="pc-feeds-modal-popup" style="display:none;" class="admin__scope-old">
+    <div id="pc-feeds-modal-content" class="admin__scope-old">
+        <?php if ($stores->hasMultipleStores()) : ?>
+            <h4><?= $block->escapeHtml('Select the store that would like to generate feeds for:') ?></h4>
+            <div class="pc-feed-field">
+                <label for="pc-selectStore" class="forselect"><?= $block->escapeHtml('Store') ?></label>
+                <select id="pc-selectStore" class="select admin__controle-select">
+                    <?php foreach ($stores->getStoreList() as $storeId => $name) : ?>
+                        <option value="<?= $block->escapeHtmlAttr($storeId) ?>"><?= $block->escapeHtml($name) ?></option>
+                    <?php endforeach; ?>
+                </select>
+            </div>
+        <?php else : ?>
+            <input id="pc-selectStore" type="hidden" value="<?= $block->escapeHtmlAttr($stores->getDefaultStore()->getId()) ?>" />
+        <?php endif ?>
+        <h4><?= $block->escapeHtml('Please select the data you would like to send to PureClarity:') ?></h4>
+        <div class="pc-feed-field">
+            <label for="pc-chkProducts"><?= $block->escapeHtml('Products') ?></label>
+            <input id="pc-chkProducts" type="checkbox" checked="checked" />
+        </div>
+        <div class="pc-feed-field">
+            <label for="pc-chkCategories"><?= $block->escapeHtml('Categories') ?></label>
+            <input id="pc-chkCategories" type="checkbox" checked="checked" />
+        </div>
+        <?php if ($feeds->isFeedEnabled('brand', $stores->getDefaultStore()->getId())) : ?>
+        <div class="pc-feed-field">
+            <!-- TODO: HIDE THIS IF BRAND FEED DISABLED -->
+            <label for="pc-chkBrands"><?= $block->escapeHtml('Brands') ?></label>
+            <input id="pc-chkBrands" type="checkbox" checked="checked" />
+        </div>
+        <?php endif; ?>
+        <div class="pc-feed-field">
+            <label for="pc-chkUsers"><?= $block->escapeHtml('Users') ?></label>
+            <input id="pc-chkUsers" type="checkbox" checked="checked" />
+        </div>
+
+        <h4><?= $block->escapeHtml('Importing your orders helps to initialize PureClarity with the purchasing behavior of your visitors.') ?></h4>
+        <div class="pc-feed-field">
+            <label for="pc-chkOrders"><?= $block->escapeHtml('Order History') ?></label>
+            <input id="pc-chkOrders" type="checkbox" />
+        </div>
+
+        <div id="pc-feed-outputContainer">
+            <div id="pc-statusMessage" style="display:none"></div>
+        </div>
+    </div>
+</div>
+<input id="pc-feed-run-url" type="hidden" value="<?= $block->escapeUrl($block->getUrl('pureclarity/datafeed/runfeed')) ?>" />
+<input id="pc-feed-progress-url" type="hidden" value="<?= $block->escapeUrl($block->getUrl('pureclarity/datafeed/progress')) ?>" />
+<input id="pc-feeds-in-progress" type="hidden" value="<?= $block->escapeHtmlAttr($feeds->getAreFeedsInProgress($stores->getDefaultStore()->getId())) ?>" />
