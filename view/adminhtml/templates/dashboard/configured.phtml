@@ -3,10 +3,9 @@
  * Copyright © PureClarity. All rights reserved.
  * See LICENSE.txt for license details.
  */
+
 /** @var \Magento\Framework\View\Element\Template $block */
 
-/** @var \Pureclarity\Core\ViewModel\Adminhtml\Dashboard\Feeds $feeds */
-$feeds = $block->getPureclarityFeedsViewModel();
 ?>
 <div id="pc_version">
     <div id="pc_version_number"><?= $block->escapeHtml(__('Version')) ?>: <?= '2.1.0' ?></div>
@@ -35,13 +34,12 @@ $feeds = $block->getPureclarityFeedsViewModel();
         <div class="box-action">
             <p><a class="action-default" id="pc-zonepopupbutton" target="_blank" title="<?= $block->escapeHtml(__('Set up Zones')) ?>"><?= $block->escapeHtml(__('Set up Zones')) ?></a></p>
         </div>
+        <?= $block->getChildHtml('pureclarity_dashboard_content_install_zones') ?>
     </div>
     <div id="pc_step3" class="box short">
         <div class="box-title_bar"><h3><?= $block->escapeHtml(__('Step 3')) ?></h3></div>
         <div class="box-content">
-            <p class="banner"><?= $block->escapeHtml(
-                __('Customise your Campaigns and Segments within the PureClarity Admin to get more from your Zones'))
-            ?></p>
+            <p class="banner"><?= $block->escapeHtml(__('Customise your Campaigns and Segments within the PureClarity Admin to get more from your Zones')) ?></p>
         </div>
         <div class="box-action">
             <p><a class="action-default" href="https://admin.pureclarity.com" target="_blank" title="<?= $block->escapeHtml(__('Go to PureClarity Admin')) ?>"><?= $block->escapeHtml(__('Go to PureClarity Admin')) ?></a></p>
@@ -53,10 +51,9 @@ $feeds = $block->getPureclarityFeedsViewModel();
         <div class="box-title_bar"><h3><?= $block->escapeHtml(__('Advanced Configuration')) ?></h3></div>
         <div class="box-content">
             <p class="banner"><?= $block->escapeHtml(__('You can enable scheduled feeds, exclude products and more in the PureClarity plugin configuration')) ?></p>
-            <p class="banner"><?= $block->escapeHtml(__('')) ?></p>
         </div>
         <div class="box-action">
-            <p><a class="action-default" href="<?= $block->getUrl('adminhtml/system_config/edit/section/pureclarity') ?>" title="<?= $block->escapeHtml(__('Configure')) ?>"><?= $block->escapeHtml(__('Configure')) ?></a></p>
+            <p><a class="action-default" href="<?= $block->escapeUrl($block->getUrl('adminhtml/system_config/edit/section/pureclarity')) ?>" title="<?= $block->escapeHtml(__('Configure')) ?>"><?= $block->escapeHtml(__('Configure')) ?></a></p>
         </div>
     </div>
     <div id="pc_help" class="box medium">
@@ -71,19 +68,7 @@ $feeds = $block->getPureclarityFeedsViewModel();
         </div>
     </div>
     <div id="pc_feeds" class="box medium">
-        <div class="box-title_bar"><h3><?= $block->escapeHtml(__('Data Feeds')) ?></h3></div>
-        <div class="box-content">
-            <p class="banner"><?= $block->escapeHtml(__('Something about data feeds here')) ?></p>
-            <p><?= $block->escapeHtml(__('Products')) ?>: <?= $block->escapeHtml($feeds->getProductFeedStatus()) ?></p>
-            <p><?= $block->escapeHtml(__('Categories')) ?>: <?= $block->escapeHtml($feeds->getCategoryFeedStatus()) ?></p>
-            <p><?= $block->escapeHtml(__('Users')) ?>: <?= $block->escapeHtml($feeds->getUserFeedStatus()) ?></p>
-            <p><?= $block->escapeHtml(__('Brands')) ?>: <?= $block->escapeHtml($feeds->getBrandFeedStatus()) ?></p>
-            <p><?= $block->escapeHtml(__('Order History')) ?>: <?= $block->escapeHtml($feeds->getOrderHistoryFeedStatus()) ?></p>
-        </div>
-        <div class="box-action">
-            <p><a class="action-default" id="pc-feedpopupbutton" target="_blank" title="<?= $block->escapeHtml(__('Send Feeds')) ?>"><?= $block->escapeHtml(__('Run Feeds')) ?></a></p>
-        </div>
+        <?= $block->getChildHtml('pureclarity_dashboard_content_feeds') ?>
     </div>
 </div>
-<?= $block->getChildHtml('pureclarity_dashboard_content_install_zones') ?>
-<?= $block->getChildHtml('pureclarity_dashboard_content_run_feeds') ?>
+

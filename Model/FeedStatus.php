@@ -10,7 +10,6 @@ use Magento\Framework\App\Filesystem\DirectoryList;
 use Magento\Framework\Exception\FileSystemException;
 use Magento\Framework\Filesystem;
 use Magento\Framework\Filesystem\Directory\ReadInterface;
-use Magento\Framework\Phrase;
 use Magento\Framework\View\Element\Block\ArgumentInterface;
 use Pureclarity\Core\Api\StateRepositoryInterface;
 use Pureclarity\Core\Helper\Data;
@@ -23,6 +22,9 @@ use Magento\Framework\Serialize\Serializer\Json;
  */
 class FeedStatus implements ArgumentInterface
 {
+    /** @var mixed[] $feedStatusData */
+    private $feedStatusData;
+
     /** @var mixed[] $progressData */
     private $progressData;
 
@@ -38,6 +40,9 @@ class FeedStatus implements ArgumentInterface
     /** @var Data $coreHelper */
     private $coreHelper;
 
+    /** @var CoreConfig $coreConfig */
+    private $coreConfig;
+
     /** @var Json $json */
     private $json;
 
@@ -45,63 +50,120 @@ class FeedStatus implements ArgumentInterface
      * @param StateRepositoryInterface $stateRepository
      * @param Filesystem $fileSystem
      * @param Data $coreHelper
+     * @param CoreConfig $coreConfig
      * @param Json $json
      */
     public function __construct(
         StateRepositoryInterface $stateRepository,
         Filesystem $fileSystem,
         Data $coreHelper,
+        CoreConfig $coreConfig,
         Json $json
     ) {
         $this->stateRepository = $stateRepository;
         $this->fileSystem      = $fileSystem;
         $this->coreHelper      = $coreHelper;
+        $this->coreConfig      = $coreConfig;
         $this->json            = $json;
+    }
+
+    /**
+     * Returns whether any of the feed types provided are currently in progress
+     *
+     * @param string[] $types
+     * @param integer $storeId
+     *
+     * @return bool
+     */
+    public function getAreFeedsInProgress($types, $storeId = 0)
+    {
+        $inProgress = false;
+        foreach ($types as $type) {
+            $status = $this->getFeedStatus($type, $storeId);
+            if ($status['running'] === true) {
+                $inProgress = true;
+            }
+        }
+
+        return $inProgress;
     }
 
     /**
      * Returns the status of the product feed
      *
      * @param string $type
-     * @return Phrase|string
+     * @param integer $storeId
+     * @return mixed[]
      */
-    public function getFeedStatus($type)
+    public function getFeedStatus($type, $storeId = 0)
     {
-        $status = __('Not Sent');
+        if (!isset($this->feedStatusData[$type])) {
+            $status = [
+                'enabled' => true,
+                'running' => false,
+                'label' => __('Not Sent')
+            ];
 
-        // check if it's been requested
-        $requested = $this->hasFeedBeenRequested($type);
+            if ($type === 'brand') {
+                if ($this->coreConfig->isBrandFeedEnabled(0) === false) {
+                    $status['enabled'] = false;
+                    $status['label'] = __('Not Enabled');
+                }
+            }
 
-        if ($requested) {
-            $status = __('Waiting for feed run to start');
+            if ($status['enabled'] === true) {
+                // check if it's been requested
+                $requested = $this->hasFeedBeenRequested($type, $storeId);
+
+                if ($requested) {
+                    $status['running'] = true;
+                    $status['label'] = __('Waiting for feed run to start');
+                }
+
+                // check if it's been requested
+                $requested = $this->isFeedWaiting($type, $storeId);
+
+                if ($requested) {
+                    $status['running'] = true;
+                    $status['label'] = __('Waiting for other feeds to finish');
+                }
+
+                if ($status['running']) {
+                    // check if it's in progress
+                    $progress = $this->feedProgress($type);
+                    if ($progress !== false) {
+                        $status['running'] = true;
+                        $status['label'] = __('In progress: %1%', $progress);
+                    }
+                }
+
+                if ($status['running'] !== true) {
+                    // check it's last run date
+                    $state = $this->stateRepository->getByNameAndStore('last_' . $type . '_feed_date', $storeId);
+                    $lastProductFeedDate = ($state->getId() !== null) ? $state->getValue() : '';
+                    if ($lastProductFeedDate) {
+                        $status['label'] = __('Last complete run:') . $lastProductFeedDate;
+                    }
+                }
+            }
+
+            $this->feedStatusData[$type] = $status;
         }
 
-        // check is it's in progress
-        $progress = $this->feedProgress($type);
-        if ($progress !== false) {
-            $status = __('In progress: %1%', $progress);
-        }
-
-        // check it's last run date
-        $state = $this->stateRepository->getByName('last_' . $type . '_feed_date');
-        $lastProductFeedDate = ($state->getId() !== null) ? $state->getValue() : '';
-        if ($lastProductFeedDate) {
-            $status = __('Last complete run:') . $lastProductFeedDate;
-        }
-
-        return $status;
+        return $this->feedStatusData[$type];
     }
 
     /**
-     * @param $feedType
+     * @param string $feedType
+     * @param integer $storeId
      * @return bool
      */
-    private function hasFeedBeenRequested($feedType)
+    private function hasFeedBeenRequested($feedType, $storeId)
     {
         $requested = false;
         $scheduleData = $this->getScheduledFeedData();
 
-        if (!empty($scheduleData)) {
+        if (!empty($scheduleData) && (int)$scheduleData['store'] === (int)$storeId) {
             $requested = in_array($feedType, $scheduleData['feeds']);
         }
 
@@ -109,7 +171,26 @@ class FeedStatus implements ArgumentInterface
     }
 
     /**
-     * @param $feedType
+     * @param string $feedType
+     * @param integer $storeId
+     * @return bool
+     */
+    private function isFeedWaiting($feedType, $storeId)
+    {
+        $waiting = false;
+        $state = $this->stateRepository->getByNameAndStore('running_feeds', $storeId);
+        $waitingFeedsRaw = ($state->getId() !== null) ? $state->getValue() : '';
+
+        if ($waitingFeedsRaw) {
+            $waitingFeeds = $this->json->unserialize($waitingFeedsRaw);
+            $waiting = in_array($feedType, $waitingFeeds);
+        }
+
+        return $waiting;
+    }
+
+    /**
+     * @param string $feedType
      * @return bool|float
      */
     private function feedProgress($feedType)
@@ -139,7 +220,7 @@ class FeedStatus implements ArgumentInterface
                     $progressData = $fileReader->readFile($progressFileName);
                     $this->progressData = $this->json->unserialize($progressData);
                 } catch (FileSystemException $e) {
-                    $this->requestedFeedData = [];
+                    $this->progressData = [];
                 }
             }
         }

@@ -1,7 +1,10 @@
 <?php
 namespace Pureclarity\Core\Model;
 
-use Pureclarity\Core\Model\Feed;
+use Magento\Framework\Exception\CouldNotDeleteException;
+use Magento\Framework\Exception\CouldNotSaveException;
+use Magento\Framework\Serialize\Serializer\Json;
+use Pureclarity\Core\Api\StateRepositoryInterface;
 use Magento\Framework\App\Filesystem\DirectoryList;
 use Magento\Catalog\Model\Product\Attribute\Source\Status;
 use Magento\Catalog\Model\Product\Visibility;
@@ -24,6 +27,12 @@ class Cron extends \Magento\Framework\Model\AbstractModel
     protected $coreFeedFactory;
     protected $storeStoreFactory;
     protected $scopeConfig;
+
+    /** @var StateRepositoryInterface */
+    private $stateRepository;
+
+    /** @var Json */
+    protected $json;
     
     /** @var \Magento\Framework\Filesystem */
     private $fileSystem;
@@ -42,6 +51,8 @@ class Cron extends \Magento\Framework\Model\AbstractModel
         \Magento\Store\Model\StoreFactory $storeStoreFactory,
         \Magento\Framework\App\Config\ScopeConfigInterface $scopeConfig,
         \Magento\Framework\Filesystem $fileSystem,
+        StateRepositoryInterface $stateRepository,
+        Json $json,
         \Magento\Framework\Model\ResourceModel\AbstractResource $resource = null,
         \Magento\Framework\Data\Collection\AbstractDb $resourceCollection = null,
         array $data = []
@@ -58,6 +69,8 @@ class Cron extends \Magento\Framework\Model\AbstractModel
         $this->storeStoreFactory = $storeStoreFactory;
         $this->scopeConfig = $scopeConfig;
         $this->fileSystem = $fileSystem;
+        $this->stateRepository = $stateRepository;
+        $this->json = $json;
         parent::__construct(
             $context,
             $registry,
@@ -150,31 +163,54 @@ class Cron extends \Magento\Framework\Model\AbstractModel
             return false;
         }
 
+        $this->logFeedQueue($feedTypes, $storeId);
+        $feedsRemaining = $feedTypes;
         // Post the feed data for the specified feed type
         foreach ($feedTypes as $key => $feedType) {
             switch ($feedType) {
                 case Feed::FEED_TYPE_PRODUCT:
                     $feedModel->sendProducts();
+                    if (($key = array_search(Feed::FEED_TYPE_PRODUCT, $feedsRemaining)) !== false) {
+                        unset($feedsRemaining[$key]);
+                    }
+                    $this->logFeedQueue($feedsRemaining, $storeId);
                     break;
                 case Feed::FEED_TYPE_CATEGORY:
                     $feedModel->sendCategories();
+                    if (($key = array_search(Feed::FEED_TYPE_CATEGORY, $feedsRemaining)) !== false) {
+                        unset($feedsRemaining[$key]);
+                    }
+                    $this->logFeedQueue($feedsRemaining, $storeId);
                     break;
                 case Feed::FEED_TYPE_BRAND:
                     if ($this->coreHelper->isBrandFeedEnabled($storeId)) {
                         $feedModel->sendBrands();
+                        if (($key = array_search(Feed::FEED_TYPE_BRAND, $feedsRemaining)) !== false) {
+                            unset($feedsRemaining[$key]);
+                        }
+                        $this->logFeedQueue($feedsRemaining, $storeId);
                     }
                     break;
                 case Feed::FEED_TYPE_USER:
                     $feedModel->sendUsers();
+                    if (($key = array_search(Feed::FEED_TYPE_USER, $feedsRemaining)) !== false) {
+                        unset($feedsRemaining[$key]);
+                    }
+                    $this->logFeedQueue($feedsRemaining, $storeId);
                     break;
                 case Feed::FEED_TYPE_ORDER:
                     $feedModel->sendOrders();
+                    if (($key = array_search(Feed::FEED_TYPE_ORDER, $feedsRemaining)) !== false) {
+                        unset($feedsRemaining[$key]);
+                    }
+                    $this->logFeedQueue($feedsRemaining, $storeId);
                     break;
                 default:
                     throw new \Exception("PureClarity feed type not recognised: {$feedType}");
             }
         }
         $feedModel->checkSuccess();
+        $this->removeFeedQueue($storeId);
     }
 
     // Produce a product feed and notify PureClarity so that it can fetch it.
@@ -347,5 +383,41 @@ class Cron extends \Magento\Framework\Model\AbstractModel
         }
 
         return $requests;
+    }
+
+    /**
+     * Saves the last run date of the provided feed
+     * @param string[] $feeds
+     * @param integer $storeId
+     * @return void
+     */
+    private function logFeedQueue($feeds, $storeId)
+    {
+        $state = $this->stateRepository->getByNameAndStore('running_feeds', $storeId);
+        $state->setName('running_feeds');
+        $state->setValue($this->json->serialize($feeds));
+        $state->setStoreId($storeId);
+
+        try {
+            $this->stateRepository->save($state);
+        } catch (CouldNotSaveException $e) {
+            $this->logger->error('Could not save queued feeds: ' . $e->getMessage());
+        }
+    }
+
+    /**
+     * Saves the last run date of the provided feed
+     * @param integer $storeId
+     * @return void
+     */
+    private function removeFeedQueue($storeId)
+    {
+        $state = $this->stateRepository->getByNameAndStore('running_feeds', $storeId);
+
+        try {
+            $this->stateRepository->delete($state);
+        } catch (CouldNotDeleteException $e) {
+            $this->logger->error('Could not save queued feeds: ' . $e->getMessage());
+        }
     }
 }

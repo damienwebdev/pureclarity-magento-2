@@ -1,7 +1,10 @@
 <?php
 namespace Pureclarity\Core\Model;
 
+use Magento\Framework\Exception\CouldNotSaveException;
 use Magento\Framework\Exception\LocalizedException;
+use Magento\Framework\Serialize\Serializer\Json;
+use Pureclarity\Core\Api\StateRepositoryInterface;
 
 class Feed extends \Magento\Framework\Model\AbstractModel
 {
@@ -29,6 +32,12 @@ class Feed extends \Magento\Framework\Model\AbstractModel
     private $uniqueId;
     private $currentStore;
 
+    /** @var StateRepositoryInterface $stateRepository */
+    private $stateRepository;
+
+    /** @var Json $json */
+    private $json;
+
     const FEED_TYPE_BRAND = "brand";
     const FEED_TYPE_CATEGORY = "category";
     const FEED_TYPE_PRODUCT = "product";
@@ -48,6 +57,8 @@ class Feed extends \Magento\Framework\Model\AbstractModel
         \Pureclarity\Core\Model\ProductExportFactory $coreProductExportFactory,
         \Magento\Customer\Model\ResourceModel\Customer\CollectionFactory $customerCollectionFactory,
         \Magento\Customer\Model\ResourceModel\Group\Collection $customerGroup,
+        StateRepositoryInterface $stateRepository,
+        Json $json,
         \Magento\Framework\Model\ResourceModel\AbstractResource $resource = null,
         \Magento\Framework\Data\Collection\AbstractDb $resourceCollection = null,
         array $data = []
@@ -63,6 +74,8 @@ class Feed extends \Magento\Framework\Model\AbstractModel
         $this->customerCollectionFactory = $customerCollectionFactory;
         $this->customerGroup = $customerGroup;
         $this->orderFactory = $orderFactory;
+        $this->stateRepository = $stateRepository;
+        $this->json = $json;
 
         /*
          * If Magento does not have the recommended level of memory for PHP, can cause the feeds
@@ -145,6 +158,7 @@ class Feed extends \Magento\Framework\Model\AbstractModel
 
         if ($writtenProduct) {
             $this->end(self::FEED_TYPE_PRODUCT);
+            $this->saveRunDate(self::FEED_TYPE_PRODUCT, $this->storeId);
         } else {
             $this->logger->debug("PureClarity: Could not find any product to upload");
         }
@@ -261,6 +275,7 @@ class Feed extends \Magento\Framework\Model\AbstractModel
             
             $this->end(self::FEED_TYPE_ORDER, true);
             $this->logger->debug("PureClarity: Finished sending order data");
+            $this->saveRunDate(self::FEED_TYPE_ORDER, $this->storeId);
         }
     }
 
@@ -378,6 +393,7 @@ class Feed extends \Magento\Framework\Model\AbstractModel
 
             if ($writtenCategories) {
                 $this->end(self::FEED_TYPE_CATEGORY);
+                $this->saveRunDate(self::FEED_TYPE_CATEGORY, $this->storeId);
             }
         }
     }
@@ -474,6 +490,7 @@ class Feed extends \Magento\Framework\Model\AbstractModel
         
                 $this->endFeedAppend(self::FEED_TYPE_BRAND, $writtenBrands);
                 $this->end(self::FEED_TYPE_BRAND);
+                $this->saveRunDate(self::FEED_TYPE_BRAND, $this->storeId);
             }
         } else {
             $this->coreHelper->setProgressFile($this->progressFileName, self::FEED_TYPE_BRAND, 1, 1);
@@ -589,6 +606,7 @@ class Feed extends \Magento\Framework\Model\AbstractModel
             
             $this->endFeedAppend(self::FEED_TYPE_USER, $writtenCustomers);
             $this->end(self::FEED_TYPE_USER);
+            $this->saveRunDate(self::FEED_TYPE_USER, $this->storeId);
         }
 
         return true;
@@ -688,7 +706,7 @@ class Feed extends \Magento\Framework\Model\AbstractModel
     {
         
         $url = $this->coreHelper->getFeedBaseUrl($this->storeId) . $endPoint;
-        
+
         $this->logger->debug(
             "PureClarity: About to send data to {$url} for " . $parameters['feedName']
             . ": " . print_r($parameters, true)
@@ -868,5 +886,25 @@ class Feed extends \Magento\Framework\Model\AbstractModel
             $this->currentStore = $this->storeFactory->create()->load($this->storeId);
         }
         return $this->currentStore;
+    }
+
+    /**
+     * Saves the last run date of the provided feed
+     * @param string $feedType
+     * @param integer $storeId
+     * @return void
+     */
+    private function saveRunDate($feedType, $storeId)
+    {
+        $state = $this->stateRepository->getByNameAndStore('last_' . $feedType . '_feed_date', $storeId);
+        $state->setName('last_' . $feedType . '_feed_date');
+        $state->setValue(date('Y-m-d H:i:s'));
+        $state->setStoreId($storeId);
+
+        try {
+            $this->stateRepository->save($state);
+        } catch (CouldNotSaveException $e) {
+            $this->logger->error('Could not save last updated date: ' . $e->getMessage());
+        }
     }
 }

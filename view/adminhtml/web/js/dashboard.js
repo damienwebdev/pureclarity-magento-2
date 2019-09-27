@@ -38,7 +38,6 @@ require(
                     type: "POST",
                     dataType: 'json'
                 }).done(function (data) {
-                    console.log(data);
                     if (data.success) {
                         $('#pureclarity_welcome').fadeOut(200, function () {
                             $('#pureclarity_waiting').fadeIn(200);
@@ -141,6 +140,170 @@ require(
 
         if (currentState === 'waiting') {
             checkStatus();
+        }
+
+        if (currentState === 'waiting') {
+            checkStatus();
+        }
+
+        let feedModalButton = $('#pc-feedpopupbutton');
+        if (feedModalButton.length && currentState === 'configured') {
+            let options = {
+                type: 'popup',
+                responsive: true,
+                innerScroll: true,
+                modalClass: 'pc-run-feeds',
+                title: $.mage.__('PureClarity Data Feed'),
+                buttons: [{
+                    text: $.mage.__('Run feeds now'),
+                    class: '',
+                    click: pcFeedRun
+                }]
+            };
+
+            modal(options, $('#pc-feeds-modal-popup'));
+
+            feedModalButton.on('click', function () {
+                pcFeedResetState();
+                $("#pc-feeds-modal-popup").modal('openModal');
+            });
+
+            let feedRunObject = {
+                runFeedUrl: $("#pc-feed-run-url").val(),
+                progressFeedUrl: $("#pc-feed-progress-url").val(),
+                selectStore: $('select#pc-selectStore'),
+                preselectStore: $('input#pc-selectStore'),
+                messageContainer: $('#pc-statusMessage'),
+                chkProducts: $('#pc-chkProducts'),
+                chkCategories: $('#pc-chkCategories'),
+                chkBrands: $('#pc-chkBrands'),
+                chkUsers: $('#pc-chkUsers'),
+                chkOrders: $('#pc-chkOrders'),
+                statusProducts: $('#pc-productFeedStatus'),
+                statusCategories: $('#pc-categoryFeedStatus'),
+                statusBrands: $('#pc-brandFeedStatus'),
+                statusUsers: $('#pc-userFeedStatus'),
+                statusOrders: $('#pc-ordersFeedStatus'),
+                selectedStore: 0,
+            };
+
+            function pcFeedRun()
+            {
+                if (!feedRunObject.chkProducts.is(':checked') &&
+                    !feedRunObject.chkCategories.is(':checked') &&
+                    (feedRunObject.chkBrands.length === 0 || !feedRunObject.chkBrands.is(':checked')) &&
+                    !feedRunObject.chkUsers.is(':checked') &&
+                    !feedRunObject.chkOrders.is(':checked')
+                ) {
+                    return;
+                }
+
+                if (feedRunObject.chkBrands.length) {
+                    feedRunObject.selectedStore = feedRunObject.selectStore.find(":selected").val();
+                    feedRunObject.selectStore.prop("disabled", true);
+                } else {
+                    feedRunObject.selectedStore = feedRunObject.preselectStore.val();
+                }
+                feedRunObject.chkProducts.prop("disabled", true);
+                feedRunObject.chkCategories.prop("disabled", true);
+
+                if (feedRunObject.chkBrands.length) {
+                    feedRunObject.chkBrands.prop("disabled", true);
+                }
+
+                feedRunObject.chkUsers.prop("disabled", true);
+                feedRunObject.chkOrders.prop("disabled", true);
+                feedRunObject.isComplete = false;
+
+                var urlParts = [feedRunObject.runFeedUrl + '?storeid=' + feedRunObject.selectedStore];
+                urlParts.push('product=' + feedRunObject.chkProducts.is(':checked'));
+                urlParts.push('category=' + feedRunObject.chkCategories.is(':checked'));
+                if (feedRunObject.chkBrands.length) {
+                    urlParts.push('brand=' + feedRunObject.chkBrands.is(':checked'));
+                }
+                urlParts.push('user=' + feedRunObject.chkUsers.is(':checked'));
+                urlParts.push('orders=' + feedRunObject.chkOrders.is(':checked'));
+
+                $.ajax({
+                    url: urlParts.join('&'),
+                    data: { form_key: window.FORM_KEY, storeid: feedRunObject.selectedStore },
+                })
+                    .done(function(response) {
+                        $("#pc-feeds-modal-popup").modal('closeModal');
+                        pcInitProgress();
+                        setTimeout(pcFeedProgressCheck, 1000);
+                    })
+                    .fail(function(jqXHR, status, err) {
+                        feedRunObject.callError = jqXHR.responseText;
+                    });
+            }
+
+            function pcInitProgress() {
+                if (feedRunObject.chkProducts.is(':checked')) {
+                    feedRunObject.statusProducts.html($.mage.__('Waiting for feed run to start'));
+                }
+
+                if (feedRunObject.chkCategories.is(':checked')) {
+                    feedRunObject.statusCategories.html($.mage.__('Waiting for feed run to start'));
+                }
+
+                if (feedRunObject.chkBrands.length && feedRunObject.chkBrands.is(':checked')) {
+                    feedRunObject.statusBrands.html($.mage.__('Waiting for feed run to start'));
+                }
+
+                if (feedRunObject.chkUsers.is(':checked')) {
+                    feedRunObject.statusUsers.html($.mage.__('Waiting for feed run to start'));
+                }
+
+                if (feedRunObject.chkOrders.is(':checked')) {
+                    feedRunObject.statusOrders.html($.mage.__('Waiting for feed run to start'));
+                }
+            }
+
+            function pcFeedProgressCheck() {
+                $.ajax({
+                    url: feedRunObject.progressFeedUrl,
+                    data: {form_key: window.FORM_KEY, storeid: feedRunObject.selectedStore},
+                }).done(function (response){
+                    if (!response){
+                        // session has ended, reload to force login
+                        location.reload();
+                    } else {
+                        feedRunObject.statusProducts.html(response.product.label);
+                        feedRunObject.statusCategories.html(response.category.label);
+                        feedRunObject.statusBrands.html(response.brand.label);
+                        feedRunObject.statusUsers.html(response.user.label);
+                        feedRunObject.statusOrders.html(response.orders.label);
+
+                        if (response.product.running ||
+                            response.category.running ||
+                            response.brand.running ||
+                            response.user.running ||
+                            response.orders.running
+                        ) {
+                            setTimeout(pcFeedProgressCheck, 1000);
+                        }
+                    }
+                });
+            }
+
+            function pcFeedResetState() {
+                feedRunObject.isComplete = true;
+                if (feedRunObject.selectStore.length) {
+                    feedRunObject.selectStore.prop("disabled", false);
+                }
+                feedRunObject.chkProducts.prop("disabled", false);
+                feedRunObject.chkCategories.prop("disabled", false);
+                if (feedRunObject.chkBrands.length) {
+                    feedRunObject.chkBrands.prop("disabled", false);
+                }
+                feedRunObject.chkUsers.prop("disabled", false);
+                feedRunObject.chkOrders.prop("disabled", false);
+            }
+
+            if ($('#pc-feeds-in-progress').val() === '1') {
+                pcFeedProgressCheck();
+            }
         }
     }
 );
