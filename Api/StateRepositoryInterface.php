@@ -16,9 +16,10 @@ interface StateRepositoryInterface
 {
     /**
      * @param string $name
+     * @param integer $storeId
      * @return StateInterface
      */
-    public function getByName($name);
+    public function getByNameAndStore($name, $storeId);
 
     /**
      * @param SearchCriteriaInterface $searchCriteria

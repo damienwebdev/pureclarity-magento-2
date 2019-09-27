@@ -46,7 +46,7 @@ class UpgradeSchema implements UpgradeSchemaInterface
             ->addColumn(
                 'name',
                 Table::TYPE_TEXT,
-                25,
+                35,
                 ['nullable' => false, 'default' => ''],
                 'State Name'
             )
@@ -56,9 +56,17 @@ class UpgradeSchema implements UpgradeSchemaInterface
                 255,
                 ['nullable' => false, 'default' => ''],
                 'State Value'
-            )->addIndex(
-                $setup->getIdxName('pureclarity_state', ['name']),
-                ['name']
+            )
+            ->addColumn(
+                'store_id',
+                Table::TYPE_INTEGER,
+                null,
+                ['nullable' => false, 'default' => '0'],
+                'State Store ID'
+            )
+            ->addIndex(
+                $setup->getIdxName('pureclarity_state', ['name', 'store_id']),
+                ['name', 'store_id']
             )->setComment('PureClarity State Table');
 
         $setup->getConnection()->createTable($table);

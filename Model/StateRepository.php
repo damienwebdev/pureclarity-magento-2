@@ -58,7 +58,7 @@ class StateRepository implements StateRepositoryInterface
     /**
      * @inheritdoc
      */
-    public function getByName($name)
+    public function getByNameAndStore($name, $storeId)
     {
         /** @var Collection $collection */
         $collection = $this->collectionFactory->create();
@@ -67,6 +67,7 @@ class StateRepository implements StateRepositoryInterface
         $collection->addFieldToSelect(StateInterface::NAME);
         $collection->addFieldToSelect(StateInterface::VALUE);
         $collection->addFieldToFilter(StateInterface::NAME, $name);
+        $collection->addFieldToFilter(StateInterface::STORE_ID, $storeId);
 
         $searchCriteria = $this->searchCriteriaFactory->create();
         $this->collectionProcessor->process($searchCriteria, $collection);

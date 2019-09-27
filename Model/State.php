@@ -64,4 +64,20 @@ class State extends AbstractModel implements StateInterface
     {
         $this->setData(self::VALUE, $value);
     }
+
+    /**
+     * @inheritdoc
+     */
+    public function getStoreId()
+    {
+        return $this->getData(self::STORE_ID);
+    }
+
+    /**
+     * @inheritdoc
+     */
+    public function setStoreId($id)
+    {
+        $this->setData(self::STORE_ID, $id);
+    }
 }

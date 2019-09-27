@@ -8,9 +8,10 @@ namespace Pureclarity\Core\Api\Data;
 
 interface StateInterface
 {
-    const ID    = 'state_id';
-    const NAME  = 'name';
-    const VALUE = 'value';
+    const ID       = 'state_id';
+    const NAME     = 'name';
+    const VALUE    = 'value';
+    const STORE_ID = 'store_id';
 
     /**
      * @return integer|null
@@ -44,4 +45,15 @@ interface StateInterface
      * @return void
      */
     public function setValue($value);
+
+    /**
+     * @return integer|null
+     */
+    public function getStoreId();
+
+    /**
+     * @param integer $id
+     * @return void
+     */
+    public function setStoreId($id);
 }
