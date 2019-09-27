@@ -134,9 +134,10 @@ class Process
      */
     private function setConfiguredState()
     {
-        $state = $this->stateRepository->getByName('is_configured');
+        $state = $this->stateRepository->getByNameAndStore('is_configured', 0);
         $state->setName('is_configured');
         $state->setValue('1');
+        $state->setStoreId(0);
 
         try {
             $this->stateRepository->save($state);
@@ -155,9 +156,10 @@ class Process
      */
     private function completeSignup()
     {
-        $state = $this->stateRepository->getByName('signup_request');
+        $state = $this->stateRepository->getByNameAndStore('signup_request', 0);
         $state->setName('signup_request');
         $state->setValue('complete');
+        $state->setStoreId(0);
 
         try {
             $this->stateRepository->save($state);

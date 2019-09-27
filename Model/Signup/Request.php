@@ -243,9 +243,10 @@ class Request
 
         $this->json->serialize($signupData);
 
-        $state = $this->stateRepository->getByName('signup_request');
+        $state = $this->stateRepository->getByNameAndStore('signup_request', 0);
         $state->setName('signup_request');
         $state->setValue($this->json->serialize($signupData));
+        $state->setStoreId(0);
 
         try {
             $this->stateRepository->save($state);

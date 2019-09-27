@@ -65,7 +65,7 @@ class Status
         try {
             $result['request_id'] = uniqid('', true);
 
-            $state = $this->stateRepository->getByName('signup_request');
+            $state = $this->stateRepository->getByNameAndStore('signup_request', 0);
             $signUpRequest = $this->json->unserialize($state->getValue());
 
             $request = $this->buildRequest($signUpRequest);

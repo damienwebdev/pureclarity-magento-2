@@ -62,7 +62,7 @@ class Welcome implements MessageInterface
         $accessKey = $this->scopeConfig->getValue('pureclarity/credentials/access_key');
 
         if (!$accessKey) {
-            $state = $this->stateRepository->getByName('is_configured');
+            $state = $this->stateRepository->getByNameAndStore('is_configured', 0);
             if ($state->getId() === null) {
                 $shouldDisplay = true;
             }

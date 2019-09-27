@@ -82,7 +82,7 @@ class State implements ArgumentInterface
     {
         if ($this->isNotConfigured === null) {
             /** @var StateInterface $state */
-            $state = $this->stateRepository->getByName('is_configured');
+            $state = $this->stateRepository->getByNameAndStore('is_configured', 0);
             $this->isNotConfigured = ($state->getId() === null || $state->getValue() === '0');
         }
 
@@ -96,7 +96,7 @@ class State implements ArgumentInterface
     {
         if ($this->signupStarted === null) {
             /** @var StateInterface $state */
-            $state = $this->stateRepository->getByName('signup_request');
+            $state = $this->stateRepository->getByNameAndStore('signup_request', 0);
             $this->signupStarted = ($state->getId() !== null && $state->getValue() !== 'complete');
         }
 
