@@ -16,6 +16,21 @@ $feeds = $block->getPureclarityFeedStatusViewModel();
 
 <div class="box-title_bar"><h3><?= $block->escapeHtml(__('Data Feeds')) ?></h3></div>
 <div class="box-content">
+    <?php if ($stores->hasMultipleStores()) : ?>
+    <div class="pc-feed-field">
+        <label for="pc-feed-info-store" class="forselect"><?= $block->escapeHtml('Store') ?></label>
+        <select id="pc-feed-info-store" class="select admin__controle-select">
+            <?php foreach ($stores->getStoreList() as $storeId => $storeName) : ?>
+                <option value="<?= $block->escapeHtmlAttr($storeId) ?>"
+                    <?php if ($storeId === (int)$stores->getPureClarityDefaultStore()) : ?>selected="selected"<?php endif ?>>
+                    <?= $block->escapeHtmlAttr($storeName) ?>
+                </option>
+            <?php endforeach ?>
+        </select>
+    </div>
+    <?php else : ?>
+        <input id="pc-feed-info-store" type="hidden" value="<?= $block->escapeHtmlAttr($stores->getPureClarityDefaultStore()) ?>" />
+    <?php endif ?>
     <p><?= $block->escapeHtml(__('Products')) ?>: <span id="pc-productFeedStatus"><?= $block->escapeHtml($feeds->getProductFeedStatusLabel($stores->getPureClarityDefaultStore())) ?></span></p>
     <p><?= $block->escapeHtml(__('Categories')) ?>: <span id="pc-categoryFeedStatus"><?= $block->escapeHtml($feeds->getCategoryFeedStatusLabel($stores->getPureClarityDefaultStore())) ?></span></p>
     <p><?= $block->escapeHtml(__('Users')) ?>: <span id="pc-userFeedStatus"><?= $block->escapeHtml($feeds->getUserFeedStatusLabel($stores->getPureClarityDefaultStore())) ?></span></p>
@@ -74,4 +89,3 @@ $feeds = $block->getPureclarityFeedStatusViewModel();
 <input id="pc-feed-run-url" type="hidden" value="<?= $block->escapeUrl($block->getUrl('pureclarity/datafeed/runfeed')) ?>" />
 <input id="pc-feed-progress-url" type="hidden" value="<?= $block->escapeUrl($block->getUrl('pureclarity/datafeed/progress')) ?>" />
 <input id="pc-feeds-in-progress" type="hidden" value="<?= $block->escapeHtmlAttr($feeds->getAreFeedsInProgress($stores->getPureClarityDefaultStore())) ?>" />
-<input id="pc-feeds-in-progress-store" type="hidden" value="<?= $block->escapeHtmlAttr($stores->getPureClarityDefaultStore()) ?>" />

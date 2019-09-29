@@ -341,3 +341,7 @@
     height: 20px;
 }
 
+#pc_feeds p {
+    clear:both
+}
+

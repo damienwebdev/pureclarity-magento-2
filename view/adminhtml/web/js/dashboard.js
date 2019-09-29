@@ -224,9 +224,19 @@ require(
             };
 
             if (currentState === 'configured' && $('#pc-feeds-in-progress').val() === '1') {
-                feedRunObject.selectedStore = $('#pc-feeds-in-progress-store').val();
-                pcFeedProgressCheck();
+                pcFeedSetInfoStore();
             }
+
+            let feedInfoStoreSelect = $('select#pc-feed-info-store');
+            if (feedInfoStoreSelect.length) {
+                feedInfoStoreSelect.on('change', pcFeedSetInfoStore);
+            }
+        }
+
+        function pcFeedSetInfoStore()
+        {
+            feedRunObject.selectedStore = $('#pc-feed-info-store').val();
+            pcFeedProgressCheck();
         }
 
         function pcFeedRun()
