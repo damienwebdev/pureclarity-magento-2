@@ -33,6 +33,7 @@ $store = $block->getPureclarityStoreViewModel();
         </div>
     </div>
     <div id="existing_account" class="box">
+        <input type="hidden" id="pureclarity_get_store_details_url" value="<?= $block->escapeUrl($block->getUrl('pureclarity/dashboard/getStoreDetails')) ?>"/>
         <form id="save_details_form" method="post" action="<?= $block->escapeUrl($block->getUrl('pureclarity/dashboard/configure')) ?>" data-mage-init='{"validation":{}}'>
             <div class="box-title_bar"><h3><?= $block->escapeHtml(__('Already have an account?')) ?></h3></div>
             <div class="box-content">
@@ -49,10 +50,11 @@ $store = $block->getPureclarityStoreViewModel();
                     <p class="field">
                         <label class="label" for="pureclarity_details_store_id"><?= $block->escapeHtml(__('Store')) ?></label>
                         <select data-validate='{"required":true}' name="store_id" id="pureclarity_details_store_id">
-                            <option value="0"><?= $block->escapeHtml(__('Chose a store')) ?></option>
                             <?php foreach ($stores->getStoreList() as $storeId => $storeName) : ?>
-                                <?php $selected = ($storeId === $stores->getDefaultStore()->getId()) ? 'selected="selected"' : '' ?>
-                                <option value="<?= $block->escapeHtmlAttr($storeId) ?>" <?= $selected ?>><?= $block->escapeHtmlAttr($storeName) ?></option>
+                                <option value="<?= $block->escapeHtmlAttr($storeId) ?>"
+                                    <?php if ($storeId === (int)$stores->getMagentoDefaultStore()->getId()) : ?>selected="selected"<?php endif ?>>
+                                    <?= $block->escapeHtmlAttr($storeName) ?>
+                                </option>
                             <?php endforeach ?>
                         </select>
                     </p>
@@ -104,12 +106,13 @@ $store = $block->getPureclarityStoreViewModel();
                     <h3><?= $block->escapeHtml(__('About the site')) ?></h3>
                     <?php if ($stores->hasMultipleStores()) : ?>
                         <p class="field">
-                            <label class="label" for="pureclarity_store_id"><?= $block->escapeHtml(__('Store')) ?></label>
-                            <select data-validate='{"required":true}' name="store_id" id="pureclarity_store_id">
-                                <option value="0"><?= $block->escapeHtml(__('Chose a store')) ?></option>
+                            <label class="label" for="pureclarity_signup_store_id"><?= $block->escapeHtml(__('Store')) ?></label>
+                            <select data-validate='{"required":true}' name="store_id" id="pureclarity_signup_store_id">
                                 <?php foreach ($stores->getStoreList() as $storeId => $storeName) : ?>
-                                    <?php $selected = ($storeId === $stores->getDefaultStore()->getId()) ? 'selected="selected"' : '' ?>
-                                    <option value="<?= $block->escapeHtmlAttr($storeId) ?>" <?= $selected ?>><?= $block->escapeHtmlAttr($storeName) ?></option>
+                                    <option value="<?= $block->escapeHtmlAttr($storeId) ?>"
+                                            <?php if ($storeId === (int)$stores->getMagentoDefaultStore()->getId()) : ?>selected="selected"<?php endif ?>>
+                                        <?= $block->escapeHtmlAttr($storeName) ?>
+                                    </option>
                                 <?php endforeach ?>
                             </select>
                         </p>
@@ -121,16 +124,16 @@ $store = $block->getPureclarityStoreViewModel();
                         <input data-validate='{"required":true}' type="text" name="store_name" id="pureclarity_store_name" value="" />
                     </p>
                     <p class="field">
-                        <label class="label" for="pureclarity_url"><?= $block->escapeHtml(__('URL')) ?></label>
-                        <input data-validate='{"required":true}' type="text" name="url" id="pureclarity_url" value="<?= $block->escapeHtmlAttr($store->getStoreURL($stores->getDefaultStore()->getId())) ?>"/>
+                        <label class="label" for="pureclarity_store_url"><?= $block->escapeHtml(__('URL')) ?></label>
+                        <input data-validate='{"required":true}' type="text" name="url" id="pureclarity_store_url" value="<?= $block->escapeHtmlAttr($store->getStoreURL($stores->getMagentoDefaultStore()->getId())) ?>"/>
                     </p>
                     <p class="details">
                         <span class="label"><?= $block->escapeHtml(__('Currency')) ?></span>
-                        <span class="value"><?= $block->escapeHtml($store->getStoreCurrency($stores->getDefaultStore()->getId())) ?></span>
+                        <span class="value" id="pureclarity_store_currency"><?= $block->escapeHtml($store->getStoreCurrency($stores->getMagentoDefaultStore()->getId())) ?></span>
                     </p>
                     <p class="details">
                         <span class="label"><?= $block->escapeHtml(__('Timezone')) ?></span>
-                        <span class="value"><?= $block->escapeHtml($store->getStoreTimezone($stores->getDefaultStore()->getId())) ?></span>
+                        <span class="value" id="pureclarity_store_timezone"><?= $block->escapeHtml($store->getStoreTimezone($stores->getMagentoDefaultStore()->getId())) ?></span>
                     </p>
                     <p class="field">
                         <label class="label" for="pureclarity_region"><?= $block->escapeHtml(__('Region')) ?></label>

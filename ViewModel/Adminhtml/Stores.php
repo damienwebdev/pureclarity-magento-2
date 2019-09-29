@@ -7,9 +7,9 @@
 namespace Pureclarity\Core\ViewModel\Adminhtml;
 
 use Magento\Framework\View\Element\Block\ArgumentInterface;
-use Magento\Store\Model\Store;
 use Magento\Store\Model\StoreManagerInterface;
 use Magento\Store\Api\Data\StoreInterface;
+use Pureclarity\Core\Api\StateRepositoryInterface;
 
 /**
  * class Stores
@@ -21,30 +21,58 @@ class Stores implements ArgumentInterface
     /** @var StoreManagerInterface $storeManager */
     private $storeManager;
 
+    /** @var StateRepositoryInterface $stateRepository */
+    private $stateRepository;
+
     /** @var StoreInterface $defaultStore */
-    private $defaultStore;
+    private $defaultMagentoStore;
+
+    /** @var integer $defaultPureClarityStoreId */
+    private $defaultPureClarityStoreId;
 
     /**
      * @param StoreManagerInterface $storeManager
+     * @param StateRepositoryInterface $stateRepository
      */
     public function __construct(
-        StoreManagerInterface $storeManager
+        StoreManagerInterface $storeManager,
+        StateRepositoryInterface $stateRepository
     ) {
-        $this->storeManager = $storeManager;
+        $this->storeManager    = $storeManager;
+        $this->stateRepository = $stateRepository;
     }
 
     /**
-     * Gets list of stores for display
+     * Gets the default magento store
      *
      * @return StoreInterface|null
      */
-    public function getDefaultStore()
+    public function getMagentoDefaultStore()
     {
-        if ($this->defaultStore === null) {
-            $this->defaultStore = $this->storeManager->getDefaultStoreView();
+        if ($this->defaultMagentoStore === null) {
+            $this->defaultMagentoStore = $this->storeManager->getDefaultStoreView();
         }
 
-        return $this->defaultStore;
+        return $this->defaultMagentoStore;
+    }
+
+    /**
+     * Gets the id of the default store for pureclarity
+     *
+     * @return integer
+     */
+    public function getPureClarityDefaultStore()
+    {
+        if ($this->defaultPureClarityStoreId === null) {
+            $defaultStore = $this->stateRepository->getByNameAndStore('default_store', 0);
+            $storeId = (int)$defaultStore->getValue();
+            if (empty($storeId)) {
+                $storeId = (int)$this->getMagentoDefaultStore()->getId();
+            }
+            $this->defaultPureClarityStoreId = $storeId;
+        }
+
+        return $this->defaultPureClarityStoreId;
     }
 
     /**
@@ -66,10 +94,8 @@ class Stores implements ArgumentInterface
     {
         $options = [];
 
-        $options[Store::DEFAULT_STORE_ID] = __('All Store Views');
-
         foreach ($this->storeManager->getStores() as $store) {
-            $options[$store->getId()] = $store->getName();
+            $options[(int)$store->getId()] = $store->getName();
         }
 
         return $options;

@@ -70,6 +70,7 @@ class Process
         $this->saveConfig($requestData);
         $this->setConfiguredState();
         $this->completeSignup();
+        $this->setDefaultStore((int)$requestData['store_id']);
         $this->triggerFeeds($requestData);
 
         return [];
@@ -107,6 +108,7 @@ class Process
         if (empty($result['errors'])) {
             $this->saveConfig($requestData);
             $this->setConfiguredState();
+            $this->setDefaultStore((int)$requestData['store_id']);
             $this->triggerFeeds($requestData);
         }
 
@@ -159,6 +161,30 @@ class Process
         $state = $this->stateRepository->getByNameAndStore('signup_request', 0);
         $state->setName('signup_request');
         $state->setValue('complete');
+        $state->setStoreId(0);
+
+        try {
+            $this->stateRepository->save($state);
+            $saved = true;
+        } catch (CouldNotSaveException $e) {
+            $saved = false;
+        }
+
+        return $saved;
+    }
+
+    /**
+     * Saves the signup store as the default store (so dashboard load right store)
+     *
+     * @param integer $storeId
+     *
+     * @return bool
+     */
+    private function setDefaultStore($storeId)
+    {
+        $state = $this->stateRepository->getByNameAndStore('default_store', 0);
+        $state->setName('default_store');
+        $state->setValue($storeId);
         $state->setStoreId(0);
 
         try {

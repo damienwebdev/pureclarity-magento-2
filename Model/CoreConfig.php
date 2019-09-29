@@ -419,7 +419,7 @@ class CoreConfig
         if ($storeId === 0) {
             $scope = ScopeConfigInterface::SCOPE_TYPE_DEFAULT;
         } else {
-            $scope = ScopeInterface::SCOPE_STORE;
+            $scope = ScopeInterface::SCOPE_STORES;
         }
 
         $this->configWriter->save($path, $value, $scope, $storeId);

@@ -793,6 +793,7 @@ class Feed extends \Magento\Framework\Model\AbstractModel
         $this->progressFileName = $progressFileName;
         $this->accessKey = $this->coreHelper->getAccessKey($this->storeId);
         $this->secretKey = $this->coreHelper->getSecretKey($this->storeId);
+
         if (empty($this->accessKey) || empty($this->secretKey)) {
             $this->coreHelper->setProgressFile(
                 $this->progressFileName,
