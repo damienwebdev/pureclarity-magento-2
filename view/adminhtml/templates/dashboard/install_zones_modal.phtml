@@ -47,15 +47,19 @@ $themes = $block->getPureclarityThemesViewModel();
 
 <div id="pc-zone-modal-popup" style="display:none" class="admin__scope-old">
     <div id="pc-zone-modal-content">
-        <h3><?= $block->escapeHtml('Please select the Store and Theme that you would like to install the PureClarity zone widgets on:') ?></h3>
-        <div class="pc-zone-field">
-            <label for="pc-zone-selectStore"><?= $block->escapeHtml('Store') ?></label>
-            <select id="pc-zone-selectStore" class="select admin__controle-select">
-                <?php foreach ($stores->getStoreList() as $storeId => $name) : ?>
-                    <option value="<?= $block->escapeHtmlAttr($storeId) ?>" ><?= $block->escapeHtml($name) ?></option>
-                <?php endforeach; ?>
-            </select>
-        </div>
+        <h3><?= $block->escapeHtml('Please select the Theme that you would like to install the PureClarity zone widgets on:') ?></h3>
+        <?php if ($stores->hasMultipleStores()) : ?>
+            <div class="pc-zone-field">
+                <label for="pc-zone-selectStore"><?= $block->escapeHtml('Store') ?></label>
+                <select id="pc-zone-selectStore" class="select admin__controle-select">
+                    <?php foreach ($stores->getStoreList() as $storeId => $name) : ?>
+                        <option value="<?= $block->escapeHtmlAttr($storeId) ?>" ><?= $block->escapeHtml($name) ?></option>
+                    <?php endforeach; ?>
+                </select>
+            </div>
+        <?php else : ?>
+            <input id="pc-defaultStore" type="hidden" value="<?= $block->escapeHtmlAttr($stores->getPureClarityDefaultStore()) ?>" />
+        <?php endif ?>
         <div class="pc-zone-field pc-topbuffer">
             <label for="pc-zone-selectTheme"><?= $block->escapeHtml('Theme') ?></label>
             <select id="pc-zone-selectTheme" class="select admin__controle-select">
@@ -77,6 +81,7 @@ $themes = $block->getPureclarityThemesViewModel();
                 installUrl: '<?= $block->escapeUrl($block->getUrl('pureclarity/bmz/install')) ?>',
                 modal: modal,
                 selectStore: $('#pc-zone-selectStore'),
+                defaultStore: $('#pc-defaultStore'),
                 selectTheme: $('#pc-zone-selectTheme'),
                 runButton: $('#pc-runzoneInstall'),
                 messageContainer: $('#pc-zone-statusMessage'),
@@ -91,7 +96,9 @@ $themes = $block->getPureclarityThemesViewModel();
                 },
                 resetState: function (hideMessage) {
                     this.isComplete = true;
-                    this.selectStore.prop("disabled", false);
+                    if (this.selectStore.length) {
+                        this.selectStore.prop("disabled", false);
+                    }
                     this.selectTheme.prop("disabled", false);
                     this.runButton.prop("disabled", false);
                 }
@@ -100,9 +107,16 @@ $themes = $block->getPureclarityThemesViewModel();
             function installPcZones() {
                 if (pureclarityZoneObj.isComplete) {
                     pureclarityZoneObj.message("Installing...");
-                    pureclarityZoneObj.selectedStore = pureclarityZoneObj.selectStore.find(":selected").val();
+                    if (this.selectStore && this.selectStore.length) {
+                        pureclarityZoneObj.selectedStore = pureclarityZoneObj.selectStore.find(":selected").val();
+                    } else {
+                        pureclarityZoneObj.selectedStore = pureclarityZoneObj.defaultStore.val();
+                    }
+
                     pureclarityZoneObj.selectedTheme = pureclarityZoneObj.selectTheme.find(":selected").val();
-                    pureclarityZoneObj.selectStore.prop("disabled", true);
+                    if (this.selectStore && this.selectStore.length) {
+                        pureclarityZoneObj.selectStore.prop("disabled", true);
+                    }
                     pureclarityZoneObj.selectTheme.prop("disabled", true);
 
                     var urlParts = [pureclarityZoneObj.installUrl + '?'];
