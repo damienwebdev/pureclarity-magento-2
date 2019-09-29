@@ -7,6 +7,7 @@ namespace Pureclarity\Core\Helper;
 
 class Data extends \Magento\Framework\App\Helper\AbstractHelper
 {
+    const CURRENT_VERSION = '2.1.0';
 
     // ENDPOINTS
     protected $scriptUrl = '//pcs.pureclarity.net';

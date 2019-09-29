@@ -73,6 +73,16 @@ class Url
     }
 
     /**
+     * Gets the PureClarity Github API url
+     *
+     * @return string
+     */
+    public function getGithubUrl()
+    {
+        return "https://api.github.com/repos/pureclarity/pureclarity-magento-2/releases/latest";
+    }
+
+    /**
      * Gets the PureClarity serverside endpoint for the given store
      *
      * @param integer $region
