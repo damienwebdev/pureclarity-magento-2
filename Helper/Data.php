@@ -1,11 +1,25 @@
 <?php
-namespace Pureclarity\Core\Helper;
-
 /**
- * Helper class for core functionality.
+ * Copyright © PureClarity. All rights reserved.
+ * See LICENSE.txt for license details.
  */
 
-class Data extends \Magento\Framework\App\Helper\AbstractHelper
+namespace Pureclarity\Core\Helper;
+
+use Magento\Checkout\Model\Session;
+use Magento\Framework\App\Config\ScopeConfigInterface;
+use Magento\Framework\App\Filesystem\DirectoryList;
+use Magento\Framework\Filesystem\Io\FileFactory;
+use Magento\Framework\UrlInterface;
+use Magento\Store\Model\ScopeInterface;
+use Magento\Store\Model\StoreManagerInterface;
+
+/**
+ * Class Data
+ *
+ * Helper class for core functionality.
+ */
+class Data
 {
     const CURRENT_VERSION = '2.1.0';
 
@@ -48,38 +62,41 @@ class Data extends \Magento\Framework\App\Helper\AbstractHelper
     const PLACEHOLDER_UPLOAD_DIR = "pureclarity";
     const PROGRESS_FILE_BASE_NAME = 'pureclarity-feed-progress-';
     const PURECLARITY_EXPORT_URL = 'pureclarity/export/feed?storeid={storeid}&type={type}';
-    protected $scopeConfig;
-    protected $storeManager;
-    protected $checkoutSession;
-    protected $salesOrderFactory;
-    protected $catalogProductFactory;
-    protected $productCollection;
-    protected $ioFileFactory;
-    protected $directoryList;
-    protected $logger;
 
+    /** @var ScopeConfigInterface $scopeConfig */
+    private $scopeConfig;
+
+    /** @var StoreManagerInterface $storeManager */
+    private $storeManager;
+
+    /** @var Session $checkoutSession */
+    private $checkoutSession;
+
+    /** @var FileFactory $ioFileFactory */
+    private $ioFileFactory;
+
+    /** @var DirectoryList $directoryList */
+    private $directoryList;
+
+    /**
+     * @param ScopeConfigInterface $scopeConfig
+     * @param StoreManagerInterface $storeManager
+     * @param Session $checkoutSession
+     * @param FileFactory $ioFileFactory
+     * @param DirectoryList $directoryList
+     */
     public function __construct(
-        \Magento\Framework\App\Helper\Context $context,
-        \Magento\Store\Model\StoreManagerInterface $storeManager,
-        \Magento\Checkout\Model\Session $checkoutSession,
-        \Magento\Sales\Model\OrderFactory $salesOrderFactory,
-        \Magento\Catalog\Model\ProductFactory $catalogProductFactory,
-        \Magento\Catalog\Model\ResourceModel\Product\CollectionFactory $productCollection,
-        \Magento\Framework\Filesystem\Io\FileFactory $ioFileFactory,
-        \Magento\Framework\App\Filesystem\DirectoryList $directoryList
+        ScopeConfigInterface $scopeConfig,
+        StoreManagerInterface $storeManager,
+        Session $checkoutSession,
+        FileFactory $ioFileFactory,
+        DirectoryList $directoryList
     ) {
-        $this->ioFileFactory = $ioFileFactory;
-        $this->scopeConfig = $context->getScopeConfig();
-        $this->storeManager = $storeManager;
+        $this->ioFileFactory   = $ioFileFactory;
+        $this->scopeConfig     = $scopeConfig;
+        $this->storeManager    = $storeManager;
         $this->checkoutSession = $checkoutSession;
-        $this->salesOrderFactory = $salesOrderFactory;
-        $this->catalogProductFactory = $catalogProductFactory;
-        $this->productCollection = $productCollection;
-        $this->directoryList = $directoryList;
-        $this->logger = $context->getLogger();
-        parent::__construct(
-            $context
-        );
+        $this->directoryList   = $directoryList;
     }
     
     // Environment Variables
@@ -89,7 +106,7 @@ class Data extends \Magento\Framework\App\Helper\AbstractHelper
         if ($accessKey != null && $accessKey != "") {
             return $this->scopeConfig->getValue(
                 "pureclarity/environment/active",
-                \Magento\Store\Model\ScopeInterface::SCOPE_STORE,
+                ScopeInterface::SCOPE_STORE,
                 $storeId
             );
         }
@@ -101,7 +118,7 @@ class Data extends \Magento\Framework\App\Helper\AbstractHelper
         if ($this->isActive($this->getStoreId($storeId))) {
             return $this->scopeConfig->getValue(
                 "pureclarity/advanced/seo_friendly",
-                \Magento\Store\Model\ScopeInterface::SCOPE_STORE,
+                ScopeInterface::SCOPE_STORE,
                 $this->getStoreId($storeId)
             );
         }
@@ -118,7 +135,7 @@ class Data extends \Magento\Framework\App\Helper\AbstractHelper
     {
         return $this->scopeConfig->getValue(
             "pureclarity/credentials/access_key",
-            \Magento\Store\Model\ScopeInterface::SCOPE_STORE,
+            ScopeInterface::SCOPE_STORE,
             $storeId
         );
     }
@@ -127,7 +144,7 @@ class Data extends \Magento\Framework\App\Helper\AbstractHelper
     {
         return $this->scopeConfig->getValue(
             "pureclarity/credentials/secret_key",
-            \Magento\Store\Model\ScopeInterface::SCOPE_STORE,
+            ScopeInterface::SCOPE_STORE,
             $storeId
         );
     }
@@ -136,7 +153,7 @@ class Data extends \Magento\Framework\App\Helper\AbstractHelper
     {
         $region = $this->scopeConfig->getValue(
             "pureclarity/credentials/region",
-            \Magento\Store\Model\ScopeInterface::SCOPE_STORE,
+            ScopeInterface::SCOPE_STORE,
             $storeId
         );
         if ($region == null) {
@@ -150,7 +167,7 @@ class Data extends \Magento\Framework\App\Helper\AbstractHelper
         if ($this->isActive($storeId)) {
             return $this->scopeConfig->getValue(
                 "pureclarity/feeds/notify_feed",
-                \Magento\Store\Model\ScopeInterface::SCOPE_STORE,
+                ScopeInterface::SCOPE_STORE,
                 $storeId
             );
         }
@@ -162,7 +179,7 @@ class Data extends \Magento\Framework\App\Helper\AbstractHelper
         if ($this->isActive($storeId)) {
             return $this->scopeConfig->getValue(
                 "pureclarity/feeds/product_index",
-                \Magento\Store\Model\ScopeInterface::SCOPE_STORE,
+                ScopeInterface::SCOPE_STORE,
                 $storeId
             );
         }
@@ -174,7 +191,7 @@ class Data extends \Magento\Framework\App\Helper\AbstractHelper
         if ($this->isActive($storeId)) {
             return $this->scopeConfig->getValue(
                 "pureclarity/feeds/brand_feed_enabled",
-                \Magento\Store\Model\ScopeInterface::SCOPE_STORE,
+                ScopeInterface::SCOPE_STORE,
                 $storeId
             );
         }
@@ -185,7 +202,7 @@ class Data extends \Magento\Framework\App\Helper\AbstractHelper
     {
         return $this->scopeConfig->getValue(
             "pureclarity/feeds/brand_parent_category",
-            \Magento\Store\Model\ScopeInterface::SCOPE_STORE,
+            ScopeInterface::SCOPE_STORE,
             $storeId
         );
     }
@@ -195,7 +212,7 @@ class Data extends \Magento\Framework\App\Helper\AbstractHelper
     {
         return $this->scopeConfig->getValue(
             "pureclarity/placeholders/placeholder_product",
-            \Magento\Store\Model\ScopeInterface::SCOPE_STORE,
+            ScopeInterface::SCOPE_STORE,
             $storeId
         );
     }
@@ -204,7 +221,7 @@ class Data extends \Magento\Framework\App\Helper\AbstractHelper
     {
         return $this->scopeConfig->getValue(
             "pureclarity/placeholders/placeholder_category",
-            \Magento\Store\Model\ScopeInterface::SCOPE_STORE,
+            ScopeInterface::SCOPE_STORE,
             $storeId
         );
     }
@@ -213,7 +230,7 @@ class Data extends \Magento\Framework\App\Helper\AbstractHelper
     {
         return $this->scopeConfig->getValue(
             "pureclarity/placeholders/placeholder_category_secondary",
-            \Magento\Store\Model\ScopeInterface::SCOPE_STORE,
+            ScopeInterface::SCOPE_STORE,
             $storeId
         );
     }
@@ -221,7 +238,7 @@ class Data extends \Magento\Framework\App\Helper\AbstractHelper
     public function getAdminImageUrl($store, $image, $type)
     {
         if (is_string($image)) {
-            $base = $store->getBaseUrl(\Magento\Framework\UrlInterface::URL_TYPE_MEDIA);
+            $base = $store->getBaseUrl(UrlInterface::URL_TYPE_MEDIA);
             return $base . 'catalog/' . $type . '/' . $image;
         }
         return "";
@@ -241,7 +258,7 @@ class Data extends \Magento\Framework\App\Helper\AbstractHelper
     {
         return $this->scopeConfig->getValue(
             "pureclarity/advanced/bmz_debug",
-            \Magento\Store\Model\ScopeInterface::SCOPE_STORE,
+            ScopeInterface::SCOPE_STORE,
             $this->getStoreId($storeId)
         );
     }
@@ -379,7 +396,7 @@ class Data extends \Magento\Framework\App\Helper\AbstractHelper
 
     public function getPlaceholderUrl($store)
     {
-        return $store->getBaseUrl(\Magento\Framework\UrlInterface::URL_TYPE_MEDIA) . 'catalog/product';
+        return $store->getBaseUrl(UrlInterface::URL_TYPE_MEDIA) . 'catalog/product';
     }
 
     public function getPureClarityBaseDir()
@@ -419,7 +436,7 @@ class Data extends \Magento\Framework\App\Helper\AbstractHelper
     {
         $selector = $this->scopeConfig->getValue(
             "pureclarity/advanced/pureclarity_search_selector",
-            \Magento\Store\Model\ScopeInterface::SCOPE_STORE,
+            ScopeInterface::SCOPE_STORE,
             $this->getStoreId($storeId)
         );
         if ($selector && $selector != "") {
@@ -500,7 +517,7 @@ class Data extends \Magento\Framework\App\Helper\AbstractHelper
     {
         return $this->scopeConfig->getValue(
             'catalog/frontend/swatches_per_product',
-            \Magento\Store\Model\ScopeInterface::SCOPE_STORE,
+            ScopeInterface::SCOPE_STORE,
             $this->getStoreId($storeId)
         );
     }
@@ -509,7 +526,7 @@ class Data extends \Magento\Framework\App\Helper\AbstractHelper
     {
         return $this->scopeConfig->getValue(
             'catalog/frontend/show_swatches_in_product_list',
-            \Magento\Store\Model\ScopeInterface::SCOPE_STORE,
+            ScopeInterface::SCOPE_STORE,
             $this->getStoreId($storeId)
         );
     }

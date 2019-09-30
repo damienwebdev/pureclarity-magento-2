@@ -1,76 +1,76 @@
 <?php
+/**
+ * Copyright © PureClarity. All rights reserved.
+ * See LICENSE.txt for license details.
+ */
 
 namespace Pureclarity\Core\Helper;
 
+use Magento\Framework\Session\SessionManagerInterface;
+use Magento\Framework\Stdlib\Cookie\CookieMetadataFactory;
+use Magento\Framework\Stdlib\CookieManagerInterface;
+use Magento\Store\Model\StoreManagerInterface;
+use Psr\Log\LoggerInterface;
 use Zend\Http\Client;
-use Zend\Http\Request;
 use Zend\Json\Json;
 
 /**
+ * Class Service
+ *
  * Helper class for core service functions.
  */
-
-class Service extends \Magento\Framework\App\Helper\AbstractHelper
+class Service
 {
-    protected $logger;
-    protected $registry;
-    protected $coreHelper;
-    protected $storeManager;
-    protected $cookieManager;
-    protected $sessionManager;
-    protected $checkoutSession;
-    protected $productCollection;
-    protected $action;
-    protected $zones = [];
-    protected $events = [];
-    protected $dispatched = false;
-    protected $result;
-    protected $isCategory = false;
-    protected $category;
-    protected $query = null;
-    protected $sort = null;
-    protected $size = null;
-    protected $catalogSearchHelper;
-    protected $toolBar;
-    protected $request;
-    protected $responseFactory;
-    
-    /** @var \Pureclarity\Core\Helper\Service\CustomerDetails */
-    private $customerDetails;
+    private $action;
+    private $zones = [];
+    private $events = [];
+    private $dispatched = false;
+    private $result;
+    private $isCategory = false;
+    private $query = null;
+    private $sort = null;
+    private $size = null;
 
+    /** @var LoggerInterface  */
+    private $logger;
+
+    /** @var Data $coreHelper */
+    private $coreHelper;
+
+    /** @var StoreManagerInterface $storeManager */
+    private $storeManager;
+
+    /** @var CookieManagerInterface $cookieManager */
+    private $cookieManager;
+
+    /** @var SessionManagerInterface $sessionManager */
+    private $sessionManager;
+
+    /** @var CookieMetadataFactory $cookieMetadataFactory */
+    private $cookieMetadataFactory;
+
+    /**
+     * @param LoggerInterface $logger
+     * @param Data $coreHelper
+     * @param StoreManagerInterface $storeManager
+     * @param CookieManagerInterface $cookieManager
+     * @param SessionManagerInterface $sessionManager
+     * @param CookieMetadataFactory $cookieMetadataFactory
+     */
     public function __construct(
-        \Magento\Framework\App\Helper\Context $context,
-        \Magento\Checkout\Model\Session $checkoutSession,
-        \Pureclarity\Core\Helper\Data $coreHelper,
-        \Magento\Store\Model\StoreManagerInterface $storeManager,
-        \Magento\Framework\Stdlib\CookieManagerInterface $cookieManager,
-        \Magento\Framework\Session\SessionManagerInterface $sessionManager,
-        \Magento\Framework\Stdlib\Cookie\CookieMetadataFactory $cookieMetadataFactory,
-        \Magento\Catalog\Model\ResourceModel\Product\CollectionFactory $productCollection,
-        \Magento\CatalogSearch\Helper\Data $catalogSearchHelper,
-        \Magento\Catalog\Model\Product\ProductList\Toolbar $toolBar,
-        \Magento\Framework\App\Request\Http $request,
-        \Magento\Framework\Registry $registry,
-        \Magento\Framework\App\ResponseFactory $responseFactory,
-        \Pureclarity\Core\Helper\Service\CustomerDetails $customerDetails
+        LoggerInterface $logger,
+        Data $coreHelper,
+        StoreManagerInterface $storeManager,
+        CookieManagerInterface $cookieManager,
+        SessionManagerInterface $sessionManager,
+        CookieMetadataFactory $cookieMetadataFactory
     ) {
-        $this->logger = $context->getLogger();
-        $this->registry = $registry;
-        $this->coreHelper = $coreHelper;
-        $this->storeManager = $storeManager;
-        $this->cookieManager = $cookieManager;
-        $this->sessionManager = $sessionManager;
+        $this->logger                = $logger;
+        $this->coreHelper            = $coreHelper;
+        $this->storeManager          = $storeManager;
+        $this->cookieManager         = $cookieManager;
+        $this->sessionManager        = $sessionManager;
         $this->cookieMetadataFactory = $cookieMetadataFactory;
-        $this->checkoutSession = $checkoutSession;
-        $this->productCollection = $productCollection;
-        $this->catalogSearchHelper = $catalogSearchHelper;
-        $this->toolBar = $toolBar;
-        $this->request = $request;
-        $this->responseFactory = $responseFactory;
-        $this->customerDetails = $customerDetails;
-
-        $this->category = $this->registry->registry('current_category');
-        parent::__construct($context);
     }
 
     public function setAction($action)
