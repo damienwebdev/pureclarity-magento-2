@@ -261,25 +261,6 @@ class CoreConfig
     }
 
     /**
-     * Returns the configured Product Recommender Template for the given store
-     *
-     * @param integer $storeId
-     * @return string
-     */
-    public function getProductRecommenderTemplate($storeId = null)
-    {
-        $template = $this->getConfigValue(
-            self::CONFIG_PATH_PRODUCT_REC_TEMPLATE,
-            ScopeInterface::SCOPE_STORE,
-            $this->getStoreId($storeId)
-        );
-        if ($template) {
-            return $template;
-        }
-        return "Pureclarity_Core::product_recommender.phtml";
-    }
-
-    /**
      * Returns the configured number of swatches per product for the given store
      *
      * @param integer $storeId

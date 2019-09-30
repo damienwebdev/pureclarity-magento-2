@@ -96,18 +96,6 @@ class Data extends \Magento\Framework\App\Helper\AbstractHelper
         return false;
     }
 
-    public function isServerSide($storeId = null)
-    {
-        // if ($this->isActive($this->getStoreId($storeId))) {
-        //     return $this->scopeConfig->getValue(
-        //    "pureclarity/advanced/server_side_integration",
-        //    \Magento\Store\Model\ScopeInterface::SCOPE_STORE,
-        //    $this->getStoreId($storeId)
-        //);
-        // }
-        return false;
-    }
-
     public function seoSearchFriendly($storeId = null)
     {
         if ($this->isActive($this->getStoreId($storeId))) {
@@ -157,44 +145,6 @@ class Data extends \Magento\Framework\App\Helper\AbstractHelper
         return $region;
     }
     
-    // General Config
-    public function isMerchActive($storeId = null)
-    {
-        // if ($this->isActive($this->getStoreId($storeId))) {
-        //    return $this->scopeConfig->getValue(
-        //        "pureclarity/general_config/merch_active",
-        //        \Magento\Store\Model\ScopeInterface::SCOPE_STORE,
-        //        $this->getStoreId($storeId)
-        //    );
-        // }
-        // return false;
-        return true;
-    }
-
-    public function isSearchActive($storeId = null)
-    {
-        // if ($this->isActive($this->getStoreId($storeId))) {
-            //return $this->scopeConfig->getValue(
-            //    "pureclarity/general_config/search_active",
-            //    \Magento\Store\Model\ScopeInterface::SCOPE_STORE,
-            //    $this->getStoreId($storeId)
-            //);
-        // }
-        return false;
-    }
-
-    public function isProdListingActive($storeId = null)
-    {
-        if ($this->isActive($this->getStoreId($storeId))) {
-            return $this->scopeConfig->getValue(
-                "pureclarity/general_config/prodlisting_active",
-                \Magento\Store\Model\ScopeInterface::SCOPE_STORE,
-                $this->getStoreId($storeId)
-            );
-        }
-        return false;
-    }
-
     public function isFeedNotificationActive($storeId)
     {
         if ($this->isActive($storeId)) {
@@ -263,15 +213,6 @@ class Data extends \Magento\Framework\App\Helper\AbstractHelper
     {
         return $this->scopeConfig->getValue(
             "pureclarity/placeholders/placeholder_category_secondary",
-            \Magento\Store\Model\ScopeInterface::SCOPE_STORE,
-            $storeId
-        );
-    }
-
-    public function getBrandPlaceholderUrl($storeId)
-    {
-        return $this->scopeConfig->getValue(
-            "pureclarity/placeholders/placeholder_brand",
             \Magento\Store\Model\ScopeInterface::SCOPE_STORE,
             $storeId
         );
@@ -485,97 +426,6 @@ class Data extends \Magento\Framework\App\Helper\AbstractHelper
             return $selector;
         }
         return ".columns";
-    }
-
-    public function getProductListTemplate($storeId = null)
-    {
-        $template = $this->scopeConfig->getValue(
-            "pureclarity/advanced/prod_list_template",
-            \Magento\Store\Model\ScopeInterface::SCOPE_STORE,
-            $this->getStoreId($storeId)
-        );
-        if ($template) {
-            return $template;
-        }
-        return "Pureclarity_Core::list.phtml";
-    }
-
-    public function getResultTemplate($storeId = null)
-    {
-        $template = $this->scopeConfig->getValue(
-            "pureclarity/advanced/search_result_template",
-            \Magento\Store\Model\ScopeInterface::SCOPE_STORE,
-            $this->getStoreId($storeId)
-        );
-        if ($template) {
-            return $template;
-        }
-        return "Pureclarity_Core::result.phtml";
-    }
-
-    public function getProductRecommenderTemplate($storeId = null)
-    {
-        $template = $this->scopeConfig->getValue(
-            "pureclarity/advanced/prod_rec_template",
-            \Magento\Store\Model\ScopeInterface::SCOPE_STORE,
-            $this->getStoreId($storeId)
-        );
-        if ($template) {
-            return $template;
-        }
-        return "Pureclarity_Core::product_recommender.phtml";
-    }
-
-    public function getCategoryRecommenderTemplate($storeId = null)
-    {
-        $template = $this->scopeConfig->getValue(
-            "pureclarity/advanced/cat_rec_template",
-            \Magento\Store\Model\ScopeInterface::SCOPE_STORE,
-            $this->getStoreId($storeId)
-        );
-        if ($template) {
-            return $template;
-        }
-        return "Pureclarity_Core::category_recommender.phtml";
-    }
-
-    public function getBrandRecommenderTemplate($storeId = null)
-    {
-        $template = $this->scopeConfig->getValue(
-            "pureclarity/advanced/brand_rec_template",
-            \Magento\Store\Model\ScopeInterface::SCOPE_STORE,
-            $this->getStoreId($storeId)
-        );
-        if ($template) {
-            return $template;
-        }
-        return "Pureclarity_Core::brand_recommender.phtml";
-    }
-
-    public function getImageTemplate($storeId = null)
-    {
-        $template = $this->scopeConfig->getValue(
-            "pureclarity/advanced/image_template",
-            \Magento\Store\Model\ScopeInterface::SCOPE_STORE,
-            $this->getStoreId($storeId)
-        );
-        if ($template) {
-            return $template;
-        }
-        return "Pureclarity_Core::image.phtml";
-    }
-
-    public function getCarouselTemplate($storeId = null)
-    {
-        $template = $this->scopeConfig->getValue(
-            "pureclarity/advanced/carousel_template",
-            \Magento\Store\Model\ScopeInterface::SCOPE_STORE,
-            $this->getStoreId($storeId)
-        );
-        if ($template) {
-            return $template;
-        }
-        return "Pureclarity_Core::carousel_recommender.phtml";
     }
 
     public function getOrderObject()

@@ -45,6 +45,7 @@ class RunScheduled
             $schedule = (array)json_decode($scheduleData);
             $fileWriter = $this->fileSystem->getDirectoryWrite(DirectoryList::VAR_DIR);
             $fileWriter->delete($scheduleFile);
+            var_dump($schedule);
             if (!empty($schedule) && isset($schedule['store']) && isset($schedule['feeds'])) {
                 $this->feedRunner->selectedFeeds($schedule['store'], $schedule['feeds']);
             }

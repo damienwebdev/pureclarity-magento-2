@@ -54,26 +54,16 @@ class Configuration extends Template
     {
         $objectManager = \Magento\Framework\App\ObjectManager::getInstance();
         $formKey = $objectManager->get('Magento\Framework\Data\Form\FormKey');
+        $customerDetails = $this->customerDetails->getCustomerDetails();
 
-        if ($this->isServerSide()) {
-            $customerDetails = $this->customerDetails->getEmptyCustomerDetails();
-        } else {
-            $customerDetails = $this->customerDetails->getCustomerDetails();
-        }
-        
         return [
             "apiUrl" => $this->getApiStartUrl(),
             "currency" => $this->getCurrencyCode(),
             "product" => $this->getProduct(),
             "state" => [
                 "isActive" => $this->isActive()?true:false,
-                "serversideMode" => $this->isServerSide()?true:false,
+                "serversideMode" => false,
                 "isLogout" => $this->isLogOut()?true:false
-            ],
-            "search" => [
-                "isClientSearch" => $this->isClientSearch()?true:false,
-                "DOMSelector" => $this->getDOMSelector(),
-                "dataValue" => $this->getSearchDataValue()
             ],
             "customerDetails" => $customerDetails,
             "order" => $this->getOrder(),
@@ -92,11 +82,6 @@ class Configuration extends Template
         return $this->coreHelper->isActive($this->_storeManager->getStore()->getId());
     }
 
-    public function isServerSide()
-    {
-        return $this->coreHelper->isServerSide($this->_storeManager->getStore()->getId());
-    }
-
     public function isLogOut()
     {
         return $this->request->getFullActionName() == 'customer_account_logoutSuccess';
@@ -110,15 +95,6 @@ class Configuration extends Template
     public function showSwatches()
     {
         return $this->coreHelper->showSwatches($this->_storeManager->getStore()->getId());
-    }
-
-    public function isCheckoutSuccess()
-    {
-        if (!$this->isServerSide() && $this->request->getFullActionName() == 'checkout_onepage_success') {
-            $this->initOrderData();
-            return true;
-        };
-        return false;
     }
 
     public function getProduct()
@@ -142,56 +118,10 @@ class Configuration extends Template
         return $this->_storeManager->getStore()->getCurrentCurrency()->getCode();
     }
 
-    public function getSearchDataValue()
-    {
-        if ($this->isClientSearch()) {
-            if ($this->isSearchPage()) {
-                return "navigation_search";
-            } elseif ($this->isCategoryPage() && $this->category) {
-                return "navigation_category:" . $this->category->getId();
-            }
-        }
-        return "";
-    }
-    
-    public function isClientSearch()
-    {
-        $storeId = $this->_storeManager->getStore()->getId();
-        return ($this->coreHelper->isActive($storeId) &&
-                !$this->coreHelper->isServerSide($storeId) &&
-                ($this->isSearchPage() || $this->isCategoryPage()));
-    }
-
-    public function getDOMSelector()
-    {
-        return $this->coreHelper->getDOMSelector($this->_storeManager->getStore()->getId());
-    }
-
-    public function isSearchPage($storeId = null)
-    {
-        if ($this->coreHelper->isSearchActive($storeId) &&
-            $this->request->getFullActionName() === 'catalogsearch_result_index'
-        ) {
-            return true;
-        }
-        return false;
-    }
-
-    public function isCategoryPage($storeId = null)
-    {
-        
-        if ($this->coreHelper->isProdListingActive($storeId) && $this->request->getControllerName() == 'category') {
-            if ($this->category && $this->category->getDisplayMode() !== 'PAGE') {
-                return true;
-            }
-        }
-        return false;
-    }
-
     public function getOrder()
     {
         
-        if (!$this->isServerSide() && $this->request->getFullActionName() == 'checkout_onepage_success') {
+        if ($this->request->getFullActionName() == 'checkout_onepage_success') {
             $lastOrder = $this->checkoutSession->getLastRealOrder();
             $order = [
                 "orderid" => $lastOrder['increment_id'],

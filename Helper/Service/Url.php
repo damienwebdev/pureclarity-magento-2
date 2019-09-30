@@ -83,18 +83,6 @@ class Url
     }
 
     /**
-     * Gets the PureClarity serverside endpoint for the given store
-     *
-     * @param integer $region
-     * @return string
-     */
-    //public function getServerSideEndpoint($storeId)
-    public function getServerSideEndpointUrl($region)
-    {
-        return $this->getHost($region) . '/api/serverside';
-    }
-
-    /**
      * Gets the PureClarity delta endpoint for the given store
      *
      * @param integer $region

@@ -10,7 +10,6 @@ class Bmz extends Template implements BlockInterface
 {
 
     public $debug;
-    public $isServerSide = false;
 
     protected $bmzId;
     protected $content;
@@ -44,22 +43,6 @@ class Bmz extends Template implements BlockInterface
         );
     }
     
-    public function setData($key, $value = null)
-    {
-        if ($key == 'bmz_id' && $this->coreHelper->isServerSide()) {
-            $this->service->addZone($value);
-        }
-        parent::setData($key, $value);
-    }
-
-    protected function _toHtml()
-    {
-        if ($this->coreHelper->isMerchActive()) {
-            return parent::_toHtml();
-        }
-        return '';
-    }
-
     public function addBmzData($field, $value)
     {
         $this->bmzData = $this->bmzData . $field . ':' . $value . ';';
@@ -67,18 +50,9 @@ class Bmz extends Template implements BlockInterface
 
     public function _beforeToHtml()
     {
-        if (!$this->coreHelper->isMerchActive()) {
-            return;
-        }
-
-        if ($this->coreHelper->isServerSide()) {
-            $this->service->dispatch();
-        }
-
         // Get some parameters
         $this->debug = $this->coreHelper->isBMZDebugActive();
         $this->bmzId = $this->escapeHtml($this->getData('bmz_id'));
-        $this->isServerSide = $this->coreHelper->isServerSide();
 
         if ($this->bmzId == null or $this->bmzId == "") {
             $this->logger->error("PureClarity: BMZ block instantiated without a BMZ Id.");
@@ -118,18 +92,9 @@ class Bmz extends Template implements BlockInterface
             }
         }
 
-        // Get Server side BMZ Content if we need to
-        $serverSideContent = '';
-        if ($this->isServerSide) {
-            $serverSideContent = $this->getServerSideBmzBlock();
-            if ($serverSideContent != "" && $fallbackContent) {
-                $fallbackContent = "";
-            }
-        }
-
         // The actual content is the debug content followed by the fallback content.
         // In most cases; content will be an empty string
-        $content = $debugContent . $fallbackContent . $serverSideContent;
+        $content = $debugContent . $fallbackContent;
 
         // Get a list of the custom classes for this BMZs div tag
         $customClasses = $this->getData('pc_bmz_classes');
@@ -186,47 +151,11 @@ class Bmz extends Template implements BlockInterface
 
     public function getBmzData()
     {
-        if ($this->isServerSide) {
-            return "data-pureclarity-server=\"$this->bmzId\"";
-        }
         return "data-pureclarity=\"$this->bmzData\"";
     }
 
     public function getCacheLifetime()
     {
         return null;
-    }
-
-    public function getServerSideBmzBlock()
-    {
-
-        $result = $this->service->getResult();
-
-        if ($result &&
-            array_key_exists('zones', $result) &&
-            array_key_exists($this->bmzId, $result['zones']) &&
-            array_key_exists('type', $result['zones'][$this->bmzId])) {
-            $resultData = $result['zones'][$this->bmzId];
-
-            switch ($result['zones'][$this->bmzId]['type']) {
-                case "recommender-product":
-                    return $this->getLayout()
-                            ->createBlock(
-                                "Pureclarity\Core\Block\BMZs\ProductRecommender",
-                                "pc_bmz_serverside_" . $this->bmzId
-                            )
-                            ->setData('bmz_id', $this->bmzId)
-                            ->setData('bmz_data', $resultData)
-                            ->setTemplate($this->coreHelper->getProductRecommenderTemplate())
-                            ->toHtml();
-                case "recommender-category":
-                case "recommender-brand":
-                case "staticimage":
-                case "carousel":
-                case "html":
-                    return $resultData['html'];
-            }
-        }
-        return "";
     }
 }

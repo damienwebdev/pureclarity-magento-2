@@ -81,11 +81,6 @@ class Service extends \Magento\Framework\App\Helper\AbstractHelper
         $this->action = $action;
     }
 
-    public function addZone($zoneId)
-    {
-        $this->zones[] = [ "id" => $zoneId ];
-    }
-
     public function addTrackingEvent($event, $data)
     {
         $newEvent = [
@@ -97,89 +92,16 @@ class Service extends \Magento\Framework\App\Helper\AbstractHelper
         $this->events[] = $newEvent;
     }
 
-    public function addSearch($isCategory = false, $query = null, $sort = null, $size = null)
-    {
-        $this->isCategory = $isCategory;
-        $this->query = $query;
-        $this->sort = $sort;
-        $this->size = $size;
-    }
-
-    public function processSearch()
-    {
-        $this->isCategory = $this->isCategoryPage();
-        if (($this->coreHelper->isSearchActive() &&
-            ($this->coreHelper->isServerSide() || $this->coreHelper->seoSearchFriendly()) &&
-            (
-                (
-                    $this->isCategory && !empty($this->category) &&
-                    $this->category->getId() &&
-                    $this->coreHelper->isProdListingActive()
-                ) ||
-                $this->isSearchPage())
-            )) {
-                $this->query = $this->isCategoryPage() ? $this->category->getId()
-                               : $this->catalogSearchHelper->getEscapedQueryText();
-                $sortOrder = $this->toolBar->getOrder();
-                $sortDirection = $this->toolBar->getDirection();
-                $this->size = $this->coreHelper->isServerSide()?"2000":null;
-                $this->sort = 0;
-            if ($sortOrder || $sortDirection) {
-                $sortOrder = $sortOrder?$sortOrder:'relevance';
-                $sortDirection = $sortDirection?$sortDirection:'desc';
-                $sort = $sortOrder . '_' . $sortDirection;
-                switch ($sort) {
-                    case "price_asc":
-                        $this->sort = 1;
-                        break;
-                    case "price_desc":
-                        $this->sort = 2;
-                        break;
-                    case "name_asc":
-                        $this->sort = 3;
-                        break;
-                    case "name_desc":
-                        $this->sort = 4;
-                        break;
-                }
-            }
-        }
-    }
-
     public function dispatch($isMagentoAdminCall = false)
     {
         if ($this->dispatched ||
             (!$this->action && !$isMagentoAdminCall) ||
-            (!$this->coreHelper->isServerSide() && !$this->coreHelper->seoSearchFriendly() && !$isMagentoAdminCall)) {
+            (!$this->coreHelper->seoSearchFriendly() && !$isMagentoAdminCall)) {
             return;
         }
         
-        $this->processSearch();
-
         $this->dispatched = true;
 
-        // Check we're running serverside, and if so add any required events.
-        if (!$isMagentoAdminCall && $this->coreHelper->isServerSide()) {
-            $product = $this->registry->registry("product");
-            if ($product != null) {
-                $this->addTrackingEvent("product_view", ["id"=>$product->getId()]);
-            }
-
-            switch ($this->action) {
-                case "customer_account_logoutSuccess":
-                    $this->addTrackingEvent('customer_logout');
-                    break;
-                case "checkout_onepage_success":
-                    $this->addTrackingEvent('order_track', $this->coreHelper->getOrderForTracking());
-                    break;
-            }
-            
-            $customerDetails = $this->customerDetails->getCustomerDetails();
-            if ($customerDetails['trigger'] === true) {
-                $this->addTrackingEvent('customer_details', $customerDetails['customer']);
-            }
-        }
-        
         // Set up Request
         $storeId = $this->coreHelper->getStoreId();
 
@@ -305,43 +227,5 @@ class Service extends \Magento\Framework\App\Helper\AbstractHelper
             $value,
             $metadata
         );
-    }
-
-    public function getResult()
-    {
-        return $this->result;
-    }
-
-    public function updateSearchResult($searchResult)
-    {
-        $this->result['search'] = $searchResult;
-    }
-
-    public function getSearchResult()
-    {
-        if ($this->result &&
-            isset($this->result['search']) &&
-            isset($this->result['search']['redirectUrl']) &&
-            !empty($this->result['search']['redirectUrl'])
-        ) {
-            $this->responseFactory->create()->setRedirect($this->result['search']['redirectUrl'])->sendResponse();
-        }
-        
-        if ($this->result &&
-            array_key_exists('search', $this->result) &&
-            array_key_exists('products', $this->result['search'])) {
-            return $this->result['search'];
-        }
-        return null;
-    }
-
-    private function isCategoryPage()
-    {
-        return ($this->request->getControllerName() == 'category');
-    }
-
-    private function isSearchPage()
-    {
-        return $this->request->getFullActionName() == 'catalogsearch_result_index';
     }
 }
