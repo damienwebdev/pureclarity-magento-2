@@ -1,89 +1,117 @@
 <?php
+/**
+ * Copyright © PureClarity. All rights reserved.
+ * See LICENSE.txt for license details.
+ */
+
 namespace Pureclarity\Core\Model;
 
+use Magento\Catalog\Model\ProductFactory;
+use Magento\Cron\Model\Schedule;
 use Magento\Framework\Exception\CouldNotDeleteException;
 use Magento\Framework\Exception\CouldNotSaveException;
+use Magento\Framework\Filesystem;
 use Magento\Framework\Serialize\Serializer\Json;
+use Magento\Store\Model\StoreFactory;
+use Magento\Store\Model\StoreManagerInterface;
+use Psr\Log\LoggerInterface;
 use Pureclarity\Core\Api\StateRepositoryInterface;
 use Magento\Framework\App\Filesystem\DirectoryList;
 use Magento\Catalog\Model\Product\Attribute\Source\Status;
 use Magento\Catalog\Model\Product\Visibility;
+use Pureclarity\Core\Helper\Data;
+use Pureclarity\Core\Helper\Soap;
+use Pureclarity\Core\Model\ResourceModel\ProductFeed\CollectionFactory;
 
 /**
+ * Class Cron
+ *
  * Controls the execution of feeds sent to PureClarity.
  */
-
-class Cron extends \Magento\Framework\Model\AbstractModel
+class Cron
 {
+    /** @var Soap $coreSoapHelper */
+    private $coreSoapHelper;
 
-    protected $coreSoapHelper;
-    protected $coreSftpHelper;
-    protected $storeManager;
-    protected $coreHelper;
-    protected $coreResourceProductFeedCollectionFactory;
-    protected $coreProductExportFactory;
-    protected $catalogProductFactory;
-    protected $logger;
-    protected $coreFeedFactory;
-    protected $storeStoreFactory;
-    protected $scopeConfig;
+    /** @var StoreManagerInterface $storeManager */
+    private $storeManager;
+
+    /** @var Data $coreHelper */
+    private $coreHelper;
+
+    /** @var CollectionFactory $productFeedCollectionFactory */
+    private $productFeedCollectionFactory;
+
+    /** @var ProductExportFactory $productExportFactory */
+    private $productExportFactory;
+
+    /** @var ProductFactory $catalogProductFactory */
+    private $catalogProductFactory;
+
+    /** @var FeedFactory $coreFeedFactory */
+    private $coreFeedFactory;
+
+    /** @var StoreFactory $storeStoreFactory */
+    private $storeStoreFactory;
+
+    /** @var Filesystem */
+    private $fileSystem;
 
     /** @var StateRepositoryInterface */
     private $stateRepository;
 
     /** @var Json */
-    protected $json;
-    
-    /** @var \Magento\Framework\Filesystem */
-    private $fileSystem;
+    private $json;
 
+    /** @var LoggerInterface $logger */
+    private $logger;
+
+    /**
+     * @param Soap $coreSoapHelper
+     * @param StoreManagerInterface $storeManager
+     * @param Data $coreHelper
+     * @param CollectionFactory $productFeedCollectionFactory
+     * @param ProductExportFactory $productExportFactory
+     * @param ProductFactory $catalogProductFactory
+     * @param FeedFactory $coreFeedFactory
+     * @param StoreFactory $storeStoreFactory
+     * @param Filesystem $fileSystem
+     * @param StateRepositoryInterface $stateRepository
+     * @param Json $json
+     * @param LoggerInterface $logger
+     */
     public function __construct(
-        \Magento\Framework\Model\Context $context,
-        \Magento\Framework\Registry $registry,
-        \Pureclarity\Core\Helper\Soap $coreSoapHelper,
-        \Pureclarity\Core\Helper\Sftp $coreSftpHelper,
-        \Magento\Store\Model\StoreManagerInterface $storeManager,
-        \Pureclarity\Core\Helper\Data $coreHelper,
-        \Pureclarity\Core\Model\ResourceModel\ProductFeed\CollectionFactory $coreResourceProductFeedCollectionFactory,
-        \Pureclarity\Core\Model\ProductExportFactory $coreProductExportFactory,
-        \Magento\Catalog\Model\ProductFactory $catalogProductFactory,
-        \Pureclarity\Core\Model\FeedFactory $coreFeedFactory,
-        \Magento\Store\Model\StoreFactory $storeStoreFactory,
-        \Magento\Framework\App\Config\ScopeConfigInterface $scopeConfig,
-        \Magento\Framework\Filesystem $fileSystem,
+        Soap $coreSoapHelper,
+        StoreManagerInterface $storeManager,
+        Data $coreHelper,
+        CollectionFactory $productFeedCollectionFactory,
+        ProductExportFactory $productExportFactory,
+        ProductFactory $catalogProductFactory,
+        FeedFactory $coreFeedFactory,
+        StoreFactory $storeStoreFactory,
+        Filesystem $fileSystem,
         StateRepositoryInterface $stateRepository,
         Json $json,
-        \Magento\Framework\Model\ResourceModel\AbstractResource $resource = null,
-        \Magento\Framework\Data\Collection\AbstractDb $resourceCollection = null,
-        array $data = []
+        LoggerInterface $logger
     ) {
-        $this->coreSoapHelper = $coreSoapHelper;
-        $this->coreSftpHelper = $coreSftpHelper;
-        $this->storeManager = $storeManager;
-        $this->coreHelper = $coreHelper;
-        $this->coreResourceProductFeedCollectionFactory = $coreResourceProductFeedCollectionFactory;
-        $this->coreProductExportFactory = $coreProductExportFactory;
-        $this->catalogProductFactory = $catalogProductFactory;
-        $this->logger = $context->getLogger();
-        $this->coreFeedFactory = $coreFeedFactory;
-        $this->storeStoreFactory = $storeStoreFactory;
-        $this->scopeConfig = $scopeConfig;
-        $this->fileSystem = $fileSystem;
-        $this->stateRepository = $stateRepository;
-        $this->json = $json;
-        parent::__construct(
-            $context,
-            $registry,
-            $resource,
-            $resourceCollection,
-            $data
-        );
+        $this->coreSoapHelper               = $coreSoapHelper;
+        $this->storeManager                 = $storeManager;
+        $this->coreHelper                   = $coreHelper;
+        $this->productFeedCollectionFactory = $productFeedCollectionFactory;
+        $this->productExportFactory     = $productExportFactory;
+        $this->catalogProductFactory        = $catalogProductFactory;
+        $this->coreFeedFactory              = $coreFeedFactory;
+        $this->storeStoreFactory            = $storeStoreFactory;
+        $this->fileSystem                   = $fileSystem;
+        $this->stateRepository              = $stateRepository;
+        $this->json                         = $json;
+        $this->logger                       = $logger;
     }
 
     /**
      * Runs all feeds, called via cron 3am daily (see /etc/crontab.xml)
      */
-    public function runAllFeeds(\Magento\Cron\Model\Schedule $schedule)
+    public function runAllFeeds(Schedule $schedule)
     {
         $this->logger->debug('PureClarity: In Cron->runAllFeeds()');
         // Loop round each store and create feed
@@ -255,7 +283,7 @@ class Cron extends \Magento\Framework\Model\AbstractModel
         $uniqueId = 'PureClarity' . uniqid();
         $requests = [];
 
-        $collection = $this->coreResourceProductFeedCollectionFactory->create()
+        $collection = $this->productFeedCollectionFactory->create()
                          ->addFieldToFilter('status_id', ['eq' => 0]);
  
         // Loop round each store and process Deltas
@@ -290,7 +318,7 @@ class Cron extends \Magento\Framework\Model\AbstractModel
 
                             // Process any deltas
                             if (count($productHash) > 0) {
-                                $productExportModel = $this->coreProductExportFactory->create();
+                                $productExportModel = $this->productExportFactory->create();
                                 
                                 $productExportModel->init($store->getId());
                                 

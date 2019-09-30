@@ -1,95 +1,121 @@
 <?php
+/**
+ * Copyright © PureClarity. All rights reserved.
+ * See LICENSE.txt for license details.
+ */
+
 namespace Pureclarity\Core\Model;
 
+use Magento\Catalog\Model\CategoryRepository;
+use Magento\Catalog\Model\ResourceModel\Category\CollectionFactory as CategoryCollectionFactory;
 use Magento\Framework\Exception\CouldNotSaveException;
 use Magento\Framework\Exception\LocalizedException;
-use Magento\Framework\Serialize\Serializer\Json;
+use Magento\Store\Model\Store;
+use Magento\Store\Model\StoreFactory;
+use Psr\Log\LoggerInterface;
 use Pureclarity\Core\Api\StateRepositoryInterface;
+use Pureclarity\Core\Helper\Data;
+use Magento\Customer\Model\ResourceModel\Customer\CollectionFactory as CustomerCollectionFactory;
+use Magento\Customer\Model\ResourceModel\Group\Collection as CustomerGroupCollection;
 
-class Feed extends \Magento\Framework\Model\AbstractModel
+/**
+ * Class Feed
+ *
+ * Handles running of feeds
+ */
+class Feed
 {
-
-    protected $catalogResourceModelCategoryCollectionFactory;
-    protected $categoryRepository;
-    protected $coreHelper;
-    protected $eavConfig;
-    protected $storeFactory;
-    protected $categoryHelper;
-    protected $coreProductExportFactory;
-    protected $logger;
-    protected $customerGroup;
-
-    /** @var \Magento\Customer\Model\ResourceModel\Customer\CollectionFactory */
-    private $customerCollectionFactory;
-
-    protected $orderFactory;
-    protected $accessKey;
-    protected $secretKey;
-    protected $storeId;
-    protected $progressFileName;
-    protected $problemFeeds = [];
-
-    private $uniqueId;
-    private $currentStore;
-
-    /** @var StateRepositoryInterface $stateRepository */
-    private $stateRepository;
-
-    /** @var Json $json */
-    private $json;
-
     const FEED_TYPE_BRAND = "brand";
     const FEED_TYPE_CATEGORY = "category";
     const FEED_TYPE_PRODUCT = "product";
     const FEED_TYPE_ORDER = "orders";
     const FEED_TYPE_USER = "user";
 
+    /** @var string[] $problemFeeds */
+    private $problemFeeds = [];
+
+    /** @var string $accessKey */
+    private $accessKey;
+
+    /** @var string $secretKey */
+    private $secretKey;
+
+    /** @var string $storeId */
+    private $storeId;
+
+    /** @var string $progressFileName */
+    private $progressFileName;
+
+    /** @var string $uniqueId */
+    private $uniqueId;
+
+    /** @var Store $currentStore */
+    private $currentStore;
+
+    /** @var CategoryCollectionFactory $categoryCollectionFactory */
+    private $categoryCollectionFactory;
+
+    /** @var CategoryRepository $categoryRepository */
+    private $categoryRepository;
+
+    /** @var Data $coreHelper */
+    private $coreHelper;
+
+    /** @var StoreFactory $storeFactory */
+    private $storeFactory;
+
+    /** @var ProductExportFactory $productExportFactory */
+    private $productExportFactory;
+
+    /** @var CustomerCollectionFactory $customerCollectionFactory */
+    private $customerCollectionFactory;
+
+    /** @var CustomerGroupCollection $customerGroupCollection */
+    private $customerGroupCollection;
+
+    /** @var StateRepositoryInterface $stateRepository */
+    private $stateRepository;
+
+    /** @var LoggerInterface $logger */
+    private $logger;
+
+    /**
+     * @param CategoryCollectionFactory $categoryCollectionFactory
+     * @param CategoryRepository $categoryRepository
+     * @param Data $coreHelper
+     * @param StoreFactory $storeFactory
+     * @param ProductExportFactory $productExportFactory
+     * @param CustomerCollectionFactory $customerCollectionFactory
+     * @param CustomerGroupCollection $customerGroupCollection
+     * @param StateRepositoryInterface $stateRepository
+     * @param LoggerInterface $logger
+     */
     public function __construct(
-        \Magento\Framework\Model\Context $context,
-        \Magento\Framework\Registry $registry,
-        \Magento\Catalog\Model\ResourceModel\Category\CollectionFactory $catalogResourceModelCategoryCollectionFactory,
-        \Magento\Catalog\Model\CategoryRepository $categoryRepository,
-        \Magento\Sales\Model\OrderFactory $orderFactory,
-        \Pureclarity\Core\Helper\Data $coreHelper,
-        \Magento\Eav\Model\Config $eavConfig,
-        \Magento\Store\Model\StoreFactory $storeFactory,
-        \Magento\Catalog\Helper\Category $categoryHelper,
-        \Pureclarity\Core\Model\ProductExportFactory $coreProductExportFactory,
-        \Magento\Customer\Model\ResourceModel\Customer\CollectionFactory $customerCollectionFactory,
-        \Magento\Customer\Model\ResourceModel\Group\Collection $customerGroup,
+        CategoryCollectionFactory $categoryCollectionFactory,
+        CategoryRepository $categoryRepository,
+        Data $coreHelper,
+        StoreFactory $storeFactory,
+        ProductExportFactory $productExportFactory,
+        CustomerCollectionFactory $customerCollectionFactory,
+        CustomerGroupCollection $customerGroupCollection,
         StateRepositoryInterface $stateRepository,
-        Json $json,
-        \Magento\Framework\Model\ResourceModel\AbstractResource $resource = null,
-        \Magento\Framework\Data\Collection\AbstractDb $resourceCollection = null,
-        array $data = []
+        LoggerInterface $logger
     ) {
-        $this->catalogResourceModelCategoryCollectionFactory = $catalogResourceModelCategoryCollectionFactory;
-        $this->categoryRepository = $categoryRepository;
-        $this->coreHelper = $coreHelper;
-        $this->eavConfig = $eavConfig;
-        $this->storeFactory = $storeFactory;
-        $this->categoryHelper = $categoryHelper;
-        $this->coreProductExportFactory = $coreProductExportFactory;
-        $this->logger = $context->getLogger();
+        $this->categoryCollectionFactory = $categoryCollectionFactory;
+        $this->categoryRepository        = $categoryRepository;
+        $this->coreHelper                = $coreHelper;
+        $this->storeFactory              = $storeFactory;
+        $this->productExportFactory      = $productExportFactory;
+        $this->logger                    = $logger;
         $this->customerCollectionFactory = $customerCollectionFactory;
-        $this->customerGroup = $customerGroup;
-        $this->orderFactory = $orderFactory;
-        $this->stateRepository = $stateRepository;
-        $this->json = $json;
+        $this->customerGroupCollection   = $customerGroupCollection;
+        $this->stateRepository           = $stateRepository;
 
         /*
          * If Magento does not have the recommended level of memory for PHP, can cause the feeds
          * to fail. If this happens, an appropriate message is logged.
          */
         register_shutdown_function("Pureclarity\Core\Model\Feed::logShutdown");
-
-        parent::__construct(
-            $context,
-            $registry,
-            $resource,
-            $resourceCollection,
-            $data
-        );
     }
 
     /**
@@ -105,7 +131,7 @@ class Feed extends \Magento\Framework\Model\AbstractModel
         }
 
         $this->logger->debug("PureClarity: In Feed->sendProducts()");
-        $productExportModel = $this->coreProductExportFactory->create();
+        $productExportModel = $this->productExportFactory->create();
         $productExportModel->init($this->storeId);
         $this->logger->debug("PureClarity: Initialised ProductExport");
 
@@ -288,7 +314,7 @@ class Feed extends \Magento\Framework\Model\AbstractModel
             return false;
         }
 
-        $categoryCollection = $this->catalogResourceModelCategoryCollectionFactory->create()
+        $categoryCollection = $this->categoryCollectionFactory->create()
             ->setStore($this->getCurrentStore())
             ->addAttributeToSelect('name')
             ->addAttributeToSelect('is_active')
@@ -415,7 +441,7 @@ class Feed extends \Magento\Framework\Model\AbstractModel
         if ($brandCategoryId && $brandCategoryId != "-1") {
             $brandParentCategory = $this->categoryRepository->get($brandCategoryId);
             
-            $brands = $this->catalogResourceModelCategoryCollectionFactory->create()
+            $brands = $this->categoryCollectionFactory->create()
                 ->addAttributeToSelect('name')
                 ->addAttributeToSelect('image')
                 ->addAttributeToSelect('pureclarity_category_image')
@@ -528,7 +554,7 @@ class Feed extends \Magento\Framework\Model\AbstractModel
         }
 
         $this->logger->debug("PureClarity: In Feed->sendUsers()");
-        $customerGroups = $this->customerGroup->toOptionArray();
+        $customerGroups = $this->customerGroupCollection->toOptionArray();
 
         $customerCollection = $this->getCustomerCollection();
 
