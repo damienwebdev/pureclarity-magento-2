@@ -1,40 +1,65 @@
 <?php
+/**
+ * Copyright © PureClarity. All rights reserved.
+ * See LICENSE.txt for license details.
+ */
 
 namespace Pureclarity\Core\Model;
 
+use Magento\Cms\Model\BlockFactory;
 use Magento\Framework\Component\ComponentRegistrar;
+use Magento\Framework\File\Csv;
+use Magento\Widget\Model\Widget\InstanceFactory;
+use \Magento\Widget\Model\ResourceModel\Widget\Instance\CollectionFactory as WidgetInstanceCollectionFactory;
+use \Magento\Catalog\Model\ResourceModel\Category\CollectionFactory as CategoryCollectionFactory;
 
+/**
+ * Class CmsBlock
+ *
+ * Class for handling Widget related actions
+ */
 class CmsBlock
 {
+    /** @var Csv $csvProcessor */
+    private $csvProcessor;
 
-    protected $categoryFactory;
-    protected $widgetFactory;
-    protected $themeCollectionFactory;
-    protected $cmsBlockFactory;
-    protected $appCollectionFactory;
-    protected $fixtureManager;
-    protected $csvProcessor;
-    protected $componentRegistrar;
-    protected $logger;
+    /** @var ComponentRegistrar $componentRegistrar */
+    private $componentRegistrar;
 
+    /** @var InstanceFactory $widgetFactory */
+    private $widgetFactory;
+
+    /** @var BlockFactory $cmsBlockFactory */
+    private $cmsBlockFactory;
+
+    /** @var WidgetInstanceCollectionFactory $appCollectionFactory */
+    private $appCollectionFactory;
+
+    /** @var CategoryCollectionFactory $categoryFactory */
+    private $categoryFactory;
+
+    /**
+     * @param Csv $csvProcessor
+     * @param ComponentRegistrar $componentRegistrar
+     * @param InstanceFactory $widgetFactory
+     * @param BlockFactory $cmsBlockFactory
+     * @param WidgetInstanceCollectionFactory $appCollectionFactory
+     * @param CategoryCollectionFactory $categoryFactory
+     */
     public function __construct(
-        \Magento\Framework\File\Csv $csvProcessor,
+        Csv $csvProcessor,
         ComponentRegistrar $componentRegistrar,
-        \Magento\Widget\Model\Widget\InstanceFactory $widgetFactory,
-        \Magento\Theme\Model\ResourceModel\Theme\CollectionFactory $themeCollectionFactory,
-        \Magento\Cms\Model\BlockFactory $cmsBlockFactory,
-        \Magento\Widget\Model\ResourceModel\Widget\Instance\CollectionFactory $appCollectionFactory,
-        \Magento\Catalog\Model\ResourceModel\Category\CollectionFactory $categoryFactory,
-        \Psr\Log\LoggerInterface $logger
+        InstanceFactory $widgetFactory,
+        BlockFactory $cmsBlockFactory,
+        WidgetInstanceCollectionFactory $appCollectionFactory,
+        CategoryCollectionFactory $categoryFactory
     ) {
         $this->csvProcessor = $csvProcessor;
         $this->widgetFactory = $widgetFactory;
-        $this->themeCollectionFactory = $themeCollectionFactory;
         $this->cmsBlockFactory = $cmsBlockFactory;
         $this->appCollectionFactory = $appCollectionFactory;
         $this->categoryFactory = $categoryFactory;
         $this->componentRegistrar = $componentRegistrar;
-        $this->logger = $logger;
     }
 
     /**

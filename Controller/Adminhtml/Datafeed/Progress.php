@@ -13,6 +13,11 @@ use Magento\Framework\Controller\Result\JsonFactory;
 use Magento\Store\Model\StoreManagerInterface;
 use Pureclarity\Core\Model\FeedStatus;
 
+/**
+ * Class Progress
+ *
+ * controller for pureclarity/dashboard/progress POST request
+ */
 class Progress extends Action
 {
     /** @var JsonFactory $resultJsonFactory */
@@ -24,6 +29,12 @@ class Progress extends Action
     /** @var StoreManagerInterface $storeManager */
     private $storeManager;
 
+    /**
+     * @param Context $context
+     * @param JsonFactory $resultJsonFactory
+     * @param FeedStatus $feedStatus
+     * @param StoreManagerInterface $storeManager
+     */
     public function __construct(
         Context $context,
         JsonFactory $resultJsonFactory,

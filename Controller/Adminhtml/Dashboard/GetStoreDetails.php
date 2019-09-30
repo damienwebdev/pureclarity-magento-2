@@ -14,7 +14,7 @@ use Magento\Framework\Data\Form\FormKey\Validator;
 use Pureclarity\Core\Helper\StoreData;
 
 /**
- * class GetStoreDetails
+ * Class GetStoreDetails
  *
  * controller for pureclarity/dashboard/getStoreDetails POST request
  */

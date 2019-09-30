@@ -12,7 +12,7 @@ use Magento\Framework\View\Result\Page;
 use Magento\Framework\View\Result\PageFactory;
 
 /**
- * class Index
+ * Class Index
  *
  * controller for pureclarity/dashboard/index page
  */

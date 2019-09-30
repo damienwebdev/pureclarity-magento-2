@@ -7,7 +7,9 @@
 namespace Pureclarity\Core\Helper\Service;
 
 /**
- * Helper class for core functionality.
+ * Class URL
+ *
+ * Helper class for URL related functions
  */
 class Url
 {

@@ -1,4 +1,10 @@
 <?xml version="1.0" encoding="UTF-8"?>
+<!--
+/**
+ * Copyright © PureClarity. All rights reserved.
+ * See LICENSE.txt for license details.
+ */
+-->
 <widgets xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="urn:magento:module:Magento_Widget:etc/widget.xsd">
  <widget id="pureclarity_core_bmz" class="Pureclarity\Core\Block\Bmz" placeholder_image="Pureclarity_Core::images/pureclarity.png">
      <label translate="true">PureClarity BMZ</label>

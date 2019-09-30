@@ -17,6 +17,11 @@ use Pureclarity\Core\Api\Data\StateInterface;
 use Magento\Framework\Exception\CouldNotSaveException;
 use Magento\Framework\Exception\CouldNotDeleteException;
 
+/**
+ * Class StateRepository
+ *
+ * Repository class for getting rows out of pureclarity_state table
+ */
 class StateRepository implements StateRepositoryInterface
 {
     /** @var CollectionFactory */

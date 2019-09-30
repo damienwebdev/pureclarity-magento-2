@@ -11,11 +11,12 @@ use Magento\Store\Model\ScopeInterface;
 use Magento\Framework\App\Config\Storage\WriterInterface;
 
 /**
+ * Class CoreConfig
+ *
  * Class for getting all PureClarity Config values and setting some of them used by the signup process
  */
 class CoreConfig
 {
-    const CONFIG_PATH_IS_CONFIGURED = 'pureclarity/environment/is_configured';
     const CONFIG_PATH_ACTIVE = 'pureclarity/environment/active';
     const CONFIG_PATH_ACCESS_KEY = 'pureclarity/credentials/access_key';
     const CONFIG_PATH_SECRET_KEY = 'pureclarity/credentials/secret_key';
@@ -29,7 +30,6 @@ class CoreConfig
     const CONFIG_PATH_PLACEHOLDER_CATEGORY = 'pureclarity/placeholders/placeholder_category';
     const CONFIG_PATH_PLACEHOLDER_CATEGORY_SECONDARY = 'pureclarity/placeholders/placeholder_category_secondary';
     const CONFIG_PATH_ZONE_DEBUG = 'pureclarity/advanced/bmz_debug';
-    const CONFIG_PATH_PRODUCT_REC_TEMPLATE = 'pureclarity/advanced/prod_rec_template';
 
     /** @var ScopeConfigInterface $scopeConfig */
     protected $scopeConfig;

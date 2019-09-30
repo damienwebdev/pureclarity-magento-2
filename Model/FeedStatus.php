@@ -10,7 +10,6 @@ use Magento\Framework\App\Filesystem\DirectoryList;
 use Magento\Framework\Exception\FileSystemException;
 use Magento\Framework\Filesystem;
 use Magento\Framework\Filesystem\Directory\ReadInterface;
-use Magento\Framework\View\Element\Block\ArgumentInterface;
 use Pureclarity\Core\Api\StateRepositoryInterface;
 use Pureclarity\Core\Helper\Data;
 use Magento\Framework\Serialize\Serializer\Json;
@@ -20,7 +19,7 @@ use Magento\Framework\Serialize\Serializer\Json;
  *
  * Feed status checker model
  */
-class FeedStatus implements ArgumentInterface
+class FeedStatus
 {
     /** @var mixed[] $feedStatusData */
     private $feedStatusData;

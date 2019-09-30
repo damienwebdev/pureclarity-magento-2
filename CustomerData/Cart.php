@@ -3,32 +3,35 @@
  * Copyright © PureClarity. All rights reserved.
  * See LICENSE.txt for license details.
  */
+
 namespace Pureclarity\Core\CustomerData;
 
 use \Magento\Customer\CustomerData\SectionSourceInterface;
-use \Psr\Log\LoggerInterface;
 use \Magento\Checkout\Model\Cart as CartModel;
 
+/**
+ * Class Cart
+ *
+ * Data model for PureClarity cart-update event (see frontend/section.xml for usages)
+ */
 class Cart implements SectionSourceInterface
 {
-    /** @var \Psr\Log\LoggerInterface */
-    private $logger;
-    
-    /** @var \Magento\Checkout\Model\Cart */
+    /** @var CartModel $cart */
     private $cart;
 
+    /**
+     * @param CartModel $cart
+     */
     public function __construct(
-        LoggerInterface $logger,
         CartModel $cart
     ) {
         $this->cart = $cart;
-        $this->logger = $logger;
     }
     
     /**
      * Prepares data for the set_basket event based on the customers cart contents
      *
-     * @return void
+     * @return mixed[]
      */
     public function getSectionData()
     {

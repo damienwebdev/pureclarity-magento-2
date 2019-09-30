@@ -1,42 +1,59 @@
 <?php
+/**
+ * Copyright © PureClarity. All rights reserved.
+ * See LICENSE.txt for license details.
+ */
 
 namespace Pureclarity\Core\Block;
 
+use Magento\Cms\Model\BlockFactory;
+use Magento\Framework\Registry;
 use Magento\Framework\View\Element\Template;
 use Magento\Framework\View\Element\Template\Context;
 use Magento\Widget\Block\BlockInterface;
+use Pureclarity\Core\Helper\Data;
 
+/**
+ * Class Bmz
+ *
+ * Block for BMZ widgets
+ */
 class Bmz extends Template implements BlockInterface
 {
+    private $debug;
+    private $bmzId;
+    private $content;
+    private $classes;
+    private $bmzData = "";
 
-    public $debug;
-
-    protected $bmzId;
-    protected $content;
-    protected $classes;
-    protected $bmzData = "";
-    protected $coreHelper;
-    protected $logger;
-    protected $registry;
-    protected $cmsBlockFactory;
-    protected $storeManager;
     protected $_template = "bmz.phtml";
-    protected $service;
 
+    /** @var Data $coreHelper */
+    private $coreHelper;
+
+    /** @var Registry $registry */
+    private $registry;
+
+    /** @var BlockFactory $cmsBlockFactory */
+    private $cmsBlockFactory;
+
+    /**
+     * @param Context $context
+     * @param Data $coreHelper
+     * @param Registry $registry
+     * @param BlockFactory $cmsBlockFactory
+     * @param array $data
+     */
     public function __construct(
-        \Magento\Framework\View\Element\Template\Context $context,
-        \Pureclarity\Core\Helper\Data $coreHelper,
-        \Magento\Framework\Registry $registry,
-        \Magento\Cms\Model\BlockFactory $cmsBlockFactory,
-        \Pureclarity\Core\Helper\Service $service,
+        Context $context,
+        Data $coreHelper,
+        Registry $registry,
+        BlockFactory $cmsBlockFactory,
         array $data = []
     ) {
-        $this->coreHelper = $coreHelper;
-        $this->logger = $context->getLogger();
-        $this->registry = $registry;
+        $this->coreHelper      = $coreHelper;
+        $this->registry        = $registry;
         $this->cmsBlockFactory = $cmsBlockFactory;
-        $this->storeManager = $context->getStoreManager();
-        $this->service = $service;
         parent::__construct(
             $context,
             $data
@@ -54,8 +71,8 @@ class Bmz extends Template implements BlockInterface
         $this->debug = $this->coreHelper->isBMZDebugActive();
         $this->bmzId = $this->escapeHtml($this->getData('bmz_id'));
 
-        if ($this->bmzId == null or $this->bmzId == "") {
-            $this->logger->error("PureClarity: BMZ block instantiated without a BMZ Id.");
+        if ($this->bmzId == null || $this->bmzId == "") {
+            $this->_logger->error("PureClarity: BMZ block instantiated without a BMZ Id.");
         } else {
             $this->addBmzData('bmz', $this->bmzId);
 

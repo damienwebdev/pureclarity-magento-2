@@ -14,7 +14,7 @@ use Pureclarity\Core\Model\Signup\Status as RequestStatus;
 use Pureclarity\Core\Model\Signup\Process;
 
 /**
- * class SignupStatus
+ * Class SignupStatus
  *
  * controller for pureclarity/dashboard/signupStatus GET request
  */

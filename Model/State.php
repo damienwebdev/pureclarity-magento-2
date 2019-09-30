@@ -10,6 +10,11 @@ use Magento\Framework\Model\AbstractModel;
 use Pureclarity\Core\Api\Data\StateInterface;
 use Pureclarity\Core\Model\ResourceModel\State as StateResource;
 
+/**
+ * Class State
+ *
+ * Data model for pureclarity_state table
+ */
 class State extends AbstractModel implements StateInterface
 {
     public function _construct()

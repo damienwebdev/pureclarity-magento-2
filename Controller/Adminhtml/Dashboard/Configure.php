@@ -14,7 +14,7 @@ use Magento\Framework\Data\Form\FormKey\Validator;
 use Pureclarity\Core\Model\Signup\Process;
 
 /**
- * class Configure
+ * Class Configure
  *
  * controller for pureclarity/dashboard/configure POST request
  */

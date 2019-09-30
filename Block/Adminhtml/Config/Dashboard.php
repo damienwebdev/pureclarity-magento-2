@@ -9,6 +9,11 @@ namespace Pureclarity\Core\Block\Adminhtml\Config;
 use Magento\Config\Block\System\Config\Form\Fieldset;
 use Magento\Framework\Data\Form\Element\AbstractElement;
 
+/**
+ * Class Dashboard
+ *
+ * Dashboard link from configuration page
+ */
 class Dashboard extends Fieldset
 {
     /**

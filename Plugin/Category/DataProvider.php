@@ -1,18 +1,35 @@
 <?php
+/**
+ * Copyright © PureClarity. All rights reserved.
+ * See LICENSE.txt for license details.
+ */
+
 namespace Pureclarity\Core\Plugin\Category;
 
-use Magento\Catalog\Model\Category;
 use Magento\Catalog\Model\Category\DataProvider as CategoryDataProvider;
+use Magento\Store\Model\StoreManagerInterface;
+use Pureclarity\Core\Helper\Data;
 
+/**
+ * Class DataProvider
+ *
+ * Adds extra PureClarity info to category data provider
+ */
 class DataProvider
 {
-    
+    /** @var Data $coreHelper */
     private $coreHelper;
+
+    /** @var StoreManagerInterface $storeManager */
     private $storeManager;
-    
+
+    /**
+     * @param Data $coreHelper
+     * @param StoreManagerInterface $storeManager
+     */
     public function __construct(
-        \Pureclarity\Core\Helper\Data $coreHelper,
-        \Magento\Store\Model\StoreManagerInterface $storeManager
+        Data $coreHelper,
+        StoreManagerInterface $storeManager
     ) {
         $this->coreHelper = $coreHelper;
         $this->storeManager = $storeManager;

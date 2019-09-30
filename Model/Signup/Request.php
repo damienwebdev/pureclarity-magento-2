@@ -18,7 +18,7 @@ use Magento\Framework\Serialize\Serializer\Json;
 use Pureclarity\Core\Helper\StoreData;
 
 /**
- * class Request
+ * Class Request
  *
  * model for submitting signup requests to PureClarity
  */

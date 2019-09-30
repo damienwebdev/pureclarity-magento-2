@@ -11,17 +11,22 @@ use Magento\Framework\Event\ObserverInterface;
 use Magento\Customer\Model\Session;
 use Pureclarity\Core\Helper\Data;
 
+/**
+ * Class CustomerLogin
+ *
+ * Customer login observer, stores session details for login tracking
+ */
 class CustomerLogin implements ObserverInterface
 {
-    /** @var \Magento\Customer\Model\Session */
+    /** @var Session */
     private $customerSession;
     
-    /** @var \Pureclarity\Core\Helper\Data */
+    /** @var Data */
     private $coreHelper;
 
     /**
-     * @param \Magento\Customer\Model\Session $customerSession
-     * @param \Magento\Customer\Model\Data $coreHelper
+     * @param Session $customerSession
+     * @param Data $coreHelper
      */
     public function __construct(
         Session $customerSession,
@@ -32,7 +37,7 @@ class CustomerLogin implements ObserverInterface
     }
 
     /**
-     * @param \Magento\Framework\Event\Observer $observer
+     * @param Observer $observer
      * @return void
      */
     public function execute(Observer $observer)

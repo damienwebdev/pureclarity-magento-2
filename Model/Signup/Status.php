@@ -12,7 +12,7 @@ use Pureclarity\Core\Helper\Service\Url;
 use Magento\Framework\Serialize\Serializer\Json;
 
 /**
- * class Status
+ * Class Status
  *
  * model for submitting signup status check requests
  */

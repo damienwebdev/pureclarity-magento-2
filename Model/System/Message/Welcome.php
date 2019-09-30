@@ -12,6 +12,11 @@ use Magento\Framework\Phrase;
 use Magento\Framework\UrlInterface;
 use Pureclarity\Core\Api\StateRepositoryInterface;
 
+/**
+ * Class Welcome
+ *
+ * Displays welcome notification in admin if module is not configured
+ */
 class Welcome implements MessageInterface
 {
     /** @var string */

@@ -8,9 +8,14 @@ namespace Pureclarity\Core\Helper\Service;
 
 use Magento\Customer\Model\Session;
 
+/**
+ * Class CustomerDetails
+ *
+ * Helper class for customer details related actions
+ */
 class CustomerDetails
 {
-    /** @var \Magento\Customer\Model\Session */
+    /** @var Session */
     private $customerSession;
 
     /**
@@ -23,7 +28,7 @@ class CustomerDetails
     }
 
    /**
-    * Returns customer data if we need to add a login event to the initialiazaiton process
+    * Returns customer data if we need to add a login event to the initialization process
     *
     * @return mixed[]
     */
@@ -49,7 +54,7 @@ class CustomerDetails
     }
     
     /**
-     * Returns customer data if we need to add a login event to the initialiazaiton process
+     * Returns empty customer data if we need to add a login event to the initialization process
      *
      * @return mixed[]
      */

@@ -10,7 +10,7 @@ use Magento\Framework\View\Element\Block\ArgumentInterface;
 use Pureclarity\Core\Model\Config\Source\Region;
 
 /**
- * class Regions
+ * Class Regions
  *
  * Regions ViewModel for Dashboard page
  */

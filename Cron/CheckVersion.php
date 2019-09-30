@@ -14,6 +14,8 @@ use Magento\Framework\HTTP\Client\Curl;
 use Pureclarity\Core\Helper\Data;
 
 /**
+ * Class CheckVersion
+ *
  * Checks the PureClarity github for a new version
  */
 class CheckVersion

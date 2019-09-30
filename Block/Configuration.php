@@ -1,50 +1,72 @@
 <?php
+/**
+ * Copyright © PureClarity. All rights reserved.
+ * See LICENSE.txt for license details.
+ */
 
 namespace Pureclarity\Core\Block;
 
+use Magento\Catalog\Model\Product;
+use Magento\Checkout\Model\Session;
+use Magento\Framework\App\ProductMetadataInterface;
+use Magento\Framework\App\Request\Http;
+use Magento\Framework\Registry;
 use Magento\Framework\View\Element\Template;
 use Magento\Framework\View\Element\Template\Context;
+use Pureclarity\Core\Helper\Data;
+use Pureclarity\Core\Helper\Service\CustomerDetails;
 
+/**
+ * Class Configuration
+ *
+ * builds config array for PureClarity API Javascript
+ */
 class Configuration extends Template
 {
-    public $coreHelper;
-    public $checkoutSession;
-    public $customerSession;
-    public $logger;
-    public $cart;
-    public $productCollection;
-    public $request;
-    public $product;
-    public $category;
-    public $order;
-    public $orderitems = [];
+    /** @var Product */
+    private $product;
+
+    /** @var Data $coreHelper */
+    private $coreHelper;
+
+    /** @var Session $checkoutSession */
+    private $checkoutSession;
+
+    /** @var Http $request */
+    private $request;
+
+    /** @var Registry $registry */
+    private $registry;
+
+    /** @var ProductMetadataInterface $productMetadata */
     private $productMetadata;
     
-    /** @var \Pureclarity\Core\Helper\Service\CustomerDetails */
+    /** @var CustomerDetails $customerDetails */
     private $customerDetails;
 
+    /**
+     * @param Context $context
+     * @param Data $coreHelper
+     * @param Session $checkoutSession
+     * @param Http $request
+     * @param Registry $registry
+     * @param ProductMetadataInterface $productMetadata
+     * @param CustomerDetails $customerDetails
+     * @param array $data
+     */
     public function __construct(
         Context $context,
-        \Pureclarity\Core\Helper\Data $coreHelper,
-        \Magento\Checkout\Model\Cart $cart,
-        \Magento\Checkout\Model\Session $checkoutSession,
-        \Magento\Customer\Model\Session $customerSession,
-        \Magento\Catalog\Model\ResourceModel\Product\CollectionFactory $productCollection,
-        \Magento\Framework\App\Request\Http $request,
-        \Magento\Framework\Registry $registry,
-        \Magento\Framework\App\ProductMetadataInterface $productMetadata,
-        \Pureclarity\Core\Helper\Service\CustomerDetails $customerDetails,
+        Data $coreHelper,
+        Session $checkoutSession,
+        Http $request,
+        Registry $registry,
+        ProductMetadataInterface $productMetadata,
+        CustomerDetails $customerDetails,
         array $data = []
     ) {
-        $this->logger = $context->getLogger();
-        $this->coreHelper = $coreHelper;
+        $this->coreHelper      = $coreHelper;
         $this->checkoutSession = $checkoutSession;
-        $this->customerSession = $customerSession;
-        $this->cart = $cart;
-        $this->productCollection = $productCollection;
-        $this->request = $request;
-        $this->product = $registry->registry("product");
-        $this->category = $registry->registry("current_category");
+        $this->request         = $request;
         $this->productMetadata = $productMetadata;
         $this->customerDetails = $customerDetails;
         parent::__construct($context, $data);
@@ -99,6 +121,7 @@ class Configuration extends Template
 
     public function getProduct()
     {
+        $this->product = $this->registry->registry("product");
         if ($this->product != null) {
             return [
                 "Id" => $this->product->getId(),

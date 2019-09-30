@@ -1,4 +1,10 @@
 <?xml version="1.0"?>
+<!--
+/**
+ * Copyright © PureClarity. All rights reserved.
+ * See LICENSE.txt for license details.
+ */
+-->
 <config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="urn:magento:module:Magento_Backend:etc/menu.xsd">
     <menu>
         <add id="Pureclarity_Core::dashboard" title="PureClarity" translate="title" module="Pureclarity_Core" parent="Magento_Backend::content" sortOrder="50" dependsOnModule="Pureclarity_Core" resource="Pureclarity_Core::dashboard"/>

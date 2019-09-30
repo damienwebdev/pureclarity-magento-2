@@ -10,16 +10,17 @@ use Magento\Backend\App\Action;
 use Magento\Backend\App\Action\Context;
 use Magento\Framework\App\Response\Http;
 use Magento\Store\Model\StoreManagerInterface;
-use Pureclarity\Core\Helper\Data;
 use Pureclarity\Core\Model\CronFactory;
 
+/**
+ * Class Runfeed
+ *
+ * controller for pureclarity/dashboard/runfeed POST request
+ */
 class Runfeed extends Action
 {
     /** @var CronFactory  */
     private $coreCronFactory;
-
-    /** @var Data */
-    private $coreHelper;
 
     /** @var StoreManagerInterface  */
     private $storeManager;
@@ -27,17 +28,14 @@ class Runfeed extends Action
     /**
      * @param Context $context
      * @param CronFactory $coreCronFactory
-     * @param Data $coreHelper
      * @param StoreManagerInterface $storeManager
      */
     public function __construct(
         Context $context,
         CronFactory $coreCronFactory,
-        Data $coreHelper,
         StoreManagerInterface $storeManager
     ) {
         $this->coreCronFactory = $coreCronFactory;
-        $this->coreHelper      = $coreHelper;
         $this->storeManager    = $storeManager;
         parent::__construct(
             $context

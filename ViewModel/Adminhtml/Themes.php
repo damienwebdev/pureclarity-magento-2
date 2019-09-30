@@ -10,9 +10,9 @@ use Magento\Framework\View\Design\Theme\LabelFactory;
 use Magento\Framework\View\Element\Block\ArgumentInterface;
 
 /**
- * class Themes
+ * Class Themes
  *
- * Stores ViewModel for Dashboard page
+ * Themes ViewModel for Dashboard page
  */
 class Themes implements ArgumentInterface
 {

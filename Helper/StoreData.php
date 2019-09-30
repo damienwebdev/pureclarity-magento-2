@@ -11,7 +11,9 @@ use Magento\Framework\App\Config\ScopeConfigInterface;
 use Magento\Store\Model\ScopeInterface;
 
 /**
- * class StoreData
+ * Class StoreData
+ *
+ * Helps with getting store-specific data (URL, store name etc)
  */
 class StoreData
 {
@@ -41,6 +43,8 @@ class StoreData
 
     /**
      * Gets list of stores for display
+     *
+     * @param integer $storeId
      *
      * @return string
      */

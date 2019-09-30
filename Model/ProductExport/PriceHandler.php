@@ -23,6 +23,8 @@ use Magento\Store\Model\StoreManagerInterface;
 use Psr\Log\LoggerInterface;
 
 /**
+ * Class PriceHandler
+ *
  * PureClarity Product Export Price Handler
  * Gets prices to be sent in the data feed
  */

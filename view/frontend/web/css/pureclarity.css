@@ -1,3 +1,8 @@
+/**
+ * Copyright © PureClarity. All rights reserved.
+ * See LICENSE.txt for license details.
+ */
+
 @media only screen and (min-width: 600px) {
     div.pureclarity_magento_mobile {
         display: none!important;

@@ -1,23 +1,33 @@
 <?php
+/**
+ * Copyright © PureClarity. All rights reserved.
+ * See LICENSE.txt for license details.
+ */
 
 namespace Pureclarity\Core\Setup;
 
 use Magento\Framework\Setup\InstallSchemaInterface;
 use Magento\Framework\Setup\ModuleContextInterface;
 use Magento\Framework\Setup\SchemaSetupInterface;
-use Magento\Framework\DB\Adapter\AdapterInterface;
 use Magento\Framework\DB\Ddl\Table;
+use Zend_Db_Exception;
 
+/**
+ * Class InstallSchema
+ *
+ * Installs the database schema required for PureClarity.
+ */
 class InstallSchema implements InstallSchemaInterface
 {
 
     /**
      * Installs the database schema required for PureClarity.
      *
-     * @param Magento\Framework\Setup\SchemaSetupInterface   $setup   Schema setup interface.
-     * @param Magento\Framework\Setup\ModuleContextInterface $context Module context interface.
+     * @param SchemaSetupInterface $setup Schema setup interface.
+     * @param ModuleContextInterface $context Module context interface.
      *
      * @return void
+     * @throws Zend_Db_Exception
      */
     public function install(SchemaSetupInterface $setup, ModuleContextInterface $context)
     {

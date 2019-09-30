@@ -16,7 +16,7 @@ use Pureclarity\Core\Model\Cron;
 use Pureclarity\Core\Model\CronFactory;
 
 /**
- * class Process
+ * Class Process
  *
  * model for processing signup requests
  */

@@ -12,7 +12,7 @@ use Magento\Store\Api\Data\StoreInterface;
 use Pureclarity\Core\Api\StateRepositoryInterface;
 
 /**
- * class Stores
+ * Class Stores
  *
  * Stores ViewModel for Dashboard page
  */

@@ -1,4 +1,9 @@
 <?php
+/**
+ * Copyright © PureClarity. All rights reserved.
+ * See LICENSE.txt for license details.
+ */
+
 namespace Pureclarity\Core\Console\Command\RunFeed;
 
 use Symfony\Component\Console\Command\Command;
@@ -9,21 +14,26 @@ use Pureclarity\Core\Model\CronFactory;
 use Magento\Store\Model\StoreManagerInterface;
 use Magento\Framework\App\State;
 
+/**
+ * Class Product
+ *
+ * Command class to run product feed via bin/magento pureclarity:runfeed:product
+ */
 class Product extends Command
 {
-    /** @var \Pureclarity\Core\Model\CronFactory */
+    /** @var CronFactory */
     private $feedRunnerFactory;
     
-    /** @var \Magento\Framework\App\State */
+    /** @var State */
     private $state;
     
-    /** @var \Magento\Store\Model\StoreManagerInterface */
+    /** @var StoreManagerInterface */
     private $storeManager;
     
     /**
-     * @param \Pureclarity\Core\Model\CronFactory $feedRunner
-     * @param \Magento\Framework\App\State $state
-     * @param \Magento\Store\Model\StoreManagerInterface $storeManager
+     * @param CronFactory $feedRunnerFactory
+     * @param State $state
+     * @param StoreManagerInterface $storeManager
      * @param string|null $name
      */
     public function __construct(

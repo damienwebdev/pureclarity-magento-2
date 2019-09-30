@@ -10,7 +10,7 @@ use Magento\Framework\View\Element\Block\ArgumentInterface;
 use Pureclarity\Core\Helper\StoreData;
 
 /**
- * class Store
+ * Class Store
  *
  * Store ViewModel for Dashboard page
  */
