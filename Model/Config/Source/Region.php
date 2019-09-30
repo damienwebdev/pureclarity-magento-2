@@ -6,14 +6,14 @@
 
 namespace Pureclarity\Core\Model\Config\Source;
 
-use \Magento\Framework\Option\ArrayInterface;
+use Magento\Framework\Data\OptionSourceInterface;
 
 /**
- * class Region
+ * Class Region
  *
  * contains list of valid regions for use in config & signup validation
  */
-class Region implements ArrayInterface
+class Region implements OptionSourceInterface
 {
     /**
      * Default list of valid regions to use with PureClarity

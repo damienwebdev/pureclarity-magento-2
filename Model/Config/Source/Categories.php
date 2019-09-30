@@ -1,35 +1,46 @@
 <?php
+/**
+ * Copyright © PureClarity. All rights reserved.
+ * See LICENSE.txt for license details.
+ */
 
 namespace Pureclarity\Core\Model\Config\Source;
 
-class Categories implements \Magento\Framework\Option\ArrayInterface
-{
+use Magento\Catalog\Model\CategoryRepository;
+use Magento\Framework\Data\OptionSourceInterface;
+use Magento\Store\Model\StoreManagerInterface;
 
-    protected $categoryRepository;
-    protected $coreHelper;
-    protected $storeManager;
-    protected $coreProductExportFactory;
-    protected $logger;
-    protected $categories = [
+/**
+ * Class Categories
+ *
+ * Category dropdown used in config dropdowns
+ */
+class Categories implements OptionSourceInterface
+{
+    /** @var array[] $categories */
+    private $categories = [
         [
             "label" => "  ",
             "value" => "-1"
         ]
     ];
 
+    /** @var CategoryRepository $categoryRepository */
+    private $categoryRepository;
+
+    /** @var StoreManagerInterface $storeManager */
+    private $storeManager;
+
+    /**
+     * @param CategoryRepository $categoryRepository
+     * @param StoreManagerInterface $storeManager
+     */
     public function __construct(
-        \Magento\Framework\Model\Context $context,
-        \Magento\Catalog\Model\CategoryRepository $categoryRepository,
-        \Pureclarity\Core\Helper\Data $coreHelper,
-        \Magento\Store\Model\StoreManagerInterface $storeManager,
-        \Pureclarity\Core\Model\ProductExportFactory $coreProductExportFactory,
-        array $data = []
+        CategoryRepository $categoryRepository,
+        StoreManagerInterface $storeManager
     ) {
         $this->categoryRepository = $categoryRepository;
-        $this->coreHelper = $coreHelper;
         $this->storeManager = $storeManager;
-        $this->coreProductExportFactory = $coreProductExportFactory;
-        $this->logger = $context->getLogger();
     }
 
     public function buildCategories()
@@ -41,14 +52,14 @@ class Categories implements \Magento\Framework\Option\ArrayInterface
                 foreach ($stores as $store) {
                     if (!in_array($store->getRootCategoryId(), $rootCategories)) {
                         $rootCategories[] = $store->getRootCategoryId();
-                        $this->GetSubGategories($store->getRootCategoryId());
+                        $this->getSubGategories($store->getRootCategoryId());
                     }
                 }
             }
         }
     }
 
-    function GetSubGategories($id, $prefix = '')
+    private function getSubGategories($id, $prefix = '')
     {
 
         $category = $this->categoryRepository->get($id);
@@ -59,7 +70,7 @@ class Categories implements \Magento\Framework\Option\ArrayInterface
         ];
         $subcategories = $category->getChildrenCategories();
         foreach ($subcategories as $subcategory) {
-            $this->GetSubGategories($subcategory->getId(), $label . ' -> ');
+            $this->getSubGategories($subcategory->getId(), $label . ' -> ');
         }
     }
 
