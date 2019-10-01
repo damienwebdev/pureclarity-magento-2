@@ -12,39 +12,6 @@ $stores = $block->getPureclarityStoresViewModel();
 $themes = $block->getPureclarityThemesViewModel();
 
 ?>
-<style>
-    #pc-zone-outputContainer {
-        margin:20px 0;
-    }
-    .pc-topbuffer {
-        margin-top:25px;
-    }
-    .pc-install-zones .modal-inner-wrap {
-        width:450px;
-    }
-
-    #pc-zone-modal-content label {
-        display: block;
-        float:left;
-        width: 100px;
-        padding:5px;
-        text-align: right;
-        margin-right: 20px;
-    }
-
-    #pc-zone-modal-content select {
-        display: block;
-        float:left;
-    }
-
-    #pc-zone-modal-content .pc-zone-field {
-        clear:both;
-        margin: 10px 0;
-        display:block;
-        height: 50px;
-    }
-</style>
-
 <div id="pc-zone-modal-popup" style="display:none" class="admin__scope-old">
     <div id="pc-zone-modal-content">
         <h3><?= $block->escapeHtml('Please select the Theme that you would like to install the PureClarity zone widgets on:') ?></h3>

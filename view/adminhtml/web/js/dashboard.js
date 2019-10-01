@@ -25,12 +25,12 @@ require(
         );
 
         let feedRunObject = {};
-        let currentState = $('#pureclarity_current_state').val();
-        let signUpButton = $('#sign_up_button');
-        let signupContent = $('#sign_up_form_content');
-        let signupForm = $('#sign_up_form');
-        let saveDetailsForm = $('#save_details_form');
-        let saveDetailsButton = $('#save_details_button');
+        let currentState = $('#pc-current-state').val();
+        let signUpButton = $('#pc-sign-up-button');
+        let signupContent = $('#pc-sign-up-form-content');
+        let signupForm = $('#pc-sign-up-form');
+        let saveDetailsForm = $('#pc-save-details-form');
+        let saveDetailsButton = $('#pc-save-details-button');
 
         function submitSignUp()
         {
@@ -45,16 +45,16 @@ require(
                     dataType: 'json'
                 }).done(function (data) {
                     if (data.success) {
-                        $('#pureclarity_welcome').fadeOut(200, function () {
-                            $('#pureclarity_waiting').fadeIn(200);
+                        $('#pc-welcome').fadeOut(200, function () {
+                            $('#pc-waiting').fadeIn(200);
                         });
 
-                        feedRunObject.selectedStore = $('#pureclarity_signup_store_id').val();
+                        feedRunObject.selectedStore = $('#pc-sign-up-store-id').val();
                         currentState = 'waiting';
                         setTimeout(checkStatus, 5000);
                     } else {
                         signupContent.modal('openModal');
-                        $('#response_holder').html(data.error).addClass('error');
+                        $('#pc-sign-up-response-holder').html(data.error).addClass('error');
                     }
                 });
             }
@@ -72,11 +72,11 @@ require(
                     dataType: 'json'
                 }).done(function (data) {
                     if (data.success) {
-                        $('#pureclarity_welcome').fadeOut(200, function () {
-                            $('#pureclarity_content').fadeIn(200);
+                        $('#pc-welcome').fadeOut(200, function () {
+                            $('#pc-content').fadeIn(200);
                         });
                         currentState = 'configured';
-                        feedRunObject.selectedStore = $('#pureclarity_details_store_id').val();
+                        feedRunObject.selectedStore = $('#pc-details-store-id').val();
                         pcFeedProgressCheck();
                     } else {
                         modalAlert({
@@ -100,15 +100,15 @@ require(
         {
             $.ajax({
                 showLoader: true,
-                url: $('#pureclarity_get_store_details_url').val(),
-                data: { 'form_key': window.FORM_KEY, 'store_id': $('select#pureclarity_store_id').val() },
+                url: $('#pc-get-store-details-url').val(),
+                data: { 'form_key': window.FORM_KEY, 'store_id': $('select#pc-details-store-id').val() },
                 type: "POST",
                 dataType: 'json'
             }).done(function (data) {
                 if (data.success && data.store_data) {
-                    $('#pureclarity_store_currency').html(data.store_data.currency);
-                    $('#pureclarity_store_timezone').html(data.store_data.timezone);
-                    $('#pureclarity_store_url').val(data.store_data.url);
+                    $('#pc-details-store-currency').html(data.store_data.currency);
+                    $('#pc-details-store-timezone').html(data.store_data.timezone);
+                    $('#pc-details-store-url').val(data.store_data.url);
                 } else {
                     modalAlert({
                         title: $.mage.__('Error'),
@@ -130,14 +130,14 @@ require(
         {
             $.ajax({
                 showLoader: false,
-                url: $('#sign_up_waiting_call_url').val(),
+                url: $('#pc-sign-up-waiting-call-url').val(),
                 data: '',
                 type: "GET",
                 dataType: 'json'
             }).done(function (data) {
                 if (data.success) {
-                    $('#pureclarity_waiting').fadeOut(200, function () {
-                        $('#pureclarity_content').fadeIn(200);
+                    $('#pc-waiting').fadeOut(200, function () {
+                        $('#pc-content').fadeIn(200);
                     });
                     currentState = 'configured';
                     pcFeedProgressCheck();
@@ -162,9 +162,10 @@ require(
 
         if (signUpButton.length && currentState === 'not_configured') {
             let options = {
-                'title': 'Account Setup',
+                'title': $.mage.__('Account Setup'),
+                modalClass: 'pc-sign-up-modal',
                 buttons: [{
-                    text: 'Sign Up',
+                    text: $.mage.__('Sign up'),
                     class: 'primary',
                     click: submitSignUp
                 }]
@@ -177,7 +178,7 @@ require(
 
             saveDetailsButton.on('click', submitSaveDetails);
 
-            let selectStoreSignup = $('select#pureclarity_store_id');
+            let selectStoreSignup = $('select#pc-store-id');
             if (selectStoreSignup.length) {
                 selectStoreSignup.on('change', getStoreDetails);
             }

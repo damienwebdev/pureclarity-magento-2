@@ -11,6 +11,7 @@
             PureClarity
         </title>
         <css src="Pureclarity_Core::css/dashboard.css"/>
+        <css src="https://fonts.googleapis.com/css?family=Roboto:300,400,500,700|Roboto+Slab:400,700" src_type="url"/>
         <link src="Pureclarity_Core::js/dashboard.js"/>
     </head>
     <body>

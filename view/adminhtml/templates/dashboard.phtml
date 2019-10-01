@@ -9,23 +9,25 @@
 $state = $block->getPureclarityStateViewModel();
 
 ?>
-<div id="pureclarity_dashboard">
-    <input type="hidden" id="pureclarity_current_state" value="<?= $block->escapeHtmlAttr($state->getStateName()) ?>"/>
+<div id="pc-dashboard">
+    <input type="hidden" id="pc-current-state" value="<?= $block->escapeHtmlAttr($state->getStateName()) ?>"/>
     <?php if ($state->isNotConfigured()) : ?>
         <?= $block->getChildHtml('pureclarity_dashboard_content_signup') ?>
     <?php endif; ?>
-    <div id="pureclarity_waiting" <?php if ($state->isWaiting() === false) : ?>style="display:none"<?php endif; ?>>
+    <div id="pc-waiting" <?php if ($state->isWaiting() === false) : ?>style="display:none"<?php endif; ?>>
         <?= $block->getChildHtml('pureclarity_dashboard_content_waiting') ?>
     </div>
-    <div id="pureclarity_content" <?php if ($state->isNotConfigured() || $state->isWaiting()) : ?>style="display:none"<?php endif; ?>>
+    <div id="pc-content" <?php if ($state->isNotConfigured() || $state->isWaiting()) : ?>style="display:none"<?php endif; ?>>
         <?= $block->getChildHtml('pureclarity_dashboard_content_configured') ?>
     </div>
+    <div id="pc-clearfix"></div>
 </div>
-<div id="pureclarity_version">
-    <div id="pc_version_number"><?= $block->escapeHtml(__('Version')) ?>: <?= $block->escapeHtml(Pureclarity\Core\Helper\Data::CURRENT_VERSION) ?></div>
+<div id="pc-version">
+    <div id="pc-logo"><span><?= $block->escapeHtml(__('PureClarity')) ?></span></div>
+    <div id="pc-version-number"><?= $block->escapeHtml(__('Version')) ?>: <?= $block->escapeHtml(Pureclarity\Core\Helper\Data::CURRENT_VERSION) ?></div>
     <?php if ($state->isUpToDate()) : ?>
-        <div id="pc_version_status" class="up-to-date">(<?= $block->escapeHtml(__('up to date')) ?>)</div>
+        <div id="pc-version-status" class="pc-up-to-date">(<?= $block->escapeHtml(__('up to date')) ?>)</div>
     <?php else : ?>
-        <div id="pc_version_status" class="out-of-date">(<?= $block->escapeHtml(__('new version %1 available', $state->getNewVersion())) ?>)</div>
+        <div id="pc-version-status" class="pc-out-of-date">(<?= $block->escapeHtml(__('new version available - 2.2.0', $state->getNewVersion())) ?>)</div>
     <?php endif; ?>
 </div>

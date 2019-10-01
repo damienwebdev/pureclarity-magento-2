@@ -13,9 +13,8 @@ $stores = $block->getPureclarityStoresViewModel();
 $feeds = $block->getPureclarityFeedStatusViewModel();
 
 ?>
-
-<div class="box-title_bar"><h3><?= $block->escapeHtml(__('Data Feeds')) ?></h3></div>
-<div class="box-content">
+<div class="pc-box-title-bar"><h3><?= $block->escapeHtml(__('Data Feeds')) ?></h3></div>
+<div class="pc-box-content">
     <?php if ($stores->hasMultipleStores()) : ?>
     <div class="pc-feed-field">
         <label for="pc-feed-info-store" class="forselect"><?= $block->escapeHtml('Store') ?></label>
@@ -36,10 +35,9 @@ $feeds = $block->getPureclarityFeedStatusViewModel();
     <p><?= $block->escapeHtml(__('Users')) ?>: <span id="pc-userFeedStatus"><?= $block->escapeHtml($feeds->getUserFeedStatusLabel($stores->getPureClarityDefaultStore())) ?></span></p>
     <p><?= $block->escapeHtml(__('Brands')) ?>: <span id="pc-brandFeedStatus"><?= $block->escapeHtml($feeds->getBrandFeedStatusLabel($stores->getPureClarityDefaultStore())) ?></span></p>
     <p><?= $block->escapeHtml(__('Order History')) ?>: <span id="pc-ordersFeedStatus"><?= $block->escapeHtml($feeds->getOrdersFeedStatusLabel($stores->getPureClarityDefaultStore())) ?></span></p>
+    <p class="pc-button"><a class="action-default" id="pc-feedpopupbutton" target="_blank" title="<?= $block->escapeHtml(__('Send Feeds')) ?>"><?= $block->escapeHtml(__('Run Feeds')) ?></a></p>
 </div>
-<div class="box-action">
-    <p><a class="action-default" id="pc-feedpopupbutton" target="_blank" title="<?= $block->escapeHtml(__('Send Feeds')) ?>"><?= $block->escapeHtml(__('Run Feeds')) ?></a></p>
-</div>
+
 <div id="pc-feeds-modal-popup" style="display:none;" class="admin__scope-old">
     <div id="pc-feeds-modal-content" class="admin__scope-old">
         <?php if ($stores->hasMultipleStores()) : ?>
