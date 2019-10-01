@@ -67,6 +67,7 @@ class Configuration extends Template
         $this->coreHelper      = $coreHelper;
         $this->checkoutSession = $checkoutSession;
         $this->request         = $request;
+        $this->registry        = $registry;
         $this->productMetadata = $productMetadata;
         $this->customerDetails = $customerDetails;
         parent::__construct($context, $data);
