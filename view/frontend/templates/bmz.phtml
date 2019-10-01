@@ -5,4 +5,4 @@
  */
 /** @var \Pureclarity\Core\Block\Bmz $block */
 ?>
-<div <?php echo $this->getBmzData() ?> class="<?php echo $this->getClasses() ?>" style="<?php echo (!$this->debug ? "display:none;":""); ?>"><?php echo $this->getContent(); ?></div>
+<div <?php echo $this->getBmzData() ?> class="<?php echo $this->getClasses() ?>" style="<?php echo (!$this->getDebugMode() ? "display:none;":""); ?>"><?php echo $this->getContent(); ?></div>
