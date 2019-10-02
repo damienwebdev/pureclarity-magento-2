@@ -28,19 +28,11 @@ class Region implements OptionSourceInterface
     /**
      * Gets array of valid regions
      *
-     * @return array[]
+     * @return string[]
      */
     public function getValidRegions()
     {
-        $regions = [];
-        foreach ($this->validRegions as $value => $label) {
-            $regions[] = [
-                'label' => $label,
-                'value' => $value
-            ];
-        }
-
-        return $regions;
+        return $this->validRegions;
     }
 
     /**
