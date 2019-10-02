@@ -67,13 +67,40 @@ class Process
      */
     public function process($requestData)
     {
-        $this->saveConfig($requestData);
-        $this->setConfiguredState();
-        $this->completeSignup();
-        $this->setDefaultStore((int)$requestData['store_id']);
-        $this->triggerFeeds($requestData);
+        $result = [
+            'errors' => []
+        ];
 
-        return [];
+        try {
+            $requestData['store_id'] = $this->checkStoreId($requestData['store_id']);
+            $this->saveConfig($requestData);
+            $this->setConfiguredState();
+            $this->completeSignup();
+            $this->setDefaultStore($requestData['store_id']);
+            $this->triggerFeeds($requestData);
+        } catch (CouldNotSaveException $e) {
+            $result['errors'][] = __('Error processing request: %1', $e->getMessage());
+        }
+
+        return $result;
+    }
+
+    /**
+     * Checks provided store ID, if 0 then returns default store ID
+     * @param string $storeId
+     * @return int
+     */
+    private function checkStoreId($storeId)
+    {
+        $storeId = (int)$storeId;
+        if ($storeId === 0) {
+            $store = $this->storeManager->getDefaultStoreView();
+            if ($store) {
+                $storeId = $store->getId();
+            }
+        }
+
+        return $storeId;
     }
 
     /**
@@ -89,30 +116,50 @@ class Process
             'errors' => []
         ];
 
-        if (!isset($requestData['access_key']) || empty($requestData['access_key'])) {
-            $result['errors'][] = __('Missing Access Key');
-        }
-
-        if (!isset($requestData['secret_key']) || empty($requestData['secret_key'])) {
-            $result['errors'][] = __('Missing Secret Key');
-        }
-
-        if (!isset($requestData['region']) || empty($requestData['region'])) {
-            $result['errors'][] = __('Missing Region');
-        }
-
-        if (!isset($requestData['store_id'])) {
-            $result['errors'][] = __('Missing Store ID');
-        }
+        $result['errors'] = $this->validateManualConfigure($requestData);
 
         if (empty($result['errors'])) {
-            $this->saveConfig($requestData);
-            $this->setConfiguredState();
-            $this->setDefaultStore((int)$requestData['store_id']);
-            $this->triggerFeeds($requestData);
+            try {
+                $requestData['store_id'] = $this->checkStoreId($requestData['store_id']);
+                $this->saveConfig($requestData);
+                $this->setConfiguredState();
+                $this->setDefaultStore($requestData['store_id']);
+                $this->triggerFeeds($requestData);
+            } catch (CouldNotSaveException $e) {
+                $result['errors'][] = __('Error processing request: %1', $e->getMessage());
+            }
         }
 
         return $result;
+    }
+
+    /**
+     * Validates the params in the manual configure request
+     *
+     * @param mixed[] $requestData
+     * @return array
+     */
+    private function validateManualConfigure($requestData)
+    {
+        $errors = [];
+
+        if (!isset($requestData['access_key']) || empty($requestData['access_key'])) {
+            $errors[] = __('Missing Access Key');
+        }
+
+        if (!isset($requestData['secret_key']) || empty($requestData['secret_key'])) {
+            $errors[] = __('Missing Secret Key');
+        }
+
+        if (!isset($requestData['region']) || empty($requestData['region'])) {
+            $errors[] = __('Missing Region');
+        }
+
+        if (!isset($requestData['store_id'])) {
+            $errors[] = __('Missing Store ID');
+        }
+
+        return $errors;
     }
 
     /**
@@ -132,7 +179,8 @@ class Process
     /**
      * Saves the is_configured flag
      *
-     * @return bool
+     * @return void
+     * @throws CouldNotSaveException
      */
     private function setConfiguredState()
     {
@@ -140,21 +188,14 @@ class Process
         $state->setName('is_configured');
         $state->setValue('1');
         $state->setStoreId(0);
-
-        try {
-            $this->stateRepository->save($state);
-            $saved = true;
-        } catch (CouldNotSaveException $e) {
-            $saved = false;
-        }
-
-        return $saved;
+        $this->stateRepository->save($state);
     }
 
     /**
      * Updates the signup request to be complete
      *
-     * @return bool
+     * @return void
+     * @throws CouldNotSaveException
      */
     private function completeSignup()
     {
@@ -162,15 +203,7 @@ class Process
         $state->setName('signup_request');
         $state->setValue('complete');
         $state->setStoreId(0);
-
-        try {
-            $this->stateRepository->save($state);
-            $saved = true;
-        } catch (CouldNotSaveException $e) {
-            $saved = false;
-        }
-
-        return $saved;
+        $this->stateRepository->save($state);
     }
 
     /**
@@ -178,7 +211,8 @@ class Process
      *
      * @param integer $storeId
      *
-     * @return bool
+     * @return void
+     * @throws CouldNotSaveException
      */
     private function setDefaultStore($storeId)
     {
@@ -186,15 +220,7 @@ class Process
         $state->setName('default_store');
         $state->setValue($storeId);
         $state->setStoreId(0);
-
-        try {
-            $this->stateRepository->save($state);
-            $saved = true;
-        } catch (CouldNotSaveException $e) {
-            $saved = false;
-        }
-
-        return $saved;
+        $this->stateRepository->save($state);
     }
 
     /**
@@ -213,14 +239,6 @@ class Process
             'user'
         ];
 
-        $storeId = (int)$requestData['store_id'];
-        if ($storeId === 0) {
-            $store = $this->storeManager->getDefaultStoreView();
-            if ($store) {
-                $storeId = $store->getId();
-            }
-        }
-
-        $cronFeed->scheduleSelectedFeeds($storeId, $feeds);
+        $cronFeed->scheduleSelectedFeeds($requestData['store_id'], $feeds);
     }
 }

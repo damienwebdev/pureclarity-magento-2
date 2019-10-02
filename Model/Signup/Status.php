@@ -56,15 +56,12 @@ class Status
     public function checkStatus()
     {
         $result = [
-            'error' => [],
-            'request_id' => '',
+            'error' => '',
             'response' => [],
             'complete' => false,
         ];
 
         try {
-            $result['request_id'] = uniqid('', true);
-
             $state = $this->stateRepository->getByNameAndStore('signup_request', 0);
             $signUpRequest = $this->json->unserialize($state->getValue());
 
@@ -85,7 +82,7 @@ class Status
 
             if ($status === 400) {
                 $responseData = $this->json->unserialize($response);
-                $result['error'] = __('Signup error: %1', implode('|', $responseData['error']));
+                $result['error'] = __('Signup error: %1', implode('|', $responseData['errors']));
             } elseif ($status !== 200) {
                 $result['error'] = __('PureClarity server error occurred. If this persists, please contact PureClarity support. Error code %1', $status);
             } else {

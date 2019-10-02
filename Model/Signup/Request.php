@@ -111,30 +111,34 @@ class Request
         }
 
         // check email is validly formatted
-        if (!filter_var($params['email'], FILTER_VALIDATE_EMAIL)) {
+        if (isset($params['email']) && !filter_var($params['email'], FILTER_VALIDATE_EMAIL)) {
             $errors[] = __('Invalid Email Address');
         }
 
         // check region is supported
         $regions = $this->region->getValidRegions();
-        if (!isset($regions[$params['region']])) {
+        if (isset($params['region']) && !isset($regions[$params['region']])) {
             $errors[] = __('Invalid Region selected');
         }
 
         // check store ID is valid
-        try {
-            $this->storeManager->getStore($params['store_id']);
-        } catch (NoSuchEntityException $e) {
-            $errors[] = __('Invalid Store selected');
+        if (isset($params['store_id'])) {
+            try {
+                $this->storeManager->getStore($params['store_id']);
+            } catch (NoSuchEntityException $e) {
+                $errors[] = __('Invalid Store selected');
+            }
         }
 
         // check store ID is valid
-        if (!$this->urlValidator->isValid($params['url'], ['http', 'https'])) {
+        if (isset($params['url']) && !$this->urlValidator->isValid($params['url'], ['http', 'https'])) {
             $errors[] = __('Invalid URL');
         }
 
         // check password is strong enough
-        if (!preg_match('/^(?=.*[a-z])(?=.*[A-Z])(?=.*[0-9])(?=.{8,})/', $params['password'])) {
+        if (isset($params['password']) &&
+            !preg_match('/^(?=.*[a-z])(?=.*[A-Z])(?=.*[0-9])(?=.{8,})/', $params['password'])
+        ) {
             $errors[] = __('Password not strong enough, must contain 1 lowercase letter, 1 uppercase letter, 1 number and be 8 characters or longer');
         }
 
@@ -180,7 +184,7 @@ class Request
                     $responseData = $this->json->unserialize($response);
                     $result['error'] = __('Signup error: %1', implode('|', $responseData['errors']));
                 } elseif ($status !== 200) {
-                    $result['error'] = __('PureClarity server error occured. If this persists, please contact PureClarity support. Error code ' . $status);
+                    $result['error'] = __('PureClarity server error occurred. If this persists, please contact PureClarity support. Error code ' . $status);
                 } else {
                     $result['success'] = true;
                     $this->saveRequest($result['request_id'], $params);
@@ -231,7 +235,7 @@ class Request
      *
      * @param string $requestId
      * @param mixed[] $params
-     * @return bool
+     * @throws CouldNotSaveException
      */
     private function saveRequest($requestId, $params)
     {
@@ -248,13 +252,6 @@ class Request
         $state->setValue($this->json->serialize($signupData));
         $state->setStoreId(0);
 
-        try {
-            $this->stateRepository->save($state);
-            $saved = true;
-        } catch (CouldNotSaveException $e) {
-            $saved = false;
-        }
-
-        return $saved;
+        $this->stateRepository->save($state);
     }
 }
