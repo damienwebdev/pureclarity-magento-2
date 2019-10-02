@@ -10,7 +10,6 @@ use Pureclarity\Core\Api\StateRepositoryInterface;
 use Pureclarity\Core\Model\ResourceModel\State\Collection;
 use Pureclarity\Core\Model\ResourceModel\StateFactory;
 use Pureclarity\Core\Model\ResourceModel\State\CollectionFactory;
-use Pureclarity\Core\Api\Data\StateSearchResultInterfaceFactory;
 use Magento\Framework\Api\SearchCriteria\CollectionProcessorInterface;
 use Magento\Framework\Api\SearchCriteriaInterfaceFactory;
 use Pureclarity\Core\Api\Data\StateInterface;
@@ -36,28 +35,22 @@ class StateRepository implements StateRepositoryInterface
     /** @var StateFactory */
     private $stateFactory;
 
-    /** @var StateSearchResultInterfaceFactory */
-    private $stateSearchResultFactory;
-
     /**
      * @param CollectionFactory $collectionFactory
      * @param SearchCriteriaInterfaceFactory $searchCriteriaFactory
      * @param CollectionProcessorInterface $collectionProcessor
      * @param StateFactory $stateFactory
-     * @param StateSearchResultInterfaceFactory $stateSearchResultFactory
      */
     public function __construct(
         CollectionFactory $collectionFactory,
         SearchCriteriaInterfaceFactory $searchCriteriaFactory,
         CollectionProcessorInterface $collectionProcessor,
-        StateFactory $stateFactory,
-        StateSearchResultInterfaceFactory $stateSearchResultFactory
+        StateFactory $stateFactory
     ) {
         $this->collectionFactory         = $collectionFactory;
         $this->searchCriteriaFactory     = $searchCriteriaFactory;
         $this->collectionProcessor       = $collectionProcessor;
         $this->stateFactory              = $stateFactory;
-        $this->stateSearchResultFactory  = $stateSearchResultFactory;
     }
 
     /**
@@ -81,30 +74,6 @@ class StateRepository implements StateRepositoryInterface
         $collection->load();
 
         return $collection->getFirstItem();
-    }
-
-    /**
-     * @inheritdoc
-     */
-    public function getList($searchCriteria)
-    {
-        /** @var Collection $collection */
-        $collection = $this->collectionFactory->create();
-
-        $collection->addFieldToSelect(StateInterface::ID);
-        $collection->addFieldToSelect(StateInterface::NAME);
-        $collection->addFieldToSelect(StateInterface::VALUE);
-
-        $this->collectionProcessor->process($searchCriteria, $collection);
-
-        $collection->load();
-
-        $searchResult = $this->stateSearchResultFactory->create();
-        $searchResult->setSearchCriteria($searchCriteria);
-        $searchResult->setItems($collection->getItems());
-        $searchResult->setTotalCount($collection->getSize());
-
-        return $searchResult;
     }
 
     /**

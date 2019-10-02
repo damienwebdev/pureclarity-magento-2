@@ -6,11 +6,9 @@
 
 namespace Pureclarity\Core\Api;
 
-use Magento\Framework\Api\SearchCriteriaInterface;
 use Magento\Framework\Exception\CouldNotDeleteException;
 use Magento\Framework\Exception\CouldNotSaveException;
 use Pureclarity\Core\Api\Data\StateInterface;
-use Pureclarity\Core\Api\Data\StateSearchResultInterface;
 
 interface StateRepositoryInterface
 {
@@ -20,12 +18,6 @@ interface StateRepositoryInterface
      * @return StateInterface
      */
     public function getByNameAndStore($name, $storeId);
-
-    /**
-     * @param SearchCriteriaInterface $searchCriteria
-     * @return StateSearchResultInterface
-     */
-    public function getList($searchCriteria);
 
     /**
      * @param StateInterface $state

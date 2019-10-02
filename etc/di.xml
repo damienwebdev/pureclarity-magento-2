@@ -60,6 +60,5 @@
 
     <preference for="Pureclarity\Core\Api\StateRepositoryInterface" type="Pureclarity\Core\Model\StateRepository"/>
     <preference for="Pureclarity\Core\Api\Data\StateInterface" type="Pureclarity\Core\Model\State"/>
-    <preference for="Pureclarity\Core\Api\Data\StateSearchResultInterface" type="Pureclarity\Core\Model\StateSearchResult"/>
-    
+
 </config>
