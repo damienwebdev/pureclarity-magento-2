@@ -198,7 +198,7 @@ class FeedStatus
         $progressData = $this->getProgressData();
 
         if (!empty($progressData) && $progressData['name'] === $feedType) {
-            $inProgress = round($progressData['cur'] / $progressData['max']);
+            $inProgress = round(($progressData['cur'] / $progressData['max']) * 100);
         }
 
         return $inProgress;
