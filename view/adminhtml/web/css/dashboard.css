@@ -411,6 +411,12 @@
     text-transform: uppercase;
     line-height: 1.4em;
     font-weight: 400;
+    margin: -2px 0 0 0;
+}
+
+#pc-dashboard #pc-waiting .pc-box .pc-box-content p.pc-sub {
+    font-weight: 300;
+    font-size: 1.2em;
 }
 
 .pc-loader {
