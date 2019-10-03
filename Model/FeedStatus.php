@@ -10,6 +10,7 @@ use Magento\Framework\App\Filesystem\DirectoryList;
 use Magento\Framework\Exception\FileSystemException;
 use Magento\Framework\Filesystem;
 use Magento\Framework\Filesystem\Directory\ReadInterface;
+use Magento\Framework\Stdlib\DateTime\TimezoneInterface;
 use Pureclarity\Core\Api\StateRepositoryInterface;
 use Pureclarity\Core\Helper\Data;
 use Magento\Framework\Serialize\Serializer\Json;
@@ -45,25 +46,31 @@ class FeedStatus
     /** @var Json $json */
     private $json;
 
+    /** @var TimezoneInterface $timezone */
+    private $timezone;
+
     /**
      * @param StateRepositoryInterface $stateRepository
      * @param Filesystem $fileSystem
      * @param Data $coreHelper
      * @param CoreConfig $coreConfig
      * @param Json $json
+     * @param TimezoneInterface $timezone
      */
     public function __construct(
         StateRepositoryInterface $stateRepository,
         Filesystem $fileSystem,
         Data $coreHelper,
         CoreConfig $coreConfig,
-        Json $json
+        Json $json,
+        TimezoneInterface $timezone
     ) {
         $this->stateRepository = $stateRepository;
         $this->fileSystem      = $fileSystem;
         $this->coreHelper      = $coreHelper;
         $this->coreConfig      = $coreConfig;
         $this->json            = $json;
+        $this->timezone        = $timezone;
     }
 
     /**
@@ -141,7 +148,13 @@ class FeedStatus
                     $state = $this->stateRepository->getByNameAndStore('last_' . $type . '_feed_date', $storeId);
                     $lastProductFeedDate = ($state->getId() !== null) ? $state->getValue() : '';
                     if ($lastProductFeedDate) {
-                        $status['label'] = __('Last complete run:') . $lastProductFeedDate;
+
+                        $status['label'] = __('Last complete run: ')
+                            . $this->timezone->formatDate(
+                                $lastProductFeedDate,
+                                \IntlDateFormatter::SHORT,
+                                true
+                            );
                     }
                 }
             }
