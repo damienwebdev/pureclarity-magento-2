@@ -63,39 +63,41 @@ class Status
 
         try {
             $state = $this->stateRepository->getByNameAndStore('signup_request', 0);
-            $signUpRequest = $this->json->unserialize($state->getValue());
 
-            $request = $this->buildRequest($signUpRequest);
-            $url = $this->url->getSignupStatusEndpointUrl($signUpRequest['region']);
+            if ($state->getValue() !== 'complete') {
+                $signUpRequest = $this->json->unserialize($state->getValue());
+                $request = $this->buildRequest($signUpRequest);
+                $url = $this->url->getSignupStatusEndpointUrl($signUpRequest['region']);
 
-            $this->curl->setOption(
-                CURLOPT_HTTPHEADER,
-                ['Content-Type: application/json', 'Content-Length: ' . strlen($request)]
-            );
+                $this->curl->setOption(
+                    CURLOPT_HTTPHEADER,
+                    ['Content-Type: application/json', 'Content-Length: ' . strlen($request)]
+                );
 
-            $this->curl->setTimeout(5);
+                $this->curl->setTimeout(5);
 
-            $this->curl->post($url, $request);
+                $this->curl->post($url, $request);
 
-            $status = $this->curl->getStatus();
-            $response = $this->curl->getBody();
+                $status = $this->curl->getStatus();
+                $response = $this->curl->getBody();
 
-            if ($status === 400) {
-                $responseData = $this->json->unserialize($response);
-                $result['error'] = __('Signup error: %1', implode('|', $responseData['errors']));
-            } elseif ($status !== 200) {
-                $result['error'] = __('PureClarity server error occurred. If this persists, please contact PureClarity support. Error code %1', $status);
-            } else {
-                $responseData = $this->json->unserialize($response);
-                if ($responseData['Complete'] === true) {
-                    $result['response'] = [
-                        'access_key' => $responseData['AccessKey'],
-                        'secret_key' => $responseData['SecretKey'],
-                        'region' => $signUpRequest['region'],
-                        'store_id' => $signUpRequest['store_id']
-                    ];
+                if ($status === 400) {
+                    $responseData = $this->json->unserialize($response);
+                    $result['error'] = __('Signup error: %1', implode('|', $responseData['errors']));
+                } elseif ($status !== 200) {
+                    $result['error'] = __('PureClarity server error occurred. If this persists, please contact PureClarity support. Error code %1', $status);
+                } else {
+                    $responseData = $this->json->unserialize($response);
+                    if ($responseData['Complete'] === true) {
+                        $result['response'] = [
+                            'access_key' => $responseData['AccessKey'],
+                            'secret_key' => $responseData['SecretKey'],
+                            'region' => $signUpRequest['region'],
+                            'store_id' => $signUpRequest['store_id']
+                        ];
 
-                    $result['complete'] = true;
+                        $result['complete'] = true;
+                    }
                 }
             }
         } catch (\Exception $e) {

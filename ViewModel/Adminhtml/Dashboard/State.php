@@ -126,7 +126,7 @@ class State implements ArgumentInterface
         if ($this->signupStarted === null) {
             /** @var StateInterface $state */
             $state = $this->stateRepository->getByNameAndStore('signup_request', 0);
-            $this->signupStarted = ($state->getId() !== null && $state->getValue() !== 'complete');
+            $this->signupStarted = ($state->getId() !== null);
         }
 
         return $this->signupStarted;
