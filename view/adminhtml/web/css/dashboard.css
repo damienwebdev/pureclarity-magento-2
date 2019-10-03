@@ -370,20 +370,20 @@
     float: left;
 }
 
-#pc-sign-up-form-content #response-holder {
+#pc-sign-up-form-content #pc-sign-up-response-holder {
     clear: both;
-    width: 80%;
-    padding: 1em;
+    width: 73%;
+    padding: 0.5em;
     float: left;
     position: absolute;
-    bottom: 1.6em;
+    bottom: 6.6em;
 }
 
-#pc-sign-up-form-content #response-holder.error {
+#pc-sign-up-form-content #pc-sign-up-response-holder.error {
     background-color: rgba(255, 0, 0, 0.4);
 }
 
-#pc-sign-up-form-content #response-holder.success {
+#pc-sign-up-form-content #pc-sign-up-response-holder.success {
     background-color:rgba(0,255,0,0.4);
 }
 
