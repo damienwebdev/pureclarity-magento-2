@@ -745,8 +745,6 @@ class Feed
     {
         $url = $this->serviceUrl->getFeedSftpUrl($this->coreConfig->getRegion($this->storeId)) . $endPoint;
 
-        var_dump($url);
-
         $this->logger->debug(
             "PureClarity: About to send data to {$url} for " . $parameters['feedName']
             . ": " . print_r($parameters, true)
