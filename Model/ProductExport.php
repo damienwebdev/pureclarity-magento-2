@@ -103,6 +103,12 @@ class ProductExport
     /** @var LoggerInterface $logger */
     private $logger;
 
+    /** @var CoreConfig $coreConfig */
+    private $coreConfig;
+
+    /** @var \Magento\Catalog\Model\Product\Gallery\ReadHandler $galleryReadHandler */
+    private $galleryReadHandler;
+
     /**
      * @param StoreManagerInterface $storeManager
      * @param StoreFactory $storeFactory
@@ -118,6 +124,7 @@ class ProductExport
      * @param BlockFactory $blockFactory
      * @param PriceHandler $corePriceHandler
      * @param LoggerInterface $logger
+     * @param CoreConfig $coreConfig
      */
     public function __construct(
         StoreManagerInterface $storeManager,
@@ -133,7 +140,8 @@ class ProductExport
         DirectoryHelperData $directoryHelper,
         BlockFactory $blockFactory,
         PriceHandler $corePriceHandler,
-        LoggerInterface $logger
+        LoggerInterface $logger,
+        CoreConfig $coreConfig
     ) {
         $this->storeManager                      = $storeManager;
         $this->storeFactory                      = $storeFactory;
@@ -149,6 +157,7 @@ class ProductExport
         $this->blockFactory                      = $blockFactory;
         $this->corePriceHandler                  = $corePriceHandler;
         $this->logger                            = $logger;
+        $this->coreConfig                        = $coreConfig;
     }
     
     // Initialise the model ready to call the product data for the give store.
@@ -159,7 +168,7 @@ class ProductExport
         if (is_null($this->storeId)) {
             $this->storeId = $this->storeManager->getStore()->getId();
         }
-        
+
         $this->currentStore = $this->storeFactory->create()->load($this->storeId);
 
         // Set Currency list
@@ -179,7 +188,7 @@ class ProductExport
         // Manage Brand
         $this->brandLookup = [];
         // If brand feed is enabled, get the brands
-        if ($this->coreHelper->isBrandFeedEnabled($this->storeId)) {
+        if ($this->coreConfig->isBrandFeedEnabled($this->storeId)) {
             $feedModel = $this->coreFeedFactory->create();
             $this->brandLookup = $feedModel->BrandFeedArray($this->storeId);
         }
@@ -223,6 +232,7 @@ class ProductExport
                 \Magento\Catalog\Model\Product\Visibility::VISIBILITY_IN_SEARCH
             ]
         ];
+
         $products = $this->productCollectionFactory->create()
             ->setStoreId($this->storeId)
             ->addStoreFilter($this->storeId)
@@ -234,7 +244,7 @@ class ProductExport
             ->addTaxPercents()
             ->setPageSize($pageSize)
             ->setCurPage($currentPage);
-            
+
         // Get pages
         $pages = $products->getLastPageNumber();
         if ($currentPage > $pages) {
@@ -249,7 +259,7 @@ class ProductExport
                 $feedProducts[] = $data;
             }
         }
-        
+
         return  [
             "Pages" => $pages,
             "Products" => $feedProducts
@@ -279,14 +289,14 @@ class ProductExport
                     $brandId = $id;
                 }
             }
-            
+
             // Get Product Link URL
             $urlParams = [
                 '_nosid' => true,
                 '_scope' => $this->storeId
             ];
             $productUrl = $product->setStoreId($this->storeId)->getUrlModel()->getUrl($product, $urlParams);
-            
+
             if ($productUrl) {
                 $productUrl = str_replace(["https:", "http:"], "", $productUrl);
             }
@@ -363,7 +373,7 @@ class ProductExport
 
                 $swatchBlock = null;
             }
-            
+
             // Set the visibility for PureClarity
             $visibility = $product->getVisibility();
             if ($visibility == \Magento\Catalog\Model\Product\Visibility::VISIBILITY_IN_CATALOG) {
@@ -403,11 +413,11 @@ class ProductExport
             if ($product->getData('pureclarity_exc_rec') == '1') {
                  $data["ExcludeFromRecommenders"] = true;
             }
-        
+
             if ($product->getData('pureclarity_newarrival') == '1') {
                  $data["NewArrival"] = true;
             }
-            
+
             if ($product->getData('pureclarity_onoffer') == '1') {
                  $data["OnOffer"] = true;
             }

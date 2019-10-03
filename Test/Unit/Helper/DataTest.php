@@ -2,8 +2,8 @@
 
 namespace PureClarity\Test\Unit\Helper;
 
+use PHPUnit\Framework\TestCase;
 use Pureclarity\Core\Helper\Data;
-
 use \Magento\Catalog\Model\ProductFactory;
 use \Magento\Catalog\Model\ResourceModel\Product\CollectionFactory;
 use \Magento\Checkout\Model\Session as CheckoutSession;
@@ -12,7 +12,6 @@ use \Magento\Framework\App\Filesystem\DirectoryList;
 use \Magento\Framework\App\Helper\Context;
 use \Magento\Framework\Filesystem\Io\FileFactory;
 use \Magento\Sales\Model\OrderFactory;
-use \Magento\Store\Model\ScopeInterface;
 use \Magento\Store\Model\StoreManagerInterface;
 use \Psr\Log\LoggerInterface;
 
@@ -22,7 +21,7 @@ use \Psr\Log\LoggerInterface;
  * @category   Tests
  * @package    PureClarity
  */
-class DataTest extends \PHPUnit\Framework\TestCase
+class DataTest extends TestCase
 {
     protected $data;
     protected $scopeConfigMock;
@@ -81,48 +80,6 @@ class DataTest extends \PHPUnit\Framework\TestCase
     }
 
     /**
-     * Tests Pureclarity\Core\Helper\Data->getAccessKey() returns the correct key
-     * for a valid store id.
-     * @dataProvider validStoreIdDataProvider
-     */
-    public function testGetAccessKeyReturnsKeyWhenStoreIdIsValid($storeId)
-    {
-        $map = [
-            [
-                'pureclarity/credentials/access_key',
-                ScopeInterface::SCOPE_STORE,
-                $storeId,
-                'accesskey'
-            ]
-        ];
-        $this->setScopeConfigGetValueReturnValue($map);
-
-        $accessKey = $this->getData()->getAccessKey($storeId);
-        $this->assertEquals($accessKey, 'accesskey');
-    }
-
-    /**
-     * Tests Pureclarity\Core\Helper\Data->getAccessKey() correctly returns null if the
-     * store id is invalid.
-     * @dataProvider invalidStoreIdDataProvider
-     */
-    public function testGetAccessKeyReturnsNullWhenStoreIdIsInvalid($storeId, $invalidStoreId)
-    {
-        $map = [
-            [
-                'pureclarity/credentials/access_key',
-                ScopeInterface::SCOPE_STORE,
-                $storeId,
-                'accesskey'
-            ]
-        ];
-        $this->setScopeConfigGetValueReturnValue($map);
-
-        $accessKey = $this->getData()->getAccessKey($invalidStoreId);
-        $this->assertEquals($accessKey, null);
-    }
-
-    /**
      * @return array valid store ids
      */
     public function validStoreIdDataProvider()
@@ -151,15 +108,11 @@ class DataTest extends \PHPUnit\Framework\TestCase
     {
         if (! is_object($this->data)) {
             $this->data = new Data(
-                $this->contextMock,
+                $this->scopeConfigMock,
                 $this->storeManagerMock,
                 $this->checkoutSessionMock,
-                $this->orderFactoryMock,
-                $this->productFactoryMock,
-                $this->collectionFactoryMock,
                 $this->fileFactoryMock,
-                $this->directoryListMock,
-                $this->loggerMock
+                $this->directoryListMock
             );
         }
         return $this->data;

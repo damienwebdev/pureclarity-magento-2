@@ -10,11 +10,14 @@ use Magento\Catalog\Model\Product;
 use Magento\Checkout\Model\Session;
 use Magento\Framework\App\ProductMetadataInterface;
 use Magento\Framework\App\Request\Http;
+use Magento\Framework\Exception\NoSuchEntityException;
 use Magento\Framework\Registry;
 use Magento\Framework\View\Element\Template;
 use Magento\Framework\View\Element\Template\Context;
 use Pureclarity\Core\Helper\Data;
 use Pureclarity\Core\Helper\Service\CustomerDetails;
+use Pureclarity\Core\Helper\Service\Url;
+use Pureclarity\Core\Model\CoreConfig;
 
 /**
  * Class Configuration
@@ -23,7 +26,10 @@ use Pureclarity\Core\Helper\Service\CustomerDetails;
  */
 class Configuration extends Template
 {
-    /** @var Product */
+    /** @var integer $storeId */
+    private $storeId;
+
+    /** @var Product $product */
     private $product;
 
     /** @var Data $coreHelper */
@@ -44,6 +50,12 @@ class Configuration extends Template
     /** @var CustomerDetails $customerDetails */
     private $customerDetails;
 
+    /** @var Url $serviceUrl */
+    private $serviceUrl;
+
+    /** @var CoreConfig $coreConfig */
+    private $coreConfig;
+
     /**
      * @param Context $context
      * @param Data $coreHelper
@@ -52,6 +64,8 @@ class Configuration extends Template
      * @param Registry $registry
      * @param ProductMetadataInterface $productMetadata
      * @param CustomerDetails $customerDetails
+     * @param Url $serviceUrl
+     * @param CoreConfig $coreConfig
      * @param array $data
      */
     public function __construct(
@@ -62,6 +76,8 @@ class Configuration extends Template
         Registry $registry,
         ProductMetadataInterface $productMetadata,
         CustomerDetails $customerDetails,
+        Url $serviceUrl,
+        CoreConfig $coreConfig,
         array $data = []
     ) {
         $this->coreHelper      = $coreHelper;
@@ -70,6 +86,8 @@ class Configuration extends Template
         $this->registry        = $registry;
         $this->productMetadata = $productMetadata;
         $this->customerDetails = $customerDetails;
+        $this->serviceUrl      = $serviceUrl;
+        $this->coreConfig      = $coreConfig;
         parent::__construct($context, $data);
     }
 
@@ -80,7 +98,7 @@ class Configuration extends Template
         $customerDetails = $this->customerDetails->getCustomerDetails();
 
         return [
-            "apiUrl" => $this->getApiStartUrl(),
+            "apiUrl" => $this->serviceUrl->getClientScriptUrl($this->coreConfig->getAccessKey($this->getStoreId())),
             "currency" => $this->getCurrencyCode(),
             "product" => $this->getProduct(),
             "state" => [
@@ -102,7 +120,24 @@ class Configuration extends Template
     
     public function isActive()
     {
-        return $this->coreHelper->isActive($this->_storeManager->getStore()->getId());
+        return $this->coreConfig->isActive($this->getStoreId());
+    }
+
+    /**
+     * Gets the current store ID
+     *
+     * @return int
+     */
+    public function getStoreId()
+    {
+        if ($this->storeId === null) {
+            try {
+                $this->storeId = $this->_storeManager->getStore()->getId();
+            } catch (NoSuchEntityException $e) {
+                $this->storeId = 0;
+            }
+        }
+        return $this->storeId;
     }
 
     public function isLogOut()
@@ -112,12 +147,12 @@ class Configuration extends Template
 
     public function getNumberSwatchesPerProduct()
     {
-        return $this->coreHelper->getNumberSwatchesPerProduct($this->_storeManager->getStore()->getId());
+        return $this->coreConfig->getNumberSwatchesPerProduct($this->getStoreId());
     }
 
     public function showSwatches()
     {
-        return $this->coreHelper->showSwatches($this->_storeManager->getStore()->getId());
+        return $this->coreConfig->showSwatches($this->getStoreId());
     }
 
     public function getProduct()
@@ -130,11 +165,6 @@ class Configuration extends Template
             ];
         }
         return null;
-    }
-
-    public function getApiStartUrl()
-    {
-        return $this->coreHelper->getApiStartUrl();
     }
 
     public function getCurrencyCode()

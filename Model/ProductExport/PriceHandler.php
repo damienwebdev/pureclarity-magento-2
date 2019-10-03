@@ -15,12 +15,11 @@ use Magento\GroupedProduct\Model\Product\Type\Grouped;
 use Magento\Bundle\Model\Product\Type as BundleType;
 use Magento\Catalog\Helper\Data;
 use Magento\Store\Model\Store;
-use Magento\Framework\App\Config\ScopeConfigInterface;
-use Magento\Store\Model\ScopeInterface;
 use Magento\Framework\Registry;
 use Magento\Bundle\Pricing\Adjustment\BundleCalculatorInterfaceFactory;
 use Magento\Store\Model\StoreManagerInterface;
 use Psr\Log\LoggerInterface;
+use Pureclarity\Core\Model\CoreConfig;
 
 /**
  * Class PriceHandler
@@ -31,26 +30,22 @@ use Psr\Log\LoggerInterface;
 class PriceHandler
 {
     const REGISTRY_KEY_CUSTOMER_GROUP = 'pc_bundle_customer_group';
-    const CONFIG_PATH_CUSTOMER_GROUPS = 'pureclarity/feeds/product_send_customer_group_pricing';
-    
+
     /** @var string[] */
     private $allCustomerGroupIds;
-    
+
     /** @var RuleFactory */
     private $ruleFactory;
-    
+
     /** @var Collection */
     private $customerGroupCollection;
-    
+
     /** @var Data */
     private $catalogHelper;
-    
-    /** @var ScopeConfigInterface */
-    private $scopeConfig;
-    
+
     /** @var Registry */
     private $registry;
-    
+
     /** @var BundleCalculatorInterfaceFactory */
     private $bundleCalculatorFactory;
 
@@ -59,37 +54,40 @@ class PriceHandler
 
     /** @var LoggerInterface */
     private $logger;
-    
+
+    /** @var CoreConfig */
+    private $coreConfig;
+
     /**
      * @param RuleFactory $ruleFactory
      * @param Collection $customerGroupCollection
      * @param Data $catalogHelper
-     * @param ScopeConfigInterface $scopeConfig
      * @param Registry $registry
      * @param BundleCalculatorInterfaceFactory $bundleCalculatorFactory
      * @param StoreManagerInterface $storeManager
      * @param LoggerInterface $logger
+     * @param CoreConfig $coreConfig
      */
     public function __construct(
         RuleFactory $ruleFactory,
         Collection $customerGroupCollection,
         Data $catalogHelper,
-        ScopeConfigInterface $scopeConfig,
         Registry $registry,
         BundleCalculatorInterfaceFactory $bundleCalculatorFactory,
         StoreManagerInterface $storeManager,
-        LoggerInterface $logger
+        LoggerInterface $logger,
+        CoreConfig $coreConfig
     ) {
         $this->ruleFactory               = $ruleFactory;
         $this->customerGroupCollection   = $customerGroupCollection;
         $this->catalogHelper             = $catalogHelper;
-        $this->scopeConfig               = $scopeConfig;
         $this->registry                  = $registry;
         $this->bundleCalculatorFactory   = $bundleCalculatorFactory;
         $this->storeManager              = $storeManager;
         $this->logger                    = $logger;
+        $this->coreConfig                = $coreConfig;
     }
-    
+
     /**
      * Gets base prices for the supplied product, but also customer group pricing if enabled
      *
@@ -124,11 +122,7 @@ class PriceHandler
             )
         ];
 
-        if ($this->scopeConfig->isSetFlag(
-            self::CONFIG_PATH_CUSTOMER_GROUPS,
-            ScopeInterface::SCOPE_STORE,
-            $store->getId()
-        )) {
+        if ($this->coreConfig->sendCustomerGroupPricing($store->getId())) {
             foreach ($this->getAllCustomerGroupIds() as $customerGroupId) {
                 $this->registry->unregister(self::REGISTRY_KEY_CUSTOMER_GROUP);
                 $this->registry->register(self::REGISTRY_KEY_CUSTOMER_GROUP, $customerGroupId);
@@ -150,7 +144,7 @@ class PriceHandler
 
         return $priceInfo;
     }
-    
+
     /**
      * Gets min and max prices for the supplied product
      *
@@ -184,16 +178,16 @@ class PriceHandler
                 $prices = $this->getSimplePricing($product, $customerGroupId);
                 break;
         }
-        
+
         if ($includeTax && $product->getTypeId() !== Configurable::TYPE_CODE) {
             foreach ($prices as $key => $value) {
                 $prices[$key] = $this->catalogHelper->getTaxPrice($product, $value, true);
             }
         }
-        
+
         return $prices;
     }
-    
+
     /**
      * Gets prices for Bundle Products
      *
@@ -208,7 +202,7 @@ class PriceHandler
         $maxPrice = $calculator->getMaxRegularAmount(0, $product)->getValue();
         $minFinalPrice = $calculator->getAmount(0, $product)->getValue();
         $maxFinalPrice = $calculator->getMaxAmount(0, $product)->getValue();
-        
+
         return [
             'min' => $minPrice,
             'min-final' => $minFinalPrice,
@@ -216,7 +210,7 @@ class PriceHandler
             'max-final' => $maxFinalPrice,
         ];
     }
-    
+
     /**
      * Gets prices for a Group/Configurable Products
      *
@@ -249,12 +243,12 @@ class PriceHandler
                 if ($highestPrice == 0 || $variationPrices['max'] > $highestPrice) {
                     $highestPrice = $variationPrices['max'];
                 }
-                
+
                 //final prices
                 if ($lowestFinalPrice == 0 || $variationPrices['min-final'] < $lowestFinalPrice) {
                     $lowestFinalPrice = $variationPrices['min-final'];
                 }
-                
+
                 if ($highestFinalPrice == 0 || $variationPrices['max-final'] > $highestFinalPrice) {
                     $highestFinalPrice = $variationPrices['max-final'];
                 }
@@ -268,7 +262,7 @@ class PriceHandler
             'max-final' => $highestFinalPrice
         ];
     }
-    
+
     /**
      * Gets prices for Simple Products
      *
@@ -283,10 +277,10 @@ class PriceHandler
             $customerGroupId,
             $product->getPrice()
         );
-        
+
         $price = $product->getPrice();
         $finalPrice = $product->getFinalPrice(1);
-        
+
         $prices = [];
         $prices['min'] = $price;
         $prices['min-final'] = ($salePrice && $salePrice < $finalPrice) ? $salePrice : $finalPrice;
@@ -294,7 +288,7 @@ class PriceHandler
         $prices['max-final'] = $prices['min-final'];
         return $prices;
     }
-    
+
     /**
      * Returns a price if a product is on sale
      *
@@ -311,7 +305,7 @@ class PriceHandler
             $product,
             $price
         );
-        
+
         return $discountedPrice;
     }
 

@@ -17,6 +17,7 @@ use Pureclarity\Core\Api\StateRepositoryInterface;
 use Pureclarity\Core\Helper\Data;
 use Magento\Customer\Model\ResourceModel\Customer\CollectionFactory as CustomerCollectionFactory;
 use Magento\Customer\Model\ResourceModel\Group\Collection as CustomerGroupCollection;
+use Pureclarity\Core\Helper\Service\Url;
 
 /**
  * Class Feed
@@ -79,6 +80,12 @@ class Feed
     /** @var LoggerInterface $logger */
     private $logger;
 
+    /** @var CoreConfig $coreConfig */
+    private $coreConfig;
+
+    /** @var Url $serviceUrl */
+    private $serviceUrl;
+
     /**
      * @param CategoryCollectionFactory $categoryCollectionFactory
      * @param CategoryRepository $categoryRepository
@@ -89,6 +96,8 @@ class Feed
      * @param CustomerGroupCollection $customerGroupCollection
      * @param StateRepositoryInterface $stateRepository
      * @param LoggerInterface $logger
+     * @param CoreConfig $coreConfig
+     * @param Url $serviceUrl
      */
     public function __construct(
         CategoryCollectionFactory $categoryCollectionFactory,
@@ -99,7 +108,9 @@ class Feed
         CustomerCollectionFactory $customerCollectionFactory,
         CustomerGroupCollection $customerGroupCollection,
         StateRepositoryInterface $stateRepository,
-        LoggerInterface $logger
+        LoggerInterface $logger,
+        CoreConfig $coreConfig,
+        Url $serviceUrl
     ) {
         $this->categoryCollectionFactory = $categoryCollectionFactory;
         $this->categoryRepository        = $categoryRepository;
@@ -110,6 +121,8 @@ class Feed
         $this->customerCollectionFactory = $customerCollectionFactory;
         $this->customerGroupCollection   = $customerGroupCollection;
         $this->stateRepository           = $stateRepository;
+        $this->coreConfig                = $coreConfig;
+        $this->serviceUrl                = $serviceUrl;
 
         /*
          * If Magento does not have the recommended level of memory for PHP, can cause the feeds
@@ -137,7 +150,7 @@ class Feed
 
         $this->coreHelper->setProgressFile($this->progressFileName, self::FEED_TYPE_PRODUCT, 0, 1);
         $this->logger->debug("PureClarity: Set progress");
-    
+
         $currentPage = 0;
         $pages = 0;
 
@@ -179,7 +192,7 @@ class Feed
             }
             $currentPage++;
         } while ($currentPage <= $pages);
-        
+
         $this->endFeedAppend(self::FEED_TYPE_PRODUCT, $writtenProduct);
 
         if ($writtenProduct) {
@@ -188,7 +201,7 @@ class Feed
         } else {
             $this->logger->debug("PureClarity: Could not find any product to upload");
         }
-        
+
         $this->logger->debug("PureClarity: Finished sending product data");
     }
 
@@ -341,7 +354,7 @@ class Feed
                 if ($categoryImage != "") {
                     $categoryImageUrl = $categoryImage;
                 } else {
-                    $categoryImageUrl = $this->coreHelper->getCategoryPlaceholderUrl($this->storeId);
+                    $categoryImageUrl = $this->coreConfig->getCategoryPlaceholderUrl($this->storeId);
                 }
                 $categoryImageUrl = $this->removeUrlProtocol($categoryImageUrl);
                 
@@ -355,7 +368,7 @@ class Feed
                         $overrideImage
                     );
                 } else {
-                    $overrideImageUrl = $this->coreHelper->getSecondaryCategoryPlaceholderUrl($this->storeId);
+                    $overrideImageUrl = $this->coreConfig->getSecondaryCategoryPlaceholderUrl($this->storeId);
                 }
                 $overrideImageUrl = $this->removeUrlProtocol($overrideImageUrl);
 
@@ -436,7 +449,7 @@ class Feed
         $this->logger->debug("PureClarity: In Feed->sendBrands()");
 
         $feedBrands = [];
-        $brandCategoryId = $this->coreHelper->getBrandParentCategory($this->storeId);
+        $brandCategoryId = $this->coreConfig->getBrandParentCategory($this->storeId);
         
         if ($brandCategoryId && $brandCategoryId != "-1") {
             $brandParentCategory = $this->categoryRepository->get($brandCategoryId);
@@ -468,7 +481,7 @@ class Feed
                     if ($brandImage != "") {
                         $brandImageUrl = $brandImage;
                     } else {
-                        $brandImageUrl = $this->coreHelper->getCategoryPlaceholderUrl($this->storeId);
+                        $brandImageUrl = $this->coreConfig->getCategoryPlaceholderUrl($this->storeId);
                     }
                     $brandData['Image'] = $this->removeUrlProtocol($brandImageUrl);
 
@@ -482,7 +495,7 @@ class Feed
                             $overrideImage
                         );
                     } else {
-                        $overrideImageUrl = $this->coreHelper->getSecondaryCategoryPlaceholderUrl($this->storeId);
+                        $overrideImageUrl = $this->coreConfig->getSecondaryCategoryPlaceholderUrl($this->storeId);
                     }
                     $overrideImageUrl = $this->removeUrlProtocol($overrideImageUrl);
                     if ($overrideImageUrl != null) {
@@ -527,7 +540,7 @@ class Feed
     {
 
         $feedBrands = [];
-        $brandCategoryId = $this->coreHelper->getBrandParentCategory($storeId);
+        $brandCategoryId = $this->coreConfig->getBrandParentCategory($storeId);
         
         if ($brandCategoryId && $brandCategoryId != "-1") {
             $category = $this->categoryRepository->get($brandCategoryId);
@@ -730,8 +743,9 @@ class Feed
      */
     protected function send($endPoint, $parameters)
     {
-        
-        $url = $this->coreHelper->getFeedBaseUrl($this->storeId) . $endPoint;
+        $url = $this->serviceUrl->getFeedSftpUrl($this->coreConfig->getRegion($this->storeId)) . $endPoint;
+
+        var_dump($url);
 
         $this->logger->debug(
             "PureClarity: About to send data to {$url} for " . $parameters['feedName']
@@ -817,8 +831,8 @@ class Feed
     {
         $this->storeId = $storeId;
         $this->progressFileName = $progressFileName;
-        $this->accessKey = $this->coreHelper->getAccessKey($this->storeId);
-        $this->secretKey = $this->coreHelper->getSecretKey($this->storeId);
+        $this->accessKey = $this->coreConfig->getAccessKey($this->storeId);
+        $this->secretKey = $this->coreConfig->getSecretKey($this->storeId);
 
         if (empty($this->accessKey) || empty($this->secretKey)) {
             $this->coreHelper->setProgressFile(

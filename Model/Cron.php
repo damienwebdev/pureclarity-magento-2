@@ -20,6 +20,7 @@ use Magento\Framework\App\Filesystem\DirectoryList;
 use Magento\Catalog\Model\Product\Attribute\Source\Status;
 use Magento\Catalog\Model\Product\Visibility;
 use Pureclarity\Core\Helper\Data;
+use Pureclarity\Core\Helper\Service\Url;
 use Pureclarity\Core\Helper\Soap;
 use Pureclarity\Core\Model\ResourceModel\ProductFeed\CollectionFactory;
 
@@ -66,6 +67,12 @@ class Cron
     /** @var LoggerInterface $logger */
     private $logger;
 
+    /** @var CoreConfig $coreConfig */
+    private $coreConfig;
+
+    /** @var Url $serviceUrl */
+    private $serviceUrl;
+
     /**
      * @param Soap $coreSoapHelper
      * @param StoreManagerInterface $storeManager
@@ -79,6 +86,8 @@ class Cron
      * @param StateRepositoryInterface $stateRepository
      * @param Json $json
      * @param LoggerInterface $logger
+     * @param CoreConfig $coreConfig
+     * @param Url $serviceUrl
      */
     public function __construct(
         Soap $coreSoapHelper,
@@ -92,13 +101,15 @@ class Cron
         Filesystem $fileSystem,
         StateRepositoryInterface $stateRepository,
         Json $json,
-        LoggerInterface $logger
+        LoggerInterface $logger,
+        CoreConfig $coreConfig,
+        Url $serviceUrl
     ) {
         $this->coreSoapHelper               = $coreSoapHelper;
         $this->storeManager                 = $storeManager;
         $this->coreHelper                   = $coreHelper;
         $this->productFeedCollectionFactory = $productFeedCollectionFactory;
-        $this->productExportFactory     = $productExportFactory;
+        $this->productExportFactory         = $productExportFactory;
         $this->catalogProductFactory        = $catalogProductFactory;
         $this->coreFeedFactory              = $coreFeedFactory;
         $this->storeStoreFactory            = $storeStoreFactory;
@@ -106,6 +117,8 @@ class Cron
         $this->stateRepository              = $stateRepository;
         $this->json                         = $json;
         $this->logger                       = $logger;
+        $this->coreConfig                   = $coreConfig;
+        $this->serviceUrl                   = $serviceUrl;
     }
 
     /**
@@ -120,7 +133,7 @@ class Cron
                 $stores = $group->getStores();
                 foreach ($stores as $store) {
                     // Only generate feeds when feed notification is active
-                    if ($this->coreHelper->isFeedNotificationActive($store->getId())) {
+                    if ($this->coreConfig->isDailyFeedActive($store->getId())) {
                         $this->allFeeds($store->getId());
                     }
                 }
@@ -211,7 +224,7 @@ class Cron
                     $this->logFeedQueue($feedsRemaining, $storeId);
                     break;
                 case Feed::FEED_TYPE_BRAND:
-                    if ($this->coreHelper->isBrandFeedEnabled($storeId)) {
+                    if ($this->coreConfig->isBrandFeedEnabled($storeId)) {
                         $feedModel->sendBrands();
                         if (($key = array_search(Feed::FEED_TYPE_BRAND, $feedsRemaining)) !== false) {
                             unset($feedsRemaining[$key]);
@@ -291,7 +304,7 @@ class Cron
             foreach ($website->getGroups() as $group) {
                 foreach ($group->getStores() as $store) {
                     // Check we're allowed to do it for this store
-                    if ($this->coreHelper->isProductIndexingEnabled($store->getId())) {
+                    if ($this->coreConfig->isProductIndexingEnabled($store->getId())) {
                         $this->logger->debug('PureClarity: Checking Reindex for StoreID: ' . $store->getId());
                     
                         $deleteProducts = $feedProducts = [];
@@ -361,14 +374,16 @@ class Cron
 
                                 if (count($feedProducts) > 0 || count($deleteProducts) > 0) {
                                     $requestBase = [
-                                        'AppKey'            => $this->coreHelper->getAccessKey($store->getId()),
-                                        'Secret'            => $this->coreHelper->getSecretKey($store->getId()),
+                                        'AppKey'            => $this->coreConfig->getAccessKey($store->getId()),
+                                        'Secret'            => $this->coreConfig->getSecretKey($store->getId()),
                                         'Products'          => [],
                                         'DeleteProducts'    => [],
                                         'Format'            => 'magentoplugin1.0.0'
                                     ];
 
-                                    $url = $this->coreHelper->getDeltaEndpoint($store->getId());
+                                    $url = $this->serviceUrl->getDeltaEndpoint(
+                                        $this->coreConfig->getRegion($store->getId())
+                                    );
                                     $useSSL = $this->coreHelper->useSSL($store->getId());
 
                                     if ($deleteProducts) {

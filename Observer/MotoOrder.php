@@ -11,6 +11,7 @@ use Magento\Framework\Event\Observer as EventObserver;
 use Magento\Sales\Model\Order;
 use Pureclarity\Core\Helper\Data;
 use Pureclarity\Core\Helper\Service;
+use Pureclarity\Core\Model\CoreConfig;
 
 /**
  * Class MotoOrder
@@ -28,19 +29,25 @@ class MotoOrder implements ObserverInterface
     /** @var Service */
     private $service;
 
+    /** @var CoreConfig */
+    private $coreConfig;
+
     /**
      * @param Data $coreHelper
      * @param Order $salesOrder
      * @param Service $service
+     * @param CoreConfig $coreConfig
      */
     public function __construct(
         Data $coreHelper,
         Order $salesOrder,
-        Service $service
+        Service $service,
+        CoreConfig $coreConfig
     ) {
         $this->coreHelper = $coreHelper;
         $this->salesOrder = $salesOrder;
         $this->service    = $service;
+        $this->coreConfig = $coreConfig;
     }
 
     /**
@@ -55,7 +62,7 @@ class MotoOrder implements ObserverInterface
 
         $observerOrder = $observer->getEvent()->getOrder();
 
-        if (!$this->coreHelper->isActive($observerOrder->getStoreId())) {
+        if (!$this->coreConfig->isActive($observerOrder->getStoreId())) {
             return;
         }
 

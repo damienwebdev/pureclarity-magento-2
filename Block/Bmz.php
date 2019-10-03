@@ -7,11 +7,13 @@
 namespace Pureclarity\Core\Block;
 
 use Magento\Cms\Model\BlockFactory;
+use Magento\Framework\Exception\NoSuchEntityException;
 use Magento\Framework\Registry;
 use Magento\Framework\View\Element\Template;
 use Magento\Framework\View\Element\Template\Context;
 use Magento\Widget\Block\BlockInterface;
 use Pureclarity\Core\Helper\Data;
+use Pureclarity\Core\Model\CoreConfig;
 
 /**
  * Class Bmz
@@ -20,6 +22,9 @@ use Pureclarity\Core\Helper\Data;
  */
 class Bmz extends Template implements BlockInterface
 {
+    /** @var integer $storeId */
+    private $storeId;
+
     private $debug;
     private $bmzId;
     private $content;
@@ -37,11 +42,15 @@ class Bmz extends Template implements BlockInterface
     /** @var BlockFactory $cmsBlockFactory */
     private $cmsBlockFactory;
 
+    /** @var CoreConfig $coreConfig */
+    private $coreConfig;
+
     /**
      * @param Context $context
      * @param Data $coreHelper
      * @param Registry $registry
      * @param BlockFactory $cmsBlockFactory
+     * @param CoreConfig $coreConfig
      * @param array $data
      */
     public function __construct(
@@ -49,11 +58,13 @@ class Bmz extends Template implements BlockInterface
         Data $coreHelper,
         Registry $registry,
         BlockFactory $cmsBlockFactory,
+        CoreConfig $coreConfig,
         array $data = []
     ) {
         $this->coreHelper      = $coreHelper;
         $this->registry        = $registry;
         $this->cmsBlockFactory = $cmsBlockFactory;
+        $this->coreConfig      = $coreConfig;
         parent::__construct(
             $context,
             $data
@@ -68,7 +79,7 @@ class Bmz extends Template implements BlockInterface
     public function _beforeToHtml()
     {
         // Get some parameters
-        $this->debug = $this->coreHelper->isBMZDebugActive();
+        $this->debug = $this->coreConfig->isZoneDebugActive($this->getStoreId());
         $this->bmzId = $this->escapeHtml($this->getData('bmz_id'));
 
         if ($this->bmzId == null || $this->bmzId == "") {
@@ -174,5 +185,22 @@ class Bmz extends Template implements BlockInterface
     public function getCacheLifetime()
     {
         return null;
+    }
+
+    /**
+     * Gets the current store ID
+     *
+     * @return int
+     */
+    public function getStoreId()
+    {
+        if ($this->storeId === null) {
+            try {
+                $this->storeId = $this->_storeManager->getStore()->getId();
+            } catch (NoSuchEntityException $e) {
+                $this->storeId = 0;
+            }
+        }
+        return $this->storeId;
     }
 }

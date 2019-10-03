@@ -11,6 +11,8 @@ use Magento\Framework\Stdlib\Cookie\CookieMetadataFactory;
 use Magento\Framework\Stdlib\CookieManagerInterface;
 use Magento\Store\Model\StoreManagerInterface;
 use Psr\Log\LoggerInterface;
+use Pureclarity\Core\Helper\Service\Url;
+use Pureclarity\Core\Model\CoreConfig;
 use Zend\Http\Client;
 use Zend\Json\Json;
 
@@ -49,6 +51,12 @@ class Service
     /** @var CookieMetadataFactory $cookieMetadataFactory */
     private $cookieMetadataFactory;
 
+    /** @var CoreConfig $coreConfig */
+    private $coreConfig;
+
+    /** @var Url $serviceUrl */
+    private $serviceUrl;
+
     /**
      * @param LoggerInterface $logger
      * @param Data $coreHelper
@@ -56,6 +64,8 @@ class Service
      * @param CookieManagerInterface $cookieManager
      * @param SessionManagerInterface $sessionManager
      * @param CookieMetadataFactory $cookieMetadataFactory
+     * @param CoreConfig $coreConfig
+     * @param Url $serviceUrl
      */
     public function __construct(
         LoggerInterface $logger,
@@ -63,7 +73,9 @@ class Service
         StoreManagerInterface $storeManager,
         CookieManagerInterface $cookieManager,
         SessionManagerInterface $sessionManager,
-        CookieMetadataFactory $cookieMetadataFactory
+        CookieMetadataFactory $cookieMetadataFactory,
+        CoreConfig $coreConfig,
+        Url $serviceUrl
     ) {
         $this->logger                = $logger;
         $this->coreHelper            = $coreHelper;
@@ -71,6 +83,8 @@ class Service
         $this->cookieManager         = $cookieManager;
         $this->sessionManager        = $sessionManager;
         $this->cookieMetadataFactory = $cookieMetadataFactory;
+        $this->coreConfig            = $coreConfig;
+        $this->serviceUrl            = $serviceUrl;
     }
 
     public function setAction($action)
@@ -95,8 +109,7 @@ class Service
     public function dispatch($isMagentoAdminCall = false)
     {
         if ($this->dispatched ||
-            (!$this->action && !$isMagentoAdminCall) ||
-            (!$this->coreHelper->seoSearchFriendly() && !$isMagentoAdminCall)) {
+            (!$this->action && !$isMagentoAdminCall)) {
             return;
         }
         
@@ -111,8 +124,8 @@ class Service
         }
 
         $requestBody = [
-            "appId" => $this->coreHelper->getAccessKey($storeId),
-            "secretKey" => $this->coreHelper->getSecretKey($storeId),
+            "appId" => $this->coreConfig->getAccessKey($storeId),
+            "secretKey" => $this->coreConfig->getSecretKey($storeId),
             "events" => $this->events,
             "zones" => $this->zones
         ];
@@ -171,7 +184,7 @@ class Service
     public function executeRequest($storeId, $requestBody)
     {
         // Set Url
-        $url = $this->coreHelper->getServerSideEndpoint($storeId);
+        $url = $this->serviceUrl->getServerSideEndpoint($this->coreConfig->getRegion($storeId));
         
         // Build request
         $client = new Client($url);

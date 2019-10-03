@@ -10,6 +10,7 @@ use Magento\Framework\Event\Observer;
 use Magento\Framework\Event\ObserverInterface;
 use Magento\Customer\Model\Session;
 use Pureclarity\Core\Helper\Data;
+use Pureclarity\Core\Model\CoreConfig;
 
 /**
  * Class CustomerLogin
@@ -24,16 +25,22 @@ class CustomerLogin implements ObserverInterface
     /** @var Data */
     private $coreHelper;
 
+    /** @var CoreConfig */
+    private $coreConfig;
+
     /**
      * @param Session $customerSession
      * @param Data $coreHelper
+     * @param CoreConfig $coreConfig
      */
     public function __construct(
         Session $customerSession,
-        Data $coreHelper
+        Data $coreHelper,
+        CoreConfig $coreConfig
     ) {
         $this->customerSession = $customerSession;
         $this->coreHelper      = $coreHelper;
+        $this->coreConfig      = $coreConfig;
     }
 
     /**
@@ -42,7 +49,7 @@ class CustomerLogin implements ObserverInterface
      */
     public function execute(Observer $observer)
     {
-        if ($this->coreHelper->isActive($this->coreHelper->getStoreId())) {
+        if ($this->coreConfig->isActive($this->coreHelper->getStoreId())) {
             $this->customerSession->setPureclarityTriggerCustomerDetails(true);
         }
     }

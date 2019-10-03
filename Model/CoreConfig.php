@@ -251,12 +251,12 @@ class CoreConfig
      * @param integer $storeId
      * @return boolean
      */
-    public function isZoneDebugActive($storeId = null)
+    public function isZoneDebugActive($storeId)
     {
         return $this->getConfigFlag(
             self::CONFIG_PATH_ZONE_DEBUG,
             ScopeInterface::SCOPE_STORE,
-            $this->getStoreId($storeId)
+            $storeId
         );
     }
 
@@ -266,12 +266,12 @@ class CoreConfig
      * @param integer $storeId
      * @return string
      */
-    public function getNumberSwatchesPerProduct($storeId = null)
+    public function getNumberSwatchesPerProduct($storeId)
     {
         return $this->getConfigValue(
             'catalog/frontend/swatches_per_product',
             ScopeInterface::SCOPE_STORE,
-            $this->getStoreId($storeId)
+            $storeId
         );
     }
 
@@ -281,12 +281,12 @@ class CoreConfig
      * @param integer $storeId
      * @return boolean
      */
-    public function showSwatches($storeId = null)
+    public function showSwatches($storeId)
     {
         return $this->getConfigFlag(
             'catalog/frontend/show_swatches_in_product_list',
             ScopeInterface::SCOPE_STORE,
-            $this->getStoreId($storeId)
+            $storeId
         );
     }
 

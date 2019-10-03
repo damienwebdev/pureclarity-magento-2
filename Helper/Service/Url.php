@@ -90,8 +90,7 @@ class Url
      * @param integer $region
      * @return string
      */
-    //public function getDeltaEndpoint($storeId)
-    public function getDeltaEndpointUrl($region)
+    public function getDeltaEndpoint($region)
     {
         return $this->getHost($region) . '/api/productdelta';
     }
@@ -152,17 +151,23 @@ class Url
     /**
      * Gets the PureClarity clientscript URL
      *
+     * @param string $accessKey
+     *
      * @return string
      */
-    //public function getApiStartUrl()
-    public function getClientScriptUrl()
+    public function getClientScriptUrl($accessKey)
     {
         $pureclarityScriptUrl = getenv('PURECLARITY_SCRIPT_URL');
         if ($pureclarityScriptUrl != null && $pureclarityScriptUrl != '') {
-            $pureclarityScriptUrl .= $this->getAccessKey($this->getStoreId()) . '/dev.js';
+            $pureclarityScriptUrl .= $accessKey . '/dev.js';
             return $pureclarityScriptUrl;
         }
-        return $this->getClientScriptBaseUrl() . '/' . $this->getAccessKey($this->getStoreId()) . '/cs.js';
+        return $this->getClientScriptBaseUrl() . '/' . $accessKey . '/cs.js';
+    }
+
+    public function getServerSideEndpoint($region)
+    {
+        return $this->getHost($region) . '/api/serverside';
     }
 
     /**
