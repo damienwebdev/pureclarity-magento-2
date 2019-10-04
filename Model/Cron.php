@@ -304,7 +304,7 @@ class Cron
             foreach ($website->getGroups() as $group) {
                 foreach ($group->getStores() as $store) {
                     // Check we're allowed to do it for this store
-                    if ($this->coreConfig->isProductIndexingEnabled($store->getId())) {
+                    if ($this->coreConfig->areDeltasEnabled($store->getId())) {
                         $this->logger->debug('PureClarity: Checking Reindex for StoreID: ' . $store->getId());
                     
                         $deleteProducts = $feedProducts = [];

@@ -173,6 +173,8 @@ class Process
         $this->coreConfig->setSecretKey($requestData['secret_key'], (int)$requestData['store_id']);
         $this->coreConfig->setRegion($requestData['region'], (int)$requestData['store_id']);
         $this->coreConfig->setIsActive(1, (int)$requestData['store_id']);
+        $this->coreConfig->setDeltasEnabled(1, (int)$requestData['store_id']);
+        $this->coreConfig->setIsDailyFeedActive(1, (int)$requestData['store_id']);
         $this->cacheManager->clean([CacheTypeConfig::TYPE_IDENTIFIER]);
     }
 
@@ -236,7 +238,8 @@ class Process
             'product',
             'category',
             'brand',
-            'user'
+            'user',
+            'orders'
         ];
 
         $cronFeed->scheduleSelectedFeeds($requestData['store_id'], $feeds);

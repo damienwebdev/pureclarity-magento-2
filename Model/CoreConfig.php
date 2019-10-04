@@ -137,7 +137,7 @@ class CoreConfig
      * @param integer $storeId
      * @return boolean
      */
-    public function isProductIndexingEnabled($storeId)
+    public function areDeltasEnabled($storeId)
     {
         if ($this->isActive($storeId)) {
             return $this->getConfigFlag(
@@ -353,6 +353,40 @@ class CoreConfig
     {
         $this->setConfigValue(
             self::CONFIG_PATH_ACTIVE,
+            $value,
+            $storeId
+        );
+    }
+
+    /**
+     * Saves the daily feed config
+     *
+     * @param string $value
+     * @param integer $storeId
+     *
+     * @return void
+     */
+    public function setIsDailyFeedActive($value, $storeId)
+    {
+        $this->setConfigValue(
+            self::CONFIG_PATH_DAILY_FEED_ENABLED,
+            $value,
+            $storeId
+        );
+    }
+
+    /**
+     * Saves the Deltas enabled config
+     *
+     * @param string $value
+     * @param integer $storeId
+     *
+     * @return void
+     */
+    public function setDeltasEnabled($value, $storeId)
+    {
+        $this->setConfigValue(
+            self::CONFIG_PATH_PRODUCT_INDEX,
             $value,
             $storeId
         );
