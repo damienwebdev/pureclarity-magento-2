@@ -6,6 +6,7 @@
 
 namespace Pureclarity\Core\ViewModel\Adminhtml\Dashboard;
 
+use Magento\Framework\App\ProductMetadataInterface;
 use Magento\Framework\View\Element\Block\ArgumentInterface;
 use Pureclarity\Core\Api\Data\StateInterface;
 use Pureclarity\Core\Api\StateRepositoryInterface;
@@ -34,13 +35,19 @@ class State implements ArgumentInterface
     /** @var StateRepositoryInterface $stateRepository */
     private $stateRepository;
 
+    /** @var ProductMetadataInterface $productMetadata */
+    private $productMetadata;
+
     /**
      * @param StateRepositoryInterface $stateRepository
+     * @param ProductMetadataInterface $productMetadata
      */
     public function __construct(
-        StateRepositoryInterface $stateRepository
+        StateRepositoryInterface $stateRepository,
+        ProductMetadataInterface $productMetadata
     ) {
         $this->stateRepository = $stateRepository;
+        $this->productMetadata = $productMetadata;
     }
 
     /**
@@ -91,6 +98,18 @@ class State implements ArgumentInterface
     }
 
     /**
+     * Returns the current plugin version
+     *
+     * @return string
+     */
+    public function getPluginVersion()
+    {
+        return Data::CURRENT_VERSION;
+    }
+
+    /**
+     * Returns the latest version of the plugin available
+     *
      * @return bool
      */
     public function getNewVersion()
@@ -102,6 +121,16 @@ class State implements ArgumentInterface
         }
 
         return $this->newVersion;
+    }
+
+    /**
+     * Returns the current Magento version
+     *
+     * @return string
+     */
+    public function getMagentoVersion()
+    {
+        return $this->productMetadata->getVersion() . ' ' . $this->productMetadata->getEdition();
     }
 
     /**

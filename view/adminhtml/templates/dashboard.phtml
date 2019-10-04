@@ -24,10 +24,13 @@ $state = $block->getPureclarityStateViewModel();
 </div>
 <div id="pc-version">
     <div id="pc-logo"><span><?= $block->escapeHtml(__('PureClarity')) ?></span></div>
-    <div id="pc-version-number"><?= $block->escapeHtml(__('Version')) ?>: <?= $block->escapeHtml(Pureclarity\Core\Helper\Data::CURRENT_VERSION) ?></div>
+    <div id="pc-version-number"><?= $block->escapeHtml(__('Version')) ?>: <?= $block->escapeHtml($state->getPluginVersion()) ?></div>
     <?php if ($state->isUpToDate()) : ?>
         <div id="pc-version-status" class="pc-up-to-date">(<?= $block->escapeHtml(__('up to date')) ?>)</div>
     <?php else : ?>
-        <div id="pc-version-status" class="pc-out-of-date">(<?= $block->escapeHtml(__('new version available - 2.2.0', $state->getNewVersion())) ?>)</div>
+        <div id="pc-version-status" class="pc-out-of-date">
+            (<?= $block->escapeHtml(__('new version available - %1', $state->getNewVersion())) ?>)<br />
+            <a href="https://www.pureclarity.com/docs/magento-2/#update" target="_blank"><?= $block->escapeHtml(__('How to update')) ?></a>
+        </div>
     <?php endif; ?>
 </div>
