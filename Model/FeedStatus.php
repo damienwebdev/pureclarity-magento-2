@@ -107,6 +107,7 @@ class FeedStatus
             $status = [
                 'enabled' => true,
                 'running' => false,
+                'class' => 'pc-feed-not-sent',
                 'label' => __('Not Sent')
             ];
 
@@ -114,6 +115,7 @@ class FeedStatus
                 if ($this->coreConfig->isBrandFeedEnabled(0) === false) {
                     $status['enabled'] = false;
                     $status['label'] = __('Not Enabled');
+                    $status['class'] = 'pc-feed-disabled';
                 }
             }
 
@@ -124,6 +126,7 @@ class FeedStatus
                 if ($requested) {
                     $status['running'] = true;
                     $status['label'] = __('Waiting for feed run to start');
+                    $status['class'] = 'pc-feed-waiting';
                 }
 
                 // check if it's been requested
@@ -132,6 +135,7 @@ class FeedStatus
                 if ($requested) {
                     $status['running'] = true;
                     $status['label'] = __('Waiting for other feeds to finish');
+                    $status['class'] = 'pc-feed-waiting';
                 }
 
                 if ($status['running']) {
@@ -140,6 +144,7 @@ class FeedStatus
                     if ($progress !== false) {
                         $status['running'] = true;
                         $status['label'] = __('In progress: %1%', $progress);
+                        $status['class'] = 'pc-feed-in-progress';
                     }
                 }
 
@@ -148,13 +153,13 @@ class FeedStatus
                     $state = $this->stateRepository->getByNameAndStore('last_' . $type . '_feed_date', $storeId);
                     $lastProductFeedDate = ($state->getId() !== null) ? $state->getValue() : '';
                     if ($lastProductFeedDate) {
-
-                        $status['label'] = __('Last complete run: ')
+                        $status['label'] = __('Last sent ')
                             . $this->timezone->formatDate(
                                 $lastProductFeedDate,
                                 \IntlDateFormatter::SHORT,
                                 true
                             );
+                        $status['class'] = 'pc-feed-complete';
                     }
                 }
             }

@@ -4,11 +4,14 @@
  * See LICENSE.txt for license details.
  */
 
-/** @var \Magento\Framework\View\Element\Template $block */
+/** @var \Pureclarity\Core\Block\Adminhtml\Dashboard\Configured $block */
+/** @var \Pureclarity\Core\ViewModel\Adminhtml\Dashboard\State $state */
+$state = $block->getPureclarityStateViewModel();
 
 ?>
 <div id="pc-thanks">
-    <?= $block->escapeHtml(__('Thank you for installing the PureClarity plugin for Magento 2. Please follow the 3 steps below to get up and running with PureClarity')) ?>
+    <p><?= $block->escapeHtml(__('Thank you for installing the PureClarity plugin for Magento 2.')) ?></p>
+    <p><?= $block->escapeHtml(__('Please follow the 3 steps below to get up and running with PureClarity')) ?></p>
 </div>
 <div id="pc-layer1">
     <div id="pc-step1" class="pc-box">
@@ -29,12 +32,15 @@
     <div id="pc-step3" class="pc-box">
         <div class="pc-box-title-bar"><h3><?= $block->escapeHtml(__('Step 3')) ?></h3></div>
         <div class="pc-box-content">
-            <p><?= $block->escapeHtml(__('Customise your Campaigns and Segments with the PureClarity Admin Area to optimise the performance of your Zones')) ?></p>
+            <p><?= $block->escapeHtml(__('Customise your Campaigns and Segments within the PureClarity Admin Area to optimise the performance of your Zones')) ?></p>
             <p class="pc-button"><a class="action-default" href="https://admin.pureclarity.com" target="_blank" title="<?= $block->escapeHtml(__('Go to PureClarity Admin')) ?>"><?= $block->escapeHtml(__('Go to PureClarity Admin')) ?></a></p>
         </div>
     </div>
 </div>
 <div id="pc-layer2">
+    <div id="pc-feeds" class="pc-box">
+        <?= $block->getChildHtml('pureclarity_dashboard_content_feeds') ?>
+    </div>
     <div id="pc-configuration" class="pc-box">
         <div class="pc-box-title-bar"><h3><?= $block->escapeHtml(__('Advanced Configuration')) ?></h3></div>
         <div class="pc-box-content">
@@ -48,11 +54,8 @@
             <p><?= $block->escapeHtml(__('We have comprehensive documentation available which will help with any questions you may have')) ?></p>
             <p class="pc-button"><a class="action-default" href="https://www.pureclarity.com/docs/magento-2/" target="_blank" title="<?= $block->escapeHtml(__('Access Documentation')) ?>"><?= $block->escapeHtml(__('Access Documentation')) ?></a></p>
             <p><?= $block->escapeHtml(__('If you have any issues please contact our Support Team at support@pureclarity.com')) ?></p>
-            <p class="pc-button"><a class="action-default" href="mailto:support@pureclarity.com?subject=Magento%202%20Support%20Issue&body=Plugin%20Version:%202.1.0%0D%0AMagento Version:2.2.0%0D%0AStore Name: [PLEASE ENTER]%0D%0A" title="<?= $block->escapeHtml(__('Contact support')) ?>"><?= $block->escapeHtml(__('Contact support')) ?></a></p>
+            <p class="pc-button"><a class="action-default" href="mailto:support@pureclarity.com?subject=Magento%202%20Support%20Issue&body=Plugin%20Version:%20<?= $block->escapeHtmlAttr($state->getPluginVersion()) ?>%0D%0AMagento Version:%20<?= $block->escapeHtmlAttr($state->getMagentoVersion()) ?>%0D%0AStore Name: [PLEASE ENTER]%0D%0A" title="<?= $block->escapeHtml(__('Contact support')) ?>"><?= $block->escapeHtml(__('Contact support')) ?></a></p>
         </div>
-    </div>
-    <div id="pc-feeds" class="pc-box">
-        <?= $block->getChildHtml('pureclarity_dashboard_content_feeds') ?>
     </div>
 </div>
 

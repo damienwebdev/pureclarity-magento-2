@@ -37,7 +37,10 @@ class FeedStatus implements ArgumentInterface
      */
     public function getAreFeedsInProgress($storeId)
     {
-        return $this->feedStatus->getAreFeedsInProgress(['product', 'category', 'user', 'brand', 'order_history']);
+        return $this->feedStatus->getAreFeedsInProgress(
+            ['product', 'category', 'user', 'brand', 'order_history'],
+            $storeId
+        );
     }
 
     /**
@@ -59,7 +62,7 @@ class FeedStatus implements ArgumentInterface
      *
      * @param integer $storeId
      *
-     * @return mixed[]
+     * @return string
      */
     public function getProductFeedStatusLabel($storeId)
     {
@@ -72,7 +75,7 @@ class FeedStatus implements ArgumentInterface
      *
      * @param integer $storeId
      *
-     * @return mixed[]
+     * @return string
      */
     public function getCategoryFeedStatusLabel($storeId)
     {
@@ -85,7 +88,7 @@ class FeedStatus implements ArgumentInterface
      *
      * @param integer $storeId
      *
-     * @return mixed[]
+     * @return string
      */
     public function getUserFeedStatusLabel($storeId)
     {
@@ -98,7 +101,7 @@ class FeedStatus implements ArgumentInterface
      *
      * @param integer $storeId
      *
-     * @return mixed[]
+     * @return string
      */
     public function getBrandFeedStatusLabel($storeId)
     {
@@ -111,11 +114,76 @@ class FeedStatus implements ArgumentInterface
      *
      * @param integer $storeId
      *
-     * @return mixed[]
+     * @return string
      */
     public function getOrdersFeedStatusLabel($storeId)
     {
         $status = $this->feedStatus->getFeedStatus('orders', $storeId);
         return $status['label'];
+    }
+
+    /**
+     * Returns the status of the product feed
+     *
+     * @param integer $storeId
+     *
+     * @return string
+     */
+    public function getProductFeedStatusClass($storeId)
+    {
+        $status = $this->feedStatus->getFeedStatus('product', $storeId);
+        return $status['class'];
+    }
+
+    /**
+     * Returns the status of the category feed
+     *
+     * @param integer $storeId
+     *
+     * @return string
+     */
+    public function getCategoryFeedStatusClass($storeId)
+    {
+        $status = $this->feedStatus->getFeedStatus('category', $storeId);
+        return $status['class'];
+    }
+
+    /**
+     * Returns the status of the user feed
+     *
+     * @param integer $storeId
+     *
+     * @return string
+     */
+    public function getUserFeedStatusClass($storeId)
+    {
+        $status = $this->feedStatus->getFeedStatus('user', $storeId);
+        return $status['class'];
+    }
+
+    /**
+     * Returns the status of the brand feed
+     *
+     * @param integer $storeId
+     *
+     * @return string
+     */
+    public function getBrandFeedStatusClass($storeId)
+    {
+        $status = $this->feedStatus->getFeedStatus('brand', $storeId);
+        return $status['class'];
+    }
+
+    /**
+     * Returns the status of the order history feed
+     *
+     * @param integer $storeId
+     *
+     * @return string
+     */
+    public function getOrdersFeedStatusClass($storeId)
+    {
+        $status = $this->feedStatus->getFeedStatus('orders', $storeId);
+        return $status['class'];
     }
 }

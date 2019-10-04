@@ -194,11 +194,11 @@ require(
                 type: 'popup',
                 responsive: true,
                 innerScroll: true,
-                modalClass: 'pc-run-feeds',
+                modalClass: 'pc-run-feeds pc-modal',
                 title: $.mage.__('PureClarity Data Feed'),
                 buttons: [{
                     text: $.mage.__('Run feeds now'),
-                    class: '',
+                    class: 'primary',
                     click: pcFeedRun
                 }]
             };
@@ -206,8 +206,10 @@ require(
             modal(options, $('#pc-feeds-modal-popup'));
 
             feedModalButton.on('click', function () {
-                pcFeedResetState();
-                $("#pc-feeds-modal-popup").modal('openModal');
+                if (feedModalButton.hasClass('pc-disabled') === false) {
+                    pcFeedResetState();
+                    $("#pc-feeds-modal-popup").modal('openModal');
+                }
             });
 
             feedRunObject = {
@@ -221,11 +223,16 @@ require(
                 chkBrands: $('#pc-chkBrands'),
                 chkUsers: $('#pc-chkUsers'),
                 chkOrders: $('#pc-chkOrders'),
-                statusProducts: $('#pc-productFeedStatus'),
-                statusCategories: $('#pc-categoryFeedStatus'),
-                statusBrands: $('#pc-brandFeedStatus'),
-                statusUsers: $('#pc-userFeedStatus'),
-                statusOrders: $('#pc-ordersFeedStatus'),
+                statusLabelProducts: $('#pc-productFeedStatusLabel'),
+                statusLabelCategories: $('#pc-categoryFeedStatusLabel'),
+                statusLabelBrands: $('#pc-brandFeedStatusLabel'),
+                statusLabelUsers: $('#pc-userFeedStatusLabel'),
+                statusLabelOrders: $('#pc-ordersFeedStatusLabel'),
+                statusClassProducts: $('#pc-productFeedStatusClass'),
+                statusClassCategories: $('#pc-categoryFeedStatusClass'),
+                statusClassBrands: $('#pc-brandFeedStatusClass'),
+                statusClassUsers: $('#pc-userFeedStatusClass'),
+                statusClassOrders: $('#pc-ordersFeedStatusClass'),
                 selectedStore: 0,
             };
 
@@ -283,38 +290,43 @@ require(
             urlParts.push('orders=' + feedRunObject.chkOrders.is(':checked'));
 
             $.ajax({
+                showLoader: true,
                 url: urlParts.join('&'),
                 data: { form_key: window.FORM_KEY, storeid: feedRunObject.selectedStore },
-            })
-                .done(function(response) {
+            }).done(function(response) {
                     $("#pc-feeds-modal-popup").modal('closeModal');
                     pcInitProgress();
                     setTimeout(pcFeedProgressCheck, 1000);
-                })
-                .fail(function(jqXHR, status, err) {
-                    feedRunObject.callError = jqXHR.responseText;
-                });
+            }).fail(function(jqXHR, status, err) {
+                feedRunObject.callError = jqXHR.responseText;
+            });
         }
 
         function pcInitProgress() {
+
             if (feedRunObject.chkProducts.is(':checked')) {
-                feedRunObject.statusProducts.html($.mage.__('Waiting for feed run to start'));
+                feedRunObject.statusLabelProducts.html($.mage.__('Waiting for feed run to start'));
+                feedRunObject.statusClassProducts.attr('class', 'pc-feed-status-icon pc-feed-waiting');
             }
 
             if (feedRunObject.chkCategories.is(':checked')) {
-                feedRunObject.statusCategories.html($.mage.__('Waiting for feed run to start'));
+                feedRunObject.statusLabelCategories.html($.mage.__('Waiting for feed run to start'));
+                feedRunObject.statusClassCategories.attr('class', 'pc-feed-status-icon pc-feed-waiting');
             }
 
             if (feedRunObject.chkBrands.length && feedRunObject.chkBrands.is(':checked')) {
-                feedRunObject.statusBrands.html($.mage.__('Waiting for feed run to start'));
+                feedRunObject.statusLabelBrands.html($.mage.__('Waiting for feed run to start'));
+                feedRunObject.statusClassBrands.attr('class', 'pc-feed-status-icon pc-feed-waiting');
             }
 
             if (feedRunObject.chkUsers.is(':checked')) {
-                feedRunObject.statusUsers.html($.mage.__('Waiting for feed run to start'));
+                feedRunObject.statusLabelUsers.html($.mage.__('Waiting for feed run to start'));
+                feedRunObject.statusClassUsers.attr('class', 'pc-feed-status-icon pc-feed-waiting');
             }
 
             if (feedRunObject.chkOrders.is(':checked')) {
-                feedRunObject.statusOrders.html($.mage.__('Waiting for feed run to start'));
+                feedRunObject.statusLabelOrders.html($.mage.__('Waiting for feed run to start'));
+                feedRunObject.statusClassOrders.attr('class', 'pc-feed-status-icon pc-feed-waiting');
             }
         }
 
@@ -327,11 +339,16 @@ require(
                     // session has ended, reload to force login
                     location.reload();
                 } else {
-                    feedRunObject.statusProducts.html(response.product.label);
-                    feedRunObject.statusCategories.html(response.category.label);
-                    feedRunObject.statusBrands.html(response.brand.label);
-                    feedRunObject.statusUsers.html(response.user.label);
-                    feedRunObject.statusOrders.html(response.orders.label);
+                    feedRunObject.statusLabelProducts.html(response.product.label);
+                    feedRunObject.statusLabelCategories.html(response.category.label);
+                    feedRunObject.statusLabelBrands.html(response.brand.label);
+                    feedRunObject.statusLabelUsers.html(response.user.label);
+                    feedRunObject.statusLabelOrders.html(response.orders.label);
+                    feedRunObject.statusClassProducts.attr('class', 'pc-feed-status-icon ' + response.product.class);
+                    feedRunObject.statusClassCategories.attr('class', 'pc-feed-status-icon ' + response.category.class);
+                    feedRunObject.statusClassBrands.attr('class', 'pc-feed-status-icon ' + response.brand.class);
+                    feedRunObject.statusClassUsers.attr('class', 'pc-feed-status-icon ' + response.user.class);
+                    feedRunObject.statusClassOrders.attr('class', 'pc-feed-status-icon ' + response.orders.class);
 
                     if (response.product.running ||
                         response.category.running ||
@@ -339,7 +356,14 @@ require(
                         response.user.running ||
                         response.orders.running
                     ) {
+                        feedModalButton.addClass('pc-disabled');
+                        feedModalButton.attr('title', $.mage.__('Feeds In Progress'));
+                        feedModalButton.html($.mage.__('Feeds In Progress'));
                         setTimeout(pcFeedProgressCheck, 1000);
+                    } else {
+                        feedModalButton.attr('title', $.mage.__('Run Feeds Manually'));
+                        feedModalButton.html($.mage.__('Run Feeds Manually'));
+                        feedModalButton.removeClass('pc-disabled');
                     }
                 }
             });

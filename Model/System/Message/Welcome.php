@@ -86,7 +86,7 @@ class Welcome implements MessageInterface
         $text = 'Welcome to <strong>PureClarity</strong> Personalization!'
             . ' Please <a href="' . $this->url->getUrl('pureclarity/dashboard/index') . '">click here to go to the '
             . 'plugin dashboard</a> to begin setting up <strong>PureClarity</strong>.'
-            . 'You can also access this from the Content submenu in the main menu';
+            . ' You can also access this from the Content submenu in the main menu';
 
         return __($text, ['strong', 'a', 'br']);
     }

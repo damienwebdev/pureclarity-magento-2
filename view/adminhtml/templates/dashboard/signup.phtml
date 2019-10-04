@@ -35,7 +35,9 @@ $store = $block->getPureclarityStoreViewModel();
                 <li><?= $block->escapeHtml(__('Full support if needed')) ?></li>
                 <li><?= $block->escapeHtml(__('No credit card required')) ?></li>
             </ul>
-            <button id="pc-sign-up-button" type="submit" title="Save Details" class="action-default scalable primary"><?= $block->escapeHtml(__('Sign up')) ?></button>
+            <p class="pc-button">
+                <button id="pc-sign-up-button" type="submit" title="Save Details" class="action-default scalable primary"><?= $block->escapeHtml(__('Sign up')) ?></button>
+            </p>
         </div>
     </div>
     <div id="pc-existing-account" class="pc-box">
@@ -44,37 +46,39 @@ $store = $block->getPureclarityStoreViewModel();
             <div class="pc-box-title-bar"><h3><?= $block->escapeHtml(__('Already have an account?')) ?></h3></div>
             <div class="pc-box-content">
                 <p><?= $block->escapeHtml(__('Enter your account details to get started')) ?></p>
-                <p class="pc-field">
-                    <label for="pc-details-access-key"><?= $block->escapeHtml(__('Access Key')) ?></label>
-                    <input data-validate='{"required":true}' type="text" name="access_key" id="pc-details-access-key"/>
-                </p>
-                <p class="pc-field">
-                    <label for="pc-details-secret-key"><?= $block->escapeHtml(__('Secret Key')) ?></label>
-                    <input data-validate='{"required":true}' type="text" name="secret_key" id="pc-details-secret-key"/>
-                </p>
-                <?php if ($stores->hasMultipleStores()) : ?>
+                <div id="pc-account-details">
                     <p class="pc-field">
-                        <label class="label" for="pc-details-store-id"><?= $block->escapeHtml(__('Store')) ?></label>
-                        <select data-validate='{"required":true}' name="store_id" id="pc-details-store-id">
-                            <?php foreach ($stores->getStoreList() as $storeId => $storeName) : ?>
-                                <option value="<?= $block->escapeHtmlAttr($storeId) ?>"
-                                    <?php if ($storeId === (int)$stores->getMagentoDefaultStore()->getId()) : ?>selected="selected"<?php endif ?>>
-                                    <?= $block->escapeHtmlAttr($storeName) ?>
-                                </option>
+                        <label for="pc-details-access-key"><?= $block->escapeHtml(__('Access Key')) ?></label>
+                        <input data-validate='{"required":true}' type="text" name="access_key" id="pc-details-access-key"/>
+                    </p>
+                    <p class="pc-field">
+                        <label for="pc-details-secret-key"><?= $block->escapeHtml(__('Secret Key')) ?></label>
+                        <input data-validate='{"required":true}' type="text" name="secret_key" id="pc-details-secret-key"/>
+                    </p>
+                    <?php if ($stores->hasMultipleStores()) : ?>
+                        <p class="pc-field">
+                            <label class="label" for="pc-details-store-id"><?= $block->escapeHtml(__('Store')) ?></label>
+                            <select data-validate='{"required":true}' name="store_id" id="pc-details-store-id">
+                                <?php foreach ($stores->getStoreList() as $storeId => $storeName) : ?>
+                                    <option value="<?= $block->escapeHtmlAttr($storeId) ?>"
+                                        <?php if ($storeId === (int)$stores->getMagentoDefaultStore()->getId()) : ?>selected="selected"<?php endif ?>>
+                                        <?= $block->escapeHtmlAttr($storeName) ?>
+                                    </option>
+                                <?php endforeach ?>
+                            </select>
+                        </p>
+                    <?php else : ?>
+                        <input type="hidden" name="store_id" id="pc-details-store-id" value="0"/>
+                    <?php endif; ?>
+                    <p class="pc-field">
+                        <label for="pc-details-region"><?= $block->escapeHtml(__('Region')) ?></label>
+                        <select data-validate='{"required":true}' name="region" id="pc-details-region">
+                            <?php foreach ($regions->getPureClarityRegions() as $region) : ?>
+                                <option value="<?= $block->escapeHtml($region['value']) ?>"><?= $block->escapeHtml($region['label']) ?></option>
                             <?php endforeach ?>
                         </select>
                     </p>
-                <?php else : ?>
-                    <input type="hidden" name="store_id" id="pc-details-store-id" value="0"/>
-                <?php endif; ?>
-                <p class="pc-field">
-                    <label for="pc-details-region"><?= $block->escapeHtml(__('Region')) ?></label>
-                    <select data-validate='{"required":true}' name="region" id="pc-details-region">
-                        <?php foreach ($regions->getPureClarityRegions() as $region) : ?>
-                            <option value="<?= $block->escapeHtml($region['value']) ?>"><?= $block->escapeHtml($region['label']) ?></option>
-                        <?php endforeach ?>
-                    </select>
-                </p>
+                </div>
                 <div id="pc-clearfix"></div>
                 <p class="pc-button">
                     <button id="pc-save-details-button" type="button" title="<?= $block->escapeHtml(__('Save Details')) ?>" class="action-default scalable primary"><?= $block->escapeHtml(__('Save Details')) ?></button>

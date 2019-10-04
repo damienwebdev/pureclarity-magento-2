@@ -14,7 +14,7 @@ $themes = $block->getPureclarityThemesViewModel();
 ?>
 <div id="pc-zone-modal-popup" style="display:none" class="admin__scope-old">
     <div id="pc-zone-modal-content">
-        <h3><?= $block->escapeHtml('Please select the Theme that you would like to install the PureClarity zone widgets on:') ?></h3>
+        <p><?= $block->escapeHtml('Please select the Theme that you would like to install the PureClarity zone widgets on:') ?></p>
         <?php if ($stores->hasMultipleStores()) : ?>
             <div class="pc-zone-field">
                 <label for="pc-zone-selectStore"><?= $block->escapeHtml('Store') ?></label>
@@ -118,7 +118,7 @@ $themes = $block->getPureclarityThemesViewModel();
                 type: 'popup',
                 responsive: true,
                 innerScroll: true,
-                modalClass: 'pc-install-zones',
+                modalClass: 'pc-install-zones pc-modal',
                 title: $.mage.__('Install PureClarity Zones'),
                 buttons: [{
                     text: $.mage.__('Install Zones'),
