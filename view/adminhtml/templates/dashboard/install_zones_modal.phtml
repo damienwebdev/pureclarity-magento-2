@@ -50,7 +50,6 @@ $themes = $block->getPureclarityThemesViewModel();
                 selectStore: $('#pc-zone-selectStore'),
                 defaultStore: $('#pc-defaultStore'),
                 selectTheme: $('#pc-zone-selectTheme'),
-                runButton: $('#pc-runzoneInstall'),
                 messageContainer: $('#pc-zone-statusMessage'),
                 selectedStore: 0,
                 selectedTheme: 0,
@@ -67,12 +66,15 @@ $themes = $block->getPureclarityThemesViewModel();
                         this.selectStore.prop("disabled", false);
                     }
                     this.selectTheme.prop("disabled", false);
-                    this.runButton.prop("disabled", false);
                 }
             };
 
             function installPcZones() {
-                if (pureclarityZoneObj.isComplete) {
+                let pcZonesButton = $('button.pc-install-zones-button').first();
+                if (pureclarityZoneObj.isComplete && !pcZonesButton.hasClass('pc-disabled')) {
+                    pcZonesButton.addClass('pc-disabled');
+                    pcZonesButton.attr('title', $.mage.__('Zone Setup In Progress'));
+                    pcZonesButton.html($.mage.__('Zone Setup In Progress'));
                     pureclarityZoneObj.message("Installing...");
                     if (this.selectStore && this.selectStore.length) {
                         pureclarityZoneObj.selectedStore = pureclarityZoneObj.selectStore.find(":selected").val();
@@ -104,8 +106,15 @@ $themes = $block->getPureclarityThemesViewModel();
                                 messageParts.push('The following zones were SUCCESSFULLY installed: ' + response.installed.join(', '));
                                 messageParts.push('<br />NOTE: You may need to clear the Magento cache before the zones display.');
                             }
+
                             pureclarityZoneObj.message(messageParts.join('<br />'));
+
+                            pcZonesButton.attr('title', $.mage.__('Zone Installation Complete'));
+                            pcZonesButton.html($.mage.__('Zone Installation Complete'));
                         } else {
+                            pcZonesButton.removeClass('pc-disabled');
+                            pcZonesButton.attr('title', $.mage.__('Install Zones'));
+                            pcZonesButton.html($.mage.__('Install Zones'));
                             pureclarityZoneObj.message('Error. There has been an error install zones. The error has been logged.');
                         }
                         pureclarityZoneObj.resetState();
@@ -122,7 +131,7 @@ $themes = $block->getPureclarityThemesViewModel();
                 title: $.mage.__('Install PureClarity Zones'),
                 buttons: [{
                     text: $.mage.__('Install Zones'),
-                    class: 'primary',
+                    class: 'primary pc-install-zones-button',
                     click: installPcZones
                 }]
             };
