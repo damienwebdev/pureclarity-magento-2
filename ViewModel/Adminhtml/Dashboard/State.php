@@ -94,7 +94,7 @@ class State implements ArgumentInterface
     public function isUpToDate()
     {
         $newVersion = $this->getNewVersion();
-        return ($newVersion === '' || version_compare($newVersion, Data::CURRENT_VERSION, '<'));
+        return ($newVersion === '' || version_compare($newVersion, Data::CURRENT_VERSION, '<='));
     }
 
     /**

@@ -38,7 +38,7 @@ class FeedStatus implements ArgumentInterface
     public function getAreFeedsInProgress($storeId)
     {
         return $this->feedStatus->getAreFeedsInProgress(
-            ['product', 'category', 'user', 'brand', 'order_history'],
+            ['product', 'category', 'user', 'brand', 'orders'],
             $storeId
         );
     }

@@ -30,6 +30,8 @@ class CoreConfig
     const CONFIG_PATH_PLACEHOLDER_CATEGORY = 'pureclarity/placeholders/placeholder_category';
     const CONFIG_PATH_PLACEHOLDER_CATEGORY_SECONDARY = 'pureclarity/placeholders/placeholder_category_secondary';
     const CONFIG_PATH_ZONE_DEBUG = 'pureclarity/advanced/bmz_debug';
+    const CONFIG_PATH_SWATCHES_PER_PRODUCT = 'catalog/frontend/swatches_per_product';
+    const CONFIG_PATH_SWATCHES_IN_PRODUCT_LIST = 'catalog/frontend/show_swatches_in_product_list';
 
     /** @var ScopeConfigInterface $scopeConfig */
     protected $scopeConfig;
@@ -269,7 +271,7 @@ class CoreConfig
     public function getNumberSwatchesPerProduct($storeId)
     {
         return $this->getConfigValue(
-            'catalog/frontend/swatches_per_product',
+            self::CONFIG_PATH_SWATCHES_PER_PRODUCT,
             ScopeInterface::SCOPE_STORE,
             $storeId
         );
@@ -284,7 +286,7 @@ class CoreConfig
     public function showSwatches($storeId)
     {
         return $this->getConfigFlag(
-            'catalog/frontend/show_swatches_in_product_list',
+            self::CONFIG_PATH_SWATCHES_IN_PRODUCT_LIST,
             ScopeInterface::SCOPE_STORE,
             $storeId
         );

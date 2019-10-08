@@ -237,7 +237,6 @@ class Process
         $feeds = [
             'product',
             'category',
-            'brand',
             'user',
             'orders'
         ];

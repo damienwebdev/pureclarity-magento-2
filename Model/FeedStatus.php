@@ -11,6 +11,7 @@ use Magento\Framework\Exception\FileSystemException;
 use Magento\Framework\Filesystem;
 use Magento\Framework\Filesystem\Directory\ReadInterface;
 use Magento\Framework\Stdlib\DateTime\TimezoneInterface;
+use Psr\Log\LoggerInterface;
 use Pureclarity\Core\Api\StateRepositoryInterface;
 use Pureclarity\Core\Helper\Data;
 use Magento\Framework\Serialize\Serializer\Json;
@@ -49,6 +50,9 @@ class FeedStatus
     /** @var TimezoneInterface $timezone */
     private $timezone;
 
+    /** @var LoggerInterface */
+    private $logger;
+
     /**
      * @param StateRepositoryInterface $stateRepository
      * @param Filesystem $fileSystem
@@ -56,6 +60,7 @@ class FeedStatus
      * @param CoreConfig $coreConfig
      * @param Json $json
      * @param TimezoneInterface $timezone
+     * @param LoggerInterface $logger
      */
     public function __construct(
         StateRepositoryInterface $stateRepository,
@@ -63,7 +68,8 @@ class FeedStatus
         Data $coreHelper,
         CoreConfig $coreConfig,
         Json $json,
-        TimezoneInterface $timezone
+        TimezoneInterface $timezone,
+        LoggerInterface $logger
     ) {
         $this->stateRepository = $stateRepository;
         $this->fileSystem      = $fileSystem;
@@ -71,6 +77,7 @@ class FeedStatus
         $this->coreConfig      = $coreConfig;
         $this->json            = $json;
         $this->timezone        = $timezone;
+        $this->logger          = $logger;
     }
 
     /**
@@ -112,7 +119,7 @@ class FeedStatus
             ];
 
             if ($type === 'brand') {
-                if ($this->coreConfig->isBrandFeedEnabled(0) === false) {
+                if ($this->coreConfig->isBrandFeedEnabled($storeId) === false) {
                     $status['enabled'] = false;
                     $status['label'] = __('Not Enabled');
                     $status['class'] = 'pc-feed-disabled';
@@ -153,12 +160,14 @@ class FeedStatus
                     $state = $this->stateRepository->getByNameAndStore('last_' . $type . '_feed_date', $storeId);
                     $lastProductFeedDate = ($state->getId() !== null) ? $state->getValue() : '';
                     if ($lastProductFeedDate) {
-                        $status['label'] = __('Last sent ')
-                            . $this->timezone->formatDate(
+                        $status['label'] = __(
+                            'Last sent %1',
+                            $this->timezone->formatDate(
                                 $lastProductFeedDate,
                                 \IntlDateFormatter::SHORT,
                                 true
-                            );
+                            )
+                        );
                         $status['class'] = 'pc-feed-complete';
                     }
                 }
@@ -228,6 +237,7 @@ class FeedStatus
     private function getProgressData()
     {
         if ($this->progressData === null) {
+            $this->progressData = [];
             $progressFileName = $this->coreHelper->getProgressFileName();
             /** @var ReadInterface $fileReader */
             $fileReader = $this->fileSystem->getDirectoryRead(DirectoryList::VAR_DIR);
@@ -237,7 +247,7 @@ class FeedStatus
                     $progressData = $fileReader->readFile($progressFileName);
                     $this->progressData = $this->json->unserialize($progressData);
                 } catch (FileSystemException $e) {
-                    $this->progressData = [];
+                    $this->logger->error('Could not get PureClarity feed progress data: ' . $e->getMessage());
                 }
             }
         }
@@ -251,16 +261,16 @@ class FeedStatus
     private function getScheduledFeedData()
     {
         if ($this->requestedFeedData === null) {
+            $this->requestedFeedData = [];
             $scheduleFile = $this->coreHelper->getPureClarityBaseDir() . DIRECTORY_SEPARATOR . 'scheduled_feed';
             /** @var ReadInterface $fileReader */
             $fileReader = $this->fileSystem->getDirectoryRead(DirectoryList::VAR_DIR);
-
             if ($fileReader->isExist($scheduleFile)) {
                 try {
                     $scheduledData = $fileReader->readFile($scheduleFile);
                     $this->requestedFeedData = $this->json->unserialize($scheduledData);
                 } catch (FileSystemException $e) {
-                    $this->requestedFeedData = [];
+                    $this->logger->error('Could not get PureClarity schedule data: ' . $e->getMessage());
                 }
             }
         }
