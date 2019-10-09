@@ -72,19 +72,30 @@ class CheckVersion
             );
             $this->curl->get($url);
             $status = $this->curl->getStatus();
-            $response = $this->curl->getBody();
 
             if ($status !== 200) {
-                $this->logger->error('PureClarity Check Version cron error: error retrieving latest version number');
+                $this->logger->error(
+                    'PureClarity Check Version cron error: error retrieving latest version number.'
+                    . ' Response code ' . $status
+                );
             } else {
+                $response = $this->curl->getBody();
                 $resultData = $this->json->unserialize($response);
-                $newVersionState = $this->stateRepository->getByNameAndStore('new_version', 0);
-                if (version_compare(Data::CURRENT_VERSION, $resultData['tag_name'], '<')) {
-                    $newVersionState->setName('new_version');
-                    $newVersionState->setValue($resultData['tag_name']);
-                    $this->stateRepository->save($newVersionState);
-                } elseif ($newVersionState->getId()) {
-                    $this->stateRepository->delete($newVersionState);
+                if (!isset($resultData['tag_name'])) {
+                    $this->logger->error(
+                        'PureClarity Check Version cron error: error retrieving '
+                        . 'latest version number, bad response format'
+                    );
+                } else {
+                    $newVersionState = $this->stateRepository->getByNameAndStore('new_version', 0);
+                    if (version_compare(Data::CURRENT_VERSION, $resultData['tag_name'], '<')) {
+                        $newVersionState->setName('new_version');
+                        $newVersionState->setValue($resultData['tag_name']);
+                        $newVersionState->setStoreId(0);
+                        $this->stateRepository->save($newVersionState);
+                    } elseif ($newVersionState->getId()) {
+                        $this->stateRepository->delete($newVersionState);
+                    }
                 }
             }
         } catch (\Exception $e) {
