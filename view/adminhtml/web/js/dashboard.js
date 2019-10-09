@@ -81,7 +81,7 @@ require(
                     } else {
                         modalAlert({
                             title: $.mage.__('Error'),
-                            content: data.error,
+                            content: $.mage.__('Please reload the page and try again'),
                             modalClass: 'alert',
                             buttons: [{
                                 text: $.mage.__('Ok'),
