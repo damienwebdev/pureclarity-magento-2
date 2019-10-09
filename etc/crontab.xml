@@ -23,5 +23,9 @@
             <!-- 2am every day -->
             <schedule>0 2 * * *</schedule>
         </job>
+        <job name="pureclarity_core_check_signup" instance="Pureclarity\Core\Cron\CheckSignupStatus" method="execute">
+            <!-- Every 5 minute -->
+            <schedule>*/5 * * * *</schedule>
+        </job>
     </group>
 </config>
