@@ -72,7 +72,7 @@ class Process
         ];
 
         try {
-            $requestData['store_id'] = $this->checkStoreId($requestData['store_id']);
+            $requestData['default_store_id'] = $this->checkStoreId($requestData['store_id']);
             $this->saveConfig($requestData);
             $this->setConfiguredState();
             $this->completeSignup();
@@ -120,10 +120,10 @@ class Process
 
         if (empty($result['errors'])) {
             try {
-                $requestData['store_id'] = $this->checkStoreId($requestData['store_id']);
+                $requestData['default_store_id'] = $this->checkStoreId($requestData['store_id']);
                 $this->saveConfig($requestData);
                 $this->setConfiguredState();
-                $this->setDefaultStore($requestData['store_id']);
+                $this->setDefaultStore($requestData['default_store_id']);
                 $this->triggerFeeds($requestData);
             } catch (CouldNotSaveException $e) {
                 $result['errors'][] = __('Error processing request: %1', $e->getMessage());
@@ -241,6 +241,6 @@ class Process
             'orders'
         ];
 
-        $cronFeed->scheduleSelectedFeeds($requestData['store_id'], $feeds);
+        $cronFeed->scheduleSelectedFeeds($requestData['default_store_id'], $feeds);
     }
 }
