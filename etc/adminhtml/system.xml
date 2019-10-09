@@ -91,11 +91,6 @@
                     <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
                     <comment>In Debug Mode the BMZ Id is shown on BMZs that have no content. Leave this disabled in production use.</comment>
                 </field>
-
-                <field id="prod_rec_template" translate="label" type="text" showInDefault="1" showInWebsite="1" showInStore="1">
-                    <label>Product Recommender Template Override</label>
-                    <comment>Leave this blank to use the PureClarity default template when using Server Side implementation</comment>
-                </field>
             </group>
         </section>
     </system>
