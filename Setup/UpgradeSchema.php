@@ -4,7 +4,7 @@
  * See LICENSE.txt for license details.
  */
 
-namespace PureClarity\Core\Setup;
+namespace Pureclarity\Core\Setup;
 
 use Magento\Framework\Setup\UpgradeSchemaInterface;
 use Magento\Framework\Setup\SchemaSetupInterface;
