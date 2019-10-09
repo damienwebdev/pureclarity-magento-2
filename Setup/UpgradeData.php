@@ -16,7 +16,7 @@ use Pureclarity\Core\Api\StateRepositoryInterface;
 use Pureclarity\Core\Model\CoreConfig;
 
 /**
- * Class UpgradeSchema
+ * Class UpgradeData
  *
  * Runs upgrades to Schema based on PureClarity module version
  */
