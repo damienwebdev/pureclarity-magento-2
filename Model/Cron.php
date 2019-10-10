@@ -345,12 +345,13 @@ class Cron
                                     // Check product is loaded
                                     if ($product != null) {
                                         // Is deleted?
-                                        $deleted = $product->getData('status') == Status::STATUS_DISABLED ||
+                                        $deleted = $product->getId() === null ||
+                                                $product->getData('status') == Status::STATUS_DISABLED ||
                                                 $product->getVisibility() == Visibility::VISIBILITY_NOT_VISIBLE;
 
                                         // Check if deleted or if product is no longer visible
                                         if ($deleted == true) {
-                                            $deleteProducts[] = $product->getId();
+                                            $deleteProducts[] = $deltaProduct->getProductId();
                                         } else {
                                             // Get data from product exporter
                                             try {
