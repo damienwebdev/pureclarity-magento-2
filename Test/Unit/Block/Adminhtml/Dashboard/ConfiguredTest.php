@@ -11,6 +11,7 @@ use PHPUnit\Framework\TestCase;
 use Magento\Framework\View\Element\Template;
 use Pureclarity\Core\Block\Adminhtml\Dashboard\Configured;
 use Pureclarity\Core\ViewModel\Adminhtml\Dashboard\State;
+use Pureclarity\Core\ViewModel\Adminhtml\Stores;
 
 /**
  * Class ConfiguredTest
@@ -29,6 +30,9 @@ class ConfiguredTest extends TestCase
     /** @var State $state */
     private $state;
 
+    /** @var Stores $stores */
+    private $stores;
+
     protected function setUp()
     {
         $this->context = $this->getMockBuilder(Context::class)
@@ -39,9 +43,14 @@ class ConfiguredTest extends TestCase
             ->disableOriginalConstructor()
             ->getMock();
 
+        $this->stores = $this->getMockBuilder(Stores::class)
+            ->disableOriginalConstructor()
+            ->getMock();
+
         $this->object = new Configured(
             $this->context,
-            $this->state
+            $this->state,
+            $this->stores
         );
     }
 
@@ -58,5 +67,10 @@ class ConfiguredTest extends TestCase
     public function testGetPureclarityStateViewModel()
     {
         $this->assertInstanceOf(State::class, $this->object->getPureclarityStateViewModel());
+    }
+
+    public function testGetPureclarityStoresViewModel()
+    {
+        $this->assertInstanceOf(Stores::class, $this->object->getPureclarityStoresViewModel());
     }
 }

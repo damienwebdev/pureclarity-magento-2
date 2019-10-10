@@ -76,14 +76,14 @@ $themes = $block->getPureclarityThemesViewModel();
                     pcZonesButton.attr('title', $.mage.__('Zone Setup In Progress'));
                     pcZonesButton.html($.mage.__('Zone Setup In Progress'));
                     pureclarityZoneObj.message("Installing...");
-                    if (this.selectStore && this.selectStore.length) {
-                        pureclarityZoneObj.selectedStore = pureclarityZoneObj.selectStore.find(":selected").val();
+                    if (pureclarityZoneObj.selectStore && pureclarityZoneObj.selectStore.length) {
+                        pureclarityZoneObj.selectedStore = pureclarityZoneObj.selectStore.val();
                     } else {
                         pureclarityZoneObj.selectedStore = pureclarityZoneObj.defaultStore.val();
                     }
 
                     pureclarityZoneObj.selectedTheme = pureclarityZoneObj.selectTheme.find(":selected").val();
-                    if (this.selectStore && this.selectStore.length) {
+                    if (pureclarityZoneObj.selectStore && pureclarityZoneObj.selectStore.length) {
                         pureclarityZoneObj.selectStore.prop("disabled", true);
                     }
                     pureclarityZoneObj.selectTheme.prop("disabled", true);

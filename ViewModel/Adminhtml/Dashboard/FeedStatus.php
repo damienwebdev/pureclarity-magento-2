@@ -44,6 +44,21 @@ class FeedStatus implements ArgumentInterface
     }
 
     /**
+     * Returns whether all feeds are currently disabled
+     *
+     * @param integer $storeId
+     *
+     * @return bool
+     */
+    public function getAreFeedsDisabled($storeId)
+    {
+        return $this->feedStatus->getAreFeedsDisabled(
+            ['product', 'category', 'user', 'brand', 'orders'],
+            $storeId
+        );
+    }
+
+    /**
      * Returns whether the provided feed name is enabled
      *
      * @param string $feedType

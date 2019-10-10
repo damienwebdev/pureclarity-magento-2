@@ -102,6 +102,27 @@ class FeedStatus
     }
 
     /**
+     * Returns whether all of the feed types provided are currently disabled
+     *
+     * @param string[] $types
+     * @param integer $storeId
+     *
+     * @return bool
+     */
+    public function getAreFeedsDisabled($types, $storeId = 0)
+    {
+        $disabled = true;
+        foreach ($types as $type) {
+            $status = $this->getFeedStatus($type, $storeId);
+            if ($status['enabled'] === true) {
+                $disabled = false;
+            }
+        }
+
+        return $disabled;
+    }
+
+    /**
      * Returns the status of the product feed
      *
      * @param string $type
@@ -118,12 +139,19 @@ class FeedStatus
                 'label' => __('Not Sent')
             ];
 
-            if ($type === 'brand') {
-                if ($this->coreConfig->isBrandFeedEnabled($storeId) === false) {
-                    $status['enabled'] = false;
-                    $status['label'] = __('Not Enabled');
-                    $status['class'] = 'pc-feed-disabled';
-                }
+            if ($this->coreConfig->isActive($storeId) === false) {
+                $status['enabled'] = false;
+                $status['label'] = __('Not Enabled');
+                $status['class'] = 'pc-feed-disabled';
+            }
+
+            if ($type === 'brand' &&
+                $status['enabled'] === true &&
+                $this->coreConfig->isBrandFeedEnabled($storeId) === false
+            ) {
+                $status['enabled'] = false;
+                $status['label'] = __('Not Enabled');
+                $status['class'] = 'pc-feed-disabled';
             }
 
             if ($status['enabled'] === true) {

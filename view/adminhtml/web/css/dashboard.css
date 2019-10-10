@@ -154,6 +154,10 @@
     border-radius: 3px;
 }
 
+#pc-dashboard #pc-welcome.pc-multi-store #pc-marketing-info .pc-box-content {
+    min-height: 391px;
+}
+
 #pc-dashboard #pc-welcome #pc-marketing-info h2 {
     text-transform: uppercase;
 }
@@ -181,10 +185,18 @@
     min-height: 277px;
 }
 
+#pc-dashboard #pc-welcome.pc-multi-store .pc-box .pc-box-content {
+    min-height: 314px;
+}
+
 #pc-dashboard #pc-welcome #pc-sign-up ul {
     list-style: none;
     margin-left: 20px;
     height:136px;
+}
+
+#pc-dashboard #pc-welcome.pc-multi-store #pc-sign-up ul {
+    min-height: 163px;
 }
 
 #pc-dashboard #pc-welcome #pc-sign-up ul li::before {
@@ -513,6 +525,10 @@
     height: 311px;
 }
 
+#pc-dashboard #pc-layer2.pc-multi-store .pc-box .pc-box-content {
+    height: 338px;
+}
+
 #pc-dashboard .pc-feedName {
     width: 90px;
     text-align: right;
@@ -557,6 +573,10 @@
 
 #pc-dashboard .pc-feed-status-icon.pc-feed-disabled {
     background-color: #999;
+}
+
+#pc-dashboard #pc-feed-info-store {
+    padding-bottom:5px;
 }
 
 /** THANKYOU PAGE - FEEDS MODAL **/
@@ -604,6 +624,13 @@
     height: 20px;
 }
 
+#pc-feeds-modal-content .pc-feed-field-select {
+    clear:both;
+    margin: 10px 0;
+    display:block;
+    height: 25px;
+}
+
 #pc-feeds p {
     clear:both
 }
@@ -635,8 +662,9 @@
 
 #pc-zone-modal-content .pc-zone-field {
     clear:both;
-    margin: 25px 0;
+    margin: 15px 0;
     display:block;
+    height: 30px;
 }
 
 #pc-zone-modal-content #pc-zone-outputContainer {

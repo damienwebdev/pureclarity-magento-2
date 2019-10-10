@@ -19,8 +19,8 @@ $defaultStoreId = (int)$stores->getPureClarityDefaultStore();
 <div class="pc-box-content">
     <p><?= $block->escapeHtml(__('Full data feeds are sent nightly to PureClarity to ensure data is up to date in our system, below is the status of each of the data feed types:')) ?></p>
     <?php if ($stores->hasMultipleStores()) : ?>
-    <div class="pc-feed-field">
-        <label for="pc-feed-info-store" class="forselect"><?= $block->escapeHtml('Store') ?></label>
+    <div class="pc-feed-field-select">
+        <label for="pc-feed-info-store" class="pc-feedName"><?= $block->escapeHtml('Store') ?>:</label>
         <select id="pc-feed-info-store" class="select admin__controle-select">
             <?php foreach ($stores->getStoreList() as $storeId => $storeName) : ?>
                 <option value="<?= $block->escapeHtmlAttr($storeId) ?>"
@@ -72,6 +72,8 @@ $defaultStoreId = (int)$stores->getPureClarityDefaultStore();
     <p class="pc-button">
         <?php if ($feeds->getAreFeedsInProgress($defaultStoreId)) : ?>
             <a class="action-default pc-disabled" id="pc-feedpopupbutton" target="_blank" title="<?= $block->escapeHtml(__('Feeds In Progress')) ?>"><?= $block->escapeHtml(__('Feeds In Progress')) ?></a>
+        <?php elseif ($feeds->getAreFeedsDisabled($defaultStoreId)) : ?>
+            <a class="action-default pc-disabled" id="pc-feedpopupbutton" target="_blank" title="<?= $block->escapeHtml(__('Feeds Not Enabled')) ?>"><?= $block->escapeHtml(__('Feeds Not Enabled')) ?></a>
         <?php else : ?>
             <a class="action-default" id="pc-feedpopupbutton" target="_blank" title="<?= $block->escapeHtml(__('Run Feeds Manually')) ?>"><?= $block->escapeHtml(__('Run Feeds Manually')) ?></a>
         <?php endif ?>
@@ -81,19 +83,6 @@ $defaultStoreId = (int)$stores->getPureClarityDefaultStore();
 <div id="pc-feeds-modal-popup" style="display:none;" class="admin__scope-old">
     <div id="pc-feeds-modal-content" class="admin__scope-old">
         <p class="pc-bottom-buffer"><?= $block->escapeHtml('Full data feeds will be sent nightly. If you need to send a full feed sooner, please use the form below.') ?></p>
-        <?php if ($stores->hasMultipleStores()) : ?>
-            <p><?= $block->escapeHtml('Select the store that would like to generate feeds for:') ?></p>
-            <div class="pc-feed-field">
-                <label for="pc-selectStore" class="forselect"><?= $block->escapeHtml('Store') ?></label>
-                <select id="pc-selectStore" class="select admin__controle-select">
-                    <?php foreach ($stores->getStoreList() as $storeId => $name) : ?>
-                        <option value="<?= $block->escapeHtmlAttr($storeId) ?>"><?= $block->escapeHtml($name) ?></option>
-                    <?php endforeach; ?>
-                </select>
-            </div>
-        <?php else : ?>
-            <input id="pc-selectStore" type="hidden" value="<?= $block->escapeHtmlAttr($defaultStoreId) ?>" />
-        <?php endif ?>
         <p class="pc-bottom-buffer"><?= $block->escapeHtml('Please select the data you would like to send to PureClarity:') ?></p>
         <div class="pc-feed-field">
             <label for="pc-chkProducts"><?= $block->escapeHtml('Products') ?></label>

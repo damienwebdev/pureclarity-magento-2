@@ -8,6 +8,9 @@
 /** @var \Pureclarity\Core\ViewModel\Adminhtml\Dashboard\State $state */
 $state = $block->getPureclarityStateViewModel();
 
+/** @var \Pureclarity\Core\ViewModel\Adminhtml\Dashboard\Stores $stores */
+$stores = $block->getPureclarityStoresViewModel();
+
 ?>
 <div id="pc-thanks">
     <p><?= $block->escapeHtml(__('Thank you for installing the PureClarity plugin for Magento 2.')) ?></p>
@@ -37,7 +40,7 @@ $state = $block->getPureclarityStateViewModel();
         </div>
     </div>
 </div>
-<div id="pc-layer2">
+<div id="pc-layer2" <?php if ($stores->hasMultipleStores()) : ?>class="pc-multi-store"<?php endif; ?>>
     <div id="pc-feeds" class="pc-box">
         <?= $block->getChildHtml('pureclarity_dashboard_content_feeds') ?>
     </div>

@@ -49,6 +49,11 @@ require(
                             $('#pc-waiting').fadeIn(200);
                         });
 
+                        if (feedRunObject.selectStore.length) {
+                            feedRunObject.selectStore.val($('#pc-sign-up-store-id').val());
+                        } else {
+                            feedRunObject.preselectStore.val($('#pc-sign-up-store-id').val());
+                        }
                         feedRunObject.selectedStore = $('#pc-sign-up-store-id').val();
                         currentState = 'waiting';
                         setTimeout(checkStatus, 5000);
@@ -76,6 +81,11 @@ require(
                             $('#pc-content').fadeIn(200);
                         });
                         currentState = 'configured';
+                        if (feedRunObject.selectStore.length) {
+                            feedRunObject.selectStore.val($('#pc-details-store-id').val());
+                        } else {
+                            feedRunObject.preselectStore.val($('#pc-details-store-id').val());
+                        }
                         feedRunObject.selectedStore = $('#pc-details-store-id').val();
                         pcFeedProgressCheck();
                     } else {
@@ -223,8 +233,8 @@ require(
             feedRunObject = {
                 runFeedUrl: $("#pc-feed-run-url").val(),
                 progressFeedUrl: $("#pc-feed-progress-url").val(),
-                selectStore: $('select#pc-selectStore'),
-                preselectStore: $('input#pc-selectStore'),
+                selectStore: $('select#pc-feed-info-store'),
+                preselectStore: $('input#pc-feed-info-store'),
                 messageContainer: $('#pc-statusMessage'),
                 chkProducts: $('#pc-chkProducts'),
                 chkCategories: $('#pc-chkCategories'),
@@ -256,7 +266,7 @@ require(
 
         function pcFeedSetInfoStore()
         {
-            feedRunObject.selectedStore = $('#pc-feed-info-store').val();
+            feedRunObject.selectedStore = $('select#pc-feed-info-store').val();
             pcFeedProgressCheck();
         }
 
@@ -272,8 +282,7 @@ require(
             }
 
             if (feedRunObject.selectStore.length) {
-                feedRunObject.selectedStore = feedRunObject.selectStore.find(":selected").val();
-                feedRunObject.selectStore.prop("disabled", true);
+                feedRunObject.selectedStore = feedRunObject.selectStore.val();
             } else {
                 feedRunObject.selectedStore = feedRunObject.preselectStore.val();
             }
@@ -368,6 +377,15 @@ require(
                         feedModalButton.attr('title', $.mage.__('Feeds In Progress'));
                         feedModalButton.html($.mage.__('Feeds In Progress'));
                         setTimeout(pcFeedProgressCheck, 1000);
+                    } else if (response.product.enabled === false &&
+                        response.category.enabled === false &&
+                        response.brand.enabled === false &&
+                        response.user.enabled === false &&
+                        response.orders.enabled === false
+                    ) {
+                        feedModalButton.addClass('pc-disabled');
+                        feedModalButton.attr('title', $.mage.__('Feeds Not Enabled'));
+                        feedModalButton.html($.mage.__('Feeds Not Enabled'));
                     } else {
                         feedModalButton.attr('title', $.mage.__('Run Feeds Manually'));
                         feedModalButton.html($.mage.__('Run Feeds Manually'));
@@ -379,9 +397,6 @@ require(
 
         function pcFeedResetState() {
             feedRunObject.isComplete = true;
-            if (feedRunObject.selectStore.length) {
-                feedRunObject.selectStore.prop("disabled", false);
-            }
             feedRunObject.chkProducts.prop("disabled", false);
             feedRunObject.chkCategories.prop("disabled", false);
             if (feedRunObject.chkBrands.length) {

@@ -11,7 +11,7 @@ $stores = $block->getPureclarityStoresViewModel();
 /** @var \Pureclarity\Core\ViewModel\Adminhtml\Dashboard\Store $store */
 $store = $block->getPureclarityStoreViewModel();
 ?>
-<div id="pc-welcome">
+<div id="pc-welcome" <?php if ($stores->hasMultipleStores()) : ?>class="pc-multi-store"<?php endif; ?>>
     <div id="pc-marketing-info" class="pc-box">
         <div class="pc-box-content">
             <h2><?= $block->escapeHtml(__('Welcome to PureClarity')) ?></h2>

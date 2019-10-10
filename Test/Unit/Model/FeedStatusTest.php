@@ -317,6 +317,31 @@ class FeedStatusTest extends TestCase
     public function testGetFeedStatusNotEnabled()
     {
         $this->coreConfig->expects($this->at(0))
+            ->method('isActive')
+            ->with(1)
+            ->willReturn(false);
+
+        $status = $this->object->getFeedStatus('product', 1);
+
+        $this->assertEquals(
+            [
+                'enabled' => false,
+                'running' => false,
+                'class' => 'pc-feed-disabled',
+                'label' => 'Not Enabled',
+            ],
+            $status
+        );
+    }
+
+    public function testGetFeedStatusNotEnabledBrands()
+    {
+        $this->coreConfig->expects($this->at(0))
+            ->method('isActive')
+            ->with(1)
+            ->willReturn(true);
+
+        $this->coreConfig->expects($this->at(1))
             ->method('isBrandFeedEnabled')
             ->with(1)
             ->willReturn(false);
@@ -353,6 +378,26 @@ class FeedStatusTest extends TestCase
             ->willReturn(json_encode($progress));
 
         $status = $this->object->getAreFeedsInProgress(['product'], 1);
+        $this->assertEquals(true, $status);
+    }
+
+    public function testGetAreFeedsDisabledFalse()
+    {
+        $this->initRunningFeedsStateObject();
+        $this->initDateStateObject();
+
+        $status = $this->object->getAreFeedsDisabled(['product'], 1);
+        $this->assertEquals(false, $status);
+    }
+
+    public function testGetAreFeedsDisabledTrue()
+    {
+        $this->coreConfig->expects($this->any())
+            ->method('isActive')
+            ->with(1)
+            ->willReturn(false);
+
+        $status = $this->object->getAreFeedsDisabled(['product'], 1);
         $this->assertEquals(true, $status);
     }
 

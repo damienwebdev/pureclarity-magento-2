@@ -65,6 +65,25 @@ class FeedStatusTest extends TestCase
 
         $this->assertEquals(false, $this->object->getAreFeedsInProgress(1));
     }
+    public function testGetAreFeedsDisabled()
+    {
+        $this->feedStatusModel->expects($this->once())
+            ->method('getAreFeedsDisabled')
+            ->with(['product', 'category', 'user', 'brand', 'orders'], 1)
+            ->willReturn(true);
+
+        $this->assertEquals(true, $this->object->getAreFeedsDisabled(1));
+    }
+
+    public function testGetAreFeedsDisabledFalse()
+    {
+        $this->feedStatusModel->expects($this->once())
+            ->method('getAreFeedsDisabled')
+            ->with(['product', 'category', 'user', 'brand', 'orders'], 1)
+            ->willReturn(false);
+
+        $this->assertEquals(false, $this->object->getAreFeedsDisabled(1));
+    }
 
     public function testIsFeedEnabled()
     {
