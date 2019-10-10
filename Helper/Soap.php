@@ -58,7 +58,6 @@ class Soap
         }
 
         curl_setopt($soap_do, CURLOPT_FAILONERROR, true);
-        curl_setopt($soap_do, CURLOPT_VERBOSE, true);
 
         if (!$result = curl_exec($soap_do)) {
             $this->logger->debug('PURECLARITY DELTA ERROR: '.curl_error($soap_do));
