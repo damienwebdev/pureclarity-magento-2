@@ -7,7 +7,6 @@
 namespace Pureclarity\Core\Test\Unit\ViewModel\Adminhtml\Dashboard;
 
 use PHPUnit\Framework\TestCase;
-use Magento\Framework\View\Element\Block\ArgumentInterface;
 use Pureclarity\Core\Helper\StoreData;
 use Pureclarity\Core\ViewModel\Adminhtml\Dashboard\Store;
 
@@ -39,11 +38,6 @@ class StoreTest extends TestCase
     public function testInstance()
     {
         $this->assertInstanceOf(Store::class, $this->object);
-    }
-
-    public function testInterface()
-    {
-        $this->assertInstanceOf(ArgumentInterface::class, $this->object);
     }
 
     public function testGetStoreURL()

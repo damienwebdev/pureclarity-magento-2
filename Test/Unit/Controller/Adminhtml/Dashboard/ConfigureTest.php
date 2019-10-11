@@ -65,6 +65,14 @@ class ConfigureTest extends TestCase
             ->method('getRequest')
             ->willReturn($this->request);
 
+        $this->formKeyValidator = $this->getMockBuilder(Validator::class)
+            ->disableOriginalConstructor()
+            ->getMock();
+
+        $this->context->expects($this->any())
+            ->method('getFormKeyValidator')
+            ->willReturn($this->formKeyValidator);
+
         $this->requestProcess = $this->getMockBuilder(Process::class)
             ->disableOriginalConstructor()
             ->getMock();
@@ -77,10 +85,6 @@ class ConfigureTest extends TestCase
             ->disableOriginalConstructor()
             ->getMock();
 
-        $this->formKeyValidator = $this->getMockBuilder(Validator::class)
-            ->disableOriginalConstructor()
-            ->getMock();
-
         $this->jsonFactory->expects($this->any())
             ->method('create')
             ->willReturn($this->json);
@@ -88,8 +92,7 @@ class ConfigureTest extends TestCase
         $this->object = new Configure(
             $this->context,
             $this->requestProcess,
-            $this->jsonFactory,
-            $this->formKeyValidator
+            $this->jsonFactory
         );
     }
 

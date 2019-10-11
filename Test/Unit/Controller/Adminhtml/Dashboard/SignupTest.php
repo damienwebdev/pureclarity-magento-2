@@ -65,6 +65,14 @@ class SignupTest extends TestCase
             ->method('getRequest')
             ->willReturn($this->request);
 
+        $this->formKeyValidator = $this->getMockBuilder(Validator::class)
+            ->disableOriginalConstructor()
+            ->getMock();
+
+        $this->context->expects($this->any())
+            ->method('getFormKeyValidator')
+            ->willReturn($this->formKeyValidator);
+
         $this->signupRequest = $this->getMockBuilder(Request::class)
             ->disableOriginalConstructor()
             ->getMock();
@@ -77,10 +85,6 @@ class SignupTest extends TestCase
             ->disableOriginalConstructor()
             ->getMock();
 
-        $this->formKeyValidator = $this->getMockBuilder(Validator::class)
-            ->disableOriginalConstructor()
-            ->getMock();
-
         $this->jsonFactory->expects($this->any())
             ->method('create')
             ->willReturn($this->json);
@@ -88,8 +92,7 @@ class SignupTest extends TestCase
         $this->object = new Signup(
             $this->context,
             $this->signupRequest,
-            $this->jsonFactory,
-            $this->formKeyValidator
+            $this->jsonFactory
         );
     }
 

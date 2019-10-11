@@ -70,6 +70,14 @@ class GetStoreDetailsTest extends TestCase
             ->method('getRequest')
             ->willReturn($this->request);
 
+        $this->formKeyValidator = $this->getMockBuilder(Validator::class)
+            ->disableOriginalConstructor()
+            ->getMock();
+
+        $this->context->expects($this->any())
+            ->method('getFormKeyValidator')
+            ->willReturn($this->formKeyValidator);
+
         $this->jsonFactory = $this->getMockBuilder(JsonFactory::class)
             ->disableOriginalConstructor()
             ->getMock();
@@ -77,11 +85,6 @@ class GetStoreDetailsTest extends TestCase
         $this->json = $this->getMockBuilder(Json::class)
             ->disableOriginalConstructor()
             ->getMock();
-
-        $this->formKeyValidator = $this->getMockBuilder(Validator::class)
-            ->disableOriginalConstructor()
-            ->getMock();
-
         $this->storeData = $this->getMockBuilder(StoreData::class)
             ->disableOriginalConstructor()
             ->getMock();
@@ -93,7 +96,6 @@ class GetStoreDetailsTest extends TestCase
         $this->object = new GetStoreDetails(
             $this->context,
             $this->jsonFactory,
-            $this->formKeyValidator,
             $this->storeData
         );
     }

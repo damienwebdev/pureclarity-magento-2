@@ -47,6 +47,14 @@ class SignupTest extends TestCase
             ->disableOriginalConstructor()
             ->getMock();
 
+        $this->formKey = $this->getMockBuilder(FormKey::class)
+            ->disableOriginalConstructor()
+            ->getMock();
+
+        $this->context->expects($this->any())
+            ->method('getFormKey')
+            ->willReturn($this->formKey);
+
         $this->storesViewModel = $this->getMockBuilder(Stores::class)
             ->disableOriginalConstructor()
             ->getMock();
@@ -59,16 +67,11 @@ class SignupTest extends TestCase
             ->disableOriginalConstructor()
             ->getMock();
 
-        $this->formKey = $this->getMockBuilder(FormKey::class)
-            ->disableOriginalConstructor()
-            ->getMock();
-
         $this->object = new Signup(
             $this->context,
             $this->storesViewModel,
             $this->regionsViewModel,
-            $this->storeViewModel,
-            $this->formKey
+            $this->storeViewModel
         );
     }
 

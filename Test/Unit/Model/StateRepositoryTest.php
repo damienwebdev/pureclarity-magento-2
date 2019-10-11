@@ -18,9 +18,6 @@ use Pureclarity\Core\Api\StateRepositoryInterface;
 use Pureclarity\Core\Model\ResourceModel\StateFactory;
 use Pureclarity\Core\Model\ResourceModel\State\CollectionFactory;
 use Pureclarity\Core\Model\ResourceModel\State\Collection;
-use Magento\Framework\Api\SearchCriteria\CollectionProcessorInterface;
-use Magento\Framework\Api\SearchCriteriaInterfaceFactory;
-use Magento\Framework\Api\SearchCriteriaInterface;
 
 /**
  * Class StateRespositoryTest
@@ -39,20 +36,11 @@ class StateRepositoryTest extends TestCase
     /** @var Collection|MockObject $collectionMock */
     private $collectionMock;
 
-    /** @var SearchCriteriaInterfaceFactory|MockObject $searchCriteriaInterfaceFactoryMock */
-    private $searchCriteriaInterfaceFactoryMock;
-
-    /** @var SearchCriteriaInterface|MockObject $searchCriteriaInterfaceMock */
-    private $searchCriteriaInterfaceMock;
-
     /** @var StateFactory|MockObject $stateFactoryMock */
     private $stateFactoryMock;
 
     /** @var StateResource|MockObject $stateResourceMock */
     private $stateResourceMock;
-
-    /** @var CollectionProcessorInterface|MockObject $collectionProcessorInterfaceMock */
-    private $collectionProcessorInterfaceMock;
 
     protected function setUp()
     {
@@ -70,19 +58,6 @@ class StateRepositoryTest extends TestCase
         $this->collectionFactoryMock->expects($this->any())->method('create')
             ->will($this->returnValue($this->collectionMock));
 
-        $this->searchCriteriaInterfaceFactoryMock = $this->getMockBuilder(SearchCriteriaInterfaceFactory::class)
-            ->disableOriginalConstructor()
-            ->setMethods(['create'])
-            ->getMock();
-
-        $this->searchCriteriaInterfaceMock = $this->getMockBuilder(SearchCriteriaInterface::class)
-            ->disableOriginalConstructor()
-            ->getMock();
-
-        $this->searchCriteriaInterfaceFactoryMock->expects($this->any())
-            ->method('create')
-            ->will($this->returnValue($this->searchCriteriaInterfaceMock));
-
         $this->stateFactoryMock = $this->getMockBuilder(StateFactory::class)
             ->disableOriginalConstructor()
             ->setMethods(['create'])
@@ -95,14 +70,8 @@ class StateRepositoryTest extends TestCase
         $this->stateFactoryMock->expects($this->any())->method('create')
             ->will($this->returnValue($this->stateResourceMock));
 
-        $this->collectionProcessorInterfaceMock = $this->getMockBuilder(CollectionProcessorInterface::class)
-            ->disableOriginalConstructor()
-            ->getMock();
-
         $this->object = new StateRepository(
             $this->collectionFactoryMock,
-            $this->searchCriteriaInterfaceFactoryMock,
-            $this->collectionProcessorInterfaceMock,
             $this->stateFactoryMock
         );
     }

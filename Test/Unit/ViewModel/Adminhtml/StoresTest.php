@@ -10,7 +10,6 @@ use Magento\Store\Api\Data\StoreInterface;
 use Magento\Store\Model\StoreManagerInterface;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
-use Magento\Framework\View\Element\Block\ArgumentInterface;
 use Pureclarity\Core\Api\StateRepositoryInterface;
 use Pureclarity\Core\Model\State;
 use Pureclarity\Core\ViewModel\Adminhtml\Stores;
@@ -108,11 +107,6 @@ class StoresTest extends TestCase
     public function testInstance()
     {
         $this->assertInstanceOf(Stores::class, $this->object);
-    }
-
-    public function testInterface()
-    {
-        $this->assertInstanceOf(ArgumentInterface::class, $this->object);
     }
 
     public function testGetMagentoDefaultStore()

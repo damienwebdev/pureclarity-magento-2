@@ -9,7 +9,6 @@ namespace Pureclarity\Core\Test\Unit\ViewModel\Adminhtml;
 use Magento\Framework\View\Design\Theme\LabelFactory;
 use Magento\Framework\View\Design\Theme\Label;
 use PHPUnit\Framework\TestCase;
-use Magento\Framework\View\Element\Block\ArgumentInterface;
 use Pureclarity\Core\ViewModel\Adminhtml\Themes;
 
 /**
@@ -40,11 +39,6 @@ class ThemesTest extends TestCase
     public function testInstance()
     {
         $this->assertInstanceOf(Themes::class, $this->object);
-    }
-
-    public function testInterface()
-    {
-        $this->assertInstanceOf(ArgumentInterface::class, $this->object);
     }
 
     public function testGetThemes()

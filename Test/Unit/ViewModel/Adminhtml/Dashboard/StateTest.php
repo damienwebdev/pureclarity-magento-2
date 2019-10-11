@@ -9,7 +9,6 @@ namespace Pureclarity\Core\Test\Unit\ViewModel\Adminhtml\Dashboard;
 use Magento\Framework\App\ProductMetadataInterface;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
-use Magento\Framework\View\Element\Block\ArgumentInterface;
 use Pureclarity\Core\Api\StateRepositoryInterface;
 use Pureclarity\Core\Helper\Data;
 use Pureclarity\Core\ViewModel\Adminhtml\Dashboard\State;
@@ -83,11 +82,6 @@ class StateTest extends TestCase
     public function testInstance()
     {
         $this->assertInstanceOf(State::class, $this->object);
-    }
-
-    public function testInterface()
-    {
-        $this->assertInstanceOf(ArgumentInterface::class, $this->object);
     }
 
     public function testGetStateNameNotConfigured()
