@@ -9,7 +9,7 @@ namespace Pureclarity\Core\Model\Signup;
 use Magento\Framework\HTTP\Client\Curl;
 use Pureclarity\Core\Api\StateRepositoryInterface;
 use Pureclarity\Core\Helper\Service\Url;
-use Magento\Framework\Serialize\Serializer\Json;
+use Pureclarity\Core\Helper\Serializer;
 
 /**
  * Class Status
@@ -24,8 +24,8 @@ class Status
     /** @var Url $url */
     private $url;
 
-    /** @var Json $json */
-    private $json;
+    /** @var Serializer $serializer */
+    private $serializer;
 
     /** @var StateRepositoryInterface $stateRepository */
     private $stateRepository;
@@ -33,18 +33,18 @@ class Status
     /**
      * @param Curl $curl
      * @param Url $url
-     * @param Json $json
+     * @param Serializer $serializer
      * @param StateRepositoryInterface $stateRepository
      */
     public function __construct(
         Curl $curl,
         Url $url,
-        Json $json,
+        Serializer $serializer,
         StateRepositoryInterface $stateRepository
     ) {
         $this->curl            = $curl;
         $this->url             = $url;
-        $this->json            = $json;
+        $this->serializer      = $serializer;
         $this->stateRepository = $stateRepository;
     }
 
@@ -65,7 +65,7 @@ class Status
             $state = $this->stateRepository->getByNameAndStore('signup_request', 0);
 
             if ($state->getValue() !== 'complete') {
-                $signUpRequest = $this->json->unserialize($state->getValue());
+                $signUpRequest = $this->serializer->unserialize($state->getValue());
                 $request = $this->buildRequest($signUpRequest);
                 $url = $this->url->getSignupStatusEndpointUrl($signUpRequest['region']);
 
@@ -82,12 +82,12 @@ class Status
                 $response = $this->curl->getBody();
 
                 if ($status === 400) {
-                    $responseData = $this->json->unserialize($response);
+                    $responseData = $this->serializer->unserialize($response);
                     $result['error'] = __('Signup error: %1', implode('|', $responseData['errors']));
                 } elseif ($status !== 200) {
                     $result['error'] = __('PureClarity server error occurred. If this persists, please contact PureClarity support. Error code %1', $status);
                 } else {
-                    $responseData = $this->json->unserialize($response);
+                    $responseData = $this->serializer->unserialize($response);
                     if ($responseData['Complete'] === true) {
                         $result['response'] = [
                             'access_key' => $responseData['AccessKey'],
@@ -124,6 +124,6 @@ class Status
             'Id' => $signUpRequest['id']
         ];
 
-        return $this->json->serialize($requestData);
+        return $this->serializer->serialize($requestData);
     }
 }

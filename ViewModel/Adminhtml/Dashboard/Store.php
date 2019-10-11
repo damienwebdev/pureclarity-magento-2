@@ -6,7 +6,6 @@
 
 namespace Pureclarity\Core\ViewModel\Adminhtml\Dashboard;
 
-use Magento\Framework\View\Element\Block\ArgumentInterface;
 use Pureclarity\Core\Helper\StoreData;
 
 /**
@@ -14,7 +13,7 @@ use Pureclarity\Core\Helper\StoreData;
  *
  * Store ViewModel for Dashboard page
  */
-class Store implements ArgumentInterface
+class Store
 {
     /** @var StoreData $storeData */
     private $storeData;

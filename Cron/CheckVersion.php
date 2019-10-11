@@ -6,7 +6,7 @@
 
 namespace Pureclarity\Core\Cron;
 
-use Magento\Framework\Serialize\Serializer\Json;
+use Pureclarity\Core\Helper\Serializer;
 use Psr\Log\LoggerInterface;
 use Pureclarity\Core\Api\StateRepositoryInterface;
 use Pureclarity\Core\Helper\Service\Url;
@@ -26,8 +26,8 @@ class CheckVersion
     /** @var Curl $curl*/
     private $curl;
 
-    /** @var Json $json*/
-    private $json;
+    /** @var Serializer $serializer*/
+    private $serializer;
 
     /** @var StateRepositoryInterface $stateRepository*/
     private $stateRepository;
@@ -38,20 +38,20 @@ class CheckVersion
     /**
      * @param Url $url
      * @param Curl $curl
-     * @param Json $json
+     * @param Serializer $serializer
      * @param StateRepositoryInterface $stateRepository
      * @param LoggerInterface $logger
      */
     public function __construct(
         Url $url,
         Curl $curl,
-        Json $json,
+        Serializer $serializer,
         StateRepositoryInterface $stateRepository,
         LoggerInterface $logger
     ) {
         $this->url             = $url;
         $this->curl            = $curl;
-        $this->json            = $json;
+        $this->serializer      = $serializer;
         $this->stateRepository = $stateRepository;
         $this->logger          = $logger;
     }
@@ -80,7 +80,7 @@ class CheckVersion
                 );
             } else {
                 $response = $this->curl->getBody();
-                $resultData = $this->json->unserialize($response);
+                $resultData = $this->serializer->unserialize($response);
                 if (!isset($resultData['tag_name'])) {
                     $this->logger->error(
                         'PureClarity Check Version cron error: error retrieving '

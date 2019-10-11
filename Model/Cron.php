@@ -11,7 +11,7 @@ use Magento\Cron\Model\Schedule;
 use Magento\Framework\Exception\CouldNotDeleteException;
 use Magento\Framework\Exception\CouldNotSaveException;
 use Magento\Framework\Filesystem;
-use Magento\Framework\Serialize\Serializer\Json;
+use Pureclarity\Core\Helper\Serializer;
 use Magento\Store\Model\StoreFactory;
 use Magento\Store\Model\StoreManagerInterface;
 use Psr\Log\LoggerInterface;
@@ -61,8 +61,8 @@ class Cron
     /** @var StateRepositoryInterface */
     private $stateRepository;
 
-    /** @var Json */
-    private $json;
+    /** @var Serializer */
+    private $serializer;
 
     /** @var LoggerInterface $logger */
     private $logger;
@@ -84,7 +84,7 @@ class Cron
      * @param StoreFactory $storeStoreFactory
      * @param Filesystem $fileSystem
      * @param StateRepositoryInterface $stateRepository
-     * @param Json $json
+     * @param Serializer $serializer
      * @param LoggerInterface $logger
      * @param CoreConfig $coreConfig
      * @param Url $serviceUrl
@@ -100,7 +100,7 @@ class Cron
         StoreFactory $storeStoreFactory,
         Filesystem $fileSystem,
         StateRepositoryInterface $stateRepository,
-        Json $json,
+        Serializer $serializer,
         LoggerInterface $logger,
         CoreConfig $coreConfig,
         Url $serviceUrl
@@ -115,7 +115,7 @@ class Cron
         $this->storeStoreFactory            = $storeStoreFactory;
         $this->fileSystem                   = $fileSystem;
         $this->stateRepository              = $stateRepository;
-        $this->json                         = $json;
+        $this->serializer                   = $serializer;
         $this->logger                       = $logger;
         $this->coreConfig                   = $coreConfig;
         $this->serviceUrl                   = $serviceUrl;
@@ -439,7 +439,7 @@ class Cron
     {
         $state = $this->stateRepository->getByNameAndStore('running_feeds', $storeId);
         $state->setName('running_feeds');
-        $state->setValue($this->json->serialize($feeds));
+        $state->setValue($this->serializer->serialize($feeds));
         $state->setStoreId($storeId);
 
         try {

@@ -6,7 +6,6 @@
 
 namespace Pureclarity\Core\ViewModel\Adminhtml\Dashboard;
 
-use Magento\Framework\View\Element\Block\ArgumentInterface;
 use Pureclarity\Core\Model\FeedStatus as FeedStatusModel;
 
 /**
@@ -14,7 +13,7 @@ use Pureclarity\Core\Model\FeedStatus as FeedStatusModel;
  *
  * Dashboard Feeds ViewModel for retrieving status of each type of feed
  */
-class FeedStatus implements ArgumentInterface
+class FeedStatus
 {
     /** @var FeedStatusModel $feedStatus */
     private $feedStatus;

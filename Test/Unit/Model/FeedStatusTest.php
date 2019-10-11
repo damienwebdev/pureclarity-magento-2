@@ -10,7 +10,7 @@ use Magento\Framework\Exception\FileSystemException;
 use Magento\Framework\Filesystem;
 use Magento\Framework\Filesystem\Directory\ReadInterface;
 use Magento\Framework\Phrase;
-use Magento\Framework\Serialize\Serializer\Json;
+use Pureclarity\Core\Helper\Serializer;
 use Magento\Framework\Stdlib\DateTime\TimezoneInterface;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
@@ -44,8 +44,8 @@ class FeedStatusTest extends TestCase
     /** @var CoreConfig */
     private $coreConfig;
 
-    /** @var Json */
-    private $json;
+    /** @var Serializer */
+    private $serializer;
 
     /** @var TimezoneInterface */
     private $timezone;
@@ -74,7 +74,7 @@ class FeedStatusTest extends TestCase
             ->disableOriginalConstructor()
             ->getMock();
 
-        $this->json = $this->getMockBuilder(Json::class)
+        $this->serializer = $this->getMockBuilder(Serializer::class)
             ->disableOriginalConstructor()
             ->getMock();
 
@@ -95,7 +95,7 @@ class FeedStatusTest extends TestCase
             $this->fileSystem,
             $this->coreHelper,
             $this->coreConfig,
-            $this->json,
+            $this->serializer,
             $this->timezone,
             $this->logger
         );
@@ -108,11 +108,11 @@ class FeedStatusTest extends TestCase
      */
     private function setDefaultMockBehaviour()
     {
-        $this->json->expects($this->any())->method('serialize')->will($this->returnCallback(function ($param) {
+        $this->serializer->expects($this->any())->method('serialize')->will($this->returnCallback(function ($param) {
             return json_encode($param);
         }));
 
-        $this->json->expects($this->any())->method('unserialize')->will($this->returnCallback(function ($param) {
+        $this->serializer->expects($this->any())->method('unserialize')->will($this->returnCallback(function ($param) {
             return json_decode($param, true);
         }));
 

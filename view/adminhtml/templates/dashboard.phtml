@@ -10,7 +10,7 @@ $state = $block->getPureclarityStateViewModel();
 
 ?>
 <div id="pc-dashboard">
-    <input type="hidden" id="pc-current-state" value="<?= $block->escapeHtmlAttr($state->getStateName()) ?>"/>
+    <input type="hidden" id="pc-current-state" value="<?= $block->escapeQuote($block->escapeHtml($state->getStateName())) ?>"/>
     <?php if ($state->isNotConfigured()) : ?>
         <?= $block->getChildHtml('pureclarity_dashboard_content_signup') ?>
     <?php endif; ?>

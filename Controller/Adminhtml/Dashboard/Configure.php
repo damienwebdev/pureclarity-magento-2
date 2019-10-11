@@ -33,17 +33,15 @@ class Configure extends Action
      * @param Context $context
      * @param Process $requestProcess
      * @param JsonFactory $jsonFactory
-     * @param Validator $formKeyValidator
      */
     public function __construct(
         Context $context,
         Process $requestProcess,
-        JsonFactory $jsonFactory,
-        Validator $formKeyValidator
+        JsonFactory $jsonFactory
     ) {
-        $this->requestProcess = $requestProcess;
-        $this->jsonFactory    = $jsonFactory;
-        $this->formKeyValidator = $formKeyValidator;
+        $this->requestProcess   = $requestProcess;
+        $this->jsonFactory      = $jsonFactory;
+        $this->formKeyValidator = $context->getFormKeyValidator();
         parent::__construct($context);
     }
 

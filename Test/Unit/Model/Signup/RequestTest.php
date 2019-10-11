@@ -8,8 +8,8 @@ namespace Pureclarity\Core\Test\Unit\Model\Signup;
 
 use Magento\Framework\Exception\NoSuchEntityException;
 use Magento\Framework\HTTP\Client\Curl;
-use Magento\Framework\Serialize\Serializer\Json;
-use Magento\Framework\Validator\Url as UrlValidator;
+use Pureclarity\Core\Helper\Serializer;
+use Pureclarity\Core\Helper\UrlValidator;
 use Magento\Store\Model\StoreManagerInterface;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
@@ -55,8 +55,8 @@ class RequestTest extends TestCase
     /** @var StoreManagerInterface|MockObject $storeManagerMock */
     private $storeManagerMock;
 
-    /** @var Json|MockObject $jsonMock */
-    private $jsonMock;
+    /** @var Serializer|MockObject $serializerMock */
+    private $serializerMock;
 
     /** @var StoreData|MockObject $storeDataMock */
     private $storeDataMock;
@@ -92,7 +92,7 @@ class RequestTest extends TestCase
             ->disableOriginalConstructor()
             ->getMock();
 
-        $this->jsonMock = $this->getMockBuilder(Json::class)
+        $this->serializerMock = $this->getMockBuilder(Serializer::class)
             ->disableOriginalConstructor()
             ->getMock();
 
@@ -108,11 +108,11 @@ class RequestTest extends TestCase
             ->disableOriginalConstructor()
             ->getMock();
 
-        $this->jsonMock->expects($this->any())->method('serialize')->will($this->returnCallback(function ($param) {
+        $this->serializerMock->expects($this->any())->method('serialize')->will($this->returnCallback(function ($param) {
             return json_encode($param);
         }));
 
-        $this->jsonMock->expects($this->any())->method('unserialize')->will($this->returnCallback(function ($param) {
+        $this->serializerMock->expects($this->any())->method('unserialize')->will($this->returnCallback(function ($param) {
             return json_decode($param, true);
         }));
 
@@ -121,7 +121,7 @@ class RequestTest extends TestCase
             $this->urlMock,
             $this->regionMock,
             $this->storeManagerMock,
-            $this->jsonMock,
+            $this->serializerMock,
             $this->storeDataMock,
             $this->stateRepositoryMock,
             $this->urlValidator
@@ -360,12 +360,12 @@ class RequestTest extends TestCase
 
         $params = $this->getDefaultParams();
         $this->curlMock->expects($this->any())->method('getStatus')->willReturn(400);
-        $json = [
+        $data = [
             'errors' => [
                 'An error'
             ]
         ];
-        $this->curlMock->expects($this->any())->method('getBody')->willReturn(json_encode($json));
+        $this->curlMock->expects($this->any())->method('getBody')->willReturn(json_encode($data));
 
         $result = $this->object->sendRequest($params);
 
@@ -381,12 +381,12 @@ class RequestTest extends TestCase
 
         $params = $this->getDefaultParams();
         $this->curlMock->expects($this->any())->method('getStatus')->willReturn(504);
-        $json = [
+        $data = [
             'errors' => [
                 'An error'
             ]
         ];
-        $this->curlMock->expects($this->any())->method('getBody')->willReturn(json_encode($json));
+        $this->curlMock->expects($this->any())->method('getBody')->willReturn(json_encode($data));
 
         $result = $this->object->sendRequest($params);
 

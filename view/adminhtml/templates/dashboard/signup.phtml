@@ -60,9 +60,9 @@ $store = $block->getPureclarityStoreViewModel();
                             <label class="label" for="pc-details-store-id"><?= $block->escapeHtml(__('Store')) ?></label>
                             <select data-validate='{"required":true}' name="store_id" id="pc-details-store-id">
                                 <?php foreach ($stores->getStoreList() as $storeId => $storeName) : ?>
-                                    <option value="<?= $block->escapeHtmlAttr($storeId) ?>"
+                                    <option value="<?= $block->escapeQuote($block->escapeHtml($storeId)) ?>"
                                         <?php if ($storeId === (int)$stores->getMagentoDefaultStore()->getId()) : ?>selected="selected"<?php endif ?>>
-                                        <?= $block->escapeHtmlAttr($storeName) ?>
+                                        <?= $block->escapeQuote($block->escapeHtml($storeName)) ?>
                                     </option>
                                 <?php endforeach ?>
                             </select>
@@ -89,7 +89,7 @@ $store = $block->getPureclarityStoreViewModel();
     <div id="pc-sign-up-form-holder">
         <div id="pc-sign-up-form-content">
             <form id="pc-sign-up-form" method="post" action="<?= $block->escapeUrl($block->getUrl('pureclarity/dashboard/signup')) ?>" data-mage-init='{"validation":{}}'>
-                <input type="hidden" name="form_key" value="<?= $block->escapeHtmlAttr($block->getFormKey()) ?>" />
+                <input type="hidden" name="form_key" value="<?= $block->escapeQuote($block->escapeHtml($block->getFormKey())) ?>" />
                 <div class="left">
                     <h3><?= $block->escapeHtml(__('About you')) ?></h3>
                     <p class="pc-field">
@@ -120,9 +120,9 @@ $store = $block->getPureclarityStoreViewModel();
                             <label class="label" for="pc-sign-up-store-id"><?= $block->escapeHtml(__('Store')) ?></label>
                             <select data-validate='{"required":true}' name="store_id" id="pc-sign-up-store-id">
                                 <?php foreach ($stores->getStoreList() as $storeId => $storeName) : ?>
-                                    <option value="<?= $block->escapeHtmlAttr($storeId) ?>"
+                                    <option value="<?= $block->escapeQuote($block->escapeHtml($storeId)) ?>"
                                             <?php if ($storeId === (int)$stores->getMagentoDefaultStore()->getId()) : ?>selected="selected"<?php endif ?>>
-                                        <?= $block->escapeHtmlAttr($storeName) ?>
+                                        <?= $block->escapeQuote($block->escapeHtml($storeName)) ?>
                                     </option>
                                 <?php endforeach ?>
                             </select>
@@ -136,7 +136,7 @@ $store = $block->getPureclarityStoreViewModel();
                     </p>
                     <p class="pc-field">
                         <label class="label" for="pc-sign-up-store-url"><?= $block->escapeHtml(__('URL')) ?></label>
-                        <input data-validate='{"required":true}' type="text" name="url" id="pc-sign-up-store-url" value="<?= $block->escapeHtmlAttr($store->getStoreURL($stores->getMagentoDefaultStore()->getId())) ?>"/>
+                        <input data-validate='{"required":true}' type="text" name="url" id="pc-sign-up-store-url" value="<?= $block->escapeQuote($block->escapeHtml($store->getStoreURL($stores->getMagentoDefaultStore()->getId()))) ?>"/>
                     </p>
                     <p class="details">
                         <span class="label"><?= $block->escapeHtml(__('Currency')) ?></span>

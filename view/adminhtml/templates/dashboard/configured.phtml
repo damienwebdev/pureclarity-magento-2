@@ -8,7 +8,7 @@
 /** @var \Pureclarity\Core\ViewModel\Adminhtml\Dashboard\State $state */
 $state = $block->getPureclarityStateViewModel();
 
-/** @var \Pureclarity\Core\ViewModel\Adminhtml\Dashboard\Stores $stores */
+/** @var \Pureclarity\Core\ViewModel\Adminhtml\Stores $stores */
 $stores = $block->getPureclarityStoresViewModel();
 
 ?>
@@ -57,7 +57,7 @@ $stores = $block->getPureclarityStoresViewModel();
             <p><?= $block->escapeHtml(__('We have comprehensive documentation available which will help with any questions you may have')) ?></p>
             <p class="pc-button"><a class="action-default" href="https://www.pureclarity.com/docs/magento-2/" target="_blank" title="<?= $block->escapeHtml(__('Access Documentation')) ?>"><?= $block->escapeHtml(__('Access Documentation')) ?></a></p>
             <p><?= $block->escapeHtml(__('If you have any issues please contact our Support Team at support@pureclarity.com')) ?></p>
-            <p class="pc-button"><a class="action-default" href="mailto:support@pureclarity.com?subject=Magento%202%20Support%20Issue&body=Plugin%20Version:%20<?= $block->escapeHtmlAttr($state->getPluginVersion()) ?>%0D%0AMagento Version:%20<?= $block->escapeHtmlAttr($state->getMagentoVersion()) ?>%0D%0AStore Name: [PLEASE ENTER]%0D%0A" title="<?= $block->escapeHtml(__('Contact support')) ?>"><?= $block->escapeHtml(__('Contact support')) ?></a></p>
+            <p class="pc-button"><a class="action-default" href="mailto:support@pureclarity.com?subject=Magento%202%20Support%20Issue&body=Plugin%20Version:%20<?= $block->escapeQuote($block->escapeHtml($state->getPluginVersion())) ?>%0D%0AMagento Version:%20<?= $block->escapeQuote($block->escapeHtml($state->getMagentoVersion())) ?>%0D%0AStore Name: [PLEASE ENTER]%0D%0A" title="<?= $block->escapeHtml(__('Contact support')) ?>"><?= $block->escapeHtml(__('Contact support')) ?></a></p>
         </div>
     </div>
 </div>

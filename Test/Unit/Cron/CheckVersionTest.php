@@ -9,12 +9,7 @@ namespace Pureclarity\Core\Test\Unit\Cron;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 use Pureclarity\Core\Cron\CheckVersion;
-use Magento\Backend\App\Action\Context;
-use Magento\Framework\View\Result\Page;
-use Magento\Framework\View\Result\PageFactory;
-use Magento\Backend\App\Action;
-
-use Magento\Framework\Serialize\Serializer\Json;
+use Pureclarity\Core\Helper\Serializer;
 use Psr\Log\LoggerInterface;
 use Pureclarity\Core\Api\StateRepositoryInterface;
 use Pureclarity\Core\Helper\Service\Url;
@@ -42,8 +37,8 @@ class CheckVersionTest extends TestCase
     /** @var Curl $curl*/
     private $curl;
 
-    /** @var Json $json*/
-    private $json;
+    /** @var Serializer $serializer*/
+    private $serializer;
 
     /** @var StateRepositoryInterface $stateRepository*/
     private $stateRepository;
@@ -61,7 +56,7 @@ class CheckVersionTest extends TestCase
             ->disableOriginalConstructor()
             ->getMock();
 
-        $this->json = $this->getMockBuilder(Json::class)
+        $this->serializer = $this->getMockBuilder(Serializer::class)
             ->disableOriginalConstructor()
             ->getMock();
 
@@ -76,7 +71,7 @@ class CheckVersionTest extends TestCase
         $this->object = new CheckVersion(
             $this->url,
             $this->curl,
-            $this->json,
+            $this->serializer,
             $this->stateRepository,
             $this->logger
         );
@@ -85,11 +80,11 @@ class CheckVersionTest extends TestCase
             ->method('getGithubUrl')
             ->willReturn('https://www.google.com/');
 
-        $this->json->expects($this->any())->method('serialize')->will($this->returnCallback(function ($param) {
+        $this->serializer->expects($this->any())->method('serialize')->will($this->returnCallback(function ($param) {
             return json_encode($param);
         }));
 
-        $this->json->expects($this->any())->method('unserialize')->will($this->returnCallback(function ($param) {
+        $this->serializer->expects($this->any())->method('unserialize')->will($this->returnCallback(function ($param) {
             return json_decode($param, true);
         }));
     }
@@ -142,13 +137,13 @@ class CheckVersionTest extends TestCase
 
     private function setupCurlGetBody($version = Data::CURRENT_VERSION)
     {
-        $json = [
+        $data = [
             'tag_name' => $version
         ];
 
         $this->curl->expects($this->any())
             ->method('getBody')
-            ->willReturn(json_encode($json));
+            ->willReturn(json_encode($data));
     }
 
     private function expectError($error)

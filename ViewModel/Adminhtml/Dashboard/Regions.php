@@ -6,7 +6,6 @@
 
 namespace Pureclarity\Core\ViewModel\Adminhtml\Dashboard;
 
-use Magento\Framework\View\Element\Block\ArgumentInterface;
 use Pureclarity\Core\Model\Config\Source\Region;
 
 /**
@@ -14,7 +13,7 @@ use Pureclarity\Core\Model\Config\Source\Region;
  *
  * Regions ViewModel for Dashboard page
  */
-class Regions implements ArgumentInterface
+class Regions
 {
     /** @var $region Region */
     private $region;

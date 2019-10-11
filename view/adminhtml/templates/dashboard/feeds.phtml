@@ -23,15 +23,15 @@ $defaultStoreId = (int)$stores->getPureClarityDefaultStore();
         <label for="pc-feed-info-store" class="pc-feedName"><?= $block->escapeHtml('Store') ?>:</label>
         <select id="pc-feed-info-store" class="select admin__controle-select">
             <?php foreach ($stores->getStoreList() as $storeId => $storeName) : ?>
-                <option value="<?= $block->escapeHtmlAttr($storeId) ?>"
+                <option value="<?= $block->escapeQuote($block->escapeHtml($storeId)) ?>"
                     <?php if ($storeId === $defaultStoreId) : ?>selected="selected"<?php endif ?>>
-                    <?= $block->escapeHtmlAttr($storeName) ?>
+                    <?= $block->escapeQuote($block->escapeHtml($storeName)) ?>
                 </option>
             <?php endforeach ?>
         </select>
     </div>
     <?php else : ?>
-        <input id="pc-feed-info-store" type="hidden" value="<?= $block->escapeHtmlAttr($defaultStoreId) ?>" />
+        <input id="pc-feed-info-store" type="hidden" value="<?= $block->escapeQuote($block->escapeHtml($defaultStoreId)) ?>" />
     <?php endif ?>
     <p class="pc-feed">
         <span class="pc-feedName"><?= $block->escapeHtml(__('Products')) ?>:</span>
@@ -115,4 +115,4 @@ $defaultStoreId = (int)$stores->getPureClarityDefaultStore();
 </div>
 <input id="pc-feed-run-url" type="hidden" value="<?= $block->escapeUrl($block->getUrl('pureclarity/datafeed/runfeed')) ?>" />
 <input id="pc-feed-progress-url" type="hidden" value="<?= $block->escapeUrl($block->getUrl('pureclarity/datafeed/progress')) ?>" />
-<input id="pc-feeds-in-progress" type="hidden" value="<?= $block->escapeHtmlAttr($feeds->getAreFeedsInProgress($defaultStoreId)) ?>" />
+<input id="pc-feeds-in-progress" type="hidden" value="<?= $block->escapeQuote($block->escapeHtml($feeds->getAreFeedsInProgress($defaultStoreId))) ?>" />

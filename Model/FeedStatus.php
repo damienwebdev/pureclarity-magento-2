@@ -14,7 +14,7 @@ use Magento\Framework\Stdlib\DateTime\TimezoneInterface;
 use Psr\Log\LoggerInterface;
 use Pureclarity\Core\Api\StateRepositoryInterface;
 use Pureclarity\Core\Helper\Data;
-use Magento\Framework\Serialize\Serializer\Json;
+use Pureclarity\Core\Helper\Serializer;
 
 /**
  * Class FeedStatus
@@ -44,8 +44,8 @@ class FeedStatus
     /** @var CoreConfig $coreConfig */
     private $coreConfig;
 
-    /** @var Json $json */
-    private $json;
+    /** @var Serializer $serializer */
+    private $serializer;
 
     /** @var TimezoneInterface $timezone */
     private $timezone;
@@ -58,7 +58,7 @@ class FeedStatus
      * @param Filesystem $fileSystem
      * @param Data $coreHelper
      * @param CoreConfig $coreConfig
-     * @param Json $json
+     * @param Serializer $serializer
      * @param TimezoneInterface $timezone
      * @param LoggerInterface $logger
      */
@@ -67,7 +67,7 @@ class FeedStatus
         Filesystem $fileSystem,
         Data $coreHelper,
         CoreConfig $coreConfig,
-        Json $json,
+        Serializer $serializer,
         TimezoneInterface $timezone,
         LoggerInterface $logger
     ) {
@@ -75,7 +75,7 @@ class FeedStatus
         $this->fileSystem      = $fileSystem;
         $this->coreHelper      = $coreHelper;
         $this->coreConfig      = $coreConfig;
-        $this->json            = $json;
+        $this->serializer      = $serializer;
         $this->timezone        = $timezone;
         $this->logger          = $logger;
     }
@@ -236,7 +236,7 @@ class FeedStatus
         $waitingFeedsRaw = ($state->getId() !== null) ? $state->getValue() : '';
 
         if ($waitingFeedsRaw) {
-            $waitingFeeds = $this->json->unserialize($waitingFeedsRaw);
+            $waitingFeeds = $this->serializer->unserialize($waitingFeedsRaw);
             $waiting = in_array($feedType, $waitingFeeds);
         }
 
@@ -273,7 +273,7 @@ class FeedStatus
             if ($fileReader->isExist($progressFileName)) {
                 try {
                     $progressData = $fileReader->readFile($progressFileName);
-                    $this->progressData = $this->json->unserialize($progressData);
+                    $this->progressData = $this->serializer->unserialize($progressData);
                 } catch (FileSystemException $e) {
                     $this->logger->error('Could not get PureClarity feed progress data: ' . $e->getMessage());
                 }
@@ -296,7 +296,7 @@ class FeedStatus
             if ($fileReader->isExist($scheduleFile)) {
                 try {
                     $scheduledData = $fileReader->readFile($scheduleFile);
-                    $this->requestedFeedData = $this->json->unserialize($scheduledData);
+                    $this->requestedFeedData = $this->serializer->unserialize($scheduledData);
                 } catch (FileSystemException $e) {
                     $this->logger->error('Could not get PureClarity schedule data: ' . $e->getMessage());
                 }

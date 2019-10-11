@@ -6,7 +6,6 @@
 
 namespace Pureclarity\Core\ViewModel\Adminhtml;
 
-use Magento\Framework\View\Element\Block\ArgumentInterface;
 use Magento\Store\Model\StoreManagerInterface;
 use Magento\Store\Api\Data\StoreInterface;
 use Pureclarity\Core\Api\StateRepositoryInterface;
@@ -16,7 +15,7 @@ use Pureclarity\Core\Api\StateRepositoryInterface;
  *
  * Stores ViewModel for Dashboard page
  */
-class Stores implements ArgumentInterface
+class Stores
 {
     /** @var StoreManagerInterface $storeManager */
     private $storeManager;

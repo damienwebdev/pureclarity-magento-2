@@ -7,7 +7,7 @@
 namespace Pureclarity\Core\Test\Unit\Model\Signup;
 
 use Magento\Framework\HTTP\Client\Curl;
-use Magento\Framework\Serialize\Serializer\Json;
+use Pureclarity\Core\Helper\Serializer;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 use Pureclarity\Core\Api\StateRepositoryInterface;
@@ -37,8 +37,8 @@ class StatusTest extends TestCase
     /** @var Url|MockObject $urlMock */
     private $urlMock;
 
-    /** @var Json|MockObject $jsonMock */
-    private $jsonMock;
+    /** @var Serializer|MockObject $serializerMock */
+    private $serializerMock;
 
     /** @var StateRepositoryInterface|MockObject $stateRepositoryMock */
     private $stateRepositoryMock;
@@ -53,7 +53,7 @@ class StatusTest extends TestCase
             ->disableOriginalConstructor()
             ->getMock();
 
-        $this->jsonMock = $this->getMockBuilder(Json::class)
+        $this->serializerMock = $this->getMockBuilder(Serializer::class)
             ->disableOriginalConstructor()
             ->getMock();
 
@@ -61,18 +61,18 @@ class StatusTest extends TestCase
             ->disableOriginalConstructor()
             ->getMock();
 
-        $this->jsonMock->expects($this->any())->method('serialize')->will($this->returnCallback(function ($param) {
+        $this->serializerMock->expects($this->any())->method('serialize')->will($this->returnCallback(function ($param) {
             return json_encode($param);
         }));
 
-        $this->jsonMock->expects($this->any())->method('unserialize')->will($this->returnCallback(function ($param) {
+        $this->serializerMock->expects($this->any())->method('unserialize')->will($this->returnCallback(function ($param) {
             return json_decode($param, true);
         }));
 
         $this->object = new Status(
             $this->curlMock,
             $this->urlMock,
-            $this->jsonMock,
+            $this->serializerMock,
             $this->stateRepositoryMock
         );
     }
@@ -147,11 +147,11 @@ class StatusTest extends TestCase
                 $this->requestParams = $requestParams;
             }));
 
-        $json = [
+        $data = [
             'Complete' => false
         ];
 
-        $this->curlMock->expects($this->any())->method('getBody')->willReturn(json_encode($json));
+        $this->curlMock->expects($this->any())->method('getBody')->willReturn(json_encode($data));
         $this->curlMock->expects($this->any())->method('getStatus')->willReturn(200);
 
         // Validate state save was called correctly with correct values
@@ -175,11 +175,11 @@ class StatusTest extends TestCase
                 $this->requestParams = $requestParams;
             }));
 
-        $json = [
+        $data = [
             'Complete' => false
         ];
 
-        $this->curlMock->expects($this->any())->method('getBody')->willReturn(json_encode($json));
+        $this->curlMock->expects($this->any())->method('getBody')->willReturn(json_encode($data));
         $this->curlMock->expects($this->any())->method('getStatus')->willReturn(200);
 
         $result = $this->object->checkStatus();
@@ -206,13 +206,13 @@ class StatusTest extends TestCase
                 $this->requestParams = $requestParams;
             }));
 
-        $json = [
+        $data = [
             'Complete' => true,
             'AccessKey' => 'AccessKey1234',
             'SecretKey' => 'SecretKey1234'
         ];
 
-        $this->curlMock->expects($this->any())->method('getBody')->willReturn(json_encode($json));
+        $this->curlMock->expects($this->any())->method('getBody')->willReturn(json_encode($data));
         $this->curlMock->expects($this->any())->method('getStatus')->willReturn(200);
 
         $result = $this->object->checkStatus();
@@ -237,12 +237,12 @@ class StatusTest extends TestCase
             ->method('getByNameAndStore')
             ->willReturn($this->getRealStateObject());
 
-        $json = [
+        $data = [
             'errors' => [
                 'An error'
             ]
         ];
-        $this->curlMock->expects($this->any())->method('getBody')->willReturn(json_encode($json));
+        $this->curlMock->expects($this->any())->method('getBody')->willReturn(json_encode($data));
         $this->curlMock->expects($this->any())->method('getStatus')->willReturn(400);
 
         $result = $this->object->checkStatus();
@@ -258,12 +258,12 @@ class StatusTest extends TestCase
             ->method('getByNameAndStore')
             ->willReturn($this->getRealStateObject());
 
-        $json = [
+        $data = [
             'errors' => [
                 'An error'
             ]
         ];
-        $this->curlMock->expects($this->any())->method('getBody')->willReturn(json_encode($json));
+        $this->curlMock->expects($this->any())->method('getBody')->willReturn(json_encode($data));
         $this->curlMock->expects($this->any())->method('getStatus')->willReturn(504);
 
         $result = $this->object->checkStatus();

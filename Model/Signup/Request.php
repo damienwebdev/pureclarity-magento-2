@@ -9,12 +9,12 @@ namespace Pureclarity\Core\Model\Signup;
 use Magento\Framework\Exception\CouldNotSaveException;
 use Magento\Framework\Exception\NoSuchEntityException;
 use Magento\Framework\HTTP\Client\Curl;
-use Magento\Framework\Validator\Url as UrlValidator;
+use Pureclarity\Core\Helper\UrlValidator;
 use Magento\Store\Model\StoreManagerInterface;
 use Pureclarity\Core\Api\StateRepositoryInterface;
 use Pureclarity\Core\Helper\Service\Url;
 use Pureclarity\Core\Model\Config\Source\Region;
-use Magento\Framework\Serialize\Serializer\Json;
+use Pureclarity\Core\Helper\Serializer;
 use Pureclarity\Core\Helper\StoreData;
 
 /**
@@ -52,8 +52,8 @@ class Request
     /** @var StoreManagerInterface $storeManager */
     private $storeManager;
 
-    /** @var Json $json */
-    private $json;
+    /** @var Serializer $serializer */
+    private $serializer;
 
     /** @var StoreData $storeData */
     private $storeData;
@@ -69,7 +69,7 @@ class Request
      * @param Url $url
      * @param Region $region
      * @param StoreManagerInterface $storeManager
-     * @param Json $json
+     * @param Serializer $serializer
      * @param StoreData $storeData
      * @param StateRepositoryInterface $stateRepository
      * @param UrlValidator $urlValidator
@@ -79,7 +79,7 @@ class Request
         Url $url,
         Region $region,
         StoreManagerInterface $storeManager,
-        Json $json,
+        Serializer $serializer,
         StoreData $storeData,
         StateRepositoryInterface $stateRepository,
         UrlValidator $urlValidator
@@ -88,7 +88,7 @@ class Request
         $this->url             = $url;
         $this->region          = $region;
         $this->storeManager    = $storeManager;
-        $this->json            = $json;
+        $this->serializer      = $serializer;
         $this->storeData       = $storeData;
         $this->stateRepository = $stateRepository;
         $this->urlValidator    = $urlValidator;
@@ -175,13 +175,12 @@ class Request
                 );
 
                 $this->curl->setTimeout(5);
-            
                 $this->curl->post($url, $request);
                 $status = $this->curl->getStatus();
                 $response = $this->curl->getBody();
 
                 if ($status === 400) {
-                    $responseData = $this->json->unserialize($response);
+                    $responseData = $this->serializer->unserialize($response);
                     $result['error'] = __('Signup error: %1', implode('|', $responseData['errors']));
                 } elseif ($status !== 200) {
                     $result['error'] = __('PureClarity server error occurred. If this persists, please contact PureClarity support. Error code ' . $status);
@@ -193,7 +192,7 @@ class Request
                 if (strpos($e->getMessage(), 'timed') !== false) {
                     $result['error'] = __('Connection to PureClarity server timed out, please try again');
                 } else {
-                    $result['error'] = __('A general error occurred, please try again');
+                    $result['error'] = __('A general error occurred: ' . $e->getMessage());
                 }
             }
         } else {
@@ -227,7 +226,7 @@ class Request
             'StoreName' => $params['store_name']
         ];
 
-        return $this->json->serialize($requestData);
+        return $this->serializer->serialize($requestData);
     }
 
     /**
@@ -245,11 +244,11 @@ class Request
             'region' =>  $params['region']
         ];
 
-        $this->json->serialize($signupData);
+        $this->serializer->serialize($signupData);
 
         $state = $this->stateRepository->getByNameAndStore('signup_request', 0);
         $state->setName('signup_request');
-        $state->setValue($this->json->serialize($signupData));
+        $state->setValue($this->serializer->serialize($signupData));
         $state->setStoreId(0);
 
         $this->stateRepository->save($state);

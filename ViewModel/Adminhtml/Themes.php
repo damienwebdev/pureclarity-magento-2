@@ -7,14 +7,13 @@
 namespace Pureclarity\Core\ViewModel\Adminhtml;
 
 use Magento\Framework\View\Design\Theme\LabelFactory;
-use Magento\Framework\View\Element\Block\ArgumentInterface;
 
 /**
  * Class Themes
  *
  * Themes ViewModel for Dashboard page
  */
-class Themes implements ArgumentInterface
+class Themes
 {
     /** @var LabelFactory $labelFactory */
     private $labelFactory;

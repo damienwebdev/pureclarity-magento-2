@@ -37,7 +37,6 @@ class Signup extends Template
      * @param Stores $storesViewModel
      * @param Regions $regionsViewModel
      * @param Store $storeViewModel
-     * @param FormKey $formKey
      * @param array $data
      */
     public function __construct(
@@ -45,14 +44,13 @@ class Signup extends Template
         Stores $storesViewModel,
         Regions $regionsViewModel,
         Store $storeViewModel,
-        FormKey $formKey,
         array $data = []
     ) {
         parent::__construct($context, $data);
         $this->storesViewModel  = $storesViewModel;
         $this->regionsViewModel = $regionsViewModel;
         $this->storeViewModel   = $storeViewModel;
-        $this->formKey          = $formKey;
+        $this->formKey          = $context->getFormKey();
     }
 
     /**

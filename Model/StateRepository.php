@@ -10,8 +10,6 @@ use Pureclarity\Core\Api\StateRepositoryInterface;
 use Pureclarity\Core\Model\ResourceModel\State\Collection;
 use Pureclarity\Core\Model\ResourceModel\StateFactory;
 use Pureclarity\Core\Model\ResourceModel\State\CollectionFactory;
-use Magento\Framework\Api\SearchCriteria\CollectionProcessorInterface;
-use Magento\Framework\Api\SearchCriteriaInterfaceFactory;
 use Pureclarity\Core\Api\Data\StateInterface;
 use Magento\Framework\Exception\CouldNotSaveException;
 use Magento\Framework\Exception\CouldNotDeleteException;
@@ -26,30 +24,19 @@ class StateRepository implements StateRepositoryInterface
     /** @var CollectionFactory */
     private $collectionFactory;
 
-    /** @var SearchCriteriaInterfaceFactory */
-    private $searchCriteriaFactory;
-
-    /** @var CollectionProcessorInterface */
-    private $collectionProcessor;
-    
     /** @var StateFactory */
     private $stateFactory;
 
     /**
      * @param CollectionFactory $collectionFactory
      * @param SearchCriteriaInterfaceFactory $searchCriteriaFactory
-     * @param CollectionProcessorInterface $collectionProcessor
      * @param StateFactory $stateFactory
      */
     public function __construct(
         CollectionFactory $collectionFactory,
-        SearchCriteriaInterfaceFactory $searchCriteriaFactory,
-        CollectionProcessorInterface $collectionProcessor,
         StateFactory $stateFactory
     ) {
         $this->collectionFactory         = $collectionFactory;
-        $this->searchCriteriaFactory     = $searchCriteriaFactory;
-        $this->collectionProcessor       = $collectionProcessor;
         $this->stateFactory              = $stateFactory;
     }
 
@@ -66,9 +53,6 @@ class StateRepository implements StateRepositoryInterface
         $collection->addFieldToSelect(StateInterface::VALUE);
         $collection->addFieldToFilter(StateInterface::NAME, $name);
         $collection->addFieldToFilter(StateInterface::STORE_ID, $storeId);
-
-        $searchCriteria = $this->searchCriteriaFactory->create();
-        $this->collectionProcessor->process($searchCriteria, $collection);
 
         $collection->setPageSize(1);
         $collection->load();

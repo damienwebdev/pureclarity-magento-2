@@ -32,17 +32,15 @@ class GetStoreDetails extends Action
     /**
      * @param Context $context
      * @param JsonFactory $jsonFactory
-     * @param Validator $formKeyValidator
      * @param StoreData $storeData
      */
     public function __construct(
         Context $context,
         JsonFactory $jsonFactory,
-        Validator $formKeyValidator,
         StoreData $storeData
     ) {
         $this->jsonFactory      = $jsonFactory;
-        $this->formKeyValidator = $formKeyValidator;
+        $this->formKeyValidator = $context->getFormKeyValidator();
         $this->storeData        = $storeData;
         parent::__construct($context);
     }

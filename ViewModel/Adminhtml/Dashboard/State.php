@@ -7,7 +7,6 @@
 namespace Pureclarity\Core\ViewModel\Adminhtml\Dashboard;
 
 use Magento\Framework\App\ProductMetadataInterface;
-use Magento\Framework\View\Element\Block\ArgumentInterface;
 use Pureclarity\Core\Api\Data\StateInterface;
 use Pureclarity\Core\Api\StateRepositoryInterface;
 use Pureclarity\Core\Helper\Data;
@@ -17,7 +16,7 @@ use Pureclarity\Core\Helper\Data;
  *
  * Dashboard State ViewModel
  */
-class State implements ArgumentInterface
+class State
 {
     const STATE_NOT_CONFIGURED = 'not_configured';
     const STATE_WAITING = 'waiting';

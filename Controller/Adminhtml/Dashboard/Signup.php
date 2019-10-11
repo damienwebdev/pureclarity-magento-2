@@ -33,17 +33,15 @@ class Signup extends Action
      * @param Context $context
      * @param Request $signupRequest
      * @param JsonFactory $jsonFactory
-     * @param Validator $formKeyValidator
      */
     public function __construct(
         Context $context,
         Request $signupRequest,
-        JsonFactory $jsonFactory,
-        Validator $formKeyValidator
+        JsonFactory $jsonFactory
     ) {
         $this->signupRequest    = $signupRequest;
         $this->jsonFactory      = $jsonFactory;
-        $this->formKeyValidator = $formKeyValidator;
+        $this->formKeyValidator = $context->getFormKeyValidator();
         parent::__construct($context);
     }
 
