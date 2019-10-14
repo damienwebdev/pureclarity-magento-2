@@ -23,17 +23,34 @@ use Zend\Json\Json;
  */
 class Service
 {
+    /** @var string $action */
     private $action;
+
+    /** @var string[] $zones */
     private $zones = [];
+
+    /** @var string[] $events */
     private $events = [];
+
+    /** @var boolean $dispatched */
     private $dispatched = false;
+
+    /** @var mixed[] $result */
     private $result;
+
+    /** @var boolean $isCategory */
     private $isCategory = false;
+
+    /** @var string $query */
     private $query = null;
+
+    /** @var string $sort */
     private $sort = null;
+
+    /** @var string $size */
     private $size = null;
 
-    /** @var LoggerInterface  */
+    /** @var LoggerInterface $logger */
     private $logger;
 
     /** @var Data $coreHelper */

@@ -53,7 +53,7 @@ class FeedStatus
     /** @var TimezoneInterface $timezone */
     private $timezone;
 
-    /** @var LoggerInterface */
+    /** @var LoggerInterface $logger */
     private $logger;
 
     /**

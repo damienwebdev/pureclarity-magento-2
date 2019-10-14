@@ -30,14 +30,14 @@ use Magento\Directory\Helper\Data as DirectoryHelperData;
  */
 class ProductExport
 {
-    /** @var string[] */
+    /** @var string[] $selectAttributeTypes */
     private $selectAttributeTypes = [
         'select',
         'multiselect',
         'boolean'
     ];
 
-    /** @var string */
+    /** @var string $storeId */
     private $storeId;
 
     /** @var string $baseCurrencyCode  */
@@ -49,7 +49,7 @@ class ProductExport
     /** @var array[] $attributesToInclude */
     private $attributesToInclude = [];
 
-    /** @var bool[] $seenProductIds*/
+    /** @var bool[] $seenProductIds */
     private $seenProductIds = [];
 
     /** @var Store $currentStore */

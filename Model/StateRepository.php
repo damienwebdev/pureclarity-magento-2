@@ -21,15 +21,14 @@ use Magento\Framework\Exception\CouldNotDeleteException;
  */
 class StateRepository implements StateRepositoryInterface
 {
-    /** @var CollectionFactory */
+    /** @var CollectionFactory $collectionFactory */
     private $collectionFactory;
 
-    /** @var StateFactory */
+    /** @var StateFactory $stateFactory */
     private $stateFactory;
 
     /**
      * @param CollectionFactory $collectionFactory
-     * @param SearchCriteriaInterfaceFactory $searchCriteriaFactory
      * @param StateFactory $stateFactory
      */
     public function __construct(

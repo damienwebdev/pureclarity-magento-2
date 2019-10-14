@@ -20,19 +20,19 @@ use Pureclarity\Core\Helper\Data;
  */
 class CheckVersion
 {
-    /** @var Url $url*/
+    /** @var Url $url */
     private $url;
 
-    /** @var Curl $curl*/
+    /** @var Curl $curl */
     private $curl;
 
-    /** @var Serializer $serializer*/
+    /** @var Serializer $serializer */
     private $serializer;
 
-    /** @var StateRepositoryInterface $stateRepository*/
+    /** @var StateRepositoryInterface $stateRepository */
     private $stateRepository;
 
-    /** @var LoggerInterface $logger*/
+    /** @var LoggerInterface $logger */
     private $logger;
 
     /**

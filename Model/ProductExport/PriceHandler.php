@@ -31,31 +31,31 @@ class PriceHandler
 {
     const REGISTRY_KEY_CUSTOMER_GROUP = 'pc_bundle_customer_group';
 
-    /** @var string[] */
+    /** @var string[] $allCustomerGroupIds */
     private $allCustomerGroupIds;
 
-    /** @var RuleFactory */
+    /** @var RuleFactory $ruleFactory */
     private $ruleFactory;
 
-    /** @var Collection */
+    /** @var Collection $customerGroupCollection */
     private $customerGroupCollection;
 
-    /** @var Data */
+    /** @var Data $catalogHelper */
     private $catalogHelper;
 
-    /** @var Registry */
+    /** @var Registry $registry */
     private $registry;
 
-    /** @var BundleCalculatorInterfaceFactory */
+    /** @var BundleCalculatorInterfaceFactory $bundleCalculatorFactory */
     private $bundleCalculatorFactory;
 
-    /** @var StoreManagerInterface */
+    /** @var StoreManagerInterface $storeManager */
     private $storeManager;
 
-    /** @var LoggerInterface */
+    /** @var LoggerInterface $logger */
     private $logger;
 
-    /** @var CoreConfig */
+    /** @var CoreConfig $coreConfig */
     private $coreConfig;
 
     /**

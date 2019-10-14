@@ -22,13 +22,13 @@ class Welcome implements MessageInterface
     /** @var string */
     const MESSAGE_IDENTITY = 'pureclarity_system_message';
 
-    /** @var ScopeConfigInterface */
+    /** @var ScopeConfigInterface $scopeConfig */
     private $scopeConfig;
 
-    /** @var StateRepositoryInterface */
+    /** @var StateRepositoryInterface $stateRepository */
     private $stateRepository;
 
-    /** @var UrlInterface */
+    /** @var UrlInterface $url */
     private $url;
 
     /**

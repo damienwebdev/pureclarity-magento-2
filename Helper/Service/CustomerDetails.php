@@ -15,7 +15,7 @@ use Magento\Customer\Model\Session;
  */
 class CustomerDetails
 {
-    /** @var Session */
+    /** @var Session $customerSession */
     private $customerSession;
 
     /**

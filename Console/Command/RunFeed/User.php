@@ -21,13 +21,13 @@ use Magento\Framework\App\State;
  */
 class User extends Command
 {
-    /** @var CronFactory */
+    /** @var CronFactory $feedRunnerFactory */
     private $feedRunnerFactory;
     
-    /** @var State */
+    /** @var State $state */
     private $state;
     
-    /** @var StoreManagerInterface */
+    /** @var StoreManagerInterface $storeManager */
     private $storeManager;
     
     /**

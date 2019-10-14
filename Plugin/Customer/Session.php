@@ -17,7 +17,7 @@ use Pureclarity\Core\Model\ProductExport\PriceHandler;
  */
 class Session
 {
-    /** @var Registry */
+    /** @var Registry $registry */
     private $registry;
     
     /**

@@ -21,7 +21,7 @@ use Magento\Framework\Setup\InstallDataInterface;
  */
 class InstallData implements InstallDataInterface
 {
-    /** @var EavSetupFactory */
+    /** @var EavSetupFactory $eavSetupFactory */
     private $eavSetupFactory;
  
     /**

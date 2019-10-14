@@ -22,16 +22,26 @@ use Pureclarity\Core\Model\CoreConfig;
  */
 class Bmz extends Template implements BlockInterface
 {
+    /** @var string $_template */
+    protected $_template = "bmz.phtml";
+
     /** @var integer $storeId */
     private $storeId;
 
+    /** @var boolean $debug */
     private $debug;
-    private $bmzId;
-    private $content;
-    private $classes;
-    private $bmzData = "";
 
-    protected $_template = "bmz.phtml";
+    /** @var string $bmzId */
+    private $bmzId;
+
+    /** @var string $content */
+    private $content;
+
+    /** @var string $classes */
+    private $classes;
+
+    /** @var string $bmzData */
+    private $bmzData = "";
 
     /** @var Data $coreHelper */
     private $coreHelper;

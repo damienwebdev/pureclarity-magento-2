@@ -21,7 +21,7 @@ class Image extends AbstractBackend
     /** @var LoggerInterface $logger */
     private $logger;
 
-    /** @var ImageUploader */
+    /** @var ImageUploader $imageUploader */
     private $imageUploader;
 
     /**

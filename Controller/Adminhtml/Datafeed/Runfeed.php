@@ -19,10 +19,10 @@ use Pureclarity\Core\Model\CronFactory;
  */
 class Runfeed extends Action
 {
-    /** @var CronFactory  */
+    /** @var CronFactory $coreCronFactory */
     private $coreCronFactory;
 
-    /** @var StoreManagerInterface  */
+    /** @var StoreManagerInterface $storeManager */
     private $storeManager;
 
     /**

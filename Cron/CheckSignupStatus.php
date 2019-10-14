@@ -24,13 +24,13 @@ class CheckSignupStatus
     /** @var RequestStatus $url*/
     private $requestStatus;
 
-    /** @var Process $curl*/
+    /** @var Process $curl */
     private $requestProcess;
 
     /** @var StateRepositoryInterface $stateRepository */
     private $stateRepository;
 
-    /** @var LoggerInterface $logger*/
+    /** @var LoggerInterface $logger */
     private $logger;
 
     /** @var State $state*/

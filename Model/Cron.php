@@ -55,13 +55,13 @@ class Cron
     /** @var StoreFactory $storeStoreFactory */
     private $storeStoreFactory;
 
-    /** @var Filesystem */
+    /** @var Filesystem $fileSystem */
     private $fileSystem;
 
-    /** @var StateRepositoryInterface */
+    /** @var StateRepositoryInterface $stateRepository */
     private $stateRepository;
 
-    /** @var Serializer */
+    /** @var Serializer $serializer */
     private $serializer;
 
     /** @var LoggerInterface $logger */
@@ -431,7 +431,7 @@ class Cron
     }
 
     /**
-     * Saves the last run date of the provided feed
+     * Saves the running_feeds state data for remaining feeds to be run (so dashboard shows correct feed status)
      * @param string[] $feeds
      * @param integer $storeId
      * @return void
@@ -451,7 +451,7 @@ class Cron
     }
 
     /**
-     * Saves the last run date of the provided feed
+     * Removes the running_feeds state data (so dashboard shows correct feed status)
      * @param integer $storeId
      * @return void
      */

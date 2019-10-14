@@ -17,7 +17,7 @@ use Pureclarity\Core\Model\ProductFeedFactory;
  */
 class Product implements ActionInterface, MviewActionInterface
 {
-    /** @var ProductFeedFactory  */
+    /** @var ProductFeedFactory $productFeedFactory */
     private $productFeedFactory;
 
     /**

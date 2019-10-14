@@ -29,13 +29,13 @@ class All extends Command
         Feed::FEED_TYPE_USER,
     ];
     
-    /** @var CronFactory */
+    /** @var CronFactory $feedRunnerFactory */
     private $feedRunnerFactory;
     
-    /** @var State */
+    /** @var State $state */
     private $state;
     
-    /** @var StoreManagerInterface */
+    /** @var StoreManagerInterface $storeManager */
     private $storeManager;
     
     /**
