@@ -30,16 +30,16 @@ class StateRepositoryTest extends TestCase
     /** @var StateRepository $object */
     private $object;
 
-    /** @var CollectionFactory|MockObject $collectionFactoryMock */
+    /** @var MockObject|CollectionFactory $collectionFactoryMock */
     private $collectionFactoryMock;
 
-    /** @var Collection|MockObject $collectionMock */
+    /** @var MockObject|Collection $collectionMock */
     private $collectionMock;
 
-    /** @var StateFactory|MockObject $stateFactoryMock */
+    /** @var MockObject|StateFactory $stateFactoryMock */
     private $stateFactoryMock;
 
-    /** @var StateResource|MockObject $stateResourceMock */
+    /** @var MockObject|StateResource $stateResourceMock */
     private $stateResourceMock;
 
     protected function setUp()

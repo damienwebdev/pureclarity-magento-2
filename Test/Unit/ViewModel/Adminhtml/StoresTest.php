@@ -25,13 +25,13 @@ class StoresTest extends TestCase
     /** @var Stores $object */
     private $object;
 
-    /** @var StoreManagerInterface $storeManager */
+    /** @var MockObject|StoreManagerInterface $storeManager */
     private $storeManager;
 
-    /** @var StateRepositoryInterface $stateRepository */
+    /** @var MockObject|StateRepositoryInterface $stateRepository */
     private $stateRepository;
 
-    /** @var StoreInterface $store */
+    /** @var MockObject|StoreInterface $store */
     private $store;
 
     protected function setUp()
@@ -55,6 +55,7 @@ class StoresTest extends TestCase
     }
 
     /**
+     * @param string $value
      * @return MockObject
      */
     private function getStateMock($value = null)

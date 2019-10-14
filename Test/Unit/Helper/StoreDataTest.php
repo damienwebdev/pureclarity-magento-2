@@ -11,6 +11,7 @@ use Magento\Store\Model\ScopeInterface;
 use Magento\Store\Model\StoreManagerInterface;
 use PHPUnit\Framework\TestCase;
 use Pureclarity\Core\Helper\StoreData;
+use PHPUnit\Framework\MockObject\MockObject;
 
 /**
  * Class DataTest
@@ -23,10 +24,10 @@ class StoreDataTest extends TestCase
     /** @var StoreData $object */
     private $object;
 
-    /** @var ScopeConfigInterface $scopeConfig */
+    /** @var MockObject|ScopeConfigInterface $scopeConfig */
     private $scopeConfig;
 
-    /** @var StoreManagerInterface $writer */
+    /** @var MockObject|StoreManagerInterface $writer */
     private $storeManager;
 
     protected function setUp()

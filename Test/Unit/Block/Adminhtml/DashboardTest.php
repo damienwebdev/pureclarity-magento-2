@@ -11,6 +11,7 @@ use PHPUnit\Framework\TestCase;
 use Magento\Framework\View\Element\Template;
 use Pureclarity\Core\Block\Adminhtml\Dashboard;
 use Pureclarity\Core\ViewModel\Adminhtml\Dashboard\State;
+use PHPUnit\Framework\MockObject\MockObject;
 
 /**
  * Class DataTest
@@ -23,10 +24,10 @@ class DashboardTest extends TestCase
     /** @var Dashboard $object */
     private $object;
 
-    /** @var Context $context */
+    /** @var MockObject|Context $context */
     private $context;
 
-    /** @var State $stateViewModel */
+    /** @var MockObject|State $stateViewModel */
     private $stateViewModel;
 
     protected function setUp()

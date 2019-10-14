@@ -7,9 +7,9 @@
 namespace Pureclarity\Core\Test\Unit\Model\ResourceModel;
 
 use PHPUnit\Framework\TestCase;
-use Pureclarity\Core\Api\Data\StateInterface;
 use Pureclarity\Core\Model\ResourceModel\ProductFeed;
 use Magento\Framework\Model\ResourceModel\Db\Context;
+use PHPUnit\Framework\MockObject\MockObject;
 
 /**
  * Class ProductFeedTest
@@ -22,7 +22,7 @@ class ProductFeedTest extends TestCase
     /** @var ProductFeed $object */
     private $object;
 
-    /** @var Context $context */
+    /** @var MockObject|Context $context */
     private $context;
 
     protected function setUp()

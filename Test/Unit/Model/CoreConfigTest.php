@@ -11,6 +11,7 @@ use Magento\Framework\App\Config\Storage\WriterInterface;
 use Magento\Store\Model\ScopeInterface;
 use PHPUnit\Framework\TestCase;
 use Pureclarity\Core\Model\CoreConfig;
+use PHPUnit\Framework\MockObject\MockObject;
 
 /**
  * Class DataTest
@@ -23,10 +24,10 @@ class CoreConfigTest extends TestCase
     /** @var CoreConfig $object */
     private $object;
 
-    /** @var ScopeConfigInterface $scopeConfig */
+    /** @var MockObject|ScopeConfigInterface $scopeConfig */
     private $scopeConfig;
 
-    /** @var WriterInterface $writer */
+    /** @var MockObject|WriterInterface $writer */
     private $writer;
 
     protected function setUp()

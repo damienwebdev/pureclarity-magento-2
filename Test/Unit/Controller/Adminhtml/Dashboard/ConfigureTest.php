@@ -15,6 +15,7 @@ use Magento\Framework\Controller\Result\Json;
 use Magento\Framework\Controller\Result\JsonFactory;
 use Magento\Framework\Data\Form\FormKey\Validator;
 use Pureclarity\Core\Model\Signup\Process;
+use PHPUnit\Framework\MockObject\MockObject;
 
 /**
  * Class ConfigureTest
@@ -33,22 +34,22 @@ class ConfigureTest extends TestCase
     /** @var Configure $object */
     private $object;
 
-    /** @var Context $context */
+    /** @var MockObject|Context $context */
     private $context;
 
-    /** @var JsonFactory $jsonFactory */
+    /** @var MockObject|JsonFactory $jsonFactory */
     private $jsonFactory;
 
-    /** @var Json $json */
+    /** @var MockObject|Json $json */
     private $json;
 
-    /** @var Process $requestProcess */
+    /** @var MockObject|Process $requestProcess */
     private $requestProcess;
 
-    /** @var Validator $formKeyValidator */
+    /** @var MockObject|Validator $formKeyValidator */
     private $formKeyValidator;
 
-    /** @var Http $request */
+    /** @var MockObject|Http $request */
     private $request;
 
     protected function setUp()

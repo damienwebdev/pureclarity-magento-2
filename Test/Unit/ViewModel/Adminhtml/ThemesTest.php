@@ -10,6 +10,7 @@ use Magento\Framework\View\Design\Theme\LabelFactory;
 use Magento\Framework\View\Design\Theme\Label;
 use PHPUnit\Framework\TestCase;
 use Pureclarity\Core\ViewModel\Adminhtml\Themes;
+use PHPUnit\Framework\MockObject\MockObject;
 
 /**
  * Class DataTest
@@ -22,10 +23,10 @@ class ThemesTest extends TestCase
     /** @var Themes $object */
     private $object;
 
-    /** @var LabelFactory $labelFactory */
+    /** @var MockObject|LabelFactory $labelFactory */
     private $labelFactory;
 
-    /** @var Label $label */
+    /** @var MockObject|Label $label */
     private $label;
 
     protected function setUp()

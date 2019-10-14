@@ -31,19 +31,19 @@ class CheckVersionTest extends TestCase
     /** @var CheckVersion $object */
     private $object;
 
-    /** @var Url $url*/
+    /** @var MockObject|Url $url*/
     private $url;
 
-    /** @var Curl $curl*/
+    /** @var MockObject|Curl $curl*/
     private $curl;
 
-    /** @var Serializer $serializer*/
+    /** @var MockObject|Serializer $serializer*/
     private $serializer;
 
-    /** @var StateRepositoryInterface $stateRepository*/
+    /** @var MockObject|StateRepositoryInterface $stateRepository*/
     private $stateRepository;
 
-    /** @var LoggerInterface $logger*/
+    /** @var MockObject|LoggerInterface $logger*/
     private $logger;
 
     protected function setUp()

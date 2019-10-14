@@ -13,9 +13,9 @@ use Magento\Backend\App\Action\Context;
 use Magento\Backend\App\Action;
 use Magento\Framework\Controller\Result\Json;
 use Magento\Framework\Controller\Result\JsonFactory;
-use Magento\Framework\Data\Form\FormKey\Validator;
 use Pureclarity\Core\Model\Signup\Process;
 use Pureclarity\Core\Model\Signup\Status as RequestStatus;
+use PHPUnit\Framework\MockObject\MockObject;
 
 /**
  * Class SignupStatusTest
@@ -34,22 +34,22 @@ class SignupStatusTest extends TestCase
     /** @var SignupStatus $object */
     private $object;
 
-    /** @var Context $context */
+    /** @var MockObject|Context $context */
     private $context;
 
-    /** @var JsonFactory $jsonFactory */
+    /** @var MockObject|JsonFactory $jsonFactory */
     private $jsonFactory;
 
-    /** @var Json $json */
+    /** @var MockObject|Json $json */
     private $json;
 
-    /** @var RequestStatus $requestStatus */
+    /** @var MockObject|RequestStatus $requestStatus */
     private $requestStatus;
 
-    /** @var Process $requestProcess */
+    /** @var MockObject|Process $requestProcess */
     private $requestProcess;
 
-    /** @var Http $request */
+    /** @var MockObject|Http $request */
     private $request;
 
     protected function setUp()
@@ -92,13 +92,6 @@ class SignupStatusTest extends TestCase
             $this->requestProcess,
             $this->jsonFactory
         );
-    }
-
-    private function setupRequestGetParams()
-    {
-        $this->request->expects($this->once())
-            ->method('getParams')
-            ->willReturn($this->defaultParams);
     }
 
     private function setupRequestIsGet($response)

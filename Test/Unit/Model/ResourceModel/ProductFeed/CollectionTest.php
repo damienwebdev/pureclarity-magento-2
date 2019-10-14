@@ -16,7 +16,8 @@ use PHPUnit\Framework\TestCase;
 use Psr\Log\LoggerInterface;
 use Pureclarity\Core\Model\ResourceModel\ProductFeed\Collection;
 use Pureclarity\Core\Model\ProductFeed;
-use \Pureclarity\Core\Model\ResourceModel\ProductFeed as ProductFeedResource;
+use Pureclarity\Core\Model\ResourceModel\ProductFeed as ProductFeedResource;
+use PHPUnit\Framework\MockObject\MockObject;
 
 /**
  * Class StateTest
@@ -29,22 +30,22 @@ class CollectionTest extends TestCase
     /** @var Collection $object */
     private $object;
 
-    /** @var EntityFactoryInterface $entityFactory */
+    /** @var MockObject|EntityFactoryInterface $entityFactory */
     private $entityFactory;
 
-    /** @var LoggerInterface $logger */
+    /** @var MockObject|LoggerInterface $logger */
     private $logger;
 
-    /** @var FetchStrategyInterface $fetchStrategy */
+    /** @var MockObject|FetchStrategyInterface $fetchStrategy */
     private $fetchStrategy;
 
-    /** @var ManagerInterface $eventManager */
+    /** @var MockObject|ManagerInterface $eventManager */
     private $eventManager;
 
-    /** @var AdapterInterface $connection */
+    /** @var MockObject|AdapterInterface $connection */
     private $connection;
 
-    /** @var AbstractDb $resource */
+    /** @var MockObject|AbstractDb $resource */
     private $resource;
 
     protected function setUp()

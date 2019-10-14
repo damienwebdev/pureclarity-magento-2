@@ -12,6 +12,7 @@ use Magento\Framework\View\Element\Template;
 use Pureclarity\Core\Block\Adminhtml\Dashboard\Feeds;
 use Pureclarity\Core\ViewModel\Adminhtml\Dashboard\FeedStatus;
 use Pureclarity\Core\ViewModel\Adminhtml\Stores;
+use PHPUnit\Framework\MockObject\MockObject;
 
 /**
  * Class FeedsTest
@@ -24,13 +25,13 @@ class FeedsTest extends TestCase
     /** @var Feeds $object */
     private $object;
 
-    /** @var Context $context */
+    /** @var MockObject|Context $context */
     private $context;
 
-    /** @var FeedStatus $feedStatusViewModel */
+    /** @var MockObject|FeedStatus $feedStatusViewModel */
     private $feedStatusViewModel;
 
-    /** @var Stores $storesViewModel */
+    /** @var MockObject|Stores $storesViewModel */
     private $storesViewModel;
 
     protected function setUp()

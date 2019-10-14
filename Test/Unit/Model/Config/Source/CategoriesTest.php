@@ -27,16 +27,16 @@ class CategoriesTest extends TestCase
     /** @var Categories $object */
     private $object;
 
-    /** @var StoreManagerInterface $storeManager */
+    /** @var MockObject|StoreManagerInterface $storeManager */
     private $storeManager;
 
-    /** @var Website $website */
+    /** @var MockObject|Website $website */
     private $website;
 
-    /** @var CategoryRepository $categoryRepository */
+    /** @var MockObject|CategoryRepository $categoryRepository */
     private $categoryRepository;
 
-    /** @var Group $group */
+    /** @var MockObject|Group $group */
     private $group;
 
     protected function setUp()

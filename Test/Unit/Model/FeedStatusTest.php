@@ -32,28 +32,28 @@ class FeedStatusTest extends TestCase
     /** @var FeedStatus $object */
     private $object;
 
-    /** @var StateRepositoryInterface */
+    /** @var MockObject|StateRepositoryInterface */
     private $stateRepository;
 
-    /** @var Filesystem */
+    /** @var MockObject|Filesystem */
     private $fileSystem;
 
-    /** @var Data */
+    /** @var MockObject|Data */
     private $coreHelper;
 
-    /** @var CoreConfig */
+    /** @var MockObject|CoreConfig */
     private $coreConfig;
 
-    /** @var Serializer */
+    /** @var MockObject|Serializer */
     private $serializer;
 
-    /** @var TimezoneInterface */
+    /** @var MockObject|TimezoneInterface */
     private $timezone;
 
-    /** @var ReadInterface */
+    /** @var MockObject|ReadInterface */
     private $readInterface;
 
-    /** @var LoggerInterface */
+    /** @var MockObject|LoggerInterface */
     private $logger;
 
     protected function setUp()

@@ -37,25 +37,25 @@ class ProcessTest extends TestCase
     /** @var Process $object */
     private $object;
 
-    /** @var StateRepositoryInterface|MockObject $stateRepositoryInterfaceMock */
+    /** @var MockObject|StateRepositoryInterface $stateRepositoryInterfaceMock */
     private $stateRepositoryInterfaceMock;
 
-    /** @var CoreConfig|MockObject $coreConfigMock */
+    /** @var MockObject|CoreConfig $coreConfigMock */
     private $coreConfigMock;
 
-    /** @var CronFactory|MockObject $cronFactoryMock */
+    /** @var MockObject|CronFactory $cronFactoryMock */
     private $cronFactoryMock;
 
-    /** @var Cron|MockObject $cronMock */
+    /** @var MockObject|Cron $cronMock */
     private $cronMock;
 
-    /** @var StoreManagerInterface|MockObject $storeManagerInterfaceMock */
+    /** @var MockObject|StoreManagerInterface $storeManagerInterfaceMock */
     private $storeManagerInterfaceMock;
 
-    /** @var StoreInterface|MockObject $storeInterfaceMock */
+    /** @var MockObject|StoreInterface $storeInterfaceMock */
     private $storeInterfaceMock;
 
-    /** @var Manager|MockObject $cacheManagerMock */
+    /** @var MockObject|Manager $cacheManagerMock */
     private $cacheManagerMock;
 
     protected function setUp()

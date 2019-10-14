@@ -6,7 +6,6 @@
 
 namespace Pureclarity\Core\Test\Unit\Setup;
 
-use Magento\Framework\DB\Ddl\Table;
 use Magento\Framework\Phrase;
 use Magento\Store\Api\Data\StoreInterface;
 use Magento\Store\Model\StoreManagerInterface;
@@ -33,22 +32,22 @@ class UpgradeDataTest extends TestCase
     /** @var UpgradeData $object */
     private $object;
 
-    /** @var ModuleDataSetupInterface $setup */
+    /** @var MockObject|ModuleDataSetupInterface $setup */
     private $setup;
 
-    /** @var ModuleContextInterface $context */
+    /** @var MockObject|ModuleContextInterface $context */
     private $context;
 
-    /** @var CoreConfig */
+    /** @var MockObject|CoreConfig */
     private $coreConfig;
 
-    /** @var StateRepositoryInterface $stateRepository */
+    /** @var MockObject|StateRepositoryInterface $stateRepository */
     private $stateRepository;
 
-    /** @var StoreManagerInterface $storeManager */
+    /** @var MockObject|StoreManagerInterface $storeManager */
     private $storeManager;
 
-    /** @var LoggerInterface $logger */
+    /** @var MockObject|LoggerInterface $logger */
     private $logger;
 
     protected function setUp()

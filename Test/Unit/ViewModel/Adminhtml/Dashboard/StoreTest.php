@@ -9,6 +9,7 @@ namespace Pureclarity\Core\Test\Unit\ViewModel\Adminhtml\Dashboard;
 use PHPUnit\Framework\TestCase;
 use Pureclarity\Core\Helper\StoreData;
 use Pureclarity\Core\ViewModel\Adminhtml\Dashboard\Store;
+use PHPUnit\Framework\MockObject\MockObject;
 
 /**
  * Class DataTest
@@ -21,7 +22,7 @@ class StoreTest extends TestCase
     /** @var Store $object */
     private $object;
 
-    /** @var StoreData $storeData */
+    /** @var MockObject|StoreData $storeData */
     private $storeData;
 
     protected function setUp()

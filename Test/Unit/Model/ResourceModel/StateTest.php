@@ -10,6 +10,7 @@ use PHPUnit\Framework\TestCase;
 use Pureclarity\Core\Api\Data\StateInterface;
 use Pureclarity\Core\Model\ResourceModel\State;
 use Magento\Framework\Model\ResourceModel\Db\Context;
+use PHPUnit\Framework\MockObject\MockObject;
 
 /**
  * Class StateTest
@@ -22,7 +23,7 @@ class StateTest extends TestCase
     /** @var State $object */
     private $object;
 
-    /** @var Context $context */
+    /** @var MockObject|Context $context */
     private $context;
 
     protected function setUp()

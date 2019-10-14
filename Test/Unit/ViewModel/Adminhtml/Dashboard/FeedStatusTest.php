@@ -9,6 +9,7 @@ namespace Pureclarity\Core\Test\Unit\ViewModel\Adminhtml\Dashboard;
 use PHPUnit\Framework\TestCase;
 use Pureclarity\Core\ViewModel\Adminhtml\Dashboard\FeedStatus;
 use Pureclarity\Core\Model\FeedStatus as FeedStatusModel;
+use PHPUnit\Framework\MockObject\MockObject;
 
 /**
  * Class FeedStatusTest
@@ -21,7 +22,7 @@ class FeedStatusTest extends TestCase
     /** @var FeedStatus $object */
     private $object;
 
-    /** @var FeedStatusModel $feedStatusModel */
+    /** @var MockObject|FeedStatusModel $feedStatusModel */
     private $feedStatusModel;
 
     protected function setUp()

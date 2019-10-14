@@ -9,6 +9,7 @@ namespace Pureclarity\Core\Test\Unit\ViewModel\Adminhtml\Dashboard;
 use PHPUnit\Framework\TestCase;
 use Pureclarity\Core\Model\Config\Source\Region;
 use Pureclarity\Core\ViewModel\Adminhtml\Dashboard\Regions;
+use PHPUnit\Framework\MockObject\MockObject;
 
 /**
  * Class RegionsTest
@@ -21,7 +22,7 @@ class RegionsTest extends TestCase
     /** @var Regions $object */
     private $object;
 
-    /** @var Region $region */
+    /** @var MockObject|Region $region */
     private $region;
 
     protected function setUp()

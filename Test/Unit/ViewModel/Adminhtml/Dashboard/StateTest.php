@@ -25,10 +25,10 @@ class StateTest extends TestCase
     /** @var State $object */
     private $object;
 
-    /** @var StateRepositoryInterface $stateRepository */
+    /** @var MockObject|StateRepositoryInterface $stateRepository */
     private $stateRepository;
 
-    /** @var ProductMetadataInterface $productMetadata */
+    /** @var MockObject|ProductMetadataInterface $productMetadata */
     private $productMetadata;
 
     protected function setUp()

@@ -15,6 +15,7 @@ use Magento\Framework\Controller\Result\Json;
 use Magento\Framework\Controller\Result\JsonFactory;
 use Magento\Framework\Data\Form\FormKey\Validator;
 use Pureclarity\Core\Helper\StoreData;
+use PHPUnit\Framework\MockObject\MockObject;
 
 /**
  * Class GetStoreDetailsTest
@@ -38,22 +39,22 @@ class GetStoreDetailsTest extends TestCase
     /** @var GetStoreDetails $object */
     private $object;
 
-    /** @var Context $context */
+    /** @var MockObject|Context $context */
     private $context;
 
-    /** @var JsonFactory $jsonFactory */
+    /** @var MockObject|JsonFactory $jsonFactory */
     private $jsonFactory;
 
-    /** @var Json $json */
+    /** @var MockObject|Json $json */
     private $json;
 
-    /** @var Validator $formKeyValidator */
+    /** @var MockObject|Validator $formKeyValidator */
     private $formKeyValidator;
 
-    /** @var StoreData $storeData */
+    /** @var MockObject|StoreData $storeData */
     private $storeData;
 
-    /** @var Http $request */
+    /** @var MockObject|Http $request */
     private $request;
 
     protected function setUp()

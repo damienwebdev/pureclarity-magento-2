@@ -15,7 +15,6 @@ use PHPUnit\Framework\TestCase;
 use Psr\Log\LoggerInterface;
 use Pureclarity\Core\Api\StateRepositoryInterface;
 use Pureclarity\Core\Cron\CheckSignupStatus;
-use Magento\Framework\Controller\Result\Json;
 use Pureclarity\Core\Model\Signup\Process;
 use Pureclarity\Core\Model\Signup\Status as RequestStatus;
 use Pureclarity\Core\Model\State as StateModel;
@@ -34,22 +33,22 @@ class CheckSignupStatusTest extends TestCase
         'param2' => 'param1',
     ];
 
-    /** @var CheckSignupStatus $object */
+    /** @var MockObject|CheckSignupStatus $object */
     private $object;
 
-    /** @var RequestStatus $requestStatus */
+    /** @var MockObject|RequestStatus $requestStatus */
     private $requestStatus;
 
-    /** @var Process $requestProcess */
+    /** @var MockObject|Process $requestProcess */
     private $requestProcess;
 
-    /** @var StateRepositoryInterface $stateRepository */
+    /** @var MockObject|StateRepositoryInterface $stateRepository */
     private $stateRepository;
 
-    /** @var LoggerInterface $logger*/
+    /** @var MockObject|LoggerInterface $logger*/
     private $logger;
 
-    /** @var State $state*/
+    /** @var MockObject|State $state*/
     private $state;
 
     protected function setUp()

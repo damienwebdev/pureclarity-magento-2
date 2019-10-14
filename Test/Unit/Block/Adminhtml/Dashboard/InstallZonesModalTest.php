@@ -12,6 +12,7 @@ use Magento\Framework\View\Element\Template;
 use Pureclarity\Core\Block\Adminhtml\Dashboard\InstallZonesModal;
 use Pureclarity\Core\ViewModel\Adminhtml\Stores;
 use Pureclarity\Core\ViewModel\Adminhtml\Themes;
+use PHPUnit\Framework\MockObject\MockObject;
 
 /**
  * Class DataTest
@@ -24,13 +25,13 @@ class InstallZonesModalTest extends TestCase
     /** @var InstallZonesModal $object */
     private $object;
 
-    /** @var Context $context */
+    /** @var MockObject|Context $context */
     private $context;
 
-    /** @var Stores $storesViewModel */
+    /** @var MockObject|Stores $storesViewModel */
     private $storesViewModel;
 
-    /** @var Themes $themesViewModel */
+    /** @var MockObject|Themes $themesViewModel */
     private $themesViewModel;
 
     protected function setUp()

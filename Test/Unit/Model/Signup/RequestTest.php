@@ -43,28 +43,28 @@ class RequestTest extends TestCase
     /** @var integer $stateSaveStoreId */
     private $stateSaveStoreId;
 
-    /** @var Curl|MockObject $curlMock */
+    /** @var MockObject|Curl $curlMock */
     private $curlMock;
 
-    /** @var Url|MockObject $urlMock */
+    /** @var MockObject|Url $urlMock */
     private $urlMock;
 
-    /** @var Region|MockObject $regionMock */
+    /** @var MockObject|Region $regionMock */
     private $regionMock;
 
-    /** @var StoreManagerInterface|MockObject $storeManagerMock */
+    /** @var MockObject|StoreManagerInterface $storeManagerMock */
     private $storeManagerMock;
 
-    /** @var Serializer|MockObject $serializerMock */
+    /** @var MockObject|Serializer $serializerMock */
     private $serializerMock;
 
-    /** @var StoreData|MockObject $storeDataMock */
+    /** @var MockObject|StoreData $storeDataMock */
     private $storeDataMock;
 
-    /** @var StateRepositoryInterface|MockObject $stateRepositoryMock */
+    /** @var MockObject|StateRepositoryInterface $stateRepositoryMock */
     private $stateRepositoryMock;
 
-    /** @var UrlValidator|MockObject $urlValidator */
+    /** @var MockObject|UrlValidator $urlValidator */
     private $urlValidator;
 
     protected function setUp()

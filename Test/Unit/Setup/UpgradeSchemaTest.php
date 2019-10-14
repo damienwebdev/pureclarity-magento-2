@@ -13,6 +13,7 @@ use Magento\Framework\Setup\UpgradeSchemaInterface;
 use Magento\Framework\Setup\SchemaSetupInterface;
 use Magento\Framework\Setup\ModuleContextInterface;
 use Magento\Framework\DB\Adapter\AdapterInterface;
+use PHPUnit\Framework\MockObject\MockObject;
 
 /**
  * Class DataTest
@@ -25,16 +26,16 @@ class UpgradeSchemaTest extends TestCase
     /** @var UpgradeSchema $object */
     private $object;
 
-    /** @var SchemaSetupInterface $setup */
+    /** @var MockObject|SchemaSetupInterface $setup */
     private $setup;
 
-    /** @var ModuleContextInterface $context */
+    /** @var MockObject|ModuleContextInterface $context */
     private $context;
 
-    /** @var AdapterInterface $adapter */
+    /** @var MockObject|AdapterInterface $adapter */
     private $adapter;
 
-    /** @var Table $table */
+    /** @var MockObject|Table $table */
     private $table;
 
     protected function setUp()

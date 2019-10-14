@@ -12,6 +12,7 @@ use Magento\Framework\View\Element\Template;
 use Pureclarity\Core\Block\Adminhtml\Dashboard\Configured;
 use Pureclarity\Core\ViewModel\Adminhtml\Dashboard\State;
 use Pureclarity\Core\ViewModel\Adminhtml\Stores;
+use PHPUnit\Framework\MockObject\MockObject;
 
 /**
  * Class ConfiguredTest
@@ -24,13 +25,13 @@ class ConfiguredTest extends TestCase
     /** @var Configured $object */
     private $object;
 
-    /** @var Context $context */
+    /** @var MockObject|Context $context */
     private $context;
 
-    /** @var State $state */
+    /** @var MockObject|State $state */
     private $state;
 
-    /** @var Stores $stores */
+    /** @var MockObject|Stores $stores */
     private $stores;
 
     protected function setUp()

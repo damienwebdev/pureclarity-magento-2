@@ -31,16 +31,16 @@ class StatusTest extends TestCase
     /** @var mixed[] $requestParams */
     private $requestParams;
 
-    /** @var Curl|MockObject $curlMock */
+    /** @var MockObject|Curl $curlMock */
     private $curlMock;
 
-    /** @var Url|MockObject $urlMock */
+    /** @var MockObject|Url $urlMock */
     private $urlMock;
 
-    /** @var Serializer|MockObject $serializerMock */
+    /** @var MockObject|Serializer $serializerMock */
     private $serializerMock;
 
-    /** @var StateRepositoryInterface|MockObject $stateRepositoryMock */
+    /** @var MockObject|StateRepositoryInterface $stateRepositoryMock */
     private $stateRepositoryMock;
 
     protected function setUp()

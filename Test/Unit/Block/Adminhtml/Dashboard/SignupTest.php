@@ -14,6 +14,7 @@ use Pureclarity\Core\Block\Adminhtml\Dashboard\Signup;
 use Pureclarity\Core\ViewModel\Adminhtml\Dashboard\Regions;
 use Pureclarity\Core\ViewModel\Adminhtml\Dashboard\Store;
 use Pureclarity\Core\ViewModel\Adminhtml\Stores;
+use PHPUnit\Framework\MockObject\MockObject;
 
 /**
  * Class SignupTest
@@ -26,19 +27,19 @@ class SignupTest extends TestCase
     /** @var Signup $object */
     private $object;
 
-    /** @var Context $context */
+    /** @var MockObject|Context $context */
     private $context;
 
-    /** @var Stores $storesViewModel */
+    /** @var MockObject|Stores $storesViewModel */
     private $storesViewModel;
 
-    /** @var Regions $regionsViewModel */
+    /** @var MockObject|Regions $regionsViewModel */
     private $regionsViewModel;
 
-    /** @var Store $storeViewModel */
+    /** @var MockObject|Store $storeViewModel */
     private $storeViewModel;
 
-    /** @var FormKey $formKey */
+    /** @var MockObject|FormKey $formKey */
     private $formKey;
 
     protected function setUp()
