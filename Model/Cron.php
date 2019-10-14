@@ -175,6 +175,7 @@ class Cron
         }
         
         $fileWriter->writeFile($scheduleFilePath, json_encode($schedule), 'w');
+        $this->resetFeedError($storeId);
     }
     
     public function selectedFeeds($storeId, $feeds)
@@ -462,6 +463,25 @@ class Cron
             $this->stateRepository->delete($state);
         } catch (CouldNotDeleteException $e) {
             $this->logger->error('Could not save queued feeds: ' . $e->getMessage());
+        }
+    }
+
+    /**
+     * Resets the feed error status for the given store
+     * @param integer $storeId
+     * @return void
+     */
+    private function resetFeedError($storeId)
+    {
+        $state = $this->stateRepository->getByNameAndStore('last_feed_error', $storeId);
+        $state->setName('last_feed_error');
+        $state->setValue('');
+        $state->setStoreId($storeId);
+
+        try {
+            $this->stateRepository->save($state);
+        } catch (CouldNotSaveException $e) {
+            $this->logger->error('Could not save last feed error: ' . $e->getMessage());
         }
     }
 }

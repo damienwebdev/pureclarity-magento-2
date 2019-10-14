@@ -166,10 +166,24 @@ class FeedStatusTest extends TestCase
      */
     private function initRunningFeedsStateObject($id = null, $value = null)
     {
-        $this->stateRepository->expects($this->at(0))
+        $this->stateRepository->expects($this->at(1))
             ->method('getByNameAndStore')
             ->with('running_feeds')
             ->willReturn($this->getStateMock($id, 'running_feeds', json_encode($value), '0'));
+    }
+
+    /**
+     * Sets up a default state object to return for "last_feed_error" state row
+     *
+     * @param int $id
+     * @param string $value
+     */
+    private function initFeedErrorStateObject($id = null, $value = null)
+    {
+        $this->stateRepository->expects($this->at(0))
+            ->method('getByNameAndStore')
+            ->with('last_feed_error')
+            ->willReturn($this->getStateMock($id, 'last_feed_error', $value, '0'));
     }
 
     /**
@@ -180,7 +194,7 @@ class FeedStatusTest extends TestCase
      */
     private function initDateStateObject($id = null, $value = null)
     {
-        $this->stateRepository->expects($this->at(1))
+        $this->stateRepository->expects($this->at(2))
             ->method('getByNameAndStore')
             ->with('last_product_feed_date')
             ->willReturn($this->getStateMock($id, 'last_product_feed_date', $value, '0'));
@@ -209,6 +223,7 @@ class FeedStatusTest extends TestCase
 
     public function testGetFeedStatusNotSent()
     {
+        $this->initFeedErrorStateObject();
         $this->initRunningFeedsStateObject();
         $this->initDateStateObject();
         $status = $this->object->getFeedStatus('product');
@@ -216,6 +231,7 @@ class FeedStatusTest extends TestCase
         $this->assertEquals(
             [
                 'enabled' => true,
+                'error' => false,
                 'running' => false,
                 'class' => 'pc-feed-not-sent',
                 'label' => 'Not Sent',
@@ -224,8 +240,27 @@ class FeedStatusTest extends TestCase
         );
     }
 
+    public function testGetFeedStatusError()
+    {
+        $this->initFeedErrorStateObject(1, 'product,category');
+
+        $status = $this->object->getFeedStatus('product');
+
+        $this->assertEquals(
+            [
+                'enabled' => true,
+                'error' => true,
+                'running' => false,
+                'class' => 'pc-feed-error',
+                'label' => 'Error, please see logs for more information',
+            ],
+            $status
+        );
+    }
+
     public function testGetFeedStatusRequested()
     {
+        $this->initFeedErrorStateObject();
         $this->initRunningFeedsStateObject();
         $this->initScheduleFileRead();
 
@@ -234,6 +269,7 @@ class FeedStatusTest extends TestCase
         $this->assertEquals(
             [
                 'enabled' => true,
+                'error' => false,
                 'running' => true,
                 'class' => 'pc-feed-waiting',
                 'label' => 'Waiting for feed run to start',
@@ -244,6 +280,7 @@ class FeedStatusTest extends TestCase
 
     public function testGetFeedStatusWaiting()
     {
+        $this->initFeedErrorStateObject();
         $this->initRunningFeedsStateObject(1, ['product']);
         $this->initScheduleFileRead();
 
@@ -252,6 +289,7 @@ class FeedStatusTest extends TestCase
         $this->assertEquals(
             [
                 'enabled' => true,
+                'error' => false,
                 'running' => true,
                 'class' => 'pc-feed-waiting',
                 'label' => 'Waiting for other feeds to finish',
@@ -262,6 +300,7 @@ class FeedStatusTest extends TestCase
 
     public function testGetFeedStatusInProgress()
     {
+        $this->initFeedErrorStateObject();
         $this->initRunningFeedsStateObject(1, ['product']);
 
         $progress = [
@@ -283,6 +322,7 @@ class FeedStatusTest extends TestCase
         $this->assertEquals(
             [
                 'enabled' => true,
+                'error' => false,
                 'running' => true,
                 'class' => 'pc-feed-in-progress',
                 'label' => 'In progress: 25%',
@@ -293,6 +333,7 @@ class FeedStatusTest extends TestCase
 
     public function testGetFeedStatusComplete()
     {
+        $this->initFeedErrorStateObject();
         $this->initRunningFeedsStateObject();
         $this->initDateStateObject(1, '2019-10-15 15:45:00');
 
@@ -306,6 +347,7 @@ class FeedStatusTest extends TestCase
         $this->assertEquals(
             [
                 'enabled' => true,
+                'error' => false,
                 'running' => false,
                 'class' => 'pc-feed-complete',
                 'label' => 'Last sent 15/10/2019 15:45',
@@ -326,6 +368,7 @@ class FeedStatusTest extends TestCase
         $this->assertEquals(
             [
                 'enabled' => false,
+                'error' => false,
                 'running' => false,
                 'class' => 'pc-feed-disabled',
                 'label' => 'Not Enabled',
@@ -351,6 +394,7 @@ class FeedStatusTest extends TestCase
         $this->assertEquals(
             [
                 'enabled' => false,
+                'error' => false,
                 'running' => false,
                 'class' => 'pc-feed-disabled',
                 'label' => 'Not Enabled',
@@ -361,6 +405,7 @@ class FeedStatusTest extends TestCase
 
     public function testGetAreFeedsInProgressTrue()
     {
+        $this->initFeedErrorStateObject();
         $this->initRunningFeedsStateObject(1, ['product']);
 
         $progress = [
@@ -383,6 +428,7 @@ class FeedStatusTest extends TestCase
 
     public function testGetAreFeedsDisabledFalse()
     {
+        $this->initFeedErrorStateObject();
         $this->initRunningFeedsStateObject();
         $this->initDateStateObject();
 
@@ -403,6 +449,7 @@ class FeedStatusTest extends TestCase
 
     public function testGetAreFeedsInProgressFalse()
     {
+        $this->initFeedErrorStateObject();
         $this->initRunningFeedsStateObject();
         $this->initDateStateObject();
 
@@ -412,6 +459,7 @@ class FeedStatusTest extends TestCase
 
     public function testGetScheduledDataException()
     {
+        $this->initFeedErrorStateObject();
         $this->initRunningFeedsStateObject();
         $this->initDateStateObject();
 
@@ -429,6 +477,7 @@ class FeedStatusTest extends TestCase
         $this->assertEquals(
             [
                 'enabled' => true,
+                'error' => false,
                 'running' => false,
                 'class' => 'pc-feed-not-sent',
                 'label' => 'Not Sent',
@@ -439,6 +488,7 @@ class FeedStatusTest extends TestCase
 
     public function testGetProgressDataException()
     {
+        $this->initFeedErrorStateObject();
         $this->initRunningFeedsStateObject(1, ['product']);
 
         $this->readInterface->expects($this->at(3))

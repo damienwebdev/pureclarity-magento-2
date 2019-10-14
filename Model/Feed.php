@@ -898,9 +898,11 @@ class Feed
             $errorMessage .= " feed" . ($problemFeedCount > 1 ? "s" : "");
             $errorMessage .= ". Please see error logs for more information.";
             $this->coreHelper->setProgressFile($this->progressFileName, 'N/A', 1, 1, "true", "false", $errorMessage);
+            $this->saveFeedError(implode(',', $this->problemFeeds), $this->storeId);
         } else {
             // Set to uploaded
             $this->coreHelper->setProgressFile($this->progressFileName, 'N/A', 1, 1, "true", "true");
+            $this->saveFeedError('', $this->storeId);
         }
     }
 
@@ -944,6 +946,26 @@ class Feed
             $this->stateRepository->save($state);
         } catch (CouldNotSaveException $e) {
             $this->logger->error('Could not save last updated date: ' . $e->getMessage());
+        }
+    }
+
+    /**
+     * Saves the feed error status for the given store
+     * @param string $feedTypes
+     * @param integer $storeId
+     * @return void
+     */
+    private function saveFeedError($feedTypes, $storeId)
+    {
+        $state = $this->stateRepository->getByNameAndStore('last_feed_error', $storeId);
+        $state->setName('last_feed_error');
+        $state->setValue($feedTypes);
+        $state->setStoreId($storeId);
+
+        try {
+            $this->stateRepository->save($state);
+        } catch (CouldNotSaveException $e) {
+            $this->logger->error('Could not save last feed error: ' . $e->getMessage());
         }
     }
 }

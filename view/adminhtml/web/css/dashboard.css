@@ -575,6 +575,10 @@
     background-color: #999;
 }
 
+#pc-dashboard .pc-feed-status-icon.pc-feed-error {
+    background-color: #f00;
+}
+
 #pc-dashboard #pc-feed-info-store {
     padding-bottom:5px;
 }

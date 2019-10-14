@@ -26,6 +26,9 @@ class FeedStatus
     /** @var mixed[] $feedStatusData */
     private $feedStatusData;
 
+    /** @var array[] $feedErrors */
+    private $feedErrors;
+
     /** @var mixed[] $progressData */
     private $progressData;
 
@@ -134,6 +137,7 @@ class FeedStatus
         if (!isset($this->feedStatusData[$type])) {
             $status = [
                 'enabled' => true,
+                'error' => false,
                 'running' => false,
                 'class' => 'pc-feed-not-sent',
                 'label' => __('Not Sent')
@@ -154,50 +158,61 @@ class FeedStatus
                 $status['class'] = 'pc-feed-disabled';
             }
 
-            if ($status['enabled'] === true) {
-                // check if it's been requested
-                $requested = $this->hasFeedBeenRequested($type, $storeId);
+            if ($status['enabled'] === false) {
+                $this->feedStatusData[$type] = $status;
+                return $this->feedStatusData[$type];
+            }
 
-                if ($requested) {
+            if ($this->hasFeedError($type, $storeId) === true) {
+                $status['error'] = true;
+                $status['label'] = __('Error, please see logs for more information');
+                $status['class'] = 'pc-feed-error';
+                $this->feedStatusData[$type] = $status;
+                return $this->feedStatusData[$type];
+            }
+
+            // check if it's been requested
+            $requested = $this->hasFeedBeenRequested($type, $storeId);
+
+            if ($requested) {
+                $status['running'] = true;
+                $status['label'] = __('Waiting for feed run to start');
+                $status['class'] = 'pc-feed-waiting';
+            }
+
+            // check if it's been requested
+            $requested = $this->isFeedWaiting($type, $storeId);
+
+            if ($requested) {
+                $status['running'] = true;
+                $status['label'] = __('Waiting for other feeds to finish');
+                $status['class'] = 'pc-feed-waiting';
+            }
+
+            if ($status['running']) {
+                // check if it's in progress
+                $progress = $this->feedProgress($type);
+                if ($progress !== false) {
                     $status['running'] = true;
-                    $status['label'] = __('Waiting for feed run to start');
-                    $status['class'] = 'pc-feed-waiting';
+                    $status['label'] = __('In progress: %1%', $progress);
+                    $status['class'] = 'pc-feed-in-progress';
                 }
+            }
 
-                // check if it's been requested
-                $requested = $this->isFeedWaiting($type, $storeId);
-
-                if ($requested) {
-                    $status['running'] = true;
-                    $status['label'] = __('Waiting for other feeds to finish');
-                    $status['class'] = 'pc-feed-waiting';
-                }
-
-                if ($status['running']) {
-                    // check if it's in progress
-                    $progress = $this->feedProgress($type);
-                    if ($progress !== false) {
-                        $status['running'] = true;
-                        $status['label'] = __('In progress: %1%', $progress);
-                        $status['class'] = 'pc-feed-in-progress';
-                    }
-                }
-
-                if ($status['running'] !== true) {
-                    // check it's last run date
-                    $state = $this->stateRepository->getByNameAndStore('last_' . $type . '_feed_date', $storeId);
-                    $lastProductFeedDate = ($state->getId() !== null) ? $state->getValue() : '';
-                    if ($lastProductFeedDate) {
-                        $status['label'] = __(
-                            'Last sent %1',
-                            $this->timezone->formatDate(
-                                $lastProductFeedDate,
-                                \IntlDateFormatter::SHORT,
-                                true
-                            )
-                        );
-                        $status['class'] = 'pc-feed-complete';
-                    }
+            if ($status['running'] !== true) {
+                // check it's last run date
+                $state = $this->stateRepository->getByNameAndStore('last_' . $type . '_feed_date', $storeId);
+                $lastProductFeedDate = ($state->getId() !== null) ? $state->getValue() : '';
+                if ($lastProductFeedDate) {
+                    $status['label'] = __(
+                        'Last sent %1',
+                        $this->timezone->formatDate(
+                            $lastProductFeedDate,
+                            \IntlDateFormatter::SHORT,
+                            true
+                        )
+                    );
+                    $status['class'] = 'pc-feed-complete';
                 }
             }
 
@@ -208,6 +223,8 @@ class FeedStatus
     }
 
     /**
+     * Checks for the scheduled feed file and returns whether the given feed type is in it's data
+     *
      * @param string $feedType
      * @param integer $storeId
      * @return bool
@@ -225,6 +242,31 @@ class FeedStatus
     }
 
     /**
+     * Checks for the last_feed_error state row and returns whether the given feed type is in it's data
+     *
+     * @param string $feedType
+     * @param integer $storeId
+     * @return bool
+     */
+    private function hasFeedError($feedType, $storeId)
+    {
+        $error = false;
+
+        if (!isset($this->feedErrors[$storeId]) || $this->feedErrors[$storeId] === null) {
+            $state = $this->stateRepository->getByNameAndStore('last_feed_error', $storeId);
+            $this->feedErrors[$storeId] = ($state->getId() !== null) ? explode(',', $state->getValue()) : [];
+        }
+
+        if (!empty($this->feedErrors[$storeId])) {
+            $error = in_array($feedType, $this->feedErrors[$storeId]);
+        }
+
+        return $error;
+    }
+
+    /**
+     * Checks for the running_feeds state row and returns whether the given feed type is in it's data
+     *
      * @param string $feedType
      * @param integer $storeId
      * @return bool
@@ -244,6 +286,8 @@ class FeedStatus
     }
 
     /**
+     * Calculates progress based on the data in the progress file
+     *
      * @param string $feedType
      * @return bool|float
      */
@@ -260,6 +304,8 @@ class FeedStatus
     }
 
     /**
+     * Gets progress file data from the filesystem
+     *
      * @return bool
      */
     private function getProgressData()
@@ -284,6 +330,8 @@ class FeedStatus
     }
 
     /**
+     * Gets schedule file data from the filesystem
+     *
      * @return bool
      */
     private function getScheduledFeedData()
