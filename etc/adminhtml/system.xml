@@ -87,9 +87,9 @@
             <group id="advanced" type="text" sortOrder="60" showInDefault="1" showInWebsite="1" showInStore="1">
                 <label>Advanced options</label>
                 <field id="bmz_debug" translate="label" type="select" showInDefault="1" showInWebsite="1" showInStore="1">
-                    <label>Debug Mode</label>
+                    <label>Zone Debug Mode</label>
                     <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
-                    <comment>In Debug Mode the BMZ Id is shown on BMZs that have no content. Leave this disabled in production use.</comment>
+                    <comment>In Zone Debug Mode the Zone Id is shown on Zones that have no content. Leave this disabled in production use.</comment>
                 </field>
             </group>
         </section>

@@ -93,7 +93,7 @@ class Bmz extends Template implements BlockInterface
         $this->bmzId = $this->escapeHtml($this->getData('bmz_id'));
 
         if ($this->bmzId == null || $this->bmzId == "") {
-            $this->_logger->error("PureClarity: BMZ block instantiated without a BMZ Id.");
+            $this->_logger->error("PureClarity: Zone block instantiated without a Zone Id.");
         } else {
             $this->addBmzData('bmz', $this->bmzId);
 
@@ -113,7 +113,7 @@ class Bmz extends Template implements BlockInterface
         // Generate debug text if needed
         $debugContent = '';
         if ($this->debug) {
-            $debugContent = "<p>PureClarity BMZ: $this->bmzId</p>";
+            $debugContent = "<p>PureClarity Zone: $this->bmzId</p>";
         }
 
         // Get the fallback content
