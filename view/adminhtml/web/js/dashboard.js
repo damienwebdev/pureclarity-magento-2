@@ -111,14 +111,14 @@ require(
             $.ajax({
                 showLoader: true,
                 url: $('#pc-get-store-details-url').val(),
-                data: { 'form_key': window.FORM_KEY, 'store_id': $('select#pc-details-store-id').val() },
+                data: { 'form_key': window.FORM_KEY, 'store_id': $('select#pc-sign-up-store-id').val() },
                 type: "POST",
                 dataType: 'json'
             }).done(function (data) {
                 if (data.success && data.store_data) {
-                    $('#pc-details-store-currency').html(data.store_data.currency);
-                    $('#pc-details-store-timezone').html(data.store_data.timezone);
-                    $('#pc-details-store-url').val(data.store_data.url);
+                    $('#pc-sign-up-store-currency').html(data.store_data.currency);
+                    $('#pc-sign-up-store-timezone').html(data.store_data.timezone);
+                    $('#pc-sign-up-store-url').val(data.store_data.url);
                 } else {
                     modalAlert({
                         title: $.mage.__('Error'),
@@ -196,7 +196,7 @@ require(
 
             saveDetailsButton.on('click', submitSaveDetails);
 
-            let selectStoreSignup = $('select#pc-store-id');
+            let selectStoreSignup = $('select#pc-sign-up-store-id');
             if (selectStoreSignup.length) {
                 selectStoreSignup.on('change', getStoreDetails);
             }
