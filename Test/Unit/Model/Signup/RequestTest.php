@@ -23,8 +23,7 @@ use Pureclarity\Core\Model\State;
 /**
  * Class RequestTest
  *
- * @category   Tests
- * @package    PureClarity
+ * Tests the methods in \Pureclarity\Core\Model\Signup\Request
  */
 class RequestTest extends TestCase
 {
@@ -108,13 +107,23 @@ class RequestTest extends TestCase
             ->disableOriginalConstructor()
             ->getMock();
 
-        $this->serializerMock->expects($this->any())->method('serialize')->will($this->returnCallback(function ($param) {
-            return json_encode($param);
-        }));
+        $this->serializerMock->expects($this->any())
+            ->method('serialize')->will(
+                $this->returnCallback(
+                    function ($param) {
+                        return json_encode($param);
+                    }
+                )
+            );
 
-        $this->serializerMock->expects($this->any())->method('unserialize')->will($this->returnCallback(function ($param) {
-            return json_decode($param, true);
-        }));
+        $this->serializerMock->expects($this->any())
+            ->method('unserialize')->will(
+                $this->returnCallback(
+                    function ($param) {
+                        return json_decode($param, true);
+                    }
+                )
+            );
 
         $this->object = new Request(
             $this->curlMock,

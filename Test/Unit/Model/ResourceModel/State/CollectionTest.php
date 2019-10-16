@@ -20,10 +20,9 @@ use Pureclarity\Core\Model\ResourceModel\State as StateResource;
 use PHPUnit\Framework\MockObject\MockObject;
 
 /**
- * Class StateTest
+ * Class CollectionTest
  *
- * @category   Tests
- * @package    PureClarity
+ * Tests the methods in \Pureclarity\Core\Model\ResourceModel\State\Collection
  */
 class CollectionTest extends TestCase
 {

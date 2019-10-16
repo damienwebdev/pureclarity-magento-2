@@ -11,10 +11,9 @@ use PHPUnit\Framework\TestCase;
 use Pureclarity\Core\Model\Config\Source\Region;
 
 /**
- * Class DataTest
+ * Class RegionTest
  *
- * @category   Tests
- * @package    PureClarity
+ * Tests the methods in \Pureclarity\Core\Model\Config\Source\Region
  */
 class RegionTest extends TestCase
 {

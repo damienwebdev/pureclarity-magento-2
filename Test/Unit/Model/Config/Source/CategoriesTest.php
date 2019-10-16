@@ -17,10 +17,9 @@ use PHPUnit\Framework\TestCase;
 use Pureclarity\Core\Model\Config\Source\Categories;
 
 /**
- * Class DataTest
+ * Class CategoriesTest
  *
- * @category   Tests
- * @package    PureClarity
+ * Tests the methods in \Pureclarity\Core\Model\Config\Source\Categories
  */
 class CategoriesTest extends TestCase
 {

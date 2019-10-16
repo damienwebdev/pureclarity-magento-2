@@ -14,10 +14,9 @@ use Pureclarity\Core\ViewModel\Adminhtml\Dashboard\State;
 use PHPUnit\Framework\MockObject\MockObject;
 
 /**
- * Class DataTest
+ * Class DashboardTest
  *
- * @category   Tests
- * @package    PureClarity
+ * Tests the methods in \Pureclarity\Core\Block\Adminhtml\Dashboard
  */
 class DashboardTest extends TestCase
 {

@@ -15,8 +15,7 @@ use PHPUnit\Framework\MockObject\MockObject;
 /**
  * Class StateTest
  *
- * @category   Tests
- * @package    PureClarity
+ * Tests the methods in \Pureclarity\Core\Model\ResourceModel\State
  */
 class StateTest extends TestCase
 {

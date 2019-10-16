@@ -19,8 +19,7 @@ use PHPUnit\Framework\MockObject\MockObject;
 /**
  * Class SignupTest
  *
- * @category   Tests
- * @package    PureClarity
+ * Tests the methods in \Pureclarity\Core\Block\Adminhtml\Dashboard\Signup
  */
 class SignupTest extends TestCase
 {

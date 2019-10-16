@@ -22,8 +22,7 @@ use Pureclarity\Core\Model\State as StateModel;
 /**
  * Class CheckSignupStatusTest
  *
- * @category   Tests
- * @package    PureClarity
+ * Tests the methods in \Pureclarity\Core\Cron\CheckSignupStatus
  */
 class CheckSignupStatusTest extends TestCase
 {

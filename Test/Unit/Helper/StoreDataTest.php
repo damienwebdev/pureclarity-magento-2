@@ -14,10 +14,9 @@ use Pureclarity\Core\Helper\StoreData;
 use PHPUnit\Framework\MockObject\MockObject;
 
 /**
- * Class DataTest
+ * Class StoreDataTest
  *
- * @category   Tests
- * @package    PureClarity
+ * Tests the methods in \Pureclarity\Core\Helper\StoreData
  */
 class StoreDataTest extends TestCase
 {

@@ -22,10 +22,9 @@ use Magento\Framework\Setup\ModuleDataSetupInterface;
 use Psr\Log\LoggerInterface;
 
 /**
- * Class DataTest
+ * Class UpgradeDataTest
  *
- * @category   Tests
- * @package    PureClarity
+ * Tests the methods in \Pureclarity\Core\Setup\UpgradeData
  */
 class UpgradeDataTest extends TestCase
 {

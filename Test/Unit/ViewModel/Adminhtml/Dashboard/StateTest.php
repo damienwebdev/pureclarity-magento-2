@@ -17,8 +17,7 @@ use Pureclarity\Core\Model\State as StateModel;
 /**
  * Class StateTest
  *
- * @category   Tests
- * @package    PureClarity
+ * Tests the methods in \Pureclarity\Core\ViewModel\Adminhtml\Dashboard\State
  */
 class StateTest extends TestCase
 {

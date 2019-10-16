@@ -14,8 +14,7 @@ use PHPUnit\Framework\MockObject\MockObject;
 /**
  * Class RegionsTest
  *
- * @category   Tests
- * @package    PureClarity
+ * Tests the methods in \Pureclarity\Core\ViewModel\Adminhtml\Dashboard\Regions
  */
 class RegionsTest extends TestCase
 {

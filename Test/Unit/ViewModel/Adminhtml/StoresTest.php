@@ -15,10 +15,9 @@ use Pureclarity\Core\Model\State;
 use Pureclarity\Core\ViewModel\Adminhtml\Stores;
 
 /**
- * Class DataTest
+ * Class StoresTest
  *
- * @category   Tests
- * @package    PureClarity
+ * Tests the methods in \Pureclarity\Core\ViewModel\Adminhtml\Stores
  */
 class StoresTest extends TestCase
 {

@@ -5,7 +5,7 @@
  */
 /** @var \Pureclarity\Core\Block\Configuration $block */ ?>
 
-<?php if ($block->isActive()) : ?>
+<?php if ($block->isActive()): ?>
 
 <script type="text/javascript">
     window.pureclarityConfig = <?php echo json_encode($block->getConfiguration()); ?>;

@@ -24,8 +24,7 @@ use Pureclarity\Core\Model\State;
 /**
  * Class ProcessTest
  *
- * @category   Tests
- * @package    PureClarity
+ * Tests the methods in \Pureclarity\Core\Model\Signup\Process
  */
 class ProcessTest extends TestCase
 {

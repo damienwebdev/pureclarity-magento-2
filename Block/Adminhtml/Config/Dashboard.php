@@ -27,7 +27,13 @@ class Dashboard extends Fieldset
         $dashboardUrl = $this->getUrl('pureclarity/dashboard/index');
 
         $html = '<p>' . $this->escapeHtml(__('This page allows configuration of the PureClarity module')) . '</p>'
-            . '<p>' . $this->escapeHtml(__('To run data feeds, install Zones or access documentation, please see the PureClarity Dashboard page')) . '</p>'
+            . '<p>' . $this->escapeHtml(
+                __(
+                    'To run data feeds, install Zones or access documentation,'
+                    . ' please see the PureClarity Dashboard page'
+                )
+            )
+            . '</p>'
             . '<p><a href="' . $dashboardUrl . '">'
             . $this->escapeHtml(__('Go to PureClarity Dashboard'))
             . '</a></p>';

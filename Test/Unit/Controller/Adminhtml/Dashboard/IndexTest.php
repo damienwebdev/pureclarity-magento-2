@@ -17,8 +17,7 @@ use PHPUnit\Framework\MockObject\MockObject;
 /**
  * Class IndexTest
  *
- * @category   Tests
- * @package    PureClarity
+ * Tests the methods in \Pureclarity\Core\Controller\Adminhtml\Dashboard\Index
  */
 class IndexTest extends TestCase
 {

@@ -14,10 +14,9 @@ use Magento\Framework\Registry;
 use Pureclarity\Core\Model\ResourceModel\State as StateResource;
 
 /**
- * Class DataTest
+ * Class StateTest
  *
- * @category   Tests
- * @package    PureClarity
+ * Tests the methods in \Pureclarity\Core\Model\State
  */
 class StateTest extends TestCase
 {

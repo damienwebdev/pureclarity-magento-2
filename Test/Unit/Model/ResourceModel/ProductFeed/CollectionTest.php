@@ -20,10 +20,9 @@ use Pureclarity\Core\Model\ResourceModel\ProductFeed as ProductFeedResource;
 use PHPUnit\Framework\MockObject\MockObject;
 
 /**
- * Class StateTest
+ * Class CollectionTest
  *
- * @category   Tests
- * @package    PureClarity
+ * Tests the methods in \Pureclarity\Core\Model\ResourceModel\ProductFeed\Collection
  */
 class CollectionTest extends TestCase
 {

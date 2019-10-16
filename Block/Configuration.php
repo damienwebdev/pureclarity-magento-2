@@ -187,7 +187,7 @@ class Configuration extends Template
                 "ordertotal" => $lastOrder['grand_total']
             ];
 
-            if ( empty( $order['userid'] ) ) {
+            if (empty($order['userid'])) {
                 $order['email'] = $lastOrder['customer_email'];
             }
 

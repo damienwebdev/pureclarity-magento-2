@@ -13,10 +13,9 @@ use Pureclarity\Core\ViewModel\Adminhtml\Themes;
 use PHPUnit\Framework\MockObject\MockObject;
 
 /**
- * Class DataTest
+ * Class ThemesTest
  *
- * @category   Tests
- * @package    PureClarity
+ * Tests the methods in \Pureclarity\Core\ViewModel\Adminhtml\Themes
  */
 class ThemesTest extends TestCase
 {

@@ -12,10 +12,9 @@ use Pureclarity\Core\ViewModel\Adminhtml\Dashboard\Store;
 use PHPUnit\Framework\MockObject\MockObject;
 
 /**
- * Class DataTest
+ * Class StoreTest
  *
- * @category   Tests
- * @package    PureClarity
+ * Tests the methods in \Pureclarity\Core\ViewModel\Adminhtml\Dashboard\Store
  */
 class StoreTest extends TestCase
 {

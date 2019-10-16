@@ -18,10 +18,9 @@ use Pureclarity\Core\Helper\Data;
 use Pureclarity\Core\Model\State;
 
 /**
- * Class IndexTest
+ * Class CheckVersionTest
  *
- * @category   Tests
- * @package    PureClarity
+ * Tests the methods in \Pureclarity\Core\Cron\CheckVersion
  */
 class CheckVersionTest extends TestCase
 {

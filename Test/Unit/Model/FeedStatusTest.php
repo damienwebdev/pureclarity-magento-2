@@ -22,10 +22,9 @@ use Pureclarity\Core\Model\FeedStatus;
 use Pureclarity\Core\Model\State;
 
 /**
- * Class DataTest
+ * Class FeedStatusTest
  *
- * @category   Tests
- * @package    PureClarity
+ * Tests the methods in \Pureclarity\Core\Model\FeedStatus
  */
 class FeedStatusTest extends TestCase
 {

@@ -17,8 +17,7 @@ use PHPUnit\Framework\MockObject\MockObject;
 /**
  * Class FeedsTest
  *
- * @category   Tests
- * @package    PureClarity
+ * Tests the methods in \Pureclarity\Core\Block\Adminhtml\Dashboard\Feeds
  */
 class FeedsTest extends TestCase
 {

@@ -20,8 +20,7 @@ use PHPUnit\Framework\MockObject\MockObject;
 /**
  * Class ConfigureTest
  *
- * @category   Tests
- * @package    PureClarity
+ * Tests the methods in \Pureclarity\Core\Controller\Adminhtml\Dashboard\Configure
  */
 class ConfigureTest extends TestCase
 {

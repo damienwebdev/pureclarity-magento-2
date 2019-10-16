@@ -16,10 +16,9 @@ use Magento\Framework\DB\Adapter\AdapterInterface;
 use PHPUnit\Framework\MockObject\MockObject;
 
 /**
- * Class DataTest
+ * Class UpgradeSchemaTest
  *
- * @category   Tests
- * @package    PureClarity
+ * Tests the methods in \Pureclarity\Core\Setup\UpgradeSchema
  */
 class UpgradeSchemaTest extends TestCase
 {

@@ -20,8 +20,7 @@ use PHPUnit\Framework\MockObject\MockObject;
 /**
  * Class GetStoreDetailsTest
  *
- * @category   Tests
- * @package    PureClarity
+ * Tests the methods in \Pureclarity\Core\Controller\Adminhtml\Dashboard\GetStoreDetails
  */
 class GetStoreDetailsTest extends TestCase
 {

@@ -18,8 +18,7 @@ use Pureclarity\Core\Model\State;
 /**
  * Class StatusTest
  *
- * @category   Tests
- * @package    PureClarity
+ * Tests the methods in \Pureclarity\Core\Model\Signup\Status
  */
 class StatusTest extends TestCase
 {
@@ -61,13 +60,23 @@ class StatusTest extends TestCase
             ->disableOriginalConstructor()
             ->getMock();
 
-        $this->serializerMock->expects($this->any())->method('serialize')->will($this->returnCallback(function ($param) {
-            return json_encode($param);
-        }));
+        $this->serializerMock->expects($this->any())
+            ->method('serialize')->will(
+                $this->returnCallback(
+                    function ($param) {
+                        return json_encode($param);
+                    }
+                )
+            );
 
-        $this->serializerMock->expects($this->any())->method('unserialize')->will($this->returnCallback(function ($param) {
-            return json_decode($param, true);
-        }));
+        $this->serializerMock->expects($this->any())
+            ->method('unserialize')->will(
+                $this->returnCallback(
+                    function ($param) {
+                        return json_decode($param, true);
+                    }
+                )
+            );
 
         $this->object = new Status(
             $this->curlMock,
@@ -142,10 +151,12 @@ class StatusTest extends TestCase
         $this->curlMock
             ->expects($this->once())
             ->method('post')
-            ->will($this->returnCallback(function($url, $request) {
-                $requestParams = json_decode($request, true);
-                $this->requestParams = $requestParams;
-            }));
+            ->will($this->returnCallback(
+                function ($url, $request) {
+                    $requestParams = json_decode($request, true);
+                    $this->requestParams = $requestParams;
+                }
+            ));
 
         $data = [
             'Complete' => false
@@ -170,10 +181,12 @@ class StatusTest extends TestCase
         $this->curlMock
             ->expects($this->once())
             ->method('post')
-            ->will($this->returnCallback(function($url, $request) {
-                $requestParams = json_decode($request, true);
-                $this->requestParams = $requestParams;
-            }));
+            ->will($this->returnCallback(
+                function ($url, $request) {
+                    $requestParams = json_decode($request, true);
+                    $this->requestParams = $requestParams;
+                }
+            ));
 
         $data = [
             'Complete' => false
@@ -201,10 +214,12 @@ class StatusTest extends TestCase
         $this->curlMock
             ->expects($this->once())
             ->method('post')
-            ->will($this->returnCallback(function($url, $request) {
-                $requestParams = json_decode($request, true);
-                $this->requestParams = $requestParams;
-            }));
+            ->will($this->returnCallback(
+                function ($url, $request) {
+                    $requestParams = json_decode($request, true);
+                    $this->requestParams = $requestParams;
+                }
+            ));
 
         $data = [
             'Complete' => true,

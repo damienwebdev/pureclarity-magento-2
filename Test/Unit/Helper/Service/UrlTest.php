@@ -10,10 +10,9 @@ use PHPUnit\Framework\TestCase;
 use Pureclarity\Core\Helper\Service\Url;
 
 /**
- * Class DataTest
+ * Class UrlTest
  *
- * @category   Tests
- * @package    PureClarity
+ * Tests the methods in \Pureclarity\Core\Helper\Service\Url
  */
 class UrlTest extends TestCase
 {

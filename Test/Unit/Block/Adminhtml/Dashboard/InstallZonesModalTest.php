@@ -15,10 +15,9 @@ use Pureclarity\Core\ViewModel\Adminhtml\Themes;
 use PHPUnit\Framework\MockObject\MockObject;
 
 /**
- * Class DataTest
+ * Class InstallZonesModalTest
  *
- * @category   Tests
- * @package    PureClarity
+ * Tests the methods in \Pureclarity\Core\Block\Adminhtml\Dashboard\InstallZonesModal
  */
 class InstallZonesModalTest extends TestCase
 {

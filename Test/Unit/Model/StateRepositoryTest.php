@@ -22,8 +22,7 @@ use Pureclarity\Core\Model\ResourceModel\State\Collection;
 /**
  * Class StateRespositoryTest
  *
- * @category   Tests
- * @package    PureClarity
+ * Tests the methods in \Pureclarity\Core\Model\StateRepository
  */
 class StateRepositoryTest extends TestCase
 {

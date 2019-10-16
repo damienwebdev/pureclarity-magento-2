@@ -17,8 +17,7 @@ use PHPUnit\Framework\MockObject\MockObject;
 /**
  * Class ConfiguredTest
  *
- * @category   Tests
- * @package    PureClarity
+ * Tests the methods in \Pureclarity\Core\Block\Adminhtml\Dashboard\Configured
  */
 class ConfiguredTest extends TestCase
 {

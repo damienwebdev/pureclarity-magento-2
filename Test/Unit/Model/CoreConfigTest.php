@@ -14,10 +14,9 @@ use Pureclarity\Core\Model\CoreConfig;
 use PHPUnit\Framework\MockObject\MockObject;
 
 /**
- * Class DataTest
+ * Class CoreConfigTest
  *
- * @category   Tests
- * @package    PureClarity
+ * Tests the methods in \Pureclarity\Core\Model\CoreConfig
  */
 class CoreConfigTest extends TestCase
 {

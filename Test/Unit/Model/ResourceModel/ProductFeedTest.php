@@ -14,8 +14,7 @@ use PHPUnit\Framework\MockObject\MockObject;
 /**
  * Class ProductFeedTest
  *
- * @category   Tests
- * @package    PureClarity
+ * Tests the methods in \Pureclarity\Core\Model\ResourceModel\ProductFeed
  */
 class ProductFeedTest extends TestCase
 {
