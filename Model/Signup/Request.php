@@ -218,7 +218,7 @@ class Request
             'FirstName' => $params['firstname'],
             'LastName' => $params['lastname'],
             'Company' => $params['company'],
-            'Region' => 'localhost', // TODO: send right region name, but also override for localhost
+            'Region' => $this->region->getRegionName($params['region']),
             'Currency' => $this->storeData->getStoreCurrency($params['store_id']),
             'TimeZone' => $this->storeData->getStoreTimezone($params['store_id']),
             'Url' => $params['url'],

@@ -123,7 +123,6 @@ class Url
      * @param integer $region
      * @return string
      */
-    //public function getFeedBaseUrl($storeId)
     public function getFeedSftpUrl($region)
     {
         $url = getenv('PURECLARITY_FEED_HOST');

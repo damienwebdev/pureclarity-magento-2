@@ -16,13 +16,23 @@ use Magento\Framework\Data\OptionSourceInterface;
 class Region implements OptionSourceInterface
 {
     /**
-     * Default list of valid regions to use with PureClarity
+     * Default PureClarity valid region labels
      *
      * @var string[]
      */
     private $validRegions = [
         1 => 'Europe',
         4 => 'USA'
+    ];
+
+    /**
+     * Default PureClarity Region Names
+     *
+     * @var string[]
+     */
+    private $regionName = [
+        1 => "eu-west-1",
+        4 => "us-east-1"
     ];
 
     /**
@@ -33,6 +43,25 @@ class Region implements OptionSourceInterface
     public function getValidRegions()
     {
         return $this->validRegions;
+    }
+
+    /**
+     * Gets array of valid regions
+     *
+     * @param integer $region
+     *
+     * @return string[]
+     */
+    public function getRegionName($region)
+    {
+        $localRegion = getenv('PURECLARITY_REGION');
+
+        if ($localRegion) {
+            $regionName = $localRegion;
+        } else {
+            $regionName = $this->regionName[$region];
+        }
+        return $regionName;
     }
 
     /**

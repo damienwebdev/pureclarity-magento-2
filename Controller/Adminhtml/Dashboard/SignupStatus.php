@@ -75,5 +75,4 @@ class SignupStatus extends Action
         $json->setData($result);
         return $json;
     }
-    // TODO: check ACL
 }
