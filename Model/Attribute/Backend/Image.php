@@ -1,28 +1,44 @@
 <?php
+/**
+ * Copyright © PureClarity. All rights reserved.
+ * See LICENSE.txt for license details.
+ */
+
 namespace Pureclarity\Core\Model\Attribute\Backend;
  
-class Image extends \Magento\Eav\Model\Entity\Attribute\Backend\AbstractBackend
+use Magento\Catalog\Model\ImageUploader;
+use Magento\Eav\Model\Entity\Attribute\Backend\AbstractBackend;
+use Magento\Framework\App\ObjectManager;
+use Psr\Log\LoggerInterface;
+
+/**
+ * Class Image
+ *
+ * Backend model for category image uploads
+ */
+class Image extends AbstractBackend
 {
-    protected $_uploaderFactory;
-    protected $_filesystem;
-    protected $_fileUploaderFactory;
-    protected $logger;
+    /** @var LoggerInterface $logger */
+    private $logger;
+
+    /** @var ImageUploader $imageUploader */
     private $imageUploader;
- 
+
+    /**
+     * @param LoggerInterface $logger
+     */
     public function __construct(
-        \Psr\Log\LoggerInterface $logger,
-        \Magento\Framework\Filesystem $filesystem,
-        \Magento\MediaStorage\Model\File\UploaderFactory $fileUploaderFactory
+        LoggerInterface $logger
     ) {
-        $this->_filesystem                = $filesystem;
-        $this->_fileUploaderFactory       = $fileUploaderFactory;
-        $this->logger                     = $logger;
+        $this->logger = $logger;
     }
  
     private function getImageUploader()
     {
         if ($this->imageUploader === null) {
-            $this->imageUploader = \Magento\Framework\App\ObjectManager::getInstance()->get('Pureclarity\Core\ImageUpload');
+            $this->imageUploader = ObjectManager::getInstance()->get(
+                'Pureclarity\Core\ImageUpload'
+            );
         }
         return $this->imageUploader;
     }

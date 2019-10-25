@@ -1,66 +1,86 @@
 <?php
+/**
+ * Copyright © PureClarity. All rights reserved.
+ * See LICENSE.txt for license details.
+ */
 
 namespace Pureclarity\Core\Block;
 
+use Magento\Cms\Model\BlockFactory;
+use Magento\Framework\Exception\NoSuchEntityException;
+use Magento\Framework\Registry;
 use Magento\Framework\View\Element\Template;
 use Magento\Framework\View\Element\Template\Context;
 use Magento\Widget\Block\BlockInterface;
+use Pureclarity\Core\Helper\Data;
+use Pureclarity\Core\Model\CoreConfig;
 
+/**
+ * Class Bmz
+ *
+ * Block for BMZ widgets
+ */
 class Bmz extends Template implements BlockInterface
 {
-
-    public $debug;
-    public $isServerSide = false;
-
-    protected $bmzId;
-    protected $content;
-    protected $classes;
-    protected $bmzData = "";
-    protected $coreHelper;
-    protected $logger;
-    protected $registry;
-    protected $cmsBlockFactory;
-    protected $storeManager;
+    /** @var string $_template */
     protected $_template = "bmz.phtml";
-    protected $service;
 
+    /** @var integer $storeId */
+    private $storeId;
+
+    /** @var boolean $debug */
+    private $debug;
+
+    /** @var string $bmzId */
+    private $bmzId;
+
+    /** @var string $content */
+    private $content;
+
+    /** @var string $classes */
+    private $classes;
+
+    /** @var string $bmzData */
+    private $bmzData = "";
+
+    /** @var Data $coreHelper */
+    private $coreHelper;
+
+    /** @var Registry $registry */
+    private $registry;
+
+    /** @var BlockFactory $cmsBlockFactory */
+    private $cmsBlockFactory;
+
+    /** @var CoreConfig $coreConfig */
+    private $coreConfig;
+
+    /**
+     * @param Context $context
+     * @param Data $coreHelper
+     * @param Registry $registry
+     * @param BlockFactory $cmsBlockFactory
+     * @param CoreConfig $coreConfig
+     * @param array $data
+     */
     public function __construct(
-        \Magento\Framework\View\Element\Template\Context $context,
-        \Pureclarity\Core\Helper\Data $coreHelper,
-        \Magento\Framework\Registry $registry,
-        \Magento\Cms\Model\BlockFactory $cmsBlockFactory,
-        \Pureclarity\Core\Helper\Service $service,
+        Context $context,
+        Data $coreHelper,
+        Registry $registry,
+        BlockFactory $cmsBlockFactory,
+        CoreConfig $coreConfig,
         array $data = []
     ) {
-        $this->coreHelper = $coreHelper;
-        $this->logger = $context->getLogger();
-        $this->registry = $registry;
+        $this->coreHelper      = $coreHelper;
+        $this->registry        = $registry;
         $this->cmsBlockFactory = $cmsBlockFactory;
-        $this->storeManager = $context->getStoreManager();
-        $this->service = $service;
+        $this->coreConfig      = $coreConfig;
         parent::__construct(
             $context,
             $data
         );
     }
     
-    public function setData($key, $value = null)
-    {
-        if ($key == 'bmz_id' && $this->coreHelper->isServerSide()) {
-            $this->service->addZone($value);
-        }
-        parent::setData($key, $value);
-    }
-
-
-    protected function _toHtml()
-    {
-        if ($this->coreHelper->isMerchActive()) {
-            return parent::_toHtml();
-        }
-        return '';
-    }
-
     public function addBmzData($field, $value)
     {
         $this->bmzData = $this->bmzData . $field . ':' . $value . ';';
@@ -68,22 +88,12 @@ class Bmz extends Template implements BlockInterface
 
     public function _beforeToHtml()
     {
-        if (!$this->coreHelper->isMerchActive()) {
-            return;
-        }
-
-        if ($this->coreHelper->isServerSide()) {
-            $this->service->dispatch();
-        }
-
         // Get some parameters
-        $this->debug = $this->coreHelper->isBMZDebugActive();
+        $this->debug = $this->coreConfig->isZoneDebugActive($this->getStoreId());
         $this->bmzId = $this->escapeHtml($this->getData('bmz_id'));
-        $this->isServerSide = $this->coreHelper->isServerSide();
-        
 
-        if ($this->bmzId == null or $this->bmzId == "") {
-            $this->logger->error("PureClarity: BMZ block instantiated without a BMZ Id.");
+        if ($this->bmzId == null || $this->bmzId == "") {
+            $this->_logger->error("PureClarity: Zone block instantiated without a Zone Id.");
         } else {
             $this->addBmzData('bmz', $this->bmzId);
 
@@ -103,7 +113,7 @@ class Bmz extends Template implements BlockInterface
         // Generate debug text if needed
         $debugContent = '';
         if ($this->debug) {
-            $debugContent = "<p>PureClarity BMZ: $this->bmzId</p>";
+            $debugContent = "<p>PureClarity Zone: $this->bmzId</p>";
         }
 
         // Get the fallback content
@@ -120,18 +130,9 @@ class Bmz extends Template implements BlockInterface
             }
         }
 
-        // Get Server side BMZ Content if we need to
-        $serverSideContent = '';
-        if ($this->isServerSide) {
-            $serverSideContent = $this->getServerSideBmzBlock();
-            if ($serverSideContent != "" && $fallbackContent) {
-                $fallbackContent = "";
-            }
-        }
-
         // The actual content is the debug content followed by the fallback content.
         // In most cases; content will be an empty string
-        $content = $debugContent . $fallbackContent . $serverSideContent;
+        $content = $debugContent . $fallbackContent;
 
         // Get a list of the custom classes for this BMZs div tag
         $customClasses = $this->getData('pc_bmz_classes');
@@ -188,9 +189,6 @@ class Bmz extends Template implements BlockInterface
 
     public function getBmzData()
     {
-        if ($this->isServerSide) {
-            return "data-pureclarity-server=\"$this->bmzId\"";
-        }
         return "data-pureclarity=\"$this->bmzData\"";
     }
 
@@ -199,33 +197,20 @@ class Bmz extends Template implements BlockInterface
         return null;
     }
 
-    public function getServerSideBmzBlock()
+    /**
+     * Gets the current store ID
+     *
+     * @return int
+     */
+    public function getStoreId()
     {
-
-        $result = $this->service->getResult();
-
-        if ($result &&
-            array_key_exists('zones', $result) &&
-            array_key_exists($this->bmzId, $result['zones']) &&
-            array_key_exists('type', $result['zones'][$this->bmzId])) {
-            $resultData = $result['zones'][$this->bmzId];
-
-            switch ($result['zones'][$this->bmzId]['type']) {
-                case "recommender-product":
-                    return $this->getLayout()
-                            ->createBlock("Pureclarity\Core\Block\BMZs\ProductRecommender", "pc_bmz_serverside_" . $this->bmzId)
-                            ->setData('bmz_id', $this->bmzId)
-                            ->setData('bmz_data', $resultData)
-                            ->setTemplate($this->coreHelper->getProductRecommenderTemplate())
-                            ->toHtml();
-                case "recommender-category":
-                case "recommender-brand":
-                case "staticimage":
-                case "carousel":
-                case "html":
-                    return $resultData['html'];
+        if ($this->storeId === null) {
+            try {
+                $this->storeId = $this->_storeManager->getStore()->getId();
+            } catch (NoSuchEntityException $e) {
+                $this->storeId = 0;
             }
         }
-        return "";
+        return $this->storeId;
     }
 }

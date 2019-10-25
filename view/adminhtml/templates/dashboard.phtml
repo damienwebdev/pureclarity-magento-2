@@ -1,0 +1,43 @@
+<?php
+/**
+ * Copyright © PureClarity. All rights reserved.
+ * See LICENSE.txt for license details.
+ */
+
+/** @var \Pureclarity\Core\Block\Adminhtml\Dashboard $block */
+/** @var \Pureclarity\Core\ViewModel\Adminhtml\Dashboard\State $state */
+$state = $block->getPureclarityStateViewModel();
+
+?>
+<div id="pc-dashboard">
+    <input type="hidden" id="pc-current-state"
+           value="<?= $block->escapeQuote($block->escapeHtml($state->getStateName())) ?>"/>
+    <?php if ($state->isNotConfigured()): ?>
+        <?= $block->getChildHtml('pureclarity_dashboard_content_signup') ?>
+    <?php endif; ?>
+    <div id="pc-waiting"
+        <?php if ($state->isWaiting() === false): ?>style="display:none"<?php endif; ?>>
+        <?= $block->getChildHtml('pureclarity_dashboard_content_waiting') ?>
+    </div>
+    <div id="pc-content"
+        <?php if ($state->isNotConfigured() || $state->isWaiting()): ?>style="display:none"<?php endif; ?>>
+        <?= $block->getChildHtml('pureclarity_dashboard_content_configured') ?>
+    </div>
+    <div id="pc-clearfix"></div>
+</div>
+<div id="pc-version">
+    <div id="pc-logo"><span><?= $block->escapeHtml(__('PureClarity')) ?></span></div>
+    <div id="pc-version-number">
+        <?= $block->escapeHtml(__('Version')) ?>: <?= $block->escapeHtml($state->getPluginVersion()) ?>
+    </div>
+    <?php if ($state->isUpToDate()): ?>
+        <div id="pc-version-status" class="pc-up-to-date">(<?= $block->escapeHtml(__('up to date')) ?>)</div>
+    <?php else: ?>
+        <div id="pc-version-status" class="pc-out-of-date">
+            (<?= $block->escapeHtml(__('new version available - %1', $state->getNewVersion())) ?>)<br />
+            <a href="https://www.pureclarity.com/docs/magento-2/#update" target="_blank">
+                <?= $block->escapeHtml(__('How to update')) ?>
+            </a>
+        </div>
+    <?php endif; ?>
+</div>

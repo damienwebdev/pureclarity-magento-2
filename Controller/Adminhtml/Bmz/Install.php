@@ -1,27 +1,40 @@
 <?php
 namespace Pureclarity\Core\Controller\Adminhtml\Bmz;
 
-class Install extends \Magento\Backend\App\Action
+use Magento\Backend\App\Action;
+use Magento\Backend\App\Action\Context;
+use Magento\Framework\Controller\Result\JsonFactory;
+use Pureclarity\Core\Model\CmsBlock;
+
+/**
+ * Class Install
+ *
+ * controller for pureclarity/bmz/install POST request
+ */
+class Install extends Action
 {
+    /** @var JsonFactory $resultJsonFactory */
+    private $resultJsonFactory;
 
-    protected $coreHelper;
-    protected $cmsBlock;
-    protected $resultJsonFactory;
+    /** @var CmsBlock $cmsBlock */
+    private $cmsBlock;
 
+    /**
+     * @param Context $context
+     * @param JsonFactory $resultJsonFactory
+     * @param CmsBlock $cmsBlock
+     */
     public function __construct(
-        \Magento\Backend\App\Action\Context $context,
-        \Magento\Framework\Controller\Result\JsonFactory $resultJsonFactory,
-        \Pureclarity\Core\Helper\Data $coreHelper,
-        \Pureclarity\Core\Model\CmsBlock $cmsBlock
+        Context $context,
+        JsonFactory $resultJsonFactory,
+        CmsBlock $cmsBlock
     ) {
-        $this->coreHelper = $coreHelper;
-        $this->cmsBlock = $cmsBlock;
+        $this->cmsBlock          = $cmsBlock;
         $this->resultJsonFactory = $resultJsonFactory;
         parent::__construct(
             $context
         );
     }
-
     
     public function execute()
     {

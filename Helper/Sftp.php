@@ -1,21 +1,39 @@
 <?php
+/**
+ * Copyright © PureClarity. All rights reserved.
+ * See LICENSE.txt for license details.
+ */
+
 namespace Pureclarity\Core\Helper;
 
-class Sftp extends \Magento\Framework\App\Helper\AbstractHelper
-{
-    protected $logger;
-    protected $sftp;
+use Magento\Framework\Filesystem\Io\Sftp as FilesystemIoSftp;
+use Psr\Log\LoggerInterface;
 
+/**
+ * Class Sftp
+ *
+ * Handles SFTP interactions for feeds
+ */
+class Sftp
+{
+    /** @var LoggerInterface $logger */
+    private $logger;
+
+    /** @var FilesystemIoSftp $sftp */
+    private $sftp;
+
+    /**
+     * @param LoggerInterface $logger
+     * @param FilesystemIoSftp $sftp
+     */
     public function __construct(
-        \Magento\Framework\App\Helper\Context $context,
-        \Magento\Framework\Filesystem\Io\Sftp $sftp
+        LoggerInterface $logger,
+        FilesystemIoSftp $sftp
     ) {
-        $this->sftp = $sftp;
-        $this->logger = $context->getLogger();
-        parent::__construct(
-            $context
-        );
+        $this->logger = $logger;
+        $this->sftp   = $sftp;
     }
+
     public function send($host, $port, $username, $password, $filename, $payload, $directory = null)
     {
         $path = '/' . ($directory?$directory.'/':'') . $filename;

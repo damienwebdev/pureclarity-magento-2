@@ -1,76 +1,107 @@
 <?php
+/**
+ * Copyright © PureClarity. All rights reserved.
+ * See LICENSE.txt for license details.
+ */
 
 namespace Pureclarity\Core\Helper;
 
+use Magento\Framework\Session\SessionManagerInterface;
+use Magento\Framework\Stdlib\Cookie\CookieMetadataFactory;
+use Magento\Framework\Stdlib\CookieManagerInterface;
+use Magento\Store\Model\StoreManagerInterface;
+use Psr\Log\LoggerInterface;
+use Pureclarity\Core\Helper\Service\Url;
+use Pureclarity\Core\Model\CoreConfig;
 use Zend\Http\Client;
-use Zend\Http\Request;
 use Zend\Json\Json;
 
 /**
+ * Class Service
+ *
  * Helper class for core service functions.
  */
-
-class Service extends \Magento\Framework\App\Helper\AbstractHelper
+class Service
 {
-    protected $logger;
-    protected $registry;
-    protected $coreHelper;
-    protected $storeManager;
-    protected $cookieManager;
-    protected $sessionManager;
-    protected $checkoutSession;
-    protected $productCollection;
-    protected $action;
-    protected $zones = [];
-    protected $events = [];
-    protected $dispatched = false;
-    protected $result;
-    protected $isCategory = false;
-    protected $category;
-    protected $query = null;
-    protected $sort = null;
-    protected $size = null;
-    protected $catalogSearchHelper;
-    protected $toolBar;
-    protected $request;
-    protected $responseFactory;
-    
-    /** @var \Pureclarity\Core\Helper\Service\CustomerDetails */
-    private $customerDetails;
+    /** @var string $action */
+    private $action;
 
+    /** @var string[] $zones */
+    private $zones = [];
+
+    /** @var string[] $events */
+    private $events = [];
+
+    /** @var boolean $dispatched */
+    private $dispatched = false;
+
+    /** @var mixed[] $result */
+    private $result;
+
+    /** @var boolean $isCategory */
+    private $isCategory = false;
+
+    /** @var string $query */
+    private $query = null;
+
+    /** @var string $sort */
+    private $sort = null;
+
+    /** @var string $size */
+    private $size = null;
+
+    /** @var LoggerInterface $logger */
+    private $logger;
+
+    /** @var Data $coreHelper */
+    private $coreHelper;
+
+    /** @var StoreManagerInterface $storeManager */
+    private $storeManager;
+
+    /** @var CookieManagerInterface $cookieManager */
+    private $cookieManager;
+
+    /** @var SessionManagerInterface $sessionManager */
+    private $sessionManager;
+
+    /** @var CookieMetadataFactory $cookieMetadataFactory */
+    private $cookieMetadataFactory;
+
+    /** @var CoreConfig $coreConfig */
+    private $coreConfig;
+
+    /** @var Url $serviceUrl */
+    private $serviceUrl;
+
+    /**
+     * @param LoggerInterface $logger
+     * @param Data $coreHelper
+     * @param StoreManagerInterface $storeManager
+     * @param CookieManagerInterface $cookieManager
+     * @param SessionManagerInterface $sessionManager
+     * @param CookieMetadataFactory $cookieMetadataFactory
+     * @param CoreConfig $coreConfig
+     * @param Url $serviceUrl
+     */
     public function __construct(
-        \Magento\Framework\App\Helper\Context $context,
-        \Magento\Checkout\Model\Session $checkoutSession,
-        \Pureclarity\Core\Helper\Data $coreHelper,
-        \Magento\Store\Model\StoreManagerInterface $storeManager,
-        \Magento\Framework\Stdlib\CookieManagerInterface $cookieManager,
-        \Magento\Framework\Session\SessionManagerInterface $sessionManager,
-        \Magento\Framework\Stdlib\Cookie\CookieMetadataFactory $cookieMetadataFactory,
-        \Magento\Catalog\Model\ResourceModel\Product\CollectionFactory $productCollection,
-        \Magento\CatalogSearch\Helper\Data $catalogSearchHelper,
-        \Magento\Catalog\Model\Product\ProductList\Toolbar $toolBar,
-        \Magento\Framework\App\Request\Http $request,
-        \Magento\Framework\Registry $registry,
-        \Magento\Framework\App\ResponseFactory $responseFactory,
-        \Pureclarity\Core\Helper\Service\CustomerDetails $customerDetails
+        LoggerInterface $logger,
+        Data $coreHelper,
+        StoreManagerInterface $storeManager,
+        CookieManagerInterface $cookieManager,
+        SessionManagerInterface $sessionManager,
+        CookieMetadataFactory $cookieMetadataFactory,
+        CoreConfig $coreConfig,
+        Url $serviceUrl
     ) {
-        $this->logger = $context->getLogger();
-        $this->registry = $registry;
-        $this->coreHelper = $coreHelper;
-        $this->storeManager = $storeManager;
-        $this->cookieManager = $cookieManager;
-        $this->sessionManager = $sessionManager;
+        $this->logger                = $logger;
+        $this->coreHelper            = $coreHelper;
+        $this->storeManager          = $storeManager;
+        $this->cookieManager         = $cookieManager;
+        $this->sessionManager        = $sessionManager;
         $this->cookieMetadataFactory = $cookieMetadataFactory;
-        $this->checkoutSession = $checkoutSession;
-        $this->productCollection = $productCollection;
-        $this->catalogSearchHelper = $catalogSearchHelper;
-        $this->toolBar = $toolBar;
-        $this->request = $request;
-        $this->responseFactory = $responseFactory;
-        $this->customerDetails = $customerDetails;
-
-        $this->category = $this->registry->registry('current_category');
-        parent::__construct($context);
+        $this->coreConfig            = $coreConfig;
+        $this->serviceUrl            = $serviceUrl;
     }
 
     public function setAction($action)
@@ -79,11 +110,6 @@ class Service extends \Magento\Framework\App\Helper\AbstractHelper
             return;
         }
         $this->action = $action;
-    }
-
-    public function addZone($zoneId)
-    {
-        $this->zones[] = [ "id" => $zoneId ];
     }
 
     public function addTrackingEvent($event, $data)
@@ -97,85 +123,15 @@ class Service extends \Magento\Framework\App\Helper\AbstractHelper
         $this->events[] = $newEvent;
     }
 
-    public function addSearch($isCategory = false, $query = null, $sort = null, $size = null)
-    {
-        $this->isCategory = $isCategory;
-        $this->query = $query;
-        $this->sort = $sort;
-        $this->size = $size;
-    }
-
-
-    public function processSearch()
-    {
-        $this->isCategory = $this->isCategoryPage();
-        if (($this->coreHelper->isSearchActive() &&
-            ($this->coreHelper->isServerSide() || $this->coreHelper->seoSearchFriendly()) &&
-            (
-                ($this->isCategory && !empty($this->category) && $this->category->getId() && $this->coreHelper->isProdListingActive()) ||
-                $this->isSearchPage())
-            )) {
-                $this->query = $this->isCategoryPage()?$this->category->getId():$this->catalogSearchHelper->getEscapedQueryText();
-                $sortOrder = $this->toolBar->getOrder();
-                $sortDirection = $this->toolBar->getDirection();
-                $this->size = $this->coreHelper->isServerSide()?"2000":null;
-                $this->sort = 0;
-            if ($sortOrder || $sortDirection) {
-                $sortOrder = $sortOrder?$sortOrder:'relevance';
-                $sortDirection = $sortDirection?$sortDirection:'desc';
-                $sort = $sortOrder . '_' . $sortDirection;
-                switch ($sort) {
-                    case "price_asc":
-                        $this->sort = 1;
-                        break;
-                    case "price_desc":
-                        $this->sort = 2;
-                        break;
-                    case "name_asc":
-                        $this->sort = 3;
-                        break;
-                    case "name_desc":
-                        $this->sort = 4;
-                        break;
-                }
-            }
-        }
-    }
-
     public function dispatch($isMagentoAdminCall = false)
     {
         if ($this->dispatched ||
-            (!$this->action && !$isMagentoAdminCall) ||
-            (!$this->coreHelper->isServerSide() && !$this->coreHelper->seoSearchFriendly() && !$isMagentoAdminCall)) {
+            (!$this->action && !$isMagentoAdminCall)) {
             return;
         }
         
-        $this->processSearch();
-
         $this->dispatched = true;
 
-        // Check we're running serverside, and if so add any required events.
-        if (!$isMagentoAdminCall && $this->coreHelper->isServerSide()) {
-            $product = $this->registry->registry("product");
-            if ($product != null) {
-                $this->addTrackingEvent("product_view", ["id"=>$product->getId()]);
-            }
-
-            switch ($this->action) {
-                case "customer_account_logoutSuccess":
-                    $this->addTrackingEvent('customer_logout');
-                    break;
-                case "checkout_onepage_success":
-                    $this->addTrackingEvent('order_track', $this->coreHelper->getOrderForTracking());
-                    break;
-            }
-            
-            $customerDetails = $this->customerDetails->getCustomerDetails();
-            if ($customerDetails['trigger'] === true) {
-                $this->addTrackingEvent('customer_details', $customerDetails['customer']);
-            }
-        }
-        
         // Set up Request
         $storeId = $this->coreHelper->getStoreId();
 
@@ -185,8 +141,8 @@ class Service extends \Magento\Framework\App\Helper\AbstractHelper
         }
 
         $requestBody = [
-            "appId" => $this->coreHelper->getAccessKey($storeId),
-            "secretKey" => $this->coreHelper->getSecretKey($storeId),
+            "appId" => $this->coreConfig->getAccessKey($storeId),
+            "secretKey" => $this->coreConfig->getSecretKey($storeId),
             "events" => $this->events,
             "zones" => $this->zones
         ];
@@ -245,7 +201,7 @@ class Service extends \Magento\Framework\App\Helper\AbstractHelper
     public function executeRequest($storeId, $requestBody)
     {
         // Set Url
-        $url = $this->coreHelper->getServerSideEndpoint($storeId);
+        $url = $this->serviceUrl->getServerSideEndpoint($this->coreConfig->getRegion($storeId));
         
         // Build request
         $client = new Client($url);
@@ -268,7 +224,9 @@ class Service extends \Magento\Framework\App\Helper\AbstractHelper
             $this->result = json_decode($response->getBody(), true);
         
             if (array_key_exists('errors', $this->result)) {
-                $this->logger->error('PURECLARITY ERROR: Errors return from PureClarity - ' . var_export($this->result['errors'], true));
+                $this->logger->error(
+                    'PURECLARITY ERROR: Errors return from PureClarity - ' . var_export($this->result['errors'], true)
+                );
                 return;
             }
         
@@ -279,7 +237,10 @@ class Service extends \Magento\Framework\App\Helper\AbstractHelper
                 $this->setCookie('pc_sessid', $this->result['sessionId'], 300);
             }
         } catch (\Exception $e) {
-            $this->logger->error('PURECLARITY ERROR: There was a problem communicating with the PureClarity Endpoint: ' . $e->getMessage());
+            $this->logger->error(
+                'PURECLARITY ERROR: There was a problem communicating with the PureClarity Endpoint: '
+                . $e->getMessage()
+            );
         }
     }
 
@@ -296,44 +257,5 @@ class Service extends \Magento\Framework\App\Helper\AbstractHelper
             $value,
             $metadata
         );
-    }
-
-    public function getResult()
-    {
-        return $this->result;
-    }
-
-    public function updateSearchResult($searchResult)
-    {
-        $this->result['search'] = $searchResult;
-    }
-
-    public function getSearchResult()
-    {
-        if($this->result && 
-            isset($this->result['search']) && 
-            isset($this->result['search']['redirectUrl']) && 
-            !empty($this->result['search']['redirectUrl'])
-        ) {
-            $this->responseFactory->create()->setRedirect($this->result['search']['redirectUrl'])->sendResponse();
-        }
-        
-        if ($this->result &&
-            array_key_exists('search', $this->result) &&
-            array_key_exists('products', $this->result['search'])) {
-            return $this->result['search'];
-        }
-        return null;
-    }
-
-
-    private function isCategoryPage()
-    {
-        return ($this->request->getControllerName() == 'category');
-    }
-
-    private function isSearchPage()
-    {
-        return $this->request->getFullActionName() == 'catalogsearch_result_index';
     }
 }

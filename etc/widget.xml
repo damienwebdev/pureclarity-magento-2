@@ -1,28 +1,34 @@
 <?xml version="1.0" encoding="UTF-8"?>
+<!--
+/**
+ * Copyright © PureClarity. All rights reserved.
+ * See LICENSE.txt for license details.
+ */
+-->
 <widgets xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="urn:magento:module:Magento_Widget:etc/widget.xsd">
  <widget id="pureclarity_core_bmz" class="Pureclarity\Core\Block\Bmz" placeholder_image="Pureclarity_Core::images/pureclarity.png">
-     <label translate="true">PureClarity BMZ</label>
-     <description>PureClarity BMZ Area</description>
+     <label translate="true">PureClarity Zone</label>
+     <description>PureClarity Zone</description>
      <parameters>
         <parameter name="bmz_id" xsi:type="text" required="true" visible="true">
-            <label translate="true">BMZ Id</label>
-            <description translate="true">Set the BMZ ID that references the ID in the PureClarity Admin.</description>
+            <label translate="true">Zone ID</label>
+            <description translate="true">Set the Zone ID that references the ID in the PureClarity Admin.</description>
         </parameter>
         <parameter name="bmz_fallback_cms_block" xsi:type="text" required="false" visible="true">
             <label translate="true">Fallback Block Id</label>
-            <description translate="true">You can set an alternative Block to be displayed should a PureClarity BMZ not have any content to display.</description>
+            <description translate="true">You can set an alternative Block to be displayed should a PureClarity Zone not have any content to display.</description>
         </parameter>
         <parameter name="pc_bmz_display_mode" xsi:type="select" visible="true" source_model="Pureclarity\Core\Model\BmzDisplayMode">
-            <label translate="true">BMZ Display Mode</label>
-            <description translate="true">Select the display mode for the BMZ. Display mode settings are controlled using responsive style classes to decide when to show based on the page width.</description>
+            <label translate="true">Zone Display Mode</label>
+            <description translate="true">Select the display mode for the Zone. Display mode settings are controlled using responsive style classes to decide when to show based on the page width.</description>
         </parameter>
         <parameter name="pc_bmz_buffer" xsi:type="select" visible="true" source_model="Magento\Config\Model\Config\Source\Yesno">
             <label translate="true">Apply margin</label>
-            <description translate="true">Apply a margin to the top and bottom of the BMZ.</description>
+            <description translate="true">Apply a margin to the top and bottom of the Zone.</description>
         </parameter>
         <parameter name="pc_bmz_classes" xsi:type="text" required="false" visible="true">
             <label translate="true">CSS Custom Classes</label>
-            <description translate="true">Type in a comma-separated list of additional CSS classes to add to the PureClarity BMZ.</description>
+            <description translate="true">Type in a comma-separated list of additional CSS classes to add to the PureClarity Zone.</description>
         </parameter>
      </parameters>
  </widget>

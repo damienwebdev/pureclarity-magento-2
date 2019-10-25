@@ -1,5 +1,10 @@
 <?xml version="1.0"?>
- 
+<!--
+/**
+ * Copyright © PureClarity. All rights reserved.
+ * See LICENSE.txt for license details.
+ */
+-->
 <config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="urn:magento:framework:ObjectManager/etc/config.xsd">
     <virtualType name="Pureclarity\Core\ImageUpload" type="Magento\Catalog\Model\ImageUploader">
         <arguments>
@@ -52,5 +57,8 @@
             <argument name="customerSession" xsi:type="object">Magento\Customer\Model\Session\Proxy</argument>
         </arguments>
     </type>
-    
+
+    <preference for="Pureclarity\Core\Api\StateRepositoryInterface" type="Pureclarity\Core\Model\StateRepository"/>
+    <preference for="Pureclarity\Core\Api\Data\StateInterface" type="Pureclarity\Core\Model\State"/>
+
 </config>

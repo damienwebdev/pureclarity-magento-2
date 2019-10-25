@@ -1,21 +1,31 @@
 <?php
+/**
+ * Copyright © PureClarity. All rights reserved.
+ * See LICENSE.txt for license details.
+ */
 
 namespace Pureclarity\Core\Model\Indexer;
 
-class Category implements \Magento\Framework\Indexer\ActionInterface, \Magento\Framework\Mview\ActionInterface
+use Magento\Framework\Indexer\ActionInterface;
+use Magento\Framework\Mview\ActionInterface as MviewActionInterface;
+use Pureclarity\Core\Model\ProductFeedFactory;
+
+/**
+ * Class Category
+ *
+ * PureClarity Category indexer
+ */
+class Category implements ActionInterface, MviewActionInterface
 {
+    /** @var ProductFeedFactory $productFeedFactory */
+    private $productFeedFactory;
 
-    protected $logger;
-    protected $coreHelper;
-    protected $productFeedFactory;
-
+    /**
+     * @param ProductFeedFactory $productFeedFactory
+     */
     public function __construct(
-        \Psr\Log\LoggerInterface $logger,
-        \Pureclarity\Core\Helper\Data $coreHelper,
-        \Pureclarity\Core\Model\ProductFeedFactory $productFeedFactory
+        ProductFeedFactory $productFeedFactory
     ) {
-        $this->logger = $logger;
-        $this->coreHelper = $coreHelper;
         $this->productFeedFactory = $productFeedFactory;
     }
 
@@ -33,7 +43,6 @@ class Category implements \Magento\Framework\Indexer\ActionInterface, \Magento\F
         );
         $deltaProduct->save();
     }
-
 
     public function executeFull()
     {

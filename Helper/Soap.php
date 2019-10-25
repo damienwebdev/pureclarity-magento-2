@@ -1,18 +1,37 @@
 <?php
+/**
+ * Copyright © PureClarity. All rights reserved.
+ * See LICENSE.txt for license details.
+ */
+
 namespace Pureclarity\Core\Helper;
 
+use Psr\Log\LoggerInterface;
+
+/**
+ * Class Soap
+ *
+ * Handles SOAP requests for PureClarity
+ */
 class Soap
 {
-    
     const LOG_FILE = "pureclarity_soap.log";
-    protected $logger;
-    protected $coreHelper;
 
+    /** @var LoggerInterface $logger */
+    private $logger;
+
+    /** @var Data $coreHelper */
+    private $coreHelper;
+
+    /**
+     * @param LoggerInterface $logger
+     * @param Data $coreHelper
+     */
     public function __construct(
-        \Psr\Log\LoggerInterface $logger,
-        \Pureclarity\Core\Helper\Data $coreHelper
+        LoggerInterface $logger,
+        Data $coreHelper
     ) {
-        $this->logger = $logger;
+        $this->logger     = $logger;
         $this->coreHelper = $coreHelper;
     }
     public function request($url, $useSSL, $payload = null)
@@ -29,13 +48,16 @@ class Soap
         if ($payload != null) {
             curl_setopt($soap_do, CURLOPT_POST, true);
             curl_setopt($soap_do, CURLOPT_POSTFIELDS, $payload);
-            curl_setopt($soap_do, CURLOPT_HTTPHEADER, ['Content-Type: application/json', 'Content-Length: ' . strlen($payload)]);
+            curl_setopt(
+                $soap_do,
+                CURLOPT_HTTPHEADER,
+                ['Content-Type: application/json', 'Content-Length: ' . strlen($payload)]
+            );
         } else {
             curl_setopt($soap_do, CURLOPT_POST, false);
         }
 
         curl_setopt($soap_do, CURLOPT_FAILONERROR, true);
-        curl_setopt($soap_do, CURLOPT_VERBOSE, true);
 
         if (!$result = curl_exec($soap_do)) {
             $this->logger->debug('PURECLARITY DELTA ERROR: '.curl_error($soap_do));

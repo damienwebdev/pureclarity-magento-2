@@ -1,4 +1,10 @@
 <?xml version="1.0" encoding="UTF-8"?>
+<!--
+/**
+ * Copyright © PureClarity. All rights reserved.
+ * See LICENSE.txt for license details.
+ */
+-->
 <form xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="urn:magento:module:Magento_Ui:etc/ui_configuration.xsd">
 	<fieldset name="pureclarity">
         <argument name="data" xsi:type="array">
@@ -21,7 +27,7 @@
                     <item name="required" xsi:type="boolean">false</item>
  	                <item name="sortOrder" xsi:type="number">40</item>
                     <item name="uploaderConfig" xsi:type="array">
-                        <item name="url" xsi:type="url" path="adminhtml/image/upload/attribute_code/pureclarity_category_image"/>
+                        <item name="url" xsi:type="url" path="pureclarity/image/upload/attribute_code/pureclarity_category_image"/>
                     </item>
                 </item>
             </argument>

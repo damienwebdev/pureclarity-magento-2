@@ -1,4 +1,10 @@
-<?php if($this->isActive()): ?>
+<?php
+/**
+ * Copyright © PureClarity. All rights reserved.
+ * See LICENSE.txt for license details.
+ */
+/** @var \Pureclarity\Core\Block\Configuration $block */ ?>
+<?php if ($block->isActive()): ?>
 
     <div data-bind="scope: 'customerdetails'" style="display:none">
         <!-- ko if: renderTrackingEvents--><!-- /ko -->

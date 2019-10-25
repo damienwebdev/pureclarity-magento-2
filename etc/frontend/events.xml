@@ -1,11 +1,11 @@
 <?xml version="1.0"?>
+<!--
+/**
+ * Copyright © PureClarity. All rights reserved.
+ * See LICENSE.txt for license details.
+ */
+-->
 <config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="urn:magento:framework:Event/etc/events.xsd">
-    <event name="layout_load_before">
-        <observer name="pureclarity_injection" instance="Pureclarity\Core\Model\Observer" />
-    </event>
-    <event name="controller_action_postdispatch">
-        <observer name="pureclarity_postdispatch" instance="Pureclarity\Core\Model\PostDispatchObserver" />
-    </event>
     <event name="customer_login">
         <observer name="pureclarity_login_observer" instance="Pureclarity\Core\Observer\CustomerLogin" />
     </event>

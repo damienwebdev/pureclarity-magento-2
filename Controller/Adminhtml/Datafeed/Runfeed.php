@@ -1,31 +1,59 @@
 <?php
+/**
+ * Copyright © PureClarity. All rights reserved.
+ * See LICENSE.txt for license details.
+ */
+
 namespace Pureclarity\Core\Controller\Adminhtml\Datafeed;
 
-class Runfeed extends \Magento\Backend\App\Action
+use Magento\Backend\App\Action;
+use Magento\Backend\App\Action\Context;
+use Magento\Framework\App\Response\Http;
+use Magento\Store\Model\StoreManagerInterface;
+use Pureclarity\Core\Model\CronFactory;
+
+/**
+ * Class Runfeed
+ *
+ * controller for pureclarity/dashboard/runfeed POST request
+ */
+class Runfeed extends Action
 {
+    /** @var CronFactory $coreCronFactory */
+    private $coreCronFactory;
 
-    protected $coreCronFactory;
-    protected $coreHelper;
+    /** @var StoreManagerInterface $storeManager */
+    private $storeManager;
 
+    /**
+     * @param Context $context
+     * @param CronFactory $coreCronFactory
+     * @param StoreManagerInterface $storeManager
+     */
     public function __construct(
-        \Magento\Backend\App\Action\Context $context,
-        \Pureclarity\Core\Model\CronFactory $coreCronFactory,
-        \Pureclarity\Core\Helper\Data $coreHelper
+        Context $context,
+        CronFactory $coreCronFactory,
+        StoreManagerInterface $storeManager
     ) {
         $this->coreCronFactory = $coreCronFactory;
-        $this->coreHelper = $coreHelper;
+        $this->storeManager    = $storeManager;
         parent::__construct(
             $context
         );
     }
-
     
     public function execute()
     {
-        session_write_close();
-        
         try {
             $storeId =  (int)$this->getRequest()->getParam('storeid');
+
+            if ($storeId === 0) {
+                $store = $this->storeManager->getDefaultStoreView();
+                if ($store) {
+                    $storeId = $store->getId();
+                }
+            }
+
             $model = $this->coreCronFactory->create();
             $feeds = [];
             if ($this->getRequest()->getParam('product') == 'true') {
@@ -47,7 +75,7 @@ class Runfeed extends \Magento\Backend\App\Action
         } catch (\Exception $e) {
             $this->getResponse()
                 ->clearHeaders()
-            ->setStatusCode(\Magento\Framework\App\Response\Http::STATUS_CODE_500)
+            ->setStatusCode(Http::STATUS_CODE_500)
                 ->setHeader('Content-type', 'text/html')
                 ->setBody($e->getMessage());
         }

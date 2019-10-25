@@ -1,18 +1,31 @@
 <?php
+/**
+ * Copyright © PureClarity. All rights reserved.
+ * See LICENSE.txt for license details.
+ */
 
 namespace Pureclarity\Core\CustomerData;
 
-class Customer implements \Magento\Customer\CustomerData\SectionSourceInterface
-{
-    protected $customerSession;
-    protected $logger;
+use Magento\Customer\CustomerData\SectionSourceInterface;
+use Magento\Customer\Model\Session;
 
+/**
+ * Class Customer
+ *
+ * Data model for PureClarity customer-details event (see frontend/section.xml for usages)
+ */
+class Customer implements SectionSourceInterface
+{
+    /** @var Session $customerSession */
+    private $customerSession;
+
+    /**
+     * @param Session $customerSession
+     */
     public function __construct(
-        \Psr\Log\LoggerInterface $logger,
-        \Magento\Customer\Model\Session $customerSession
+        Session $customerSession
     ) {
         $this->customerSession = $customerSession;
-        $this->logger = $logger;
     }
     
     public function getSectionData()

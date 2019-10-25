@@ -10,34 +10,46 @@ use Magento\Framework\Event\Observer;
 use Magento\Framework\Event\ObserverInterface;
 use Magento\Customer\Model\Session;
 use Pureclarity\Core\Helper\Data;
+use Pureclarity\Core\Model\CoreConfig;
 
+/**
+ * Class CustomerLogin
+ *
+ * Customer login observer, stores session details for login tracking
+ */
 class CustomerLogin implements ObserverInterface
 {
-    /** @var \Magento\Customer\Model\Session */
+    /** @var Session */
     private $customerSession;
     
-    /** @var \Pureclarity\Core\Helper\Data */
+    /** @var Data */
     private $coreHelper;
 
+    /** @var CoreConfig */
+    private $coreConfig;
+
     /**
-     * @param \Magento\Customer\Model\Session $customerSession
-     * @param \Magento\Customer\Model\Data $coreHelper
+     * @param Session $customerSession
+     * @param Data $coreHelper
+     * @param CoreConfig $coreConfig
      */
     public function __construct(
         Session $customerSession,
-        Data $coreHelper
+        Data $coreHelper,
+        CoreConfig $coreConfig
     ) {
         $this->customerSession = $customerSession;
         $this->coreHelper      = $coreHelper;
+        $this->coreConfig      = $coreConfig;
     }
 
     /**
-     * @param \Magento\Framework\Event\Observer $observer
+     * @param Observer $observer
      * @return void
      */
     public function execute(Observer $observer)
     {
-        if ($this->coreHelper->isActive($this->coreHelper->getStoreId())) {
+        if ($this->coreConfig->isActive($this->coreHelper->getStoreId())) {
             $this->customerSession->setPureclarityTriggerCustomerDetails(true);
         }
     }

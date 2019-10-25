@@ -1,4 +1,8 @@
 <?php
+/**
+ * Copyright © PureClarity. All rights reserved.
+ * See LICENSE.txt for license details.
+ */
 
 namespace Pureclarity\Core\Model\Product;
 
@@ -12,31 +16,41 @@ use Magento\Framework\UrlFactory;
 use Magento\Store\Model\StoreManagerInterface;
 use Magento\UrlRewrite\Model\UrlFinderInterface;
 use Magento\UrlRewrite\Service\V1\Data\UrlRewrite;
+use Magento\Catalog\Model\Product\Url as ProductUrl;
 
-use \Psr\Log\LoggerInterface;
-
-class Url extends \Magento\Catalog\Model\Product\Url
+/**
+ * Class Url
+ *
+ * Override of Product URL generation
+ */
+class Url extends ProductUrl
 {
-    const FRONTEND_URL = 'Magento\Framework\Url';
-    const BACKEND_URL = 'Magento\Backend\Model\Url';
-
-    protected $logger;
-
+    /** @var BackendUrl $backendUrl */
     private $backendUrl;
+
+    /** @var FrontendUrl $frontendUrl */
     private $frontendUrl;
 
+    /**
+     * @param UrlFactory $urlFactory
+     * @param StoreManagerInterface $storeManager
+     * @param FilterManager $filter
+     * @param SidResolverInterface $sidResolver
+     * @param UrlFinderInterface $urlFinder
+     * @param BackendUrl $backendUrl
+     * @param FrontendUrl $frontendUrl
+     * @param array $data
+     */
     public function __construct(
         UrlFactory $urlFactory,
         StoreManagerInterface $storeManager,
         FilterManager $filter,
         SidResolverInterface $sidResolver,
         UrlFinderInterface $urlFinder,
-        LoggerInterface $logger,
         BackendUrl $backendUrl,
         FrontendUrl $frontendUrl,
         array $data = []
     ) {
-        $this->logger = $logger;
         $this->backendUrl = $backendUrl;
         $this->frontendUrl = $frontendUrl;
         parent::__construct($urlFactory, $storeManager, $filter, $sidResolver, $urlFinder, $data);
@@ -53,15 +67,14 @@ class Url extends \Magento\Catalog\Model\Product\Url
         $routeUrl = '';
         $routeParameters = $parameters;
         $storeId = $sourceProduct->getStoreId();
-        $categoryId = $this->getCategoryId( $parameters, $sourceProduct );
+        $categoryId = $this->getCategoryId($parameters, $sourceProduct);
 
-        if ( $sourceProduct->hasUrlDataObject() ) {
+        if ($sourceProduct->hasUrlDataObject()) {
             $routeParameters['_scope'] = $sourceProduct->getUrlDataObject()->getStoreId();
             $requestUrl = $sourceProduct->getUrlDataObject()->getUrlRewrite();
-        } 
-        else {
+        } else {
             $requestUrl = $sourceProduct->getRequestPath();
-            if ( empty( $requestUrl ) && $requestUrl !== false ) {
+            if (empty($requestUrl) && $requestUrl !== false) {
                 $searchData = [];
                 $searchData[UrlRewrite::ENTITY_ID] = $sourceProduct->getId();
                 $searchData[UrlRewrite::ENTITY_TYPE] = ProductUrlRewriteGenerator::ENTITY_TYPE;
@@ -70,41 +83,39 @@ class Url extends \Magento\Catalog\Model\Product\Url
                     $searchData[UrlRewrite::METADATA]['category_id'] = $categoryId;
                 }
                 $urlRewrite = $this->urlFinder->findOneByData($searchData);
-                if ( $urlRewrite ) {
+                if ($urlRewrite) {
                     $requestUrl = $urlRewrite->getRequestPath();
-                    $sourceProduct->setRequestPath( $requestUrl );
-                } 
-                else {
-                    $sourceProduct->setRequestPath( false );
+                    $sourceProduct->setRequestPath($requestUrl);
+                } else {
+                    $sourceProduct->setRequestPath(false);
                 }
             }
         }
 
-        if ( isset( $routeParameters['_scope'] ) ) {
-            $storeId = $this->storeManager->getStore( $routeParameters['_scope'] )->getId();
+        if (isset($routeParameters['_scope'])) {
+            $storeId = $this->storeManager->getStore($routeParameters['_scope'])->getId();
         }
 
         // if ( $storeId != $this->storeManager->getStore()->getId() ) {
         //     $routeParameters['_scope_to_url'] = true;
         // }
 
-        if ( ! empty( $requestUrl ) ) {
+        if (! empty($requestUrl)) {
             $routeUrl = $requestUrl;
-        } 
-        else {
+        } else {
             $routeUrl = 'catalog/product/view';
             $routeParameters['id'] = $sourceProduct->getId();
             $routeParameters['s'] = $sourceProduct->getUrlKey();
-            if ( $categoryId ) {
+            if ($categoryId) {
                 $routeParameters['category'] = $categoryId;
             }
         }
 
-        if ( ! isset( $routeParameters['_query'] ) ) {
+        if (! isset($routeParameters['_query'])) {
             $routeParameters['_query'] = [];
         }
 
-        return $this->getStoreScopeUrlInstance( $storeId )->getUrl( $routeUrl, $routeParameters );
+        return $this->getStoreScopeUrlInstance($storeId)->getUrl($routeUrl, $routeParameters);
     }
 
     public function getStoreScopeUrlInstance($storeId)
@@ -112,11 +123,11 @@ class Url extends \Magento\Catalog\Model\Product\Url
         return ( $storeId == 0 ? $this->backendUrl : $this->frontendUrl );
     }
 
-    private function getCategoryId($parameters, $sourceProduct) 
+    private function getCategoryId($parameters, $sourceProduct)
     {
         $categoryId = null;
 
-        if ( ! isset( $parameters['_ignore_category'] )  
+        if (! isset($parameters['_ignore_category'])
             && ! $sourceProduct->getDoNotUseCategoryId()
             && $sourceProduct->getCategoryId() ) {
             $categoryId = $sourceProduct->getCategoryId();

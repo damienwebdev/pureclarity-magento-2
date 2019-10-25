@@ -1,4 +1,9 @@
 <?php
+/**
+ * Copyright © PureClarity. All rights reserved.
+ * See LICENSE.txt for license details.
+ */
+
 namespace Pureclarity\Core\Setup;
  
 use Magento\Catalog\Model\Category;
@@ -9,32 +14,33 @@ use Magento\Framework\Setup\ModuleContextInterface;
 use Magento\Framework\Setup\ModuleDataSetupInterface;
 use Magento\Framework\Setup\InstallDataInterface;
 
+/**
+ * Class InstallData
+ *
+ * Installs attributes required for PureClarity.
+ */
 class InstallData implements InstallDataInterface
 {
-    /**
-     * Entity attribute value setup factory
-     *
-     * @var Magento\Eav\Setup\EavSetupFactory
-     */
+    /** @var EavSetupFactory $eavSetupFactory */
     private $eavSetupFactory;
  
     /**
-     * Constructor to inject dependencies into class.
-     *
-     * @param Magento\Eav\Setup\EavSetupFactory $eavSetupFactory Entity attribute value setup factory
+     * @param EavSetupFactory $eavSetupFactory
      */
     public function __construct(EavSetupFactory $eavSetupFactory)
     {
         $this->eavSetupFactory = $eavSetupFactory;
     }
- 
+
     /**
      * Installs attributes required for PureClarity.
      *
-     * @param ModuleDataSetupInterface $setup   Module data setup interface
-     * @param ModuleContextInterface   $context Module context interface
+     * @param ModuleDataSetupInterface $setup Module data setup interface
+     * @param ModuleContextInterface $context Module context interface
      *
      * @return void
+     * @throws \Magento\Framework\Exception\LocalizedException
+     * @throws \Zend_Validate_Exception
      */
     public function install(
         ModuleDataSetupInterface $setup,
@@ -48,7 +54,6 @@ class InstallData implements InstallDataInterface
             ]
         );
 
-
         /*
          * Magento 2 does not properly support category attributes until version 2.1 or above
          * so don't install them if on 2.0
@@ -56,7 +61,7 @@ class InstallData implements InstallDataInterface
 
         $isMagento20 = defined("\\Magento\\Framework\\AppInterface::VERSION");
 
-        if(! $isMagento20){
+        if (! $isMagento20) {
  
             // Add PureClarity CATEGORY Attribute group
             $eavSetup->addAttributeGroup(

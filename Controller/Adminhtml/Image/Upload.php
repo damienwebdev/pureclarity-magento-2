@@ -1,18 +1,23 @@
 <?php
+/**
+ * Copyright © PureClarity. All rights reserved.
+ * See LICENSE.txt for license details.
+ */
+
 namespace Pureclarity\Core\Controller\Adminhtml\Image;
 
+use Magento\Backend\App\Action;
 use Magento\Framework\Controller\ResultFactory;
- 
-class Upload extends \Magento\Backend\App\Action
+
+/**
+ * Class Upload
+ *
+ * controller for pureclarity/image/upload POST request
+ */
+class Upload extends Action
 {
     protected $imageUploader;
     protected $logger;
- 
-    public function __construct(
-        \Magento\Backend\App\Action\Context $context
-    ) {
-        parent::__construct($context);
-    }
  
     protected function _isAllowed()
     {
@@ -30,8 +35,8 @@ class Upload extends \Magento\Backend\App\Action
             
             $basePath = 'catalog/' . $attributeCode;
             /*
-             * Using object manager rather than instantiating \Magento\Catalog\Model\ImageUploader in constructor, 
-             * as class does not exist on Magento 2.0, potentially causing setup:di:compile errors. 
+             * Using object manager rather than instantiating \Magento\Catalog\Model\ImageUploader in constructor,
+             * as class does not exist on Magento 2.0, potentially causing setup:di:compile errors.
              * Creating the Pureclarity\Core\ImageUpload class here, as it then uses arguments set in di.xml rather
              * than needing to e.g. pass in baseTmpPath here.
              */
