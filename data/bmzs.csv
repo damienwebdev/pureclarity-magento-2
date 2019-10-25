@@ -1,11 +1,11 @@
 type_code,title,bmz_id,sort_order,page_group,group_data,bmz_buffer
-pureclarity_core_bmz,"PC BMZ HP-01",HP-01,0,pages,"{""block"":""content.top"",""layout_handle"":""cms_index_index""}",false
-pureclarity_core_bmz,"PC BMZ HP-02",HP-02,1,pages,"{""block"":""content.bottom"",""layout_handle"":""cms_index_index""}",false
-pureclarity_core_bmz,"PC BMZ HP-03",HP-03,2,pages,"{""block"":""content.bottom"",""layout_handle"":""cms_index_index""}",false
-pureclarity_core_bmz,"PC BMZ HP-04",HP-04,3,pages,"{""block"":""content.bottom"",""layout_handle"":""cms_index_index""}",false
-pureclarity_core_bmz,"PC BMZ PP-01",PP-01,0,all_products,"{""block"":""content.bottom""}",false
-pureclarity_core_bmz,"PC BMZ PP-02",PP-02,1,all_products,"{""block"":""content.bottom""}",false
-pureclarity_core_bmz,"PC BMZ BP-01",BP-01,0,pages,"{""block"":""content.bottom"",""layout_handle"":""checkout_cart_index""}",false
-pureclarity_core_bmz,"PC BMZ BP-02",BP-02,1,pages,"{""block"":""content.bottom"",""layout_handle"":""checkout_cart_index""}",false
-pureclarity_core_bmz,"PC BMZ OC-01",OC-01,0,pages,"{""block"":""content.bottom"",""layout_handle"":""checkout_onepage_success""}",true
-pureclarity_core_bmz,"PC BMZ OC-02",OC-02,1,pages,"{""block"":""content.bottom"",""layout_handle"":""checkout_onepage_success""}",false
+pureclarity_core_bmz,"PC Zone HP-01",HP-01,0,pages,"{""block"":""content.top"",""layout_handle"":""cms_index_index""}",false
+pureclarity_core_bmz,"PC Zone HP-02",HP-02,1,pages,"{""block"":""content.bottom"",""layout_handle"":""cms_index_index""}",false
+pureclarity_core_bmz,"PC Zone HP-03",HP-03,2,pages,"{""block"":""content.bottom"",""layout_handle"":""cms_index_index""}",false
+pureclarity_core_bmz,"PC Zone HP-04",HP-04,3,pages,"{""block"":""content.bottom"",""layout_handle"":""cms_index_index""}",false
+pureclarity_core_bmz,"PC Zone PP-01",PP-01,0,all_products,"{""block"":""content.bottom""}",false
+pureclarity_core_bmz,"PC Zone PP-02",PP-02,1,all_products,"{""block"":""content.bottom""}",false
+pureclarity_core_bmz,"PC Zone BP-01",BP-01,0,pages,"{""block"":""content.bottom"",""layout_handle"":""checkout_cart_index""}",false
+pureclarity_core_bmz,"PC Zone BP-02",BP-02,1,pages,"{""block"":""content.bottom"",""layout_handle"":""checkout_cart_index""}",false
+pureclarity_core_bmz,"PC Zone OC-01",OC-01,0,pages,"{""block"":""content.bottom"",""layout_handle"":""checkout_onepage_success""}",true
+pureclarity_core_bmz,"PC Zone OC-02",OC-02,1,pages,"{""block"":""content.bottom"",""layout_handle"":""checkout_onepage_success""}",false

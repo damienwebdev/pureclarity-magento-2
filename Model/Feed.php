@@ -1,82 +1,134 @@
 <?php
+/**
+ * Copyright © PureClarity. All rights reserved.
+ * See LICENSE.txt for license details.
+ */
+
 namespace Pureclarity\Core\Model;
 
+use Magento\Catalog\Model\CategoryRepository;
+use Magento\Catalog\Model\ResourceModel\Category\CollectionFactory as CategoryCollectionFactory;
+use Magento\Framework\Exception\CouldNotSaveException;
 use Magento\Framework\Exception\LocalizedException;
+use Magento\Store\Model\Store;
+use Magento\Store\Model\StoreFactory;
+use Psr\Log\LoggerInterface;
+use Pureclarity\Core\Api\StateRepositoryInterface;
+use Pureclarity\Core\Helper\Data;
+use Magento\Customer\Model\ResourceModel\Customer\CollectionFactory as CustomerCollectionFactory;
+use Magento\Customer\Model\ResourceModel\Group\Collection as CustomerGroupCollection;
+use Pureclarity\Core\Helper\Service\Url;
 
-class Feed extends \Magento\Framework\Model\AbstractModel
+/**
+ * Class Feed
+ *
+ * Handles running of feeds
+ */
+class Feed
 {
-
-    protected $catalogResourceModelCategoryCollectionFactory;
-    protected $categoryRepository;
-    protected $coreHelper;
-    protected $eavConfig;
-    protected $storeFactory;
-    protected $categoryHelper;
-    protected $coreProductExportFactory;
-    protected $logger;
-    protected $customerGroup;
-
-    /** @var \Magento\Customer\Model\ResourceModel\Customer\CollectionFactory */
-    private $customerCollectionFactory;
-
-    protected $orderFactory;
-    protected $accessKey;
-    protected $secretKey;
-    protected $storeId;
-    protected $progressFileName;
-    protected $problemFeeds = [];
-
-    private $uniqueId;
-    private $currentStore;
-
     const FEED_TYPE_BRAND = "brand";
     const FEED_TYPE_CATEGORY = "category";
     const FEED_TYPE_PRODUCT = "product";
     const FEED_TYPE_ORDER = "orders";
     const FEED_TYPE_USER = "user";
 
+    /** @var string[] $problemFeeds */
+    private $problemFeeds = [];
+
+    /** @var string $accessKey */
+    private $accessKey;
+
+    /** @var string $secretKey */
+    private $secretKey;
+
+    /** @var string $storeId */
+    private $storeId;
+
+    /** @var string $progressFileName */
+    private $progressFileName;
+
+    /** @var string $uniqueId */
+    private $uniqueId;
+
+    /** @var Store $currentStore */
+    private $currentStore;
+
+    /** @var CategoryCollectionFactory $categoryCollectionFactory */
+    private $categoryCollectionFactory;
+
+    /** @var CategoryRepository $categoryRepository */
+    private $categoryRepository;
+
+    /** @var Data $coreHelper */
+    private $coreHelper;
+
+    /** @var StoreFactory $storeFactory */
+    private $storeFactory;
+
+    /** @var ProductExportFactory $productExportFactory */
+    private $productExportFactory;
+
+    /** @var CustomerCollectionFactory $customerCollectionFactory */
+    private $customerCollectionFactory;
+
+    /** @var CustomerGroupCollection $customerGroupCollection */
+    private $customerGroupCollection;
+
+    /** @var StateRepositoryInterface $stateRepository */
+    private $stateRepository;
+
+    /** @var LoggerInterface $logger */
+    private $logger;
+
+    /** @var CoreConfig $coreConfig */
+    private $coreConfig;
+
+    /** @var Url $serviceUrl */
+    private $serviceUrl;
+
+    /**
+     * @param CategoryCollectionFactory $categoryCollectionFactory
+     * @param CategoryRepository $categoryRepository
+     * @param Data $coreHelper
+     * @param StoreFactory $storeFactory
+     * @param ProductExportFactory $productExportFactory
+     * @param CustomerCollectionFactory $customerCollectionFactory
+     * @param CustomerGroupCollection $customerGroupCollection
+     * @param StateRepositoryInterface $stateRepository
+     * @param LoggerInterface $logger
+     * @param CoreConfig $coreConfig
+     * @param Url $serviceUrl
+     */
     public function __construct(
-        \Magento\Framework\Model\Context $context,
-        \Magento\Framework\Registry $registry,
-        \Magento\Catalog\Model\ResourceModel\Category\CollectionFactory $catalogResourceModelCategoryCollectionFactory,
-        \Magento\Catalog\Model\CategoryRepository $categoryRepository,
-        \Magento\Sales\Model\OrderFactory $orderFactory,
-        \Pureclarity\Core\Helper\Data $coreHelper,
-        \Magento\Eav\Model\Config $eavConfig,
-        \Magento\Store\Model\StoreFactory $storeFactory,
-        \Magento\Catalog\Helper\Category $categoryHelper,
-        \Pureclarity\Core\Model\ProductExportFactory $coreProductExportFactory,
-        \Magento\Customer\Model\ResourceModel\Customer\CollectionFactory $customerCollectionFactory,
-        \Magento\Customer\Model\ResourceModel\Group\Collection $customerGroup,
-        \Magento\Framework\Model\ResourceModel\AbstractResource $resource = null,
-        \Magento\Framework\Data\Collection\AbstractDb $resourceCollection = null,
-        array $data = []
+        CategoryCollectionFactory $categoryCollectionFactory,
+        CategoryRepository $categoryRepository,
+        Data $coreHelper,
+        StoreFactory $storeFactory,
+        ProductExportFactory $productExportFactory,
+        CustomerCollectionFactory $customerCollectionFactory,
+        CustomerGroupCollection $customerGroupCollection,
+        StateRepositoryInterface $stateRepository,
+        LoggerInterface $logger,
+        CoreConfig $coreConfig,
+        Url $serviceUrl
     ) {
-        $this->catalogResourceModelCategoryCollectionFactory = $catalogResourceModelCategoryCollectionFactory;
-        $this->categoryRepository = $categoryRepository;
-        $this->coreHelper = $coreHelper;
-        $this->eavConfig = $eavConfig;
-        $this->storeFactory = $storeFactory;
-        $this->categoryHelper = $categoryHelper;
-        $this->coreProductExportFactory = $coreProductExportFactory;
-        $this->logger = $context->getLogger();
+        $this->categoryCollectionFactory = $categoryCollectionFactory;
+        $this->categoryRepository        = $categoryRepository;
+        $this->coreHelper                = $coreHelper;
+        $this->storeFactory              = $storeFactory;
+        $this->productExportFactory      = $productExportFactory;
+        $this->logger                    = $logger;
         $this->customerCollectionFactory = $customerCollectionFactory;
-        $this->customerGroup = $customerGroup;
-        $this->orderFactory = $orderFactory;
+        $this->customerGroupCollection   = $customerGroupCollection;
+        $this->stateRepository           = $stateRepository;
+        $this->coreConfig                = $coreConfig;
+        $this->serviceUrl                = $serviceUrl;
 
         /*
          * If Magento does not have the recommended level of memory for PHP, can cause the feeds
          * to fail. If this happens, an appropriate message is logged.
          */
         register_shutdown_function("Pureclarity\Core\Model\Feed::logShutdown");
-
-        parent::__construct(
-            $context,
-            $registry,
-            $resource,
-            $resourceCollection,
-            $data
-        );
     }
 
     /**
@@ -92,13 +144,13 @@ class Feed extends \Magento\Framework\Model\AbstractModel
         }
 
         $this->logger->debug("PureClarity: In Feed->sendProducts()");
-        $productExportModel = $this->coreProductExportFactory->create();
+        $productExportModel = $this->productExportFactory->create();
         $productExportModel->init($this->storeId);
         $this->logger->debug("PureClarity: Initialised ProductExport");
 
         $this->coreHelper->setProgressFile($this->progressFileName, self::FEED_TYPE_PRODUCT, 0, 1);
         $this->logger->debug("PureClarity: Set progress");
-    
+
         $currentPage = 0;
         $pages = 0;
 
@@ -140,15 +192,16 @@ class Feed extends \Magento\Framework\Model\AbstractModel
             }
             $currentPage++;
         } while ($currentPage <= $pages);
-        
+
         $this->endFeedAppend(self::FEED_TYPE_PRODUCT, $writtenProduct);
 
         if ($writtenProduct) {
             $this->end(self::FEED_TYPE_PRODUCT);
+            $this->saveRunDate(self::FEED_TYPE_PRODUCT, $this->storeId);
         } else {
             $this->logger->debug("PureClarity: Could not find any product to upload");
         }
-        
+
         $this->logger->debug("PureClarity: Finished sending product data");
     }
 
@@ -261,6 +314,7 @@ class Feed extends \Magento\Framework\Model\AbstractModel
             
             $this->end(self::FEED_TYPE_ORDER, true);
             $this->logger->debug("PureClarity: Finished sending order data");
+            $this->saveRunDate(self::FEED_TYPE_ORDER, $this->storeId);
         }
     }
 
@@ -273,7 +327,7 @@ class Feed extends \Magento\Framework\Model\AbstractModel
             return false;
         }
 
-        $categoryCollection = $this->catalogResourceModelCategoryCollectionFactory->create()
+        $categoryCollection = $this->categoryCollectionFactory->create()
             ->setStore($this->getCurrentStore())
             ->addAttributeToSelect('name')
             ->addAttributeToSelect('is_active')
@@ -300,7 +354,7 @@ class Feed extends \Magento\Framework\Model\AbstractModel
                 if ($categoryImage != "") {
                     $categoryImageUrl = $categoryImage;
                 } else {
-                    $categoryImageUrl = $this->coreHelper->getCategoryPlaceholderUrl($this->storeId);
+                    $categoryImageUrl = $this->coreConfig->getCategoryPlaceholderUrl($this->storeId);
                 }
                 $categoryImageUrl = $this->removeUrlProtocol($categoryImageUrl);
                 
@@ -314,7 +368,7 @@ class Feed extends \Magento\Framework\Model\AbstractModel
                         $overrideImage
                     );
                 } else {
-                    $overrideImageUrl = $this->coreHelper->getSecondaryCategoryPlaceholderUrl($this->storeId);
+                    $overrideImageUrl = $this->coreConfig->getSecondaryCategoryPlaceholderUrl($this->storeId);
                 }
                 $overrideImageUrl = $this->removeUrlProtocol($overrideImageUrl);
 
@@ -378,6 +432,7 @@ class Feed extends \Magento\Framework\Model\AbstractModel
 
             if ($writtenCategories) {
                 $this->end(self::FEED_TYPE_CATEGORY);
+                $this->saveRunDate(self::FEED_TYPE_CATEGORY, $this->storeId);
             }
         }
     }
@@ -394,12 +449,12 @@ class Feed extends \Magento\Framework\Model\AbstractModel
         $this->logger->debug("PureClarity: In Feed->sendBrands()");
 
         $feedBrands = [];
-        $brandCategoryId = $this->coreHelper->getBrandParentCategory($this->storeId);
+        $brandCategoryId = $this->coreConfig->getBrandParentCategory($this->storeId);
         
         if ($brandCategoryId && $brandCategoryId != "-1") {
             $brandParentCategory = $this->categoryRepository->get($brandCategoryId);
             
-            $brands = $this->catalogResourceModelCategoryCollectionFactory->create()
+            $brands = $this->categoryCollectionFactory->create()
                 ->addAttributeToSelect('name')
                 ->addAttributeToSelect('image')
                 ->addAttributeToSelect('pureclarity_category_image')
@@ -426,7 +481,7 @@ class Feed extends \Magento\Framework\Model\AbstractModel
                     if ($brandImage != "") {
                         $brandImageUrl = $brandImage;
                     } else {
-                        $brandImageUrl = $this->coreHelper->getCategoryPlaceholderUrl($this->storeId);
+                        $brandImageUrl = $this->coreConfig->getCategoryPlaceholderUrl($this->storeId);
                     }
                     $brandData['Image'] = $this->removeUrlProtocol($brandImageUrl);
 
@@ -440,7 +495,7 @@ class Feed extends \Magento\Framework\Model\AbstractModel
                             $overrideImage
                         );
                     } else {
-                        $overrideImageUrl = $this->coreHelper->getSecondaryCategoryPlaceholderUrl($this->storeId);
+                        $overrideImageUrl = $this->coreConfig->getSecondaryCategoryPlaceholderUrl($this->storeId);
                     }
                     $overrideImageUrl = $this->removeUrlProtocol($overrideImageUrl);
                     if ($overrideImageUrl != null) {
@@ -474,6 +529,7 @@ class Feed extends \Magento\Framework\Model\AbstractModel
         
                 $this->endFeedAppend(self::FEED_TYPE_BRAND, $writtenBrands);
                 $this->end(self::FEED_TYPE_BRAND);
+                $this->saveRunDate(self::FEED_TYPE_BRAND, $this->storeId);
             }
         } else {
             $this->coreHelper->setProgressFile($this->progressFileName, self::FEED_TYPE_BRAND, 1, 1);
@@ -484,7 +540,7 @@ class Feed extends \Magento\Framework\Model\AbstractModel
     {
 
         $feedBrands = [];
-        $brandCategoryId = $this->coreHelper->getBrandParentCategory($storeId);
+        $brandCategoryId = $this->coreConfig->getBrandParentCategory($storeId);
         
         if ($brandCategoryId && $brandCategoryId != "-1") {
             $category = $this->categoryRepository->get($brandCategoryId);
@@ -511,7 +567,7 @@ class Feed extends \Magento\Framework\Model\AbstractModel
         }
 
         $this->logger->debug("PureClarity: In Feed->sendUsers()");
-        $customerGroups = $this->customerGroup->toOptionArray();
+        $customerGroups = $this->customerGroupCollection->toOptionArray();
 
         $customerCollection = $this->getCustomerCollection();
 
@@ -589,6 +645,7 @@ class Feed extends \Magento\Framework\Model\AbstractModel
             
             $this->endFeedAppend(self::FEED_TYPE_USER, $writtenCustomers);
             $this->end(self::FEED_TYPE_USER);
+            $this->saveRunDate(self::FEED_TYPE_USER, $this->storeId);
         }
 
         return true;
@@ -686,9 +743,8 @@ class Feed extends \Magento\Framework\Model\AbstractModel
      */
     protected function send($endPoint, $parameters)
     {
-        
-        $url = $this->coreHelper->getFeedBaseUrl($this->storeId) . $endPoint;
-        
+        $url = $this->serviceUrl->getFeedSftpUrl($this->coreConfig->getRegion($this->storeId)) . $endPoint;
+
         $this->logger->debug(
             "PureClarity: About to send data to {$url} for " . $parameters['feedName']
             . ": " . print_r($parameters, true)
@@ -773,8 +829,9 @@ class Feed extends \Magento\Framework\Model\AbstractModel
     {
         $this->storeId = $storeId;
         $this->progressFileName = $progressFileName;
-        $this->accessKey = $this->coreHelper->getAccessKey($this->storeId);
-        $this->secretKey = $this->coreHelper->getSecretKey($this->storeId);
+        $this->accessKey = $this->coreConfig->getAccessKey($this->storeId);
+        $this->secretKey = $this->coreConfig->getSecretKey($this->storeId);
+
         if (empty($this->accessKey) || empty($this->secretKey)) {
             $this->coreHelper->setProgressFile(
                 $this->progressFileName,
@@ -841,9 +898,11 @@ class Feed extends \Magento\Framework\Model\AbstractModel
             $errorMessage .= " feed" . ($problemFeedCount > 1 ? "s" : "");
             $errorMessage .= ". Please see error logs for more information.";
             $this->coreHelper->setProgressFile($this->progressFileName, 'N/A', 1, 1, "true", "false", $errorMessage);
+            $this->saveFeedError(implode(',', $this->problemFeeds), $this->storeId);
         } else {
             // Set to uploaded
             $this->coreHelper->setProgressFile($this->progressFileName, 'N/A', 1, 1, "true", "true");
+            $this->saveFeedError('', $this->storeId);
         }
     }
 
@@ -868,5 +927,45 @@ class Feed extends \Magento\Framework\Model\AbstractModel
             $this->currentStore = $this->storeFactory->create()->load($this->storeId);
         }
         return $this->currentStore;
+    }
+
+    /**
+     * Saves the last run date of the provided feed
+     * @param string $feedType
+     * @param integer $storeId
+     * @return void
+     */
+    private function saveRunDate($feedType, $storeId)
+    {
+        $state = $this->stateRepository->getByNameAndStore('last_' . $feedType . '_feed_date', $storeId);
+        $state->setName('last_' . $feedType . '_feed_date');
+        $state->setValue(date('Y-m-d H:i:s'));
+        $state->setStoreId($storeId);
+
+        try {
+            $this->stateRepository->save($state);
+        } catch (CouldNotSaveException $e) {
+            $this->logger->error('Could not save last updated date: ' . $e->getMessage());
+        }
+    }
+
+    /**
+     * Saves the feed error status for the given store
+     * @param string $feedTypes
+     * @param integer $storeId
+     * @return void
+     */
+    private function saveFeedError($feedTypes, $storeId)
+    {
+        $state = $this->stateRepository->getByNameAndStore('last_feed_error', $storeId);
+        $state->setName('last_feed_error');
+        $state->setValue($feedTypes);
+        $state->setStoreId($storeId);
+
+        try {
+            $this->stateRepository->save($state);
+        } catch (CouldNotSaveException $e) {
+            $this->logger->error('Could not save last feed error: ' . $e->getMessage());
+        }
     }
 }

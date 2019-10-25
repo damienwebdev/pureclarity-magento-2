@@ -1,76 +1,130 @@
 <?php
+/**
+ * Copyright © PureClarity. All rights reserved.
+ * See LICENSE.txt for license details.
+ */
+
 namespace Pureclarity\Core\Model;
 
-use Pureclarity\Core\Model\Feed;
+use Magento\Catalog\Model\ProductFactory;
+use Magento\Cron\Model\Schedule;
+use Magento\Framework\Exception\CouldNotDeleteException;
+use Magento\Framework\Exception\CouldNotSaveException;
+use Magento\Framework\Filesystem;
+use Pureclarity\Core\Helper\Serializer;
+use Magento\Store\Model\StoreFactory;
+use Magento\Store\Model\StoreManagerInterface;
+use Psr\Log\LoggerInterface;
+use Pureclarity\Core\Api\StateRepositoryInterface;
 use Magento\Framework\App\Filesystem\DirectoryList;
 use Magento\Catalog\Model\Product\Attribute\Source\Status;
 use Magento\Catalog\Model\Product\Visibility;
+use Pureclarity\Core\Helper\Data;
+use Pureclarity\Core\Helper\Service\Url;
+use Pureclarity\Core\Helper\Soap;
+use Pureclarity\Core\Model\ResourceModel\ProductFeed\CollectionFactory;
 
 /**
+ * Class Cron
+ *
  * Controls the execution of feeds sent to PureClarity.
  */
-
-class Cron extends \Magento\Framework\Model\AbstractModel
+class Cron
 {
+    /** @var Soap $coreSoapHelper */
+    private $coreSoapHelper;
 
-    protected $coreSoapHelper;
-    protected $coreSftpHelper;
-    protected $storeManager;
-    protected $coreHelper;
-    protected $coreResourceProductFeedCollectionFactory;
-    protected $coreProductExportFactory;
-    protected $catalogProductFactory;
-    protected $logger;
-    protected $coreFeedFactory;
-    protected $storeStoreFactory;
-    protected $scopeConfig;
-    
-    /** @var \Magento\Framework\Filesystem */
+    /** @var StoreManagerInterface $storeManager */
+    private $storeManager;
+
+    /** @var Data $coreHelper */
+    private $coreHelper;
+
+    /** @var CollectionFactory $productFeedCollectionFactory */
+    private $productFeedCollectionFactory;
+
+    /** @var ProductExportFactory $productExportFactory */
+    private $productExportFactory;
+
+    /** @var ProductFactory $catalogProductFactory */
+    private $catalogProductFactory;
+
+    /** @var FeedFactory $coreFeedFactory */
+    private $coreFeedFactory;
+
+    /** @var StoreFactory $storeStoreFactory */
+    private $storeStoreFactory;
+
+    /** @var Filesystem $fileSystem */
     private $fileSystem;
 
+    /** @var StateRepositoryInterface $stateRepository */
+    private $stateRepository;
+
+    /** @var Serializer $serializer */
+    private $serializer;
+
+    /** @var LoggerInterface $logger */
+    private $logger;
+
+    /** @var CoreConfig $coreConfig */
+    private $coreConfig;
+
+    /** @var Url $serviceUrl */
+    private $serviceUrl;
+
+    /**
+     * @param Soap $coreSoapHelper
+     * @param StoreManagerInterface $storeManager
+     * @param Data $coreHelper
+     * @param CollectionFactory $productFeedCollectionFactory
+     * @param ProductExportFactory $productExportFactory
+     * @param ProductFactory $catalogProductFactory
+     * @param FeedFactory $coreFeedFactory
+     * @param StoreFactory $storeStoreFactory
+     * @param Filesystem $fileSystem
+     * @param StateRepositoryInterface $stateRepository
+     * @param Serializer $serializer
+     * @param LoggerInterface $logger
+     * @param CoreConfig $coreConfig
+     * @param Url $serviceUrl
+     */
     public function __construct(
-        \Magento\Framework\Model\Context $context,
-        \Magento\Framework\Registry $registry,
-        \Pureclarity\Core\Helper\Soap $coreSoapHelper,
-        \Pureclarity\Core\Helper\Sftp $coreSftpHelper,
-        \Magento\Store\Model\StoreManagerInterface $storeManager,
-        \Pureclarity\Core\Helper\Data $coreHelper,
-        \Pureclarity\Core\Model\ResourceModel\ProductFeed\CollectionFactory $coreResourceProductFeedCollectionFactory,
-        \Pureclarity\Core\Model\ProductExportFactory $coreProductExportFactory,
-        \Magento\Catalog\Model\ProductFactory $catalogProductFactory,
-        \Pureclarity\Core\Model\FeedFactory $coreFeedFactory,
-        \Magento\Store\Model\StoreFactory $storeStoreFactory,
-        \Magento\Framework\App\Config\ScopeConfigInterface $scopeConfig,
-        \Magento\Framework\Filesystem $fileSystem,
-        \Magento\Framework\Model\ResourceModel\AbstractResource $resource = null,
-        \Magento\Framework\Data\Collection\AbstractDb $resourceCollection = null,
-        array $data = []
+        Soap $coreSoapHelper,
+        StoreManagerInterface $storeManager,
+        Data $coreHelper,
+        CollectionFactory $productFeedCollectionFactory,
+        ProductExportFactory $productExportFactory,
+        ProductFactory $catalogProductFactory,
+        FeedFactory $coreFeedFactory,
+        StoreFactory $storeStoreFactory,
+        Filesystem $fileSystem,
+        StateRepositoryInterface $stateRepository,
+        Serializer $serializer,
+        LoggerInterface $logger,
+        CoreConfig $coreConfig,
+        Url $serviceUrl
     ) {
-        $this->coreSoapHelper = $coreSoapHelper;
-        $this->coreSftpHelper = $coreSftpHelper;
-        $this->storeManager = $storeManager;
-        $this->coreHelper = $coreHelper;
-        $this->coreResourceProductFeedCollectionFactory = $coreResourceProductFeedCollectionFactory;
-        $this->coreProductExportFactory = $coreProductExportFactory;
-        $this->catalogProductFactory = $catalogProductFactory;
-        $this->logger = $context->getLogger();
-        $this->coreFeedFactory = $coreFeedFactory;
-        $this->storeStoreFactory = $storeStoreFactory;
-        $this->scopeConfig = $scopeConfig;
-        $this->fileSystem = $fileSystem;
-        parent::__construct(
-            $context,
-            $registry,
-            $resource,
-            $resourceCollection,
-            $data
-        );
+        $this->coreSoapHelper               = $coreSoapHelper;
+        $this->storeManager                 = $storeManager;
+        $this->coreHelper                   = $coreHelper;
+        $this->productFeedCollectionFactory = $productFeedCollectionFactory;
+        $this->productExportFactory         = $productExportFactory;
+        $this->catalogProductFactory        = $catalogProductFactory;
+        $this->coreFeedFactory              = $coreFeedFactory;
+        $this->storeStoreFactory            = $storeStoreFactory;
+        $this->fileSystem                   = $fileSystem;
+        $this->stateRepository              = $stateRepository;
+        $this->serializer                   = $serializer;
+        $this->logger                       = $logger;
+        $this->coreConfig                   = $coreConfig;
+        $this->serviceUrl                   = $serviceUrl;
     }
 
     /**
      * Runs all feeds, called via cron 3am daily (see /etc/crontab.xml)
      */
-    public function runAllFeeds(\Magento\Cron\Model\Schedule $schedule)
+    public function runAllFeeds(Schedule $schedule)
     {
         $this->logger->debug('PureClarity: In Cron->runAllFeeds()');
         // Loop round each store and create feed
@@ -79,7 +133,7 @@ class Cron extends \Magento\Framework\Model\AbstractModel
                 $stores = $group->getStores();
                 foreach ($stores as $store) {
                     // Only generate feeds when feed notification is active
-                    if ($this->coreHelper->isFeedNotificationActive($store->getId())) {
+                    if ($this->coreConfig->isDailyFeedActive($store->getId())) {
                         $this->allFeeds($store->getId());
                     }
                 }
@@ -121,6 +175,7 @@ class Cron extends \Magento\Framework\Model\AbstractModel
         }
         
         $fileWriter->writeFile($scheduleFilePath, json_encode($schedule), 'w');
+        $this->resetFeedError($storeId);
     }
     
     public function selectedFeeds($storeId, $feeds)
@@ -150,31 +205,54 @@ class Cron extends \Magento\Framework\Model\AbstractModel
             return false;
         }
 
+        $this->logFeedQueue($feedTypes, $storeId);
+        $feedsRemaining = $feedTypes;
         // Post the feed data for the specified feed type
         foreach ($feedTypes as $key => $feedType) {
             switch ($feedType) {
                 case Feed::FEED_TYPE_PRODUCT:
                     $feedModel->sendProducts();
+                    if (($key = array_search(Feed::FEED_TYPE_PRODUCT, $feedsRemaining)) !== false) {
+                        unset($feedsRemaining[$key]);
+                    }
+                    $this->logFeedQueue($feedsRemaining, $storeId);
                     break;
                 case Feed::FEED_TYPE_CATEGORY:
                     $feedModel->sendCategories();
+                    if (($key = array_search(Feed::FEED_TYPE_CATEGORY, $feedsRemaining)) !== false) {
+                        unset($feedsRemaining[$key]);
+                    }
+                    $this->logFeedQueue($feedsRemaining, $storeId);
                     break;
                 case Feed::FEED_TYPE_BRAND:
-                    if ($this->coreHelper->isBrandFeedEnabled($storeId)) {
+                    if ($this->coreConfig->isBrandFeedEnabled($storeId)) {
                         $feedModel->sendBrands();
+                        if (($key = array_search(Feed::FEED_TYPE_BRAND, $feedsRemaining)) !== false) {
+                            unset($feedsRemaining[$key]);
+                        }
+                        $this->logFeedQueue($feedsRemaining, $storeId);
                     }
                     break;
                 case Feed::FEED_TYPE_USER:
                     $feedModel->sendUsers();
+                    if (($key = array_search(Feed::FEED_TYPE_USER, $feedsRemaining)) !== false) {
+                        unset($feedsRemaining[$key]);
+                    }
+                    $this->logFeedQueue($feedsRemaining, $storeId);
                     break;
                 case Feed::FEED_TYPE_ORDER:
                     $feedModel->sendOrders();
+                    if (($key = array_search(Feed::FEED_TYPE_ORDER, $feedsRemaining)) !== false) {
+                        unset($feedsRemaining[$key]);
+                    }
+                    $this->logFeedQueue($feedsRemaining, $storeId);
                     break;
                 default:
                     throw new \Exception("PureClarity feed type not recognised: {$feedType}");
             }
         }
         $feedModel->checkSuccess();
+        $this->removeFeedQueue($storeId);
     }
 
     // Produce a product feed and notify PureClarity so that it can fetch it.
@@ -219,7 +297,7 @@ class Cron extends \Magento\Framework\Model\AbstractModel
         $uniqueId = 'PureClarity' . uniqid();
         $requests = [];
 
-        $collection = $this->coreResourceProductFeedCollectionFactory->create()
+        $collection = $this->productFeedCollectionFactory->create()
                          ->addFieldToFilter('status_id', ['eq' => 0]);
  
         // Loop round each store and process Deltas
@@ -227,7 +305,7 @@ class Cron extends \Magento\Framework\Model\AbstractModel
             foreach ($website->getGroups() as $group) {
                 foreach ($group->getStores() as $store) {
                     // Check we're allowed to do it for this store
-                    if ($this->coreHelper->isProductIndexingEnabled($store->getId())) {
+                    if ($this->coreConfig->areDeltasEnabled($store->getId())) {
                         $this->logger->debug('PureClarity: Checking Reindex for StoreID: ' . $store->getId());
                     
                         $deleteProducts = $feedProducts = [];
@@ -254,7 +332,7 @@ class Cron extends \Magento\Framework\Model\AbstractModel
 
                             // Process any deltas
                             if (count($productHash) > 0) {
-                                $productExportModel = $this->coreProductExportFactory->create();
+                                $productExportModel = $this->productExportFactory->create();
                                 
                                 $productExportModel->init($store->getId());
                                 
@@ -268,12 +346,13 @@ class Cron extends \Magento\Framework\Model\AbstractModel
                                     // Check product is loaded
                                     if ($product != null) {
                                         // Is deleted?
-                                        $deleted = $product->getData('status') == Status::STATUS_DISABLED ||
+                                        $deleted = $product->getId() === null ||
+                                                $product->getData('status') == Status::STATUS_DISABLED ||
                                                 $product->getVisibility() == Visibility::VISIBILITY_NOT_VISIBLE;
 
                                         // Check if deleted or if product is no longer visible
                                         if ($deleted == true) {
-                                            $deleteProducts[] = $product->getId();
+                                            $deleteProducts[] = $deltaProduct->getProductId();
                                         } else {
                                             // Get data from product exporter
                                             try {
@@ -297,14 +376,16 @@ class Cron extends \Magento\Framework\Model\AbstractModel
 
                                 if (count($feedProducts) > 0 || count($deleteProducts) > 0) {
                                     $requestBase = [
-                                        'AppKey'            => $this->coreHelper->getAccessKey($store->getId()),
-                                        'Secret'            => $this->coreHelper->getSecretKey($store->getId()),
+                                        'AppKey'            => $this->coreConfig->getAccessKey($store->getId()),
+                                        'Secret'            => $this->coreConfig->getSecretKey($store->getId()),
                                         'Products'          => [],
                                         'DeleteProducts'    => [],
                                         'Format'            => 'magentoplugin1.0.0'
                                     ];
 
-                                    $url = $this->coreHelper->getDeltaEndpoint($store->getId());
+                                    $url = $this->serviceUrl->getDeltaEndpoint(
+                                        $this->coreConfig->getRegion($store->getId())
+                                    );
                                     $useSSL = $this->coreHelper->useSSL($store->getId());
 
                                     if ($deleteProducts) {
@@ -347,5 +428,60 @@ class Cron extends \Magento\Framework\Model\AbstractModel
         }
 
         return $requests;
+    }
+
+    /**
+     * Saves the running_feeds state data for remaining feeds to be run (so dashboard shows correct feed status)
+     * @param string[] $feeds
+     * @param integer $storeId
+     * @return void
+     */
+    private function logFeedQueue($feeds, $storeId)
+    {
+        $state = $this->stateRepository->getByNameAndStore('running_feeds', $storeId);
+        $state->setName('running_feeds');
+        $state->setValue($this->serializer->serialize($feeds));
+        $state->setStoreId($storeId);
+
+        try {
+            $this->stateRepository->save($state);
+        } catch (CouldNotSaveException $e) {
+            $this->logger->error('Could not save queued feeds: ' . $e->getMessage());
+        }
+    }
+
+    /**
+     * Removes the running_feeds state data (so dashboard shows correct feed status)
+     * @param integer $storeId
+     * @return void
+     */
+    private function removeFeedQueue($storeId)
+    {
+        $state = $this->stateRepository->getByNameAndStore('running_feeds', $storeId);
+
+        try {
+            $this->stateRepository->delete($state);
+        } catch (CouldNotDeleteException $e) {
+            $this->logger->error('Could not save queued feeds: ' . $e->getMessage());
+        }
+    }
+
+    /**
+     * Resets the feed error status for the given store
+     * @param integer $storeId
+     * @return void
+     */
+    private function resetFeedError($storeId)
+    {
+        $state = $this->stateRepository->getByNameAndStore('last_feed_error', $storeId);
+        $state->setName('last_feed_error');
+        $state->setValue('');
+        $state->setStoreId($storeId);
+
+        try {
+            $this->stateRepository->save($state);
+        } catch (CouldNotSaveException $e) {
+            $this->logger->error('Could not save last feed error: ' . $e->getMessage());
+        }
     }
 }

@@ -1,3 +1,8 @@
+/**
+ * Copyright © PureClarity. All rights reserved.
+ * See LICENSE.txt for license details.
+ */
+
 @media only screen and (min-width: 600px) {
     div.pureclarity_magento_mobile {
         display: none!important;
@@ -16,41 +21,4 @@
 
 div.pureclarity_magento_media_conflict {
     display: none!important;
-}
-
-#pc_searchbox {
-    width: 100%;
-    margin: 0px;
-    border-radius: 0px;
-    padding-right: 55px;
-}
-
-#int_pc_search {
-    position: relative;
-}
-
-#int_pc_search label {
-    display: none;
-}
-
-#pc_searchbutton {
-    width: 47px;
-    margin: 0px;
-    position: absolute;
-    right: 2px;
-    top: 2px;
-    height: 28px;
-    background: url(../images/search-icon-black.png) no-repeat #fff;
-    background-position: 14px;
-    border:0;
-    cursor: pointer;
-}
-
-#pc_searchbutton span {
-    display: none;
-}
-
-.pc_noresult_recommenders {
-    margin-top:20px;
-    width:100%;
 }

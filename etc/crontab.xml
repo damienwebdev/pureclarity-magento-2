@@ -1,4 +1,10 @@
 <?xml version="1.0"?>
+<!--
+/**
+ * Copyright © PureClarity. All rights reserved.
+ * See LICENSE.txt for license details.
+ */
+-->
 <config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="urn:magento:module:Magento_Cron:etc/crontab.xsd">
     <group id="default">
         <job name="pureclarity_core_reindex" instance="Pureclarity\Core\Model\Cron" method="reindexData">
@@ -12,6 +18,14 @@
         <job name="pureclarity_core_scheduled_feed" instance="Pureclarity\Core\Cron\RunScheduled" method="execute">
             <!-- Every minute -->
             <schedule>*/1 * * * *</schedule>
+        </job>
+        <job name="pureclarity_core_check_version" instance="Pureclarity\Core\Cron\CheckVersion" method="execute">
+            <!-- 2am every day -->
+            <schedule>0 2 * * *</schedule>
+        </job>
+        <job name="pureclarity_core_check_signup" instance="Pureclarity\Core\Cron\CheckSignupStatus" method="execute">
+            <!-- Every 5 minute -->
+            <schedule>*/5 * * * *</schedule>
         </job>
     </group>
 </config>

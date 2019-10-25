@@ -1,4 +1,9 @@
 <?php
+/**
+ * Copyright © PureClarity. All rights reserved.
+ * See LICENSE.txt for license details.
+ */
+
 namespace Pureclarity\Core\Setup;
 
 use Pureclarity\Core\Model\CmsBlock;
@@ -7,12 +12,20 @@ use Magento\Framework\Setup\ModuleContextInterface;
 use Magento\Framework\Setup\SchemaSetupInterface;
 use Magento\Framework\Setup\UninstallInterface;
 
+/**
+ * Class Uninstall
+ *
+ * Removes schema changes from database
+ */
 class Uninstall implements UninstallInterface
 {
+    /** @var CmsBlock $cmsBlock */
+    private $cmsBlock;
+
     /**
      * Constructor to inject dependencies into class.
      *
-     * @param \Pureclarity\Core\Model\CmsBlock $cmsBlock CMS block
+     * @param CmsBlock $cmsBlock
      */
     public function __construct(CmsBlock $cmsBlock)
     {
@@ -22,8 +35,8 @@ class Uninstall implements UninstallInterface
     /**
      * Uninstalls PureClarity.
      *
-     * @param Magento\Framework\Setup\SchemaSetupInterface   $setup   Schema setup interface.
-     * @param Magento\Framework\Setup\ModuleContextInterface $context Module context interface.
+     * @param SchemaSetupInterface $setup   Schema setup interface.
+     * @param ModuleContextInterface $context Module context interface.
      *
      * @return void
      */

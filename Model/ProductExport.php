@@ -7,120 +7,168 @@
 namespace Pureclarity\Core\Model;
 
 use Magento\Catalog\Model\Product\Attribute\Source\Status;
+use Magento\Catalog\Model\ResourceModel\Product\Attribute\CollectionFactory as ProductAttributeCollectionFactory;
+use Magento\Catalog\Model\ResourceModel\Product\CollectionFactory as ProductCollectionFactory;
+use Magento\Catalog\Model\ResourceModel\Category\CollectionFactory as CategoryCollectionFactory;
+use Magento\CatalogInventory\Api\StockRegistryInterface;
+use Magento\ConfigurableProduct\Model\Product\Type\ConfigurableFactory;
+use Magento\Directory\Model\CurrencyFactory;
+use Magento\Framework\View\Element\BlockFactory;
+use Magento\Store\Model\Store;
+use Magento\Store\Model\StoreFactory;
+use Magento\Store\Model\StoreManagerInterface;
+use Psr\Log\LoggerInterface;
+use Pureclarity\Core\Helper\Data;
+use Pureclarity\Core\Model\ProductExport\PriceHandler;
+use Magento\Directory\Helper\Data as DirectoryHelperData;
 
 /**
+ * Class ProductExport
+ *
  * PureClarity Product Export Module
- * For example, used to create product feed that's sent to PureClarity.
+ * Used to create product feed that's sent to PureClarity.
  */
-class ProductExport extends \Magento\Framework\Model\AbstractModel
+class ProductExport
 {
-    /** @var string[] */
+    /** @var string[] $selectAttributeTypes */
     private $selectAttributeTypes = [
         'select',
         'multiselect',
         'boolean'
     ];
-    
-    public $storeId = null;
-    public $baseCurrencyCode = null;
-    public $currenciesToProcess = [];
-    public $attributesToInclude = [];
-    public $seenProductIds = [];
-    /** @var \Magento\Store\Model\Store */
-    public $currentStore = null;
-    public $brandLookup = [];
-    protected $categoryCollection = [];
-    
-    protected $storeManager;
-    protected $storeFactory;
-    protected $directoryCurrencyFactory;
-    protected $coreHelper;
-    protected $coreFeedFactory;
-    protected $catalogResourceModelProductAttributeCollectionFactory;
-    protected $coreResourceProductCollectionFactory;
-    protected $catalogResourceModelCategoryCollectionFactory;
-    protected $catalogImageHelper;
-    protected $stockRegistry;
-    protected $configurableProductProductTypeConfigurableFactory;
-    protected $directoryHelper;
-    protected $catalogConfig;
-    protected $catalogProductFactory;
-    protected $logger;
-    protected $eavConfig;
-    protected $swatchHelper;
-    protected $swatchMediaHelper;
-    protected $blockFactory;
-    protected $galleryReadHandler;
-    
-    /** @var \Pureclarity\Core\Model\ProductExport\PriceHandler */
+
+    /** @var string $storeId */
+    private $storeId;
+
+    /** @var string $baseCurrencyCode  */
+    private $baseCurrencyCode;
+
+    /** @var array $currenciesToProcess */
+    private $currenciesToProcess = [];
+
+    /** @var array[] $attributesToInclude */
+    private $attributesToInclude = [];
+
+    /** @var bool[] $seenProductIds */
+    private $seenProductIds = [];
+
+    /** @var Store $currentStore */
+    private $currentStore = null;
+
+    /** @var string[] $brandLookup */
+    private $brandLookup = [];
+
+    /** @var string[] $categoryCollection */
+    private $categoryCollection = [];
+
+    /** @var StoreManagerInterface $storeManager */
+    private $storeManager;
+
+    /** @var StoreFactory $storeFactory */
+    private $storeFactory;
+
+    /** @var CurrencyFactory $directoryCurrencyFactory */
+    private $directoryCurrencyFactory;
+
+    /** @var Data $coreHelper */
+    private $coreHelper;
+
+    /** @var FeedFactory $coreFeedFactory */
+    private $coreFeedFactory;
+
+    /** @var ProductAttributeCollectionFactory $productAttributeCollectionFactory */
+    private $productAttributeCollectionFactory;
+
+    /** @var ProductCollectionFactory $productCollectionFactory */
+    private $productCollectionFactory;
+
+    /** @var CategoryCollectionFactory $categoryCollectionFactory */
+    private $categoryCollectionFactory;
+
+    /** @var StockRegistryInterface $stockRegistry */
+    private $stockRegistry;
+
+    /** @var ConfigurableFactory $productTypeConfigurableFactory */
+    private $productTypeConfigurableFactory;
+
+    /** @var DirectoryHelperData $directoryHelper */
+    private $directoryHelper;
+
+    /** @var BlockFactory $blockFactory */
+    private $blockFactory;
+
+    /** @var PriceHandler $corePriceHandler */
     private $corePriceHandler;
 
-    public function __construct(
-        \Magento\Framework\Model\Context $context,
-        \Magento\Framework\Registry $registry,
-        \Magento\Store\Model\StoreManagerInterface $storeManager,
-        \Magento\Store\Model\StoreFactory $storeFactory,
-        \Magento\Directory\Model\CurrencyFactory $directoryCurrencyFactory,
-        \Pureclarity\Core\Helper\Data $coreHelper,
-        \Pureclarity\Core\Model\FeedFactory $coreFeedFactory,
-        \Magento\Catalog\Model\ResourceModel\Product\Attribute\CollectionFactory $catalogResourceModelProductAttributeCollectionFactory,
-        \Magento\Catalog\Model\ResourceModel\Product\CollectionFactory $coreResourceProductCollectionFactory,
-        \Magento\Catalog\Model\ResourceModel\Category\CollectionFactory $catalogResourceModelCategoryCollectionFactory,
-        \Magento\Catalog\Helper\Image $catalogImageHelper,
-        \Magento\CatalogInventory\Api\StockRegistryInterface $stockRegistry,
-        \Magento\ConfigurableProduct\Model\Product\Type\ConfigurableFactory $configurableProductProductTypeConfigurableFactory,
-        \Magento\Directory\Helper\Data $directoryHelper,
-        \Magento\Catalog\Model\Config $catalogConfig,
-        \Magento\Catalog\Model\ProductFactory $catalogProductFactory,
-        \Magento\Eav\Model\Config $eavConfig,
-        \Magento\Swatches\Helper\Data $swatchHelper,
-        \Magento\Swatches\Helper\Media $swatchMediaHelper,
-        \Magento\Framework\View\Element\BlockFactory $blockFactory,
-        \Pureclarity\Core\Model\ProductExport\PriceHandler $corePriceHandler,
-        \Magento\Framework\Model\ResourceModel\AbstractResource $resource = null,
-        \Magento\Framework\Data\Collection\AbstractDb $resourceCollection = null,
-        array $data = []
-    ) {
-        $this->storeManager = $storeManager;
-        $this->storeFactory = $storeFactory;
-        $this->directoryCurrencyFactory = $directoryCurrencyFactory;
-        $this->coreHelper = $coreHelper;
-        $this->coreFeedFactory = $coreFeedFactory;
-        $this->catalogResourceModelProductAttributeCollectionFactory = $catalogResourceModelProductAttributeCollectionFactory;
-        $this->coreResourceProductCollectionFactory = $coreResourceProductCollectionFactory;
-        $this->catalogResourceModelCategoryCollectionFactory = $catalogResourceModelCategoryCollectionFactory;
-        $this->catalogImageHelper = $catalogImageHelper;
-        $this->stockRegistry = $stockRegistry;
-        $this->configurableProductProductTypeConfigurableFactory = $configurableProductProductTypeConfigurableFactory;
-        $this->directoryHelper = $directoryHelper;
-        $this->catalogConfig = $catalogConfig;
-        $this->catalogProductFactory = $catalogProductFactory;
-        $this->logger = $context->getLogger();
-        $this->eavConfig = $eavConfig;
-        $this->swatchHelper = $swatchHelper;
-        $this->swatchMediaHelper = $swatchMediaHelper;
-        $this->blockFactory = $blockFactory;
-        $this->corePriceHandler = $corePriceHandler;
+    /** @var LoggerInterface $logger */
+    private $logger;
 
-        parent::__construct(
-            $context,
-            $registry,
-            $resource,
-            $resourceCollection,
-            $data
-        );
+    /** @var CoreConfig $coreConfig */
+    private $coreConfig;
+
+    /** @var \Magento\Catalog\Model\Product\Gallery\ReadHandler $galleryReadHandler */
+    private $galleryReadHandler;
+
+    /**
+     * @param StoreManagerInterface $storeManager
+     * @param StoreFactory $storeFactory
+     * @param CurrencyFactory $directoryCurrencyFactory
+     * @param Data $coreHelper
+     * @param FeedFactory $coreFeedFactory
+     * @param ProductAttributeCollectionFactory $productAttributeCollectionFactory
+     * @param ProductCollectionFactory $productCollectionFactory
+     * @param CategoryCollectionFactory $categoryCollectionFactory
+     * @param StockRegistryInterface $stockRegistry
+     * @param ConfigurableFactory $productTypeConfigurableFactory
+     * @param DirectoryHelperData $directoryHelper
+     * @param BlockFactory $blockFactory
+     * @param PriceHandler $corePriceHandler
+     * @param LoggerInterface $logger
+     * @param CoreConfig $coreConfig
+     */
+    public function __construct(
+        StoreManagerInterface $storeManager,
+        StoreFactory $storeFactory,
+        CurrencyFactory $directoryCurrencyFactory,
+        Data $coreHelper,
+        FeedFactory $coreFeedFactory,
+        ProductAttributeCollectionFactory $productAttributeCollectionFactory,
+        ProductCollectionFactory $productCollectionFactory,
+        CategoryCollectionFactory $categoryCollectionFactory,
+        StockRegistryInterface $stockRegistry,
+        ConfigurableFactory $productTypeConfigurableFactory,
+        DirectoryHelperData $directoryHelper,
+        BlockFactory $blockFactory,
+        PriceHandler $corePriceHandler,
+        LoggerInterface $logger,
+        CoreConfig $coreConfig
+    ) {
+        $this->storeManager                      = $storeManager;
+        $this->storeFactory                      = $storeFactory;
+        $this->directoryCurrencyFactory          = $directoryCurrencyFactory;
+        $this->coreHelper                        = $coreHelper;
+        $this->coreFeedFactory                   = $coreFeedFactory;
+        $this->productAttributeCollectionFactory = $productAttributeCollectionFactory;
+        $this->productCollectionFactory          = $productCollectionFactory;
+        $this->categoryCollectionFactory         = $categoryCollectionFactory;
+        $this->stockRegistry                     = $stockRegistry;
+        $this->productTypeConfigurableFactory    = $productTypeConfigurableFactory;
+        $this->directoryHelper                   = $directoryHelper;
+        $this->blockFactory                      = $blockFactory;
+        $this->corePriceHandler                  = $corePriceHandler;
+        $this->logger                            = $logger;
+        $this->coreConfig                        = $coreConfig;
     }
     
     // Initialise the model ready to call the product data for the give store.
     public function init($storeId)
     {
-
         // Use this store, if not passed in.
         $this->storeId = $storeId;
         if (is_null($this->storeId)) {
             $this->storeId = $this->storeManager->getStore()->getId();
         }
-        
+
         $this->currentStore = $this->storeFactory->create()->load($this->storeId);
 
         // Set Currency list
@@ -140,13 +188,13 @@ class ProductExport extends \Magento\Framework\Model\AbstractModel
         // Manage Brand
         $this->brandLookup = [];
         // If brand feed is enabled, get the brands
-        if ($this->coreHelper->isBrandFeedEnabled($this->storeId)) {
+        if ($this->coreConfig->isBrandFeedEnabled($this->storeId)) {
             $feedModel = $this->coreFeedFactory->create();
             $this->brandLookup = $feedModel->BrandFeedArray($this->storeId);
         }
 
         // Get Attributes
-        $attributes = $this->catalogResourceModelProductAttributeCollectionFactory->create()->getItems();
+        $attributes = $this->productAttributeCollectionFactory->create()->getItems();
         $attributesToExclude = ["prices", "price", "category_ids", "sku"];
 
         // Get list of attributes to include
@@ -165,7 +213,7 @@ class ProductExport extends \Magento\Framework\Model\AbstractModel
 
         // Get Category List
         $this->categoryCollection = [];
-        $categoryCollection = $this->catalogResourceModelCategoryCollectionFactory->create()
+        $categoryCollection = $this->categoryCollectionFactory->create()
                 ->addAttributeToSelect('name')
                 ->addFieldToFilter('is_active', ["in" => ['1']]);
         foreach ($categoryCollection as $category) {
@@ -184,7 +232,8 @@ class ProductExport extends \Magento\Framework\Model\AbstractModel
                 \Magento\Catalog\Model\Product\Visibility::VISIBILITY_IN_SEARCH
             ]
         ];
-        $products = $this->coreResourceProductCollectionFactory->create()
+
+        $products = $this->productCollectionFactory->create()
             ->setStoreId($this->storeId)
             ->addStoreFilter($this->storeId)
             ->addUrlRewrite()
@@ -195,7 +244,7 @@ class ProductExport extends \Magento\Framework\Model\AbstractModel
             ->addTaxPercents()
             ->setPageSize($pageSize)
             ->setCurPage($currentPage);
-            
+
         // Get pages
         $pages = $products->getLastPageNumber();
         if ($currentPage > $pages) {
@@ -210,7 +259,7 @@ class ProductExport extends \Magento\Framework\Model\AbstractModel
                 $feedProducts[] = $data;
             }
         }
-        
+
         return  [
             "Pages" => $pages,
             "Products" => $feedProducts
@@ -240,14 +289,14 @@ class ProductExport extends \Magento\Framework\Model\AbstractModel
                     $brandId = $id;
                 }
             }
-            
+
             // Get Product Link URL
             $urlParams = [
                 '_nosid' => true,
                 '_scope' => $this->storeId
             ];
             $productUrl = $product->setStoreId($this->storeId)->getUrlModel()->getUrl($product, $urlParams);
-            
+
             if ($productUrl) {
                 $productUrl = str_replace(["https:", "http:"], "", $productUrl);
             }
@@ -324,7 +373,7 @@ class ProductExport extends \Magento\Framework\Model\AbstractModel
 
                 $swatchBlock = null;
             }
-            
+
             // Set the visibility for PureClarity
             $visibility = $product->getVisibility();
             if ($visibility == \Magento\Catalog\Model\Product\Visibility::VISIBILITY_IN_CATALOG) {
@@ -364,11 +413,11 @@ class ProductExport extends \Magento\Framework\Model\AbstractModel
             if ($product->getData('pureclarity_exc_rec') == '1') {
                  $data["ExcludeFromRecommenders"] = true;
             }
-        
+
             if ($product->getData('pureclarity_newarrival') == '1') {
                  $data["NewArrival"] = true;
             }
-            
+
             if ($product->getData('pureclarity_onoffer') == '1') {
                  $data["OnOffer"] = true;
             }
@@ -380,10 +429,10 @@ class ProductExport extends \Magento\Framework\Model\AbstractModel
             $childProducts = [];
             switch ($product->getTypeId()) {
                 case \Magento\ConfigurableProduct\Model\Product\Type\Configurable::TYPE_CODE:
-                    $childIds = $this->configurableProductProductTypeConfigurableFactory->create()
+                    $childIds = $this->productTypeConfigurableFactory->create()
                         ->getChildrenIds($product->getId());
                     if (count($childIds[0]) > 0) {
-                        $childProducts = $this->coreResourceProductCollectionFactory->create()
+                        $childProducts = $this->productCollectionFactory->create()
                             ->addAttributeToSelect('*')
                             ->addFieldToFilter('entity_id', [
                                 'in' => $childIds[0]

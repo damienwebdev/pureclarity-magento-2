@@ -1,4 +1,9 @@
 <?php
+/**
+ * Copyright © PureClarity. All rights reserved.
+ * See LICENSE.txt for license details.
+ */
+
 namespace Pureclarity\Core\Cron;
 
 use Pureclarity\Core\Helper\Data;
@@ -7,17 +12,19 @@ use Magento\Framework\Filesystem;
 use Magento\Framework\App\Filesystem\DirectoryList;
 
 /**
+ * Class RunScheduled
+ *
  * Controls the execution of scheduled feeds to be sent to PureClarity.
  */
 class RunScheduled
 {
-    /** @var \Pureclarity\Core\Helper\Data */
+    /** @var Data $coreHelper */
     private $coreHelper;
     
-    /** @var \Pureclarity\Core\Model\Cron */
+    /** @var Cron $feedRunner */
     private $feedRunner;
     
-    /** @var \Magento\Framework\Filesystem */
+    /** @var Filesystem $fileSystem */
     private $fileSystem;
 
     public function __construct(

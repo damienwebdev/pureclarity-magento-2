@@ -1,18 +1,23 @@
 <?php
+/**
+ * Copyright © PureClarity. All rights reserved.
+ * See LICENSE.txt for license details.
+ */
+
 namespace Pureclarity\Core\Controller\Adminhtml\Image;
 
+use Magento\Backend\App\Action;
 use Magento\Framework\Controller\ResultFactory;
- 
-class Upload extends \Magento\Backend\App\Action
+
+/**
+ * Class Upload
+ *
+ * controller for pureclarity/image/upload POST request
+ */
+class Upload extends Action
 {
     protected $imageUploader;
     protected $logger;
- 
-    public function __construct(
-        \Magento\Backend\App\Action\Context $context
-    ) {
-        parent::__construct($context);
-    }
  
     protected function _isAllowed()
     {

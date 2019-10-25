@@ -1,36 +1,77 @@
 <?php
+/**
+ * Copyright © PureClarity. All rights reserved.
+ * See LICENSE.txt for license details.
+ */
+
 namespace Pureclarity\Core\Controller\Adminhtml\Datafeed;
 
-class Progress extends \Magento\Backend\App\Action
+use Magento\Backend\App\Action;
+use Magento\Backend\App\Action\Context;
+use Magento\Framework\Controller\Result\Json;
+use Magento\Framework\Controller\Result\JsonFactory;
+use Magento\Store\Model\StoreManagerInterface;
+use Pureclarity\Core\Model\FeedStatus;
+
+/**
+ * Class Progress
+ *
+ * controller for pureclarity/dashboard/progress POST request
+ */
+class Progress extends Action
 {
+    /** @var JsonFactory $resultJsonFactory */
+    private $resultJsonFactory;
 
-    protected $coreCronFactory;
-    protected $coreHelper;
-    protected $resultJsonFactory;
+    /** @var FeedStatus $feedStatus */
+    private $feedStatus;
 
+    /** @var StoreManagerInterface $storeManager */
+    private $storeManager;
+
+    /**
+     * @param Context $context
+     * @param JsonFactory $resultJsonFactory
+     * @param FeedStatus $feedStatus
+     * @param StoreManagerInterface $storeManager
+     */
     public function __construct(
-        \Magento\Backend\App\Action\Context $context,
-        \Pureclarity\Core\Model\CronFactory $coreCronFactory,
-        \Magento\Framework\Controller\Result\JsonFactory $resultJsonFactory,
-        \Pureclarity\Core\Helper\Data $coreHelper
+        Context $context,
+        JsonFactory $resultJsonFactory,
+        FeedStatus $feedStatus,
+        StoreManagerInterface $storeManager
     ) {
-        $this->coreCronFactory = $coreCronFactory;
-        $this->coreHelper = $coreHelper;
         $this->resultJsonFactory = $resultJsonFactory;
+        $this->feedStatus        = $feedStatus;
+        $this->storeManager      = $storeManager;
+
         parent::__construct(
             $context
         );
     }
-    
+
+    /**
+     * @return Json
+     */
     public function execute()
     {
-        session_write_close();
-        $contents = "";
         $storeId =  (int)$this->getRequest()->getParam('storeid');
-        $progressFileName = $this->coreHelper->getProgressFileName("all");
-        if ($progressFileName != null && file_exists($progressFileName)) {
-            $contents = file_get_contents($progressFileName);
+
+        if (empty($storeId)) {
+            $store = $this->storeManager->getDefaultStoreView();
+            if ($store) {
+                $storeId = $store->getId();
+            }
         }
-        return $this->resultJsonFactory->create()->setData(json_decode($contents));
+
+        $status = [
+            'product' => $this->feedStatus->getFeedStatus('product', $storeId),
+            'category' => $this->feedStatus->getFeedStatus('category', $storeId),
+            'user' => $this->feedStatus->getFeedStatus('user', $storeId),
+            'brand' => $this->feedStatus->getFeedStatus('brand', $storeId),
+            'orders' => $this->feedStatus->getFeedStatus('orders', $storeId)
+        ];
+
+        return $this->resultJsonFactory->create()->setData($status);
     }
 }

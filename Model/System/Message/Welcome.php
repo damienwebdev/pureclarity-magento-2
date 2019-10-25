@@ -9,22 +9,41 @@ namespace Pureclarity\Core\Model\System\Message;
 use Magento\Framework\Notification\MessageInterface;
 use Magento\Framework\App\Config\ScopeConfigInterface;
 use Magento\Framework\Phrase;
+use Magento\Framework\UrlInterface;
+use Pureclarity\Core\Api\StateRepositoryInterface;
 
+/**
+ * Class Welcome
+ *
+ * Displays welcome notification in admin if module is not configured
+ */
 class Welcome implements MessageInterface
 {
     /** @var string */
     const MESSAGE_IDENTITY = 'pureclarity_system_message';
 
-    /** @var ScopeConfigInterface */
+    /** @var ScopeConfigInterface $scopeConfig */
     private $scopeConfig;
+
+    /** @var StateRepositoryInterface $stateRepository */
+    private $stateRepository;
+
+    /** @var UrlInterface $url */
+    private $url;
 
     /**
      * @param ScopeConfigInterface $scopeConfig
+     * @param StateRepositoryInterface $stateRepository
+     * @param UrlInterface $url
      */
     public function __construct(
-        ScopeConfigInterface $scopeConfig
+        ScopeConfigInterface $scopeConfig,
+        StateRepositoryInterface $stateRepository,
+        UrlInterface $url
     ) {
-        $this->scopeConfig = $scopeConfig;
+        $this->scopeConfig     = $scopeConfig;
+        $this->stateRepository = $stateRepository;
+        $this->url             = $url;
     }
 
     /**
@@ -44,7 +63,17 @@ class Welcome implements MessageInterface
      */
     public function isDisplayed()
     {
-        return $this->scopeConfig->getValue('pureclarity/credentials/access_key') ? false : true;
+        $shouldDisplay = false;
+        $accessKey = $this->scopeConfig->getValue('pureclarity/credentials/access_key');
+
+        if (!$accessKey) {
+            $state = $this->stateRepository->getByNameAndStore('is_configured', 0);
+            if ($state->getId() === null) {
+                $shouldDisplay = true;
+            }
+        }
+
+        return $shouldDisplay;
     }
 
     /**
@@ -54,15 +83,10 @@ class Welcome implements MessageInterface
      */
     public function getText()
     {
-        $text = 'Welcome to <strong>PureClarity</strong> Personalization! <br /><br />'
-        . '<strong>Setting up your account:</strong><br /><br />'
-        . 'Please get in touch with <a href="mailto:support@pureclarity.com">support@pureclarity.com</a> to request an '
-        . 'account. Your Success Manager will get you set up within one working day. <br /><br />'
-        . 'Finalize your implementation by putting in your access keys, found in PureClarity admin under My Account > '
-        . 'My Profile. <br /><br />To learn more about the implementation '
-        . '<a href="https://support.pureclarity.com/hc/en-us/sections/360000118834-Magento-2-x" target="_blank">'
-        . 'click here</a>.<br /><br />'
-        . 'Check out our pricing information <a href="https://www.pureclarity.com/pricing/" target="_blank">here</a>.';
+        $text = 'Welcome to <strong>PureClarity</strong> Personalization!'
+            . ' Please <a href="' . $this->url->getUrl('pureclarity/dashboard/index') . '">click here to go to the '
+            . 'plugin dashboard</a> to begin setting up <strong>PureClarity</strong>.'
+            . ' You can also access this from the Content submenu in the main menu';
 
         return __($text, ['strong', 'a', 'br']);
     }

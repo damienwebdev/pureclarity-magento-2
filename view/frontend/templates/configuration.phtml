@@ -1,10 +1,14 @@
-<?php if ($this->isActive()) : ?>
+<?php
+/**
+ * Copyright © PureClarity. All rights reserved.
+ * See LICENSE.txt for license details.
+ */
+/** @var \Pureclarity\Core\Block\Configuration $block */ ?>
+
+<?php if ($block->isActive()): ?>
 
 <script type="text/javascript">
-    window.pureclarityConfig = <?php echo json_encode($this->getConfiguration()); ?>;
-    if (pureclarityConfig.state.isActive && pureclarityConfig.search.isClientSearch){
-        document.write('<style type="text/css">' + pureclarityConfig.search.DOMSelector + ' { display:none }</style>');
-    }    
+    window.pureclarityConfig = <?php echo json_encode($block->getConfiguration()); ?>;
 </script>
 
 <?php endif; ?>

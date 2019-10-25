@@ -1,52 +1,93 @@
 <?php
+/**
+ * Copyright © PureClarity. All rights reserved.
+ * See LICENSE.txt for license details.
+ */
 
 namespace Pureclarity\Core\Block;
 
+use Magento\Catalog\Model\Product;
+use Magento\Checkout\Model\Session;
+use Magento\Framework\App\ProductMetadataInterface;
+use Magento\Framework\App\Request\Http;
+use Magento\Framework\Exception\NoSuchEntityException;
+use Magento\Framework\Registry;
 use Magento\Framework\View\Element\Template;
 use Magento\Framework\View\Element\Template\Context;
+use Pureclarity\Core\Helper\Data;
+use Pureclarity\Core\Helper\Service\CustomerDetails;
+use Pureclarity\Core\Helper\Service\Url;
+use Pureclarity\Core\Model\CoreConfig;
 
+/**
+ * Class Configuration
+ *
+ * builds config array for PureClarity API Javascript
+ */
 class Configuration extends Template
 {
-    public $coreHelper;
-    public $checkoutSession;
-    public $customerSession;
-    public $logger;
-    public $cart;
-    public $productCollection;
-    public $request;
-    public $product;
-    public $category;
-    public $order;
-    public $orderitems = [];
+    /** @var integer $storeId */
+    private $storeId;
+
+    /** @var Product $product */
+    private $product;
+
+    /** @var Data $coreHelper */
+    private $coreHelper;
+
+    /** @var Session $checkoutSession */
+    private $checkoutSession;
+
+    /** @var Http $request */
+    private $request;
+
+    /** @var Registry $registry */
+    private $registry;
+
+    /** @var ProductMetadataInterface $productMetadata */
     private $productMetadata;
     
-    /** @var \Pureclarity\Core\Helper\Service\CustomerDetails */
+    /** @var CustomerDetails $customerDetails */
     private $customerDetails;
 
+    /** @var Url $serviceUrl */
+    private $serviceUrl;
+
+    /** @var CoreConfig $coreConfig */
+    private $coreConfig;
+
+    /**
+     * @param Context $context
+     * @param Data $coreHelper
+     * @param Session $checkoutSession
+     * @param Http $request
+     * @param Registry $registry
+     * @param ProductMetadataInterface $productMetadata
+     * @param CustomerDetails $customerDetails
+     * @param Url $serviceUrl
+     * @param CoreConfig $coreConfig
+     * @param array $data
+     */
     public function __construct(
         Context $context,
-        \Pureclarity\Core\Helper\Data $coreHelper,
-        \Magento\Checkout\Model\Cart $cart,
-        \Magento\Checkout\Model\Session $checkoutSession,
-        \Magento\Customer\Model\Session $customerSession,
-        \Magento\Catalog\Model\ResourceModel\Product\CollectionFactory $productCollection,
-        \Magento\Framework\App\Request\Http $request,
-        \Magento\Framework\Registry $registry,
-        \Magento\Framework\App\ProductMetadataInterface $productMetadata,
-        \Pureclarity\Core\Helper\Service\CustomerDetails $customerDetails,
+        Data $coreHelper,
+        Session $checkoutSession,
+        Http $request,
+        Registry $registry,
+        ProductMetadataInterface $productMetadata,
+        CustomerDetails $customerDetails,
+        Url $serviceUrl,
+        CoreConfig $coreConfig,
         array $data = []
     ) {
-        $this->logger = $context->getLogger();
-        $this->coreHelper = $coreHelper;
+        $this->coreHelper      = $coreHelper;
         $this->checkoutSession = $checkoutSession;
-        $this->customerSession = $customerSession;
-        $this->cart = $cart;
-        $this->productCollection = $productCollection;
-        $this->request = $request;
-        $this->product = $registry->registry("product");
-        $this->category = $registry->registry("current_category");
+        $this->request         = $request;
+        $this->registry        = $registry;
         $this->productMetadata = $productMetadata;
         $this->customerDetails = $customerDetails;
+        $this->serviceUrl      = $serviceUrl;
+        $this->coreConfig      = $coreConfig;
         parent::__construct($context, $data);
     }
 
@@ -54,26 +95,16 @@ class Configuration extends Template
     {
         $objectManager = \Magento\Framework\App\ObjectManager::getInstance();
         $formKey = $objectManager->get('Magento\Framework\Data\Form\FormKey');
+        $customerDetails = $this->customerDetails->getCustomerDetails();
 
-        if ($this->isServerSide()) {
-            $customerDetails = $this->customerDetails->getEmptyCustomerDetails();
-        } else {
-            $customerDetails = $this->customerDetails->getCustomerDetails();
-        }
-        
         return [
-            "apiUrl" => $this->getApiStartUrl(),
+            "apiUrl" => $this->serviceUrl->getClientScriptUrl($this->coreConfig->getAccessKey($this->getStoreId())),
             "currency" => $this->getCurrencyCode(),
             "product" => $this->getProduct(),
             "state" => [
                 "isActive" => $this->isActive()?true:false,
-                "serversideMode" => $this->isServerSide()?true:false,
+                "serversideMode" => false,
                 "isLogout" => $this->isLogOut()?true:false
-            ],
-            "search" => [
-                "isClientSearch" => $this->isClientSearch()?true:false,
-                "DOMSelector" => $this->getDOMSelector(),
-                "dataValue" => $this->getSearchDataValue()
             ],
             "customerDetails" => $customerDetails,
             "order" => $this->getOrder(),
@@ -89,12 +120,24 @@ class Configuration extends Template
     
     public function isActive()
     {
-        return $this->coreHelper->isActive($this->_storeManager->getStore()->getId());
+        return $this->coreConfig->isActive($this->getStoreId());
     }
 
-    public function isServerSide()
+    /**
+     * Gets the current store ID
+     *
+     * @return int
+     */
+    public function getStoreId()
     {
-        return $this->coreHelper->isServerSide($this->_storeManager->getStore()->getId());
+        if ($this->storeId === null) {
+            try {
+                $this->storeId = $this->_storeManager->getStore()->getId();
+            } catch (NoSuchEntityException $e) {
+                $this->storeId = 0;
+            }
+        }
+        return $this->storeId;
     }
 
     public function isLogOut()
@@ -104,25 +147,17 @@ class Configuration extends Template
 
     public function getNumberSwatchesPerProduct()
     {
-        return $this->coreHelper->getNumberSwatchesPerProduct($this->_storeManager->getStore()->getId());
+        return $this->coreConfig->getNumberSwatchesPerProduct($this->getStoreId());
     }
 
     public function showSwatches()
     {
-        return $this->coreHelper->showSwatches($this->_storeManager->getStore()->getId());
-    }
-
-    public function isCheckoutSuccess()
-    {
-        if (!$this->isServerSide() && $this->request->getFullActionName() == 'checkout_onepage_success') {
-            $this->initOrderData();
-            return true;
-        };
-        return false;
+        return $this->coreConfig->showSwatches($this->getStoreId());
     }
 
     public function getProduct()
     {
+        $this->product = $this->registry->registry("product");
         if ($this->product != null) {
             return [
                 "Id" => $this->product->getId(),
@@ -132,66 +167,15 @@ class Configuration extends Template
         return null;
     }
 
-    public function getApiStartUrl()
-    {
-        return $this->coreHelper->getApiStartUrl();
-    }
-
     public function getCurrencyCode()
     {
         return $this->_storeManager->getStore()->getCurrentCurrency()->getCode();
     }
 
-    public function getSearchDataValue()
-    {
-        if ($this->isClientSearch()) {
-            if ($this->isSearchPage()) {
-                return "navigation_search";
-            } elseif ($this->isCategoryPage() && $this->category) {
-                return "navigation_category:" . $this->category->getId();
-            }
-        }
-        return "";
-    }
-    
-    public function isClientSearch()
-    {
-        $storeId = $this->_storeManager->getStore()->getId();
-        return ($this->coreHelper->isActive($storeId) &&
-                !$this->coreHelper->isServerSide($storeId) &&
-                ($this->isSearchPage() || $this->isCategoryPage()));
-    }
-
-    public function getDOMSelector()
-    {
-        return $this->coreHelper->getDOMSelector($this->_storeManager->getStore()->getId());
-    }
-
-    public function isSearchPage($storeId = null)
-    {
-        if ($this->coreHelper->isSearchActive($storeId) &&
-            $this->request->getFullActionName() === 'catalogsearch_result_index'
-        ) {
-            return true;
-        }
-        return false;
-    }
-
-    public function isCategoryPage($storeId = null)
-    {
-        
-        if ($this->coreHelper->isProdListingActive($storeId) && $this->request->getControllerName() == 'category') {
-            if ($this->category && $this->category->getDisplayMode() !== 'PAGE') {
-                return true;
-            }
-        }
-        return false;
-    }
-
     public function getOrder()
     {
         
-        if (!$this->isServerSide() && $this->request->getFullActionName() == 'checkout_onepage_success') {
+        if ($this->request->getFullActionName() == 'checkout_onepage_success') {
             $lastOrder = $this->checkoutSession->getLastRealOrder();
             $order = [
                 "orderid" => $lastOrder['increment_id'],
@@ -200,7 +184,8 @@ class Configuration extends Template
                 "postcode" => $lastOrder->getShippingAddress()['postcode'],
                 "userid" => $lastOrder['customer_id'],
                 "groupid" => $lastOrder['customer_group_id'],
-                "ordertotal" => $lastOrder['grand_total']
+                "ordertotal" => $lastOrder['grand_total'],
+                'email' => $lastOrder['customer_email']
             ];
 
             $orderItems = [];

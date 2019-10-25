@@ -10,9 +10,14 @@ use Magento\Framework\Registry;
 use Magento\Customer\Model\Session as CustomerSession;
 use Pureclarity\Core\Model\ProductExport\PriceHandler;
 
+/**
+ * Class Session
+ *
+ * Overrides customer group when building product pricing in feeds
+ */
 class Session
 {
-    /** @var \Magento\Framework\Registry */
+    /** @var Registry $registry */
     private $registry;
     
     /**

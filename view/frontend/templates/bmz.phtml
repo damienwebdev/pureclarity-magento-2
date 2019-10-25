@@ -1,1 +1,8 @@
-<div <?php echo $this->getBmzData() ?> class="<?php echo $this->getClasses() ?>" style="<?php echo (!$this->debug && !$this->isServerSide ? "display:none;":""); ?>"><?php echo $this->getContent(); ?></div>
+<?php
+/**
+ * Copyright © PureClarity. All rights reserved.
+ * See LICENSE.txt for license details.
+ */
+/** @var \Pureclarity\Core\Block\Bmz $block */
+?>
+<div <?php echo $this->getBmzData() ?> class="<?php echo $this->getClasses() ?>" style="<?php echo (!$this->getDebugMode() ? "display:none;":""); ?>"><?php echo $this->getContent(); ?></div>

@@ -1,17 +1,12 @@
+/**
+ * Copyright © PureClarity. All rights reserved.
+ * See LICENSE.txt for license details.
+ */
+
 require(['jquery', 'priceBox'], function ($, priceBox) {
     // Before initialise, check we're active
     if (typeof pureclarityConfig === 'undefined' || !pureclarityConfig.state.isActive) {
         return; 
-    }
-
-    // If search or category page prepare elements
-    if (pureclarityConfig.search.isClientSearch && pureclarityConfig.search.DOMSelector != "") {
-        var pcContainer = document.createElement('div');
-        var wrapper = document.createElement('div');
-        $(wrapper).addClass('pureclarity-wrapper');
-        $(pcContainer).addClass('pureclarity-container').attr("data-pureclarity", pureclarityConfig.search.dataValue);
-        $(pureclarityConfig.search.DOMSelector).wrap(wrapper);
-        $(".pureclarity-wrapper").append(pcContainer);
     }
 
     var Base64 = {
@@ -164,10 +159,6 @@ require(['jquery', 'priceBox'], function ($, priceBox) {
         _pc('page_view');
         _pc('callback_event', function (type) {
             require([pureclarityConfig.swatchRenderer], function () {
-                if (type == "search") {
-                    var $sideBarAdditional = $(".sidebar-additional");
-                    $sideBarAdditional.appendTo($("#pc-filter"));
-                }
                 var items = $("[pureclarity-data-item]");
                 for (var i=0; i<items.length; i++) {
                     var $item = $(items[i]);
