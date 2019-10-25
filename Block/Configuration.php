@@ -184,12 +184,9 @@ class Configuration extends Template
                 "postcode" => $lastOrder->getShippingAddress()['postcode'],
                 "userid" => $lastOrder['customer_id'],
                 "groupid" => $lastOrder['customer_group_id'],
-                "ordertotal" => $lastOrder['grand_total']
+                "ordertotal" => $lastOrder['grand_total'],
+                'email' => $lastOrder['customer_email']
             ];
-
-            if (empty($order['userid'])) {
-                $order['email'] = $lastOrder['customer_email'];
-            }
 
             $orderItems = [];
             $visibleItems = $lastOrder->getAllVisibleItems();
