@@ -52,14 +52,14 @@ class Categories implements OptionSourceInterface
                 foreach ($stores as $store) {
                     if (!in_array($store->getRootCategoryId(), $rootCategories)) {
                         $rootCategories[] = $store->getRootCategoryId();
-                        $this->getSubGategories($store->getRootCategoryId());
+                        $this->getSubCategories($store->getRootCategoryId());
                     }
                 }
             }
         }
     }
 
-    private function getSubGategories($id, $prefix = '')
+    private function getSubCategories($id, $prefix = '')
     {
 
         $category = $this->categoryRepository->get($id);
@@ -70,7 +70,7 @@ class Categories implements OptionSourceInterface
         ];
         $subcategories = $category->getChildrenCategories();
         foreach ($subcategories as $subcategory) {
-            $this->getSubGategories($subcategory->getId(), $label . ' -> ');
+            $this->getSubCategories($subcategory->getId(), $label . ' -> ');
         }
     }
 
