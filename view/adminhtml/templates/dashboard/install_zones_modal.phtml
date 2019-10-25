@@ -46,8 +46,12 @@ $themes = $block->getPureclarityThemesViewModel();
     </div>
 </div>
 <script>
-    require(['jquery','Magento_Ui/js/modal/modal'],
-        function($, modal){
+    require([
+        'jquery',
+        'Magento_Ui/js/modal/modal',
+        'Magento_Ui/js/modal/alert'
+        ],
+        function($, modal, modalAlert){
             let pureclarityZoneObj = {
                 // Set vars
                 installUrl: '<?= $block->escapeUrl($block->getUrl('pureclarity/bmz/install')) ?>',
@@ -123,7 +127,20 @@ $themes = $block->getPureclarityThemesViewModel();
                             pureclarityZoneObj.message('Error. There has been an error installing Zones. The error has been logged.');
                         }
                         pureclarityZoneObj.resetState();
-                    });
+                    }).fail(function(jqXHR, status, err) {
+                        modalAlert({
+                            title: $.mage.__('Error'),
+                            content: $.mage.__('Please reload the page and try again'),
+                            modalClass: 'alert',
+                            buttons: [{
+                                text: $.mage.__('Ok'),
+                                class: 'action primary accept',
+                                click: function () {
+                                    this.closeModal(true);
+                                }
+                            }]
+                        });
+                    });;
                 }
             }
 

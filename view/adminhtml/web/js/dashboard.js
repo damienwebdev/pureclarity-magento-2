@@ -61,6 +61,19 @@ require(
                         signupContent.modal('openModal');
                         $('#pc-sign-up-response-holder').html(data.error).addClass('error');
                     }
+                }).fail(function(jqXHR, status, err) {
+                    modalAlert({
+                        title: $.mage.__('Error'),
+                        content: $.mage.__('Please reload the page and try again'),
+                        modalClass: 'alert',
+                        buttons: [{
+                            text: $.mage.__('Ok'),
+                            class: 'action primary accept',
+                            click: function () {
+                                this.closeModal(true);
+                            }
+                        }]
+                    });
                 });
             }
         }
@@ -102,6 +115,19 @@ require(
                             }]
                         });
                     }
+                }).fail(function(jqXHR, status, err) {
+                    modalAlert({
+                        title: $.mage.__('Error'),
+                        content: $.mage.__('Please reload the page and try again'),
+                        modalClass: 'alert',
+                        buttons: [{
+                            text: $.mage.__('Ok'),
+                            class: 'action primary accept',
+                            click: function () {
+                                this.closeModal(true);
+                            }
+                        }]
+                    });
                 });
             }
         }
@@ -133,6 +159,19 @@ require(
                         }]
                     });
                 }
+            }).fail(function(jqXHR, status, err) {
+                modalAlert({
+                    title: $.mage.__('Error'),
+                    content: $.mage.__('Please reload the page and try again'),
+                    modalClass: 'alert',
+                    buttons: [{
+                        text: $.mage.__('Ok'),
+                        class: 'action primary accept',
+                        click: function () {
+                            this.closeModal(true);
+                        }
+                    }]
+                });
             });
         }
 
@@ -175,6 +214,19 @@ require(
                 } else {
                     setTimeout(checkStatus, 5000);
                 }
+            }).fail(function(jqXHR, status, err) {
+                modalAlert({
+                    title: $.mage.__('Error'),
+                    content: $.mage.__('Please reload the page and try again'),
+                    modalClass: 'alert',
+                    buttons: [{
+                        text: $.mage.__('Ok'),
+                        class: 'action primary accept',
+                        click: function () {
+                            this.closeModal(true);
+                        }
+                    }]
+                });
             });
         }
 
@@ -315,7 +367,18 @@ require(
                     pcInitProgress();
                     setTimeout(pcFeedProgressCheck, 1000);
             }).fail(function(jqXHR, status, err) {
-                feedRunObject.callError = jqXHR.responseText;
+                modalAlert({
+                    title: $.mage.__('Error'),
+                    content: $.mage.__('Please reload the page and try again'),
+                    modalClass: 'alert',
+                    buttons: [{
+                        text: $.mage.__('Ok'),
+                        class: 'action primary accept',
+                        click: function () {
+                            this.closeModal(true);
+                        }
+                    }]
+                });
             });
         }
 
@@ -392,6 +455,19 @@ require(
                         feedModalButton.removeClass('pc-disabled');
                     }
                 }
+            }).fail(function(jqXHR, status, err) {
+                modalAlert({
+                    title: $.mage.__('Error'),
+                    content: $.mage.__('Please reload the page and try again'),
+                    modalClass: 'alert',
+                    buttons: [{
+                        text: $.mage.__('Ok'),
+                        class: 'action primary accept',
+                        click: function () {
+                            this.closeModal(true);
+                        }
+                    }]
+                });
             });
         }
 
