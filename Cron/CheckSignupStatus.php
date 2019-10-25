@@ -60,7 +60,7 @@ class CheckSignupStatus
     /**
      * Checks to see if there is a signup request in progress, and if so checks it's status and processes if necessary
      *
-     * This is a cather for if the user navigates away from setup page when
+     * This is a catcher for if the user navigates away from setup page when
      */
     public function execute()
     {
