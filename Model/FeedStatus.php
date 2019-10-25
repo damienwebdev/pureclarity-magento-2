@@ -119,6 +119,7 @@ class FeedStatus
             $status = $this->getFeedStatus($type, $storeId);
             if ($status['enabled'] === true) {
                 $disabled = false;
+                break;
             }
         }
 
