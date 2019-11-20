@@ -18,6 +18,8 @@ use Pureclarity\Core\Helper\Data;
 use Magento\Customer\Model\ResourceModel\Customer\CollectionFactory as CustomerCollectionFactory;
 use Magento\Customer\Model\ResourceModel\Group\Collection as CustomerGroupCollection;
 use Pureclarity\Core\Helper\Service\Url;
+use Magento\Store\Model\App\Emulation;
+use Magento\Framework\App\Area;
 
 /**
  * Class Feed
@@ -98,6 +100,7 @@ class Feed
      * @param LoggerInterface $logger
      * @param CoreConfig $coreConfig
      * @param Url $serviceUrl
+     * @param Emulation $appEmulation
      */
     public function __construct(
         CategoryCollectionFactory $categoryCollectionFactory,
@@ -110,7 +113,8 @@ class Feed
         StateRepositoryInterface $stateRepository,
         LoggerInterface $logger,
         CoreConfig $coreConfig,
-        Url $serviceUrl
+        Url $serviceUrl,
+        Emulation $appEmulation
     ) {
         $this->categoryCollectionFactory = $categoryCollectionFactory;
         $this->categoryRepository        = $categoryRepository;
@@ -123,6 +127,7 @@ class Feed
         $this->stateRepository           = $stateRepository;
         $this->coreConfig                = $coreConfig;
         $this->serviceUrl                = $serviceUrl;
+        $this->appEmulation                      = $appEmulation;
 
         /*
          * If Magento does not have the recommended level of memory for PHP, can cause the feeds
@@ -142,6 +147,9 @@ class Feed
         if (! $this->isInitialised()) {
             return false;
         }
+
+        // emulate frontend so product images work correctly
+        $this->appEmulation->startEnvironmentEmulation($this->storeId, Area::AREA_FRONTEND, true);
 
         $this->logger->debug("PureClarity: In Feed->sendProducts()");
         $productExportModel = $this->productExportFactory->create();
@@ -203,6 +211,8 @@ class Feed
         }
 
         $this->logger->debug("PureClarity: Finished sending product data");
+
+        $this->appEmulation->stopEnvironmentEmulation();
     }
 
     /**
