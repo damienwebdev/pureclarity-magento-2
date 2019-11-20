@@ -116,7 +116,7 @@ class ImagesTest extends TestCase
 
         $this->galleryBlock->expects($this->at(1))
             ->method('getImage')
-            ->with($this->product, 'product_base_image')
+            ->with($this->product, 'category_page_grid')
             ->willReturn($this->galleryImage);
 
         $this->galleryImage->expects($this->at(0))
