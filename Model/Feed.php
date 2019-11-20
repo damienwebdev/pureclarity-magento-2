@@ -88,6 +88,9 @@ class Feed
     /** @var Url $serviceUrl */
     private $serviceUrl;
 
+    /** @var Emulation $appEmulation */
+    private $appEmulation;
+
     /**
      * @param CategoryCollectionFactory $categoryCollectionFactory
      * @param CategoryRepository $categoryRepository
@@ -127,7 +130,7 @@ class Feed
         $this->stateRepository           = $stateRepository;
         $this->coreConfig                = $coreConfig;
         $this->serviceUrl                = $serviceUrl;
-        $this->appEmulation                      = $appEmulation;
+        $this->appEmulation              = $appEmulation;
 
         /*
          * If Magento does not have the recommended level of memory for PHP, can cause the feeds
