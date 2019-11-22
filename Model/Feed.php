@@ -154,66 +154,70 @@ class Feed
         // emulate frontend so product images work correctly
         $this->appEmulation->startEnvironmentEmulation($this->storeId, Area::AREA_FRONTEND, true);
 
-        $this->logger->debug("PureClarity: In Feed->sendProducts()");
-        $productExportModel = $this->productExportFactory->create();
-        $productExportModel->init($this->storeId);
-        $this->logger->debug("PureClarity: Initialised ProductExport");
+        try {
+            $this->logger->debug("PureClarity: In Feed->sendProducts()");
+            $productExportModel = $this->productExportFactory->create();
+            $productExportModel->init($this->storeId);
+            $this->logger->debug("PureClarity: Initialised ProductExport");
 
-        $this->coreHelper->setProgressFile($this->progressFileName, self::FEED_TYPE_PRODUCT, 0, 1);
-        $this->logger->debug("PureClarity: Set progress");
+            $this->coreHelper->setProgressFile($this->progressFileName, self::FEED_TYPE_PRODUCT, 0, 1);
+            $this->logger->debug("PureClarity: Set progress");
 
-        $currentPage = 0;
-        $pages = 0;
+            $currentPage = 0;
+            $pages = 0;
 
-        // loop through products, POSTing string for each page as it loops through
-        $writtenProduct = false;
-        do {
-            $result = $productExportModel->getFullProductFeed($pageSize, $currentPage);
+            // loop through products, POSTing string for each page as it loops through
+            $writtenProduct = false;
+            do {
+                $result = $productExportModel->getFullProductFeed($pageSize, $currentPage);
 
-            if (!empty($result["Products"])) {
-                if (!$writtenProduct) {
-                    $this->start(self::FEED_TYPE_PRODUCT);
-                }
-                
-                $this->logger->debug("PureClarity: Got result from product export model");
-
-                $pages = $result["Pages"];
-            
-                $json = (!$writtenProduct ? ',"Products":[' : "");
-                foreach ($result["Products"] as $product) {
-                    if ($writtenProduct) {
-                        $json .= ',';
+                if (!empty($result["Products"])) {
+                    if (!$writtenProduct) {
+                        $this->start(self::FEED_TYPE_PRODUCT);
                     }
-                    $writtenProduct = true;
-                    $json .= $this->coreHelper->formatFeed($product, 'json');
-                }
-                
-                $parameters = $this->getParameters($json, self::FEED_TYPE_PRODUCT);
-                
-                if ($writtenProduct) {
-                    $this->send("feed-append", $parameters);
-                }
 
-                $this->coreHelper->setProgressFile(
-                    $this->progressFileName,
-                    self::FEED_TYPE_PRODUCT,
-                    $currentPage,
-                    $pages
-                );
+                    $this->logger->debug("PureClarity: Got result from product export model");
+
+                    $pages = $result["Pages"];
+
+                    $json = (!$writtenProduct ? ',"Products":[' : "");
+                    foreach ($result["Products"] as $product) {
+                        if ($writtenProduct) {
+                            $json .= ',';
+                        }
+                        $writtenProduct = true;
+                        $json .= $this->coreHelper->formatFeed($product, 'json');
+                    }
+
+                    $parameters = $this->getParameters($json, self::FEED_TYPE_PRODUCT);
+
+                    if ($writtenProduct) {
+                        $this->send("feed-append", $parameters);
+                    }
+
+                    $this->coreHelper->setProgressFile(
+                        $this->progressFileName,
+                        self::FEED_TYPE_PRODUCT,
+                        $currentPage,
+                        $pages
+                    );
+                }
+                $currentPage++;
+            } while ($currentPage <= $pages);
+
+            $this->endFeedAppend(self::FEED_TYPE_PRODUCT, $writtenProduct);
+
+            if ($writtenProduct) {
+                $this->end(self::FEED_TYPE_PRODUCT);
+                $this->saveRunDate(self::FEED_TYPE_PRODUCT, $this->storeId);
+            } else {
+                $this->logger->debug("PureClarity: Could not find any product to upload");
             }
-            $currentPage++;
-        } while ($currentPage <= $pages);
 
-        $this->endFeedAppend(self::FEED_TYPE_PRODUCT, $writtenProduct);
-
-        if ($writtenProduct) {
-            $this->end(self::FEED_TYPE_PRODUCT);
-            $this->saveRunDate(self::FEED_TYPE_PRODUCT, $this->storeId);
-        } else {
-            $this->logger->debug("PureClarity: Could not find any product to upload");
+            $this->logger->debug("PureClarity: Finished sending product data");
+        } catch (\Exception $e) {
+            $this->logger->debug("PureClarity: Product feed error: " . $e->getMessage());
         }
-
-        $this->logger->debug("PureClarity: Finished sending product data");
 
         $this->appEmulation->stopEnvironmentEmulation();
     }
