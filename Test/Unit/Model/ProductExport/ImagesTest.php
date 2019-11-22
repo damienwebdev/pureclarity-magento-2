@@ -188,8 +188,6 @@ class ImagesTest extends TestCase
         $this->assertEquals('https://www.pureclarity.com/catalog/product/placeholder/magento-placeholder.jpg', $url);
     }
 
-
-
     public function testGetProductGalleryUrls()
     {
         $this->setupGalleryBlock();
@@ -224,7 +222,8 @@ class ImagesTest extends TestCase
         $this->assertEquals(['smallImage.jpg', 'smallImage2.jpg'], $urls);
     }
 
-    private function setupGalleryBlock() {
+    private function setupGalleryBlock()
+    {
         $config = [
             'small_image' => [
                 'image_id' => 'product_page_image_small',
