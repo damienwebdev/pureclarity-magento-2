@@ -20,6 +20,7 @@ use Magento\Store\Model\StoreManagerInterface;
 use Psr\Log\LoggerInterface;
 use Pureclarity\Core\Helper\Data;
 use Pureclarity\Core\Model\ProductExport\PriceHandler;
+use Pureclarity\Core\Model\ProductExport\Images;
 use Magento\Directory\Helper\Data as DirectoryHelperData;
 
 /**
@@ -106,8 +107,8 @@ class ProductExport
     /** @var CoreConfig $coreConfig */
     private $coreConfig;
 
-    /** @var \Magento\Catalog\Model\Product\Gallery\ReadHandler $galleryReadHandler */
-    private $galleryReadHandler;
+    /** @var Images $productImages */
+    private $productImages;
 
     /**
      * @param StoreManagerInterface $storeManager
@@ -125,6 +126,7 @@ class ProductExport
      * @param PriceHandler $corePriceHandler
      * @param LoggerInterface $logger
      * @param CoreConfig $coreConfig
+     * @param Images $productImages
      */
     public function __construct(
         StoreManagerInterface $storeManager,
@@ -141,7 +143,8 @@ class ProductExport
         BlockFactory $blockFactory,
         PriceHandler $corePriceHandler,
         LoggerInterface $logger,
-        CoreConfig $coreConfig
+        CoreConfig $coreConfig,
+        Images $productImages
     ) {
         $this->storeManager                      = $storeManager;
         $this->storeFactory                      = $storeFactory;
@@ -158,6 +161,7 @@ class ProductExport
         $this->corePriceHandler                  = $corePriceHandler;
         $this->logger                            = $logger;
         $this->coreConfig                        = $coreConfig;
+        $this->productImages                     = $productImages;
     }
     
     // Initialise the model ready to call the product data for the give store.
@@ -269,8 +273,6 @@ class ProductExport
     // Gets the data for a product.
     public function processProduct(&$product, $index)
     {
-        session_write_close(); //ensures progress feed in GUI is updated
-
         // Check hash that we've not already seen this product
         if (!array_key_exists($product->getId(), $this->seenProductIds) ||
             $this->seenProductIds[$product->getId()] === null
@@ -301,36 +303,8 @@ class ProductExport
                 $productUrl = str_replace(["https:", "http:"], "", $productUrl);
             }
             
-            // Get Product Image URL
-            $baseProductImageUrl = $this->currentStore->getBaseUrl(\Magento\Framework\UrlInterface::URL_TYPE_MEDIA)
-                                 . "catalog/product/";
-            $productImageUrl = $baseProductImageUrl;
-            if ($product->getImage() && $product->getImage() != 'no_selection') {
-                $productImageUrl .= $product->getImage();
-            } else {
-                $productImageUrl .= "placeholder/"
-                                 . $this->currentStore->getConfig("catalog/placeholder/image_placeholder");
-            }
-            $productImageUrl = str_replace(["https:", "http:"], "", $productImageUrl);
-
-            /**
-             * \Magento\Catalog\Model\Product\Gallery\ReadHandler does not exist in Magento 2.0
-             * - this is a workaround which avoids having the ReadHandler as a constructor parameter
-             */
-            if ($this->getGalleryReadHandler()) {
-                $this->getGalleryReadHandler()->execute($product);
-                $productImages = $product->getMediaGalleryImages();
-            } else {
-                $productImages = [];
-                $productImages[] = $baseProductImageUrl . $product->getImage();
-                $productImages[] = $baseProductImageUrl . $product->getThumbnail();
-                $productImages[] = $baseProductImageUrl . $product->getSmallImage();
-            }
-
-            $allImages = [];
-            foreach ($productImages as $image) {
-                $allImages[] = str_replace(["https:", "http:"], "", (is_object($image) ? $image->getUrl() : $image));
-            }
+            $productImageUrl = $this->productImages->getProductImageUrl($product, $this->currentStore);
+            $allImages = $this->productImages->getProductGalleryUrls($product);
 
             // Set standard data
             $data = [
@@ -350,7 +324,7 @@ class ProductExport
                 "InStock" => $this->stockRegistry->getStockItem($product->getId())->getIsInStock() ? 'true' : 'false'
             ];
 
-            if (sizeof($allImages) > 0) {
+            if (count($allImages) > 0) {
                 $data["AllImages"] = $allImages;
             }
 
@@ -625,29 +599,5 @@ class ProductExport
                 }
             }
         }
-    }
-
-    /**
-     * Returns \Magento\Catalog\Model\Product\Gallery\ReadHandler if the class exists,
-     * otherwise returns false
-     */
-    protected function getGalleryReadHandler()
-    {
-        if (is_null($this->galleryReadHandler)) {
-            if (class_exists('\\Magento\\Catalog\\Model\\Product\\Gallery\\ReadHandler')) {
-                $this->logger->debug('PureClarity: ReadHandler class exists.');
-
-                //using object manager here for backward compatibility issues
-                $objectManager = \Magento\Framework\App\ObjectManager::getInstance();
-                $this->galleryReadHandler = $objectManager->create(
-                    '\Magento\Catalog\Model\Product\Gallery\ReadHandler'
-                );
-                $this->logger->debug('PureClarity: Have created ReadHandler.');
-            } else {
-                $this->logger->debug('PureClarity: ReadHandler class does not exist.');
-                $this->galleryReadHandler = false;
-            }
-        }
-        return $this->galleryReadHandler;
     }
 }
