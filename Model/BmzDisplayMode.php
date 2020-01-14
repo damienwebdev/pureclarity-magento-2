@@ -5,15 +5,16 @@
  */
 
 namespace Pureclarity\Core\Model;
- 
-use Magento\Framework\Data\OptionSourceInterface;
+
+// Note: using deprectaed class, otherwise Zone widgets are broken in 2.3.0
+use Magento\Framework\Option\ArrayInterface;
 
 /**
  * Class BmzDisplayMode
  *
  * BMZ display mode options
  */
-class BmzDisplayMode implements OptionSourceInterface
+class BmzDisplayMode implements ArrayInterface
 {
     /**
      * @return array
