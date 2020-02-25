@@ -13,6 +13,7 @@ use Magento\Framework\View\Element\Template;
 use Magento\Framework\View\Element\Template\Context;
 use Magento\Widget\Block\BlockInterface;
 use Pureclarity\Core\Helper\Data;
+use Pureclarity\Core\Model\Config\Source\Mode;
 use Pureclarity\Core\Model\CoreConfig;
 
 /**
@@ -43,7 +44,6 @@ class Bmz extends Template implements BlockInterface
     /** @var string $bmzData */
     private $bmzData = "";
 
-    /** @var Data $coreHelper */
     private $coreHelper;
 
     /** @var Registry $registry */
@@ -177,7 +177,7 @@ class Bmz extends Template implements BlockInterface
         return $this->bmzId;
     }
 
-    public function getContent()
+    public function getContentHtml()
     {
         return $this->content;
     }
@@ -187,14 +187,14 @@ class Bmz extends Template implements BlockInterface
         return $this->classes;
     }
 
-    public function getBmzData()
+    public function getBmzDataHtml()
     {
-        return "data-pureclarity=\"$this->bmzData\"";
-    }
+        $data = 'data-pureclarity="' . $this->bmzData . '"';
+        if ($this->coreConfig->getMode($this->getStoreId()) === Mode::MODE_SERVERSIDE) {
+            $data = 'data-serverside-pureclarity="' . $this->bmzData . '"';
+        }
 
-    public function getCacheLifetime()
-    {
-        return null;
+        return $data;
     }
 
     /**
