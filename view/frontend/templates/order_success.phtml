@@ -1,0 +1,20 @@
+<?php
+/**
+ * Copyright © PureClarity. All rights reserved.
+ * See LICENSE.txt for license details.
+ */
+
+use Pureclarity\Core\Model\Config\Source\Mode;
+
+/** @var \Pureclarity\Core\Block\Checkout\Onepage\Success $block */
+/** @var \Pureclarity\Core\ViewModel\Configuration $config */
+/** @var \Pureclarity\Core\ViewModel\Checkout\Onepage\Success $orderSuccess */
+
+$config = $block->getPureclarityConfigurationViewModel();
+if ($config->isActive() && $config->getMode() !== Mode::MODE_SERVERSIDE):
+    $orderSuccess = $block->getPureclarityOrderSuccessViewModel();
+    $orderJson = $orderSuccess->getOrderJson();
+    if ($orderJson): ?>
+        <input type="hidden" id="pc_order_info" value="<?= $block->escapeQuote($orderJson) ?>" />
+    <?php endif; ?>
+<?php endif; ?>
