@@ -20,7 +20,7 @@ use Pureclarity\Core\Helper\Serializer;
 /**
  * Class Renderer
  *
- * Takes Zone data from PureClarity and renders it using Magento Catalog Widgets
+ * Takes Zone data from PureClarity and supplements it with data from Magento
  */
 class ProductData
 {

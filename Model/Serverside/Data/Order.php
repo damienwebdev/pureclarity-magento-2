@@ -14,6 +14,8 @@ use Magento\Sales\Model\Order as SalesOrder;
 class Order
 {
     /**
+     * Builds an array of data from the provided order class, ready to be sent in the order track event
+     *
      * @param SalesOrder $order
      * @return mixed[]
      */

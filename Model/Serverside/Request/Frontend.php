@@ -5,7 +5,6 @@
  */
 namespace Pureclarity\Core\Model\Serverside\Request;
 
-use Pureclarity\Core\Model\Serverside\Request\DataFactory;
 use Pureclarity\Core\Helper\Serverside as ServersideHelper;
 use Pureclarity\Core\Model\Serverside\Response\ProductData;
 use Pureclarity\Core\Model\Serverside\Data\Cookie;
@@ -185,6 +184,7 @@ class Frontend
 
     /**
      * Adds Customer details event to the request (if needed)
+     * @param integer $storeId
      */
     public function addCustomerDetails($storeId)
     {

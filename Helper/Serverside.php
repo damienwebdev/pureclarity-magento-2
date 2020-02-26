@@ -82,6 +82,8 @@ class Serverside
     }
 
     /**
+     * Builds the request array and executes the request
+     *
      * @param Data $request
      */
     public function dispatch($request)
@@ -121,7 +123,9 @@ class Serverside
     }
 
     /**
-     * @param $requestBody
+     * Sends the serverside request to the PureClarity server
+     *
+     * @param mixed[] $requestBody
      */
     public function executeRequest($requestBody)
     {

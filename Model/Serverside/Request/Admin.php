@@ -91,7 +91,6 @@ class Admin
      * Adds the General information to the Request (App info, urls, currency etc)
      *
      * @param string $storeId
-     * @param mixed[] $params
      */
     public function addGeneralInfo($storeId)
     {
