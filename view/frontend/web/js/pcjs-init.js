@@ -3,12 +3,26 @@
  * See LICENSE.txt for license details.
  */
 
-require(['jquery', 'priceBox'], function ($, priceBox) {
+require([
+    'jquery'
+], function ($) {
+    'use strict';
+
     // Before initialise, check we're active
     if (typeof pureclarityConfig === 'undefined' || !pureclarityConfig.state.isActive) {
-        return; 
+        return;
     }
 
+    // Initialise PureClarity
+    (function (w, d, s, u, f) {
+        w['PureClarityObject'] = f;w[f] = w[f] || function () { 
+            (w[f].q = w[f].q || []).push(arguments)
+        }
+        var p = d.createElement(s), h = d.getElementsByTagName(s)[0];
+        p.src = u;p.async=1;h.parentNode.insertBefore(p, h);
+    })(window, document, 'script', window.pureclarityConfig.apiUrl, '_pc');
+
+    // Set up required functions
     var Base64 = {
         _keyStr : "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/=",
         encode : function (input) {
@@ -98,18 +112,18 @@ require(['jquery', 'priceBox'], function ($, priceBox) {
             }
             return string;
         }
-    }
+    };
 
     var stringify = function (obj) {
         var t = typeof (obj);
         if (t != "object" || obj === null) {
             if (t == "string") {
-                obj = '"' + obj + '"'; 
+                obj = '"' + obj + '"';
             }
             return String(obj);
         } else {
             if (JSON) {
-                return JSON.stringify(obj); 
+                return JSON.stringify(obj);
             }
             var n, v, json = [], arr = (obj && obj.constructor == Array);
             for (n in obj) {
@@ -117,137 +131,200 @@ require(['jquery', 'priceBox'], function ($, priceBox) {
                 t = typeof(v);
                 if (obj.hasOwnProperty(n)) {
                     if (t == "string") {
-                        v = '"' + v + '"'; 
+                        v = '"' + v + '"';
                     } else if (t == "object" && v !== null) {
-                        v = $.stringify(v); 
+                        v = $.stringify(v);
                     }
                     json.push((arr ? "" : '"' + n + '":') + String(v));
                 }
             }
             return (arr ? "[" : "{") + String(json) + (arr ? "]" : "}");
         }
-    }
+    };
 
-    // Initialise form variables
-    var inputs = $("[name='form_key']");
-    pureclarityConfig.formkey = inputs.length>0?inputs[0].value:pureclarityConfig.formkey;
-    var uenc = Base64.encode(document.location.href).replace(/=/g, ",").replace(/\//g, "_");
-    var addToCartUrlPrefix = pureclarityConfig.baseUrl + "checkout/cart/add/uenc/" + encodeURIComponent(uenc) + "/product/";
+    var processZoneItems = function (items, processAddLinks) {
+        for (var i=0; i<items.length; i++) {
+            var $item = $(items[i]);
+            var id = $item.attr("pureclarity-data-item");
 
-    // Initialise PureClarity
-    (function (w, d, s, u, f) {
-        w['PureClarityObject'] = f;w[f] = w[f] || function () { 
-            (w[f].q = w[f].q || []).push(arguments)
-        }
-        var p = d.createElement(s), h = d.getElementsByTagName(s)[0];
-        p.src = u;p.async=1;h.parentNode.insertBefore(p, h);
-    })(window, document, 'script', window.pureclarityConfig.apiUrl, '_pc');
+            // Manage Add To Cart values
+            var addToCartForms = $item.find("form[data-role='tocart-form']");
+            if (addToCartForms.length>0) {
+                for (var f=0; f<items.length; f++) {
+                    var $addToCartForm = $(addToCartForms[f]);
+                    var addToCartUrl =  addToCartUrlPrefix + id + "/";
+                    $addToCartForm.attr("action",addToCartUrl);
+                    var uencInputs = $addToCartForm.find("input[name='uenc']");
+                    if (uencInputs.length>0) {
+                        var formInputUenc = Base64.encode(addToCartUrl).replace(/=/g, ",");
+                        $(uencInputs[0]).val(formInputUenc);
+                    }
+                    var formKeyInputs = $addToCartForm.find("input[name='form_key']");
+                    if (formKeyInputs.length>0) {
+                        $(formKeyInputs[0]).val($.cookie('form_key'));
+                    }
+                }
+            }
 
-    // Execute tracking events
-    if (pureclarityConfig.state.isLogout) {
-        _pc('customer_logout');
-    }
+            if (processAddLinks) {
+                // Manage Secondary Action Values
+                var addToLinks = $item.find("[data-role='add-to-links']");
+                if (addToLinks.length>0) {
+                    for (var a=0; a<items.length; a++) {
+                        var $addToLink = $(addToLinks[a]);
 
-    if (!pureclarityConfig.state.serversideMode) {
-        
-        // Execute customer details event if needed
-        if (pureclarityConfig.customerDetails.trigger) {
-            _pc("customer_details", pureclarityConfig.customerDetails.customer);
-        }
-        
-        _pc('currency', pureclarityConfig.currency);
-        _pc('page_view');
-        _pc('callback_event', function (type) {
-            require([pureclarityConfig.swatchRenderer], function () {
-                var items = $("[pureclarity-data-item]");
-                for (var i=0; i<items.length; i++) {
-                    var $item = $(items[i]);
-                    var id = $item.attr("pureclarity-data-item");
-                    
-                    // Manage Add To Card values
-                    var addToCardForms = $item.find("form[data-role='tocart-form']");
-                    if (addToCardForms.length>0) {
-                        for (var f=0; f<items.length; f++) {
-                            var $addToCartForm = $(addToCardForms[f]);
-                            var addToCartUrl =  addToCartUrlPrefix + id + "/";
-                            $addToCartForm.attr("action",addToCartUrl);
-                            var uencInputs = $addToCartForm.find("input[name='uenc']");
-                            if (uencInputs.length>0) {
-                                var formInputUenc = Base64.encode(addToCartUrl).replace(/=/g, ",");
-                                $(uencInputs[0]).val(formInputUenc);
-                            }
-                            var formKeyInputs = $addToCartForm.find("input[name='form_key']");
-                            if (formKeyInputs.length>0) {
-                                $(formKeyInputs[0]).val(pureclarityConfig.formkey);
-                            }
+                        // Manage Wish List
+                        var wishlist = $addToLink.children(".towishlist");
+                        if (wishlist.length>0) {
+                            var wishListData = {
+                                action: pureclarityConfig.wishListUrl,
+                                data: {
+                                    product: id,
+                                    uenc: uenc
+                                }
+                            };
+                            $(wishlist[0]).attr("data-post", stringify(wishListData));
+                        }
+
+                        // Manage Compare
+                        var compare = $addToLink.children(".tocompare");
+                        if (compare.length>0) {
+                            var compareData = {
+                                action: pureclarityConfig.compareUrl,
+                                data: {
+                                    product: id,
+                                    uenc: uenc
+                                }
+                            };
+                            $(compare[0]).attr("data-post", stringify(compareData));
                         }
                     }
+                }
+            }
 
-                    // Manage Secondary Action Values
-                    var addToLinks = $item.find("[data-role='add-to-links']");
-                    if (addToLinks.length>0) {
-                        for (var a=0; a<items.length; a++) {
-                            var $addToLink = $(addToLinks[a]);
-
-                            // Manage Wish List
-                            var wishlist = $addToLink.children(".towishlist");
-                            if (wishlist.length>0) {
-                                var wishListData = {
-                                    action: pureclarityConfig.wishListUrl,
-                                    data: {
-                                        product: id,
-                                        uenc: uenc
-                                    }
-                                };
-                                $(wishlist[0]).attr("data-post", stringify(wishListData));
-                            }
-
-                            // Manage Compare
-                            var compare = $addToLink.children(".tocompare");
-                            if (compare.length>0) {
-                                var compareData = {
-                                    action: pureclarityConfig.compareUrl,
-                                    data: {
-                                        product: id,
-                                        uenc: uenc
-                                    }
-                                };
-                                $(compare[0]).attr("data-post", stringify(compareData));
-                            }
-                        }
-                    }
-
-                    // Manage Swatches
-                    if (pureclarityConfig.showSwatches) {
-                        var swatchOptions = $item.find(".swatch-opt");
-                        $(swatchOptions).each(function () {
-                            var option = $(this);
-                            var jsonConfig = option.data().pureclarityJsonconfig;
-                            var swatchRenderJson = option.data().pureclaritySwatchrenderjson;
-                            if (jsonConfig && swatchRenderJson) {
-                                swatchRenderJson.numberToShow = pureclarityConfig.swatchesToShow;
-                                option.SwatchRenderer(swatchRenderJson);
-                                var priceBoxSelector = "[data-role=priceBox][data-product-id=" + id + "]";
-                                $(priceBoxSelector).priceBox({
-                                    'priceConfig': {
-                                        priceFormat: jsonConfig.priceFormat,
-                                        prices: jsonConfig.prices
-                                    }
-                                });
+            // Manage Swatches
+            if (pureclarityConfig.showSwatches) {
+                var swatchOptions = $item.find(".swatch-opt");
+                $(swatchOptions).each(function () {
+                    var option = $(this);
+                    var jsonConfig = option.data().pureclarityJsonconfig;
+                    var swatchRenderJson = option.data().pureclaritySwatchrenderjson;
+                    if (jsonConfig && swatchRenderJson) {
+                        swatchRenderJson.numberToShow = pureclarityConfig.swatchesToShow;
+                        option.SwatchRenderer(swatchRenderJson);
+                        var priceBoxSelector = "[data-role=priceBox][data-product-id=" + id + "]";
+                        $(priceBoxSelector).priceBox({
+                            'priceConfig': {
+                                priceFormat: jsonConfig.priceFormat,
+                                prices: jsonConfig.prices
                             }
                         });
                     }
-                }
-            });
-        });
+                });
+            }
+        }
+    };
 
-        if (pureclarityConfig.product) {
+    // Initialise form variables
+    var uenc = Base64.encode(document.location.href).replace(/=/g, ",").replace(/\//g, "_");
+    var addToCartUrlPrefix = pureclarityConfig.baseUrl + "checkout/cart/add/uenc/" + encodeURIComponent(uenc) + "/product/";
+
+    if (pureclarityConfig.state.mode !== 'serverside') {
+        _pc('currency', pureclarityConfig.currency);
+        _pc('page_view');
+
+        // Execute logout event
+        if (pureclarityConfig.state.isLogout) {
+            _pc('customer_logout');
+        }
+
+        if (pureclarityConfig.product && pureclarityConfig.product.Id) {
             _pc("product_view", { id: pureclarityConfig.product.Id });
         }
 
-        if (pureclarityConfig.order) {
-            _pc('order', pureclarityConfig.order);
+        var pcOrderField = $('#pc_order_info');
+        if (pcOrderField.length > 0) {
+            _pc('order', JSON.parse(pcOrderField.val()));
+            console.log(JSON.parse(pcOrderField.val()));
         }
-    }
 
+        _pc('callback_event', function (type) {
+            require(['Magento_Swatches/js/swatch-renderer', 'priceBox'], function () {
+                var items = $("[pureclarity-data-item]");
+                processZoneItems(items);
+            });
+        });
+    } else {
+        // get all zones on the page
+        var pageZones = [];
+        var items = $(".pc_bmz");
+        for (var i=0; i<items.length; i++) {
+            pageZones[pageZones.length] = $(items[i]).attr("data-pureclarity-bmz-id");
+        }
+
+        $.ajax({
+            showLoader: false,
+            url: pureclarityConfig.serversideUrl,
+            data: {
+                zones: pageZones,
+                product: pureclarityConfig.product,
+                page: pureclarityConfig.page,
+                current_url: window.location.href,
+                referer: document.referrer
+            },
+            type: "POST",
+            dataType: 'json'
+        }).success(function (data) {
+            if (data.zones) {
+                require([
+                    'ko',
+                    'mage/translate',
+                    'Magento_Catalog/js/price-utils'
+                ], function (ko, translate, priceUtils) {
+                    var foundZones = [];
+                    var zones = $(".pc_bmz");
+                    for (var i=0; i<zones.length; i++) {
+                        var zone = $(zones[i]);
+                        var bmzId = zone.attr('data-pureclarity-bmz-id');
+
+                        if (data.zones[bmzId] && foundZones[bmzId] !== true) {
+                            foundZones[bmzId] = true;
+                            for (var j=0; j<data.zones[bmzId].items.length; j++) {
+                                data.zones[bmzId].items[j]['formatted_price'] = priceUtils.formatPrice(data.zones[bmzId].items[j]['final_price'], pureclarityConfig.priceFormat);
+                            }
+
+                            var zoneConfig = {
+                                "name" : 'Pureclarity_Core/product-recommender',
+                                "data" : {
+                                    "template" : "Pureclarity_Core/product-recommender",
+                                    "zoneId" : bmzId,
+                                    "zoneData" : data.zones[bmzId],
+                                    "addToCartText" : translate('Add to Cart'),
+                                    "addToCompareText" : translate('Add to Compare'),
+                                    "addToWishlistText" : translate('Add to Wishlist')
+                                }
+                            };
+
+                            var zoneConfigJson = JSON.stringify(zoneConfig);
+                            zone.attr('data-bind', 'template: ' + zoneConfigJson + '');
+
+                            ko.bindingHandlers.pcUpdateSwatches = {
+                                init: function(element) {
+                                    require(['Magento_Swatches/js/swatch-renderer', 'priceBox'], function () {
+                                        var items = $("[pureclarity-data-item]", element);
+                                        processZoneItems(items, false);
+                                    });
+                                }
+                            };
+
+                            if (document.readyState === 'complete') {
+                                ko.applyBindings({}, zone[0]);
+                                zone.trigger('contentUpdated');
+                            }
+                        }
+                    }
+                });
+            }
+        });
+    }
 });
