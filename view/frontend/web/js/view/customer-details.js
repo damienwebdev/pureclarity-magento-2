@@ -10,6 +10,7 @@ define([
     'Magento_Customer/js/customer-data',
     'pcjs'
 ], function (Component, ko, $, customerData, pcjs) {
+    'use strict';
 
     return Component.extend({
         initialize: function () {
@@ -18,7 +19,7 @@ define([
             this.data = customerData.get('customer-details');
 
             this.renderTrackingEvents = ko.computed(function () {
-                if (self.data && pcjs.sectionUpdated(self.data()['data_id'], 'customer-details') && self.data()['isLoggedIn']) {
+                if (pureclarityConfig.state.mode !== 'serverside' && self.data && pcjs.sectionUpdated(self.data()['data_id'], 'customer-details') && self.data()['isLoggedIn']) {
                     pcjs.push("customer_details", self.data()['customer']);
                     return true;
                 }
