@@ -145,64 +145,6 @@ class Data
         return $this->checkoutSession->getLastRealOrder();
     }
 
-    public function getOrderForTracking($lastOrder = null)
-    {
-        if (!$lastOrder) {
-            $lastOrder = $this->getOrderObject();
-        }
-        
-        if (!$lastOrder) {
-            return null;
-        }
-
-        $order = [
-            "orderid" => $lastOrder['increment_id'],
-            "firstname" => $lastOrder['customer_firstname'],
-            "lastname" => $lastOrder['customer_lastname'],
-            "postcode" => $lastOrder->getShippingAddress()['postcode'],
-            "userid" => $lastOrder['customer_id'],
-            "groupid" => $lastOrder['customer_group_id'],
-            "ordertotal" => $lastOrder['grand_total']
-        ];
-
-        $orderItems = [];
-        $visibleItems = $lastOrder->getAllVisibleItems();
-        $allItems = $lastOrder->getAllItems();
-        $count = 0;
-
-        foreach ($visibleItems as $item) {
-            $count++;
-
-            $orderItems[$item->getItemId()] = [
-                "id$count" => $item->getProductId(),
-                "refid$count" => $item->getItemId(),
-                "qty$count" => $item->getQtyOrdered(),
-                "unitprice$count" => $item->getPrice(),
-                "children$count" => []
-            ];
-
-            foreach ($allItems as $childItem) {
-                $parentId = $childItem->getParentItemId();
-                if ($parentId && isset($orderItems[$parentId])) {
-                    $orderItems[$parentId]['children' . $count][] = [
-                        "sku" => $childItem->getSku(),
-                        "qty" => $childItem->getQtyOrdered()
-                    ];
-                }
-            }
-        }
-
-        $order['productcount'] = $count;
-
-        foreach ($orderItems as $item) {
-            foreach ($item as $key => $value) {
-                $order[$key] = $value;
-            }
-        }
-
-        return $order;
-    }
-
     public function getBaseUrl()
     {
         return $this->storeManager->getStore()->getBaseUrl();
