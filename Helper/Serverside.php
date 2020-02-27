@@ -117,8 +117,6 @@ class Serverside
             $requestBody['ip'] = $ip;
         }
 
-        $this->logger->debug('PURECLARITY REQUEST DATA: ' . var_export($requestBody, true), $requestBody);
-
         $this->executeRequest($requestBody);
     }
 
