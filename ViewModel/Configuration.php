@@ -26,28 +26,28 @@ use Magento\Framework\UrlInterface;
  */
 class Configuration
 {
-    /** @var integer $storeId */
+    /** @var integer */
     private $storeId;
 
-    /** @var Http $request */
+    /** @var Http */
     private $request;
 
-    /** @var Registry $registry */
+    /** @var Registry */
     private $registry;
 
-    /** @var Url $serviceUrl */
+    /** @var Url */
     private $serviceUrl;
 
-    /** @var CoreConfig $coreConfig */
+    /** @var CoreConfig */
     private $coreConfig;
 
-    /** @var Serializer $serializer */
+    /** @var Serializer */
     private $serializer;
 
-    /** @var Format $format */
+    /** @var Format */
     private $format;
 
-    /** @var UrlInterface $urlBuilder */
+    /** @var UrlInterface */
     private $urlBuilder;
 
     /** @var StoreManagerInterface */
