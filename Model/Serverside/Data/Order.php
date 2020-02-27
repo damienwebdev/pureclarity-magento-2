@@ -25,6 +25,7 @@ class Order
             'orderid' => $order['increment_id'],
             'firstname' => $order['customer_firstname'],
             'lastname' => $order['customer_lastname'],
+            'email' => $order['customer_email'],
             'postcode' => $order->getShippingAddress()['postcode'],
             'userid' => $order['customer_id'],
             'groupid' => $order['customer_group_id'],
