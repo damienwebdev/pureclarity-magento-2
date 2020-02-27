@@ -321,6 +321,8 @@ require([
                                 ko.applyBindings({}, zone[0]);
                                 zone.trigger('contentUpdated');
                             }
+
+                            zone.show();
                         }
                     }
                 });
