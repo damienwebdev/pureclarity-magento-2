@@ -18,7 +18,7 @@ use Magento\Wishlist\Helper\Data as WishlistHelper;
 use Pureclarity\Core\Helper\Serializer;
 
 /**
- * Class Renderer
+ * Class ProductData
  *
  * Takes Zone data from PureClarity and supplements it with data from Magento
  */
