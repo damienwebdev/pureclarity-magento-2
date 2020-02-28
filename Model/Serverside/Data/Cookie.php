@@ -17,6 +17,12 @@ use Pureclarity\Core\Model\CoreConfig;
  */
 class Cookie
 {
+    /** @var int */
+    const PC_V_TIMEOUT = 3122064000;
+
+    /** @var int */
+    const PC_SESSID_TIMEOUT = 300;
+
     /** @var LoggerInterface */
     private $logger;
 
@@ -61,8 +67,8 @@ class Cookie
     public function customerLogout($storeId)
     {
         try {
-            $this->setCookie('pc_v_', '', 3122064000, $storeId);
-            $this->setCookie('pc_sessid_', '', 300, $storeId);
+            $this->setCookie('pc_v_', '', self::PC_V_TIMEOUT, $storeId);
+            $this->setCookie('pc_sessid_', '', self::PC_SESSID_TIMEOUT, $storeId);
         } catch (\Exception $e) {
             $this->logger->error('PURECLARITY COOKIE (customerLogout) ERROR: ' . $e->getMessage());
         }

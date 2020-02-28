@@ -294,11 +294,11 @@ class Frontend
         }
 
         if (isset($result['visitorId'])) {
-            $this->cookie->setCookie('pc_v_', $result['visitorId'], 3122064000, $storeId);
+            $this->cookie->setCookie('pc_v_', $result['visitorId'], Cookie::PC_V_TIMEOUT, $storeId);
         }
 
         if (isset($result['sessionId'])) {
-            $this->cookie->setCookie('pc_sessid_', $result['sessionId'], 300, $storeId);
+            $this->cookie->setCookie('pc_sessid_', $result['sessionId'], Cookie::PC_SESSID_TIMEOUT, $storeId);
         }
 
         return $result;
