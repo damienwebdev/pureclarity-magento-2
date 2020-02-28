@@ -36,7 +36,7 @@ class Customer
         $details = $this->getCustomerDetails();
         $send = false;
 
-        if (empty($details) || $details['hash'] !== $lastDetails) {
+        if ($details['hash'] !== $lastDetails) {
             $this->customerSession->setPureclarityLastCustomerDetailsHash($details['hash']);
             $send = true;
         }
