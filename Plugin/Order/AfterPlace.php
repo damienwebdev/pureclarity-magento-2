@@ -73,8 +73,8 @@ class AfterPlace
      */
     public function afterPlace($orderManagementInterface, $order)
     {
-        if (!$this->coreConfig->isActive($order->getStoreId())
-            || ($this->coreConfig->getMode($order->getStoreId()) === Mode::MODE_SERVERSIDE
+        if ($this->coreConfig->isActive($order->getStoreId())
+            && ($this->coreConfig->getMode($order->getStoreId()) === Mode::MODE_SERVERSIDE
                 || $this->getArea() === 'adminhtml')
         ) {
             $orderData = $this->orderTrackData->buildOrderTrack($order);
