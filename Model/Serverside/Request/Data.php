@@ -43,6 +43,9 @@ class Data
     /** @var string */
     const KEY_IP = 'ip';
 
+    /** @var string */
+    const KEY_SEARCH_TERM = 'searchterm';
+
     /** @var mixed[] */
     private $requestData;
 
@@ -233,5 +236,21 @@ class Data
     public function getIp()
     {
         return isset($this->requestData[self::KEY_IP]) ? $this->requestData[self::KEY_IP] : '';
+    }
+
+    /**
+     * @param string $value
+     */
+    public function setSearchTerm($value)
+    {
+        $this->requestData[self::KEY_SEARCH_TERM] = $value;
+    }
+
+    /**
+     * @return string
+     */
+    public function getSearchTerm()
+    {
+        return isset($this->requestData[self::KEY_SEARCH_TERM]) ? $this->requestData[self::KEY_SEARCH_TERM] : '';
     }
 }

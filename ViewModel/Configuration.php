@@ -198,7 +198,7 @@ class Configuration
             $context['page_type'] = 'homepage';
         } elseif ($route === 'cms_page_view') {
             $context['page_type'] = 'content_page';
-        } elseif ($route === 'catalogsearch_result_index') {
+        } elseif ($route === 'catalogsearch_result_index' || $route === 'catalogsearch_advanced_result') {
             $context['page_type'] = 'search_results';
         } elseif ($route === 'customer_account_index') {
             $context['page_type'] = 'my_account';

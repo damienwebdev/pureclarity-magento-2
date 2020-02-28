@@ -117,6 +117,10 @@ class Serverside
             $requestBody['ip'] = $ip;
         }
 
+        if ($searchTerm = $request->getSearchTerm()) {
+            $requestBody['searchterm'] = $searchTerm;
+        }
+
         $this->executeRequest($requestBody);
     }
 

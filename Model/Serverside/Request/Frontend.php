@@ -113,6 +113,7 @@ class Frontend
         $this->addGeneralInfo($this->storeId, $params);
         $this->addZones($params);
         $this->addPageView($params);
+        $this->addSearchTerm($params);
         $this->addProductView($params);
         $this->addCustomerDetails($this->storeId);
         $this->addSetBasket();
@@ -165,6 +166,36 @@ class Frontend
             'page_view',
             isset($params['page']) ? $params['page'] : []
         );
+    }
+
+    /**
+     * Adds Search Term to the request
+     *
+     * @param mixed[] $params
+     */
+    public function addSearchTerm($params)
+    {
+        $currentUrl = isset($params['current_url']) ? $params['current_url'] : '';
+        if (isset($params['page']['page_type'])
+            && $params['page']['page_type'] === 'search_results'
+            && !empty($currentUrl)
+        ) {
+            parse_str(parse_url($currentUrl, PHP_URL_QUERY), $urlParams);
+            $term = $this->getSearchTerm($urlParams);
+            $this->request->setSearchTerm($term);
+        }
+    }
+
+    /**
+     * Adds Search Term to the request
+     *
+     * @param mixed[] $urlParams
+     *
+     * @return string
+     */
+    public function getSearchTerm($urlParams)
+    {
+        return isset($urlParams['q']) ? $urlParams['q'] : '';
     }
 
     /**
@@ -252,7 +283,7 @@ class Frontend
      */
     public function processResult($request, $storeId)
     {
-        $result = $this->serverSide->getResult();
+        $result = $this->serverSide->getResult() ?: [];
 
         if (isset($result['zones'])) {
             $this->productData->setCurrentUrl($request->getCurrentUrl());
