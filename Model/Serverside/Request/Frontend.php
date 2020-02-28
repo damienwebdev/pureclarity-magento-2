@@ -237,6 +237,7 @@ class Frontend
     {
         if (isset($params['order']) && !empty($params['order'])) {
             $this->request->addEvent('order_track', $params['order']);
+            $this->cart->setCartSessionHash('');
         }
     }
 
