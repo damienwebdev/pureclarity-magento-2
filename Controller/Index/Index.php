@@ -65,8 +65,8 @@ class Index extends Action
     public function execute()
     {
         $storeId = $this->storeManager->getStore()->getId();
-        if (!$this->coreConfig->isActive($storeId)
-            || $this->coreConfig->getMode($storeId) === Mode::MODE_SERVERSIDE
+        if ($this->coreConfig->isActive($storeId)
+            && $this->coreConfig->getMode($storeId) === Mode::MODE_SERVERSIDE
         ) {
             $this->serverside->setStoreId($this->storeManager->getStore()->getId());
             $result = $this->serverside->execute($this->getRequest()->getParams());
