@@ -20,6 +20,7 @@ class CoreConfig
     const CONFIG_PATH_ACTIVE = 'pureclarity/environment/active';
     const CONFIG_PATH_ACCESS_KEY = 'pureclarity/credentials/access_key';
     const CONFIG_PATH_SECRET_KEY = 'pureclarity/credentials/secret_key';
+    const CONFIG_PATH_MODE = 'pureclarity/mode/mode';
     const CONFIG_PATH_REGION = 'pureclarity/credentials/region';
     const CONFIG_PATH_PRODUCT_INDEX = 'pureclarity/feeds/product_index';
     const CONFIG_PATH_CUSTOMER_GROUP_PRICING = 'pureclarity/feeds/product_send_customer_group_pricing';
@@ -113,6 +114,21 @@ class CoreConfig
             $region = 1;
         }
         return $region;
+    }
+
+    /**
+     * Returns configured mode
+     *
+     * @param integer $storeId
+     * @return string
+     */
+    public function getMode($storeId)
+    {
+        return $this->getConfigValue(
+            self::CONFIG_PATH_MODE,
+            ScopeInterface::SCOPE_STORE,
+            $storeId
+        );
     }
     
     /**

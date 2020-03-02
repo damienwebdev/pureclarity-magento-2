@@ -1,0 +1,55 @@
+<div class="content-heading">
+    <h2 class="title" data-bind="text: zoneData.title"></h2>
+</div>
+<div class="block widget block-products-list grid" data-bind="pcUpdateSwatches: true">
+    <div class="block-content">
+        <div class="products-grid grid">
+            <ol class="product-items widget-product-grid" data-bind="foreach: zoneData.items">
+                <li class="product-item" data-bind="attr: { onmousedown: clickEvt, 'pureclarity-data-item': Id }">
+                    <div class="product-item-info">
+                        <a data-bind="attr: { href: Link }" class="product-item-photo" width="240" height="300" >
+                            <span class="product-image-container" style="width:240px;">
+                                <span class="product-image-wrapper" style="padding-bottom: 125%;">
+                                    <img class="product-image-photo" width="240" height="300" data-bind="attr: { src: Image, alt: Title}" />
+                                </span>
+                            </span>
+                        </a>
+                        <div class="product-item-details">
+                            <div class="swatch-opt swatches-container" if="swatchrenderjson" data-bind="attr: { 'data-pureclarity-jsonconfig': jsonconfig, 'data-pureclarity-swatchrenderjson': swatchrenderjson }"></div>
+                            <strong class="product-item-name">
+                                <a title="Fusion Backpack" data-bind="text: Title, attr: { href: Link }" class="product-item-link"></a>
+                            </strong>
+                            <div class="price-box price-final_price" data-role="priceBox" data-bind="attr: { 'data-product-id': Id }">
+                                <span class="price-container price-final_price tax weee">
+                                    <span id="old-price-6-widget-product-grid" data-bind="attr: { 'data-price-amount': final_price }" data-price-type="finalPrice" class="price-wrapper ">
+                                        <span class="price" data-bind="text: formatted_price"></span>
+                                    </span>
+                                </span>
+                            </div>
+                            <div class="product-item-actions">
+                                <div class="actions-primary">
+                                    <form data-role="tocart-form" data-bind="attr: { 'data-product-sku': Sku, title: $parent.addToCartText }" method="post" data-mage-init='{ "catalogAddToCart": { "bindSubmit": true } } '>
+                                        <input type="hidden" name="product" data-bind="attr: { 'value': Id }" >
+                                        <input type="hidden" name="uenc" value="">
+                                        <input name="form_key" type="hidden" value="">
+                                        <button type="submit" data-bind="attr: { title: $parent.addToCartText }" class="action tocart primary">
+                                            <span data-bind="text: $parent.addToCartText"></span>
+                                        </button>
+                                    </form>
+                                </div>
+                                <div class="actions-secondary" data-role="add-to-links">
+                                    <a href="#" data-bind="attr: { 'data-post': wishlist_post_data, title: $parent.addToWishlistText }" class="action towishlist" data-action="add-to-wishlist" >
+                                        <span data-bind="text: $parent.addToWishlistText"></span>
+                                    </a>
+                                    <a href="#" class="action tocompare" data-bind="attr: { 'data-post': compare_post_data, title: $parent.addToCompareText }">
+                                        <span data-bind="text: $parent.addToCompareText"></span>
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </li>
+            </ol>
+        </div>
+    </div>
+</div>

@@ -158,7 +158,7 @@ class Url
     {
         $pureclarityScriptUrl = getenv('PURECLARITY_SCRIPT_URL');
         if ($pureclarityScriptUrl != null && $pureclarityScriptUrl != '') {
-            $pureclarityScriptUrl .= $accessKey . '/dev.js';
+            $pureclarityScriptUrl .= $accessKey . '/cs.js';
             return $pureclarityScriptUrl;
         }
         return $this->getClientScriptBaseUrl() . '/' . $accessKey . '/cs.js';
@@ -177,12 +177,8 @@ class Url
      */
     private function getHost($region)
     {
-        $pureclarityHostEnv = getenv('PURECLARITY_MAGENTO_HOST');
+        $pureclarityHostEnv = getenv('PURECLARITY_HOST');
         if ($pureclarityHostEnv != null && $pureclarityHostEnv != '') {
-            $parsed = parse_url($pureclarityHostEnv);
-            if (empty($parsed['scheme'])) {
-                $pureclarityHostEnv = 'http://' . $pureclarityHostEnv;
-            }
             return $pureclarityHostEnv;
         }
 

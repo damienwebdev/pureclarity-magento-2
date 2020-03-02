@@ -3,7 +3,8 @@
  * See LICENSE.txt for license details.
  */
 
-define(['jquery', 'priceBox'], function ($, priceBox) {
+define(['jquery'], function ($) {
+    'use strict';
     // Before initialise, check we're active
     if (typeof pureclarityConfig === 'undefined' || !pureclarityConfig.state.isActive) {
         return; 

@@ -10,6 +10,7 @@ define([
     'Magento_Customer/js/customer-data',
     'pcjs'
 ], function (Component, ko, $, customerData, pcjs) {
+    'use strict';
 
     return Component.extend({
         initialize: function () {
@@ -18,8 +19,8 @@ define([
             this.data = customerData.get('cart-update');
 
             this.renderTrackingEvents = ko.computed(function () {
-                if (pcjs.sectionUpdated(self.data()['data_id'], 'cart-update')) {
-                    pcjs.push("set_basket", self.data().items); 
+                if (pureclarityConfig.state.mode !== 'serverside' && pcjs.sectionUpdated(self.data()['data_id'], 'cart-update')) {
+                    pcjs.push("set_basket", self.data().items);
                     return true;
                 }
                 return false;

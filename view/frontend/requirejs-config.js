@@ -4,7 +4,12 @@
  */
 
 var config = {
-    'paths': {
-        pcjs: 'Pureclarity_Core/js/pcjs'
-    }
+    map: {
+        '*': {
+            pcjs: 'Pureclarity_Core/js/pcjs'
+        }
+    },
+    deps: [
+        'Pureclarity_Core/js/pcjs-init'
+    ]
 };

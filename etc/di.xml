@@ -52,13 +52,28 @@
         </arguments>
     </type>
     
-    <type name="Pureclarity\Core\Helper\Service\CustomerDetails">
+    <type name="Pureclarity\Core\Model\Serverside\Data\Customer">
         <arguments>
             <argument name="customerSession" xsi:type="object">Magento\Customer\Model\Session\Proxy</argument>
         </arguments>
     </type>
 
+    <type name="Pureclarity\Core\Model\Serverside\Data\Cart">
+        <arguments>
+            <argument name="checkoutSession" xsi:type="object">Magento\Checkout\Model\Session\Proxy</argument>
+            <argument name="customerSession" xsi:type="object">Magento\Customer\Model\Session\Proxy</argument>
+        </arguments>
+    </type>
+
+    <type name="Pureclarity\Core\ViewModel\Checkout\Onepage\Success">
+        <arguments>
+            <argument name="checkoutSession" xsi:type="object">Magento\Checkout\Model\Session\Proxy</argument>
+        </arguments>
+    </type>
+
     <preference for="Pureclarity\Core\Api\StateRepositoryInterface" type="Pureclarity\Core\Model\StateRepository"/>
     <preference for="Pureclarity\Core\Api\Data\StateInterface" type="Pureclarity\Core\Model\State"/>
-
+    <type name="Magento\Sales\Api\OrderManagementInterface">
+        <plugin name="PureClarityPlaceOrder" type="Pureclarity\Core\Plugin\Order\AfterPlace" />
+    </type>
 </config>

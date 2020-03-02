@@ -3,6 +3,12 @@
  * Copyright © PureClarity. All rights reserved.
  * See LICENSE.txt for license details.
  */
+
 /** @var \Pureclarity\Core\Block\Bmz $block */
 ?>
-<div <?php echo $this->getBmzData() ?> class="<?php echo $this->getClasses() ?>" style="<?php echo (!$this->getDebugMode() ? "display:none;":""); ?>"><?php echo $this->getContent(); ?></div>
+<div <?= $block->getBmzDataHtml() ?>
+    data-pureclarity-bmz-id="<?= $block->escapeQuote($block->getBmzId()) ?>"
+    class="<?= $block->escapeQuote($block->getClasses()) ?>"
+    style="<?= (!$block->getDebugMode() ? 'display:none;':'') ?>">
+    <?= $block->getContentHtml() ?>
+</div>
