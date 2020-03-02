@@ -15,9 +15,4 @@
             </argument>
         </arguments>
     </type>
-    <type name="Pureclarity\Core\Observer\CustomerLogin">
-        <arguments>
-            <argument name="customerSession" xsi:type="object">Magento\Customer\Model\Session\Proxy</argument>
-        </arguments>
-    </type>
 </config>

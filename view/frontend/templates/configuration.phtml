@@ -3,12 +3,14 @@
  * Copyright © PureClarity. All rights reserved.
  * See LICENSE.txt for license details.
  */
-/** @var \Pureclarity\Core\Block\Configuration $block */ ?>
 
-<?php if ($block->isActive()): ?>
+/** @var \Pureclarity\Core\Block\Configuration $block */
+/** @var \Pureclarity\Core\ViewModel\Configuration $config */
 
-<script type="text/javascript">
-    window.pureclarityConfig = <?php echo json_encode($block->getConfiguration()); ?>;
-</script>
+$config = $block->getPureclarityConfigurationViewModel();
 
+if ($config->isActive()): ?>
+    <script type="text/javascript">
+        window.pureclarityConfig = <?= /* @noEscape */ $config->getConfigurationJson() ?>;
+    </script>
 <?php endif; ?>

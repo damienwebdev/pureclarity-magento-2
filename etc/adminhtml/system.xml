@@ -40,7 +40,19 @@
                     <source_model>Pureclarity\Core\Model\Config\Source\Region</source_model>
                 </field>
             </group>
-            <group id="feeds" type="text" sortOrder="40" showInDefault="1" showInWebsite="1" showInStore="1">
+            <group id="mode" type="text" sortOrder="40" showInDefault="1" showInWebsite="1" showInStore="1">
+                <label>Mode</label>
+                <comment><![CDATA[
+                    Choose the Mode that PureClarity will work in:<br />
+                    <br /><strong>Serverside</strong>: Populate Product recommenders using Magento data after getting SKUs to show from PureClarity. Ideal for when you have complex pricing rules & logic.
+                    <br /><strong>Client-side</strong>: All data and HTML for recommenders comes from the PureClarity servers.
+                ]]></comment>
+                <field id="mode" translate="label" type="select" showInDefault="1" showInWebsite="1" showInStore="1">
+                    <label>Mode</label>
+                    <source_model>Pureclarity\Core\Model\Config\Source\Mode</source_model>
+                </field>
+            </group>
+            <group id="feeds" type="text" sortOrder="50" showInDefault="1" showInWebsite="1" showInStore="1">
                 <label>Data feeds/Indexing</label>
                 <comment>Configure the settings for indexing your data with PureClarity.</comment>
                 <field id="product_index" translate="label" type="select" showInDefault="1" showInWebsite="1" showInStore="1">
@@ -69,7 +81,7 @@
                     <comment>Set the parent category of the Brand Categories. First level children of the selected category will be used to build your brand feed. Products in those categories will be assigned as a specific brand.</comment>
                 </field>
             </group>
-            <group id="placeholders" type="text" sortOrder="50" showInDefault="1" showInWebsite="1" showInStore="1">
+            <group id="placeholders" type="text" sortOrder="60" showInDefault="1" showInWebsite="1" showInStore="1">
                 <label>Placeholder images</label>
                 <field id="placeholder_product" translate="label" type="text" showInDefault="1" showInWebsite="1" showInStore="1">
                     <label>Product image placeholder</label>
@@ -84,7 +96,7 @@
                     <comment>Leave this blank to use the Magento default placeholder.</comment>
                 </field>
             </group>
-            <group id="advanced" type="text" sortOrder="60" showInDefault="1" showInWebsite="1" showInStore="1">
+            <group id="advanced" type="text" sortOrder="70" showInDefault="1" showInWebsite="1" showInStore="1">
                 <label>Advanced options</label>
                 <field id="bmz_debug" translate="label" type="select" showInDefault="1" showInWebsite="1" showInStore="1">
                     <label>Zone Debug Mode</label>

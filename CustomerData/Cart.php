@@ -53,13 +53,8 @@ class Cart implements SectionSourceInterface
             }
         }
 
-        $data = [
-            "items" => []
+        return [
+            'items' => array_values($items)
         ];
-        foreach ($items as $item) {
-            $data['items'][] = $item;
-        }
-
-        return $data;
     }
 }
