@@ -10,6 +10,7 @@ use Psr\Log\LoggerInterface;
 use Pureclarity\Core\Helper\Service\Url;
 use Magento\Framework\HTTP\Client\Curl;
 use Pureclarity\Core\Helper\Data as CoreHelper;
+use Pureclarity\Core\Model\CoreConfig;
 use Pureclarity\Core\Model\Serverside\Request\Data;
 
 /**
@@ -32,6 +33,9 @@ class Serverside
     /** @var Serializer */
     private $serializer;
 
+    /** @var CoreConfig */
+    private $coreConfig;
+
     /** @var bool */
     private $dispatched = false;
 
@@ -50,19 +54,22 @@ class Serverside
      * @param Url $serviceUrl
      * @param Curl $curl
      * @param Serializer $serializer
+     * @param CoreConfig $coreConfig
      */
     public function __construct(
         LoggerInterface $logger,
         CoreHelper $coreHelper,
         Url $serviceUrl,
         Curl $curl,
-        Serializer $serializer
+        Serializer $serializer,
+        CoreConfig $coreConfig
     ) {
         $this->logger       = $logger;
         $this->coreHelper   = $coreHelper;
         $this->serviceUrl   = $serviceUrl;
         $this->curl         = $curl;
         $this->serializer   = $serializer;
+        $this->coreConfig   = $coreConfig;
     }
 
     /**
@@ -131,7 +138,9 @@ class Serverside
      */
     public function executeRequest($requestBody)
     {
-        $url = $this->serviceUrl->getServerSideEndpoint($this->storeId);
+        $url = $this->serviceUrl->getServerSideEndpoint(
+            $this->coreConfig->getRegion($this->storeId)
+        );
 
         $this->curl->setHeaders([
             'Content-Type' => 'application/json',
