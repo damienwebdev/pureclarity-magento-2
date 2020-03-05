@@ -142,7 +142,7 @@ class ProductData
     public function populateProductData($product, $data)
     {
         $data['price'] = $product->getPrice();
-        $data['final_price'] = $product->getFinalPrice();
+        $data['final_price'] = $product->getFinalPrice(1);
         $data['name'] = $product->getName();
         $data['add_to_cart_post_data'] = $this->getAddToCartPost($product);
         $data['wishlist_post_data'] = $this->getAddToWishlistPost($product);

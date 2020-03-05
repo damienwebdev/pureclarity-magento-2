@@ -290,7 +290,7 @@ require([
                         if (data.zones[bmzId] && foundZones[bmzId] !== true) {
                             foundZones[bmzId] = true;
 
-                            if (data.zones[bmzId].type !== 'product-recommender') {
+                            if (data.zones[bmzId].type !== 'recommender-product') {
                                 zone.html(data.zones[bmzId].html);
                                 zone.show();
                             } else {
