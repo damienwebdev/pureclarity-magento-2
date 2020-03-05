@@ -44,8 +44,8 @@
                 <label>Mode</label>
                 <comment><![CDATA[
                     Choose the Mode that PureClarity will work in:<br />
-                    <br /><strong>Serverside</strong>: Populate Product recommenders using Magento data after getting SKUs to show from PureClarity. Ideal for when you have complex pricing rules & logic.
                     <br /><strong>Client-side</strong>: All data and HTML for recommenders comes from the PureClarity servers.
+                    <br /><strong>Serverside</strong>: Populate Product recommenders using Magento data after getting SKUs to show from PureClarity. Ideal for when you have complex pricing rules & logic.
                 ]]></comment>
                 <field id="mode" translate="label" type="select" showInDefault="1" showInWebsite="1" showInStore="1">
                     <label>Mode</label>

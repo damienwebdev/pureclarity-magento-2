@@ -289,40 +289,46 @@ require([
 
                         if (data.zones[bmzId] && foundZones[bmzId] !== true) {
                             foundZones[bmzId] = true;
-                            for (var j=0; j<data.zones[bmzId].items.length; j++) {
-                                data.zones[bmzId].items[j]['formatted_price'] = priceUtils.formatPrice(data.zones[bmzId].items[j]['final_price'], pureclarityConfig.priceFormat);
-                            }
 
-                            var zoneConfig = {
-                                "name" : 'Pureclarity_Core/product-recommender',
-                                "data" : {
-                                    "template" : "Pureclarity_Core/product-recommender",
-                                    "zoneId" : bmzId,
-                                    "zoneData" : data.zones[bmzId],
-                                    "addToCartText" : translate('Add to Cart'),
-                                    "addToCompareText" : translate('Add to Compare'),
-                                    "addToWishlistText" : translate('Add to Wishlist')
+                            if (data.zones[bmzId].type !== 'recommender-product') {
+                                zone.html(data.zones[bmzId].html);
+                                zone.show();
+                            } else {
+                                for (var j=0; j<data.zones[bmzId].items.length; j++) {
+                                    data.zones[bmzId].items[j]['formatted_price'] = priceUtils.formatPrice(data.zones[bmzId].items[j]['final_price'], pureclarityConfig.priceFormat);
                                 }
-                            };
 
-                            var zoneConfigJson = JSON.stringify(zoneConfig);
-                            zone.attr('data-bind', 'template: ' + zoneConfigJson + '');
+                                var zoneConfig = {
+                                    "name" : 'Pureclarity_Core/product-recommender',
+                                    "data" : {
+                                        "template" : "Pureclarity_Core/product-recommender",
+                                        "zoneId" : bmzId,
+                                        "zoneData" : data.zones[bmzId],
+                                        "addToCartText" : translate('Add to Cart'),
+                                        "addToCompareText" : translate('Add to Compare'),
+                                        "addToWishlistText" : translate('Add to Wishlist')
+                                    }
+                                };
 
-                            ko.bindingHandlers.pcUpdateSwatches = {
-                                init: function(element) {
-                                    require(['Magento_Swatches/js/swatch-renderer', 'priceBox'], function () {
-                                        var items = $("[pureclarity-data-item]", element);
-                                        processZoneItems(items, false);
-                                    });
+                                var zoneConfigJson = JSON.stringify(zoneConfig);
+                                zone.attr('data-bind', 'template: ' + zoneConfigJson + '');
+
+                                ko.bindingHandlers.pcUpdateSwatches = {
+                                    init: function(element) {
+                                        require(['Magento_Swatches/js/swatch-renderer', 'priceBox'], function () {
+                                            var items = $("[pureclarity-data-item]", element);
+                                            processZoneItems(items, false);
+                                        });
+                                    }
+                                };
+
+                                if (document.readyState === 'complete') {
+                                    ko.applyBindings({}, zone[0]);
+                                    zone.trigger('contentUpdated');
                                 }
-                            };
 
-                            if (document.readyState === 'complete') {
-                                ko.applyBindings({}, zone[0]);
-                                zone.trigger('contentUpdated');
+                                zone.show();
                             }
-
-                            zone.show();
                         }
                     }
                 });
