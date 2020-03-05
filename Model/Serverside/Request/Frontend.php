@@ -288,8 +288,10 @@ class Frontend
         if (isset($result['zones'])) {
             $this->productData->setCurrentUrl($request->getCurrentUrl());
             foreach ($result['zones'] as $zoneId => $zone) {
-                $result['zones'][$zoneId]['items'] = $this->productData->getProductData($zone);
-                unset($result['zones'][$zoneId]['data']['items']);
+                if ($zone['type'] === 'recommender-product') {
+                    $result['zones'][$zoneId]['items'] = $this->productData->getProductData($zone);
+                    unset($result['zones'][$zoneId]['data']['items']);
+                }
             }
         }
 

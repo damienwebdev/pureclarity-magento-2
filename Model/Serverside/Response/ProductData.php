@@ -112,10 +112,6 @@ class ProductData
      */
     public function getProductData($zone)
     {
-        if ($zone['type'] !== 'recommender-product') {
-            return $zone['items'];
-        }
-
         $skus = [];
         $skuKeys = [];
         foreach ($zone['items'] as $key => $item) {
