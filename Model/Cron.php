@@ -23,6 +23,8 @@ use Pureclarity\Core\Helper\Data;
 use Pureclarity\Core\Helper\Service\Url;
 use Pureclarity\Core\Helper\Soap;
 use Pureclarity\Core\Model\ResourceModel\ProductFeed\CollectionFactory;
+use Magento\Store\Model\App\Emulation;
+use Magento\Framework\App\Area;
 
 /**
  * Class Cron
@@ -73,6 +75,9 @@ class Cron
     /** @var Url $serviceUrl */
     private $serviceUrl;
 
+    /** @var Emulation $appEmulation */
+    private $appEmulation;
+
     /**
      * @param Soap $coreSoapHelper
      * @param StoreManagerInterface $storeManager
@@ -88,6 +93,7 @@ class Cron
      * @param LoggerInterface $logger
      * @param CoreConfig $coreConfig
      * @param Url $serviceUrl
+     * @param Emulation $appEmulation
      */
     public function __construct(
         Soap $coreSoapHelper,
@@ -103,7 +109,8 @@ class Cron
         Serializer $serializer,
         LoggerInterface $logger,
         CoreConfig $coreConfig,
-        Url $serviceUrl
+        Url $serviceUrl,
+        Emulation $appEmulation
     ) {
         $this->coreSoapHelper               = $coreSoapHelper;
         $this->storeManager                 = $storeManager;
@@ -119,6 +126,7 @@ class Cron
         $this->logger                       = $logger;
         $this->coreConfig                   = $coreConfig;
         $this->serviceUrl                   = $serviceUrl;
+        $this->appEmulation                 = $appEmulation;
     }
 
     /**
@@ -312,6 +320,9 @@ class Cron
                         
                         // Check we have something
                         if ($collection->count() > 0) {
+                            // emulate frontend so product images work correctly
+                            $this->appEmulation->startEnvironmentEmulation($store->getId(), Area::AREA_FRONTEND, true);
+
                             $reindexTasks = [];
                             $productHash = [];
 
@@ -417,6 +428,8 @@ class Cron
                                 $this->selectedFeeds($store->getId(), $reindexTasks);
                                 $this->logger->debug('PureClarity: Feed generation finished.');
                             }
+
+                            $this->appEmulation->stopEnvironmentEmulation();
                         }
                     }
                 }
