@@ -469,11 +469,17 @@ class ProductExport
 
     protected function addValueToDataArray(&$data, $key, $value)
     {
-
         if (!array_key_exists($key, $data)) {
             $data[$key][] = $value;
-        } elseif ($value !== null && (!is_array($data[$key]) || !in_array($value, $data[$key]))) {
-            $data[$key][] = $value;
+        } elseif ($value !== null) {
+            if (!is_array($data[$key])) {
+                $data[$key] = [
+                    $data[$key],
+                    $value
+                ];
+            } elseif (!in_array($value, $data[$key], true)) {
+                $data[$key][] = $value;
+            }
         }
     }
 
