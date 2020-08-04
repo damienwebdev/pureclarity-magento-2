@@ -7,6 +7,7 @@
 
 namespace Pureclarity\Core\ViewModel;
 
+use Magento\Catalog\Model\Category;
 use Magento\Catalog\Model\Product;
 use Magento\Framework\App\Request\Http;
 use Magento\Framework\Exception\NoSuchEntityException;
@@ -249,10 +250,15 @@ class Configuration
             'page_type' => 'product_listing_page'
         ];
 
+        /** @var Category $category */
         $category = $this->registry->registry('current_category');
         if ($category !== null) {
             $context['category_id'] = $category->getId();
+            if ($category->getDisplayMode() === 'PAGE') {
+                $context['page_type'] = 'category_listing_page';
+            }
         }
+
         return $context;
     }
 
