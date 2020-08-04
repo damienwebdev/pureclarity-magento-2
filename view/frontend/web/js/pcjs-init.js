@@ -245,7 +245,6 @@ require([
         var pcOrderField = $('#pc_order_info');
         if (pcOrderField.length > 0) {
             _pc('order', JSON.parse(pcOrderField.val()));
-            console.log(JSON.parse(pcOrderField.val()));
         }
 
         _pc('callback_event', function (type) {
