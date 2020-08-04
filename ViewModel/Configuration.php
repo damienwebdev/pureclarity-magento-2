@@ -200,7 +200,7 @@ class Configuration
             $context['page_type'] = 'content_page';
         } elseif ($route === 'catalogsearch_result_index' || $route === 'catalogsearch_advanced_result') {
             $context['page_type'] = 'search_results';
-        } elseif ($route === 'customer_account_index') {
+        } elseif ($this->isCustomerAccountPage($route)) {
             $context['page_type'] = 'my_account';
         } elseif ($route === 'catalog_category_view') {
             $context = $this->getCategoryContext();
@@ -212,6 +212,32 @@ class Configuration
             $context['page_type'] = 'order_complete_page';
         }
         return $context;
+    }
+
+    /**
+     * Checks the route to see if it can be considered an account page
+     *
+     * @param string $route - the route to check
+     * @return bool
+     */
+    public function isCustomerAccountPage($route)
+    {
+        $accountRoutes = [
+            'customer_account_index',
+            'sales_order_history',
+            'sales_order_view',
+            'downloadable_customer_products',
+            'wishlist_index_index',
+            'customer_account_edit',
+            'customer_address_index',
+            'customer_address_edit',
+            'vault_cards_listaction',
+            'paypal_billing_agreement_index',
+            'review_customer_index',
+            'newsletter_manage_index'
+        ];
+
+        return in_array($route, $accountRoutes, true);
     }
 
     /**
