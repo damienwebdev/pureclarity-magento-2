@@ -19,7 +19,7 @@ use Magento\Store\Model\StoreManagerInterface;
  */
 class Data
 {
-    const CURRENT_VERSION = '4.0.3';
+    const CURRENT_VERSION = '4.0.4';
     const PROGRESS_FILE_BASE_NAME = 'pureclarity-feed-progress-';
 
     /** @var StoreManagerInterface $storeManager */

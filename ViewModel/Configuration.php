@@ -7,6 +7,7 @@
 
 namespace Pureclarity\Core\ViewModel;
 
+use Magento\Catalog\Model\Category;
 use Magento\Catalog\Model\Product;
 use Magento\Framework\App\Request\Http;
 use Magento\Framework\Exception\NoSuchEntityException;
@@ -200,7 +201,7 @@ class Configuration
             $context['page_type'] = 'content_page';
         } elseif ($route === 'catalogsearch_result_index' || $route === 'catalogsearch_advanced_result') {
             $context['page_type'] = 'search_results';
-        } elseif ($route === 'customer_account_index') {
+        } elseif ($this->isCustomerAccountPage($route)) {
             $context['page_type'] = 'my_account';
         } elseif ($route === 'catalog_category_view') {
             $context = $this->getCategoryContext();
@@ -215,6 +216,32 @@ class Configuration
     }
 
     /**
+     * Checks the route to see if it can be considered an account page
+     *
+     * @param string $route - the route to check
+     * @return bool
+     */
+    public function isCustomerAccountPage($route)
+    {
+        $accountRoutes = [
+            'customer_account_index',
+            'sales_order_history',
+            'sales_order_view',
+            'downloadable_customer_products',
+            'wishlist_index_index',
+            'customer_account_edit',
+            'customer_address_index',
+            'customer_address_edit',
+            'vault_cards_listaction',
+            'paypal_billing_agreement_index',
+            'review_customer_index',
+            'newsletter_manage_index'
+        ];
+
+        return in_array($route, $accountRoutes, true);
+    }
+
+    /**
      * @return array
      */
     public function getCategoryContext()
@@ -223,10 +250,15 @@ class Configuration
             'page_type' => 'product_listing_page'
         ];
 
+        /** @var Category $category */
         $category = $this->registry->registry('current_category');
         if ($category !== null) {
             $context['category_id'] = $category->getId();
+            if ($category->getDisplayMode() === 'PAGE') {
+                $context['page_type'] = 'category_listing_page';
+            }
         }
+
         return $context;
     }
 
