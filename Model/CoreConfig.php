@@ -27,6 +27,7 @@ class CoreConfig
     const CONFIG_PATH_DAILY_FEED_ENABLED = 'pureclarity/feeds/notify_feed';
     const CONFIG_PATH_BRAND_FEED_ENABLED = 'pureclarity/feeds/brand_feed_enabled';
     const CONFIG_PATH_BRAND_CATEGORY = 'pureclarity/feeds/brand_parent_category';
+    const CONFIG_PATH_EXCLUDED_PRODUCT_ATTRIBUTES = 'pureclarity/feeds/excluded_product_attributes';
     const CONFIG_PATH_PLACEHOLDER_PRODUCT = 'pureclarity/placeholders/placeholder_product';
     const CONFIG_PATH_PLACEHOLDER_CATEGORY = 'pureclarity/placeholders/placeholder_category';
     const CONFIG_PATH_PLACEHOLDER_CATEGORY_SECONDARY = 'pureclarity/placeholders/placeholder_category_secondary';
@@ -213,6 +214,21 @@ class CoreConfig
     {
         return $this->getConfigValue(
             self::CONFIG_PATH_BRAND_CATEGORY,
+            ScopeInterface::SCOPE_STORE,
+            $storeId
+        );
+    }
+
+    /**
+     * Returns the attributes to be excluded from the feed, for the given store
+     *
+     * @param integer $storeId
+     * @return string
+     */
+    public function getExcludedProductAttributes($storeId)
+    {
+        return $this->getConfigValue(
+            self::CONFIG_PATH_EXCLUDED_PRODUCT_ATTRIBUTES,
             ScopeInterface::SCOPE_STORE,
             $storeId
         );
