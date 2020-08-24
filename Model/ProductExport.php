@@ -197,23 +197,7 @@ class ProductExport
             $this->brandLookup = $feedModel->BrandFeedArray($this->storeId);
         }
 
-        // Get Attributes
-        $attributes = $this->productAttributeCollectionFactory->create()->getItems();
-        $attributesToExclude = ["prices", "price", "category_ids", "sku"];
-
-        // Get list of attributes to include
-        foreach ($attributes as $attribute) {
-            /** @var $attribute \Magento\Catalog\Model\ResourceModel\Eav\Attribute */
-            $code = $attribute->getAttributecode();
-            
-            if (!in_array(strtolower($code), $attributesToExclude) && !empty($attribute->getFrontendLabel())) {
-                $this->attributesToInclude[] = [
-                    'code' => $code,
-                    'label' => $attribute->getFrontendLabel(),
-                    'type' => $attribute->getFrontendInput()
-                ];
-            }
-        }
+        $this->loadAttributes();
 
         // Get Category List
         $this->categoryCollection = [];
@@ -224,7 +208,50 @@ class ProductExport
             $this->categoryCollection[$category->getId()] = $category->getName();
         }
     }
-    
+
+    /**
+     * Loads product attributes to be collated in the feed.
+     */
+    public function loadAttributes()
+    {
+        $excludedAttributes = $this->loadExcludedAttributes();
+
+        // Get Attributes
+        $attributes = $this->productAttributeCollectionFactory->create()
+            ->addFieldToFilter('attribute_code', ['nin' => $excludedAttributes])
+            ->addFieldToFilter('frontend_label', ['neq' => ''])
+            ->getItems();
+
+        // Get list of attributes to include
+        foreach ($attributes as $attribute) {
+            /** @var $attribute \Magento\Catalog\Model\ResourceModel\Eav\Attribute */
+            $this->attributesToInclude[] = [
+                'code' => $attribute->getAttributeCode(),
+                'label' => $attribute->getFrontendLabel(),
+                'type' => $attribute->getFrontendInput()
+            ];
+        }
+    }
+
+    /**
+     * Builds an array of attributes to be excluded from the feed.
+     *
+     * @return string[]
+     */
+    public function loadExcludedAttributes()
+    {
+        $excludedAttributes = ["prices", "price", "category_ids", "sku"];
+
+        $customExcludedAttributesStr = $this->coreConfig->getExcludedProductAttributes($this->storeId);
+
+        if (!empty($customExcludedAttributesStr)) {
+            $customExcludedAttributes = explode(',', $customExcludedAttributesStr);
+            $excludedAttributes = array_merge($excludedAttributes, $customExcludedAttributes);
+        }
+
+        return $excludedAttributes;
+    }
+
     // Get the full product feed for the given page and size
     public function getFullProductFeed($pageSize = 1000000, $currentPage = 1)
     {
