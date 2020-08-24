@@ -184,6 +184,7 @@ class Cron
         
         $fileWriter->writeFile($scheduleFilePath, json_encode($schedule), 'w');
         $this->resetFeedError($storeId);
+        $this->removeFeedQueue($storeId);
     }
     
     public function selectedFeeds($storeId, $feeds)
