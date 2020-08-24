@@ -70,9 +70,7 @@ $defaultStoreId = (int)$stores->getPureClarityDefaultStore();
         </span>
     </p>
     <p class="pc-button">
-        <?php if ($feeds->getAreFeedsInProgress($defaultStoreId)) : ?>
-            <a class="action-default pc-disabled" id="pc-feedpopupbutton" target="_blank" title="<?= $block->escapeHtml(__('Feeds In Progress')) ?>"><?= $block->escapeHtml(__('Feeds In Progress')) ?></a>
-        <?php elseif ($feeds->getAreFeedsDisabled($defaultStoreId)) : ?>
+        <?php if ($feeds->getAreFeedsDisabled($defaultStoreId)) : ?>
             <a class="action-default pc-disabled" id="pc-feedpopupbutton" target="_blank" title="<?= $block->escapeHtml(__('Feeds Not Enabled')) ?>"><?= $block->escapeHtml(__('Feeds Not Enabled')) ?></a>
         <?php else : ?>
             <a class="action-default" id="pc-feedpopupbutton" target="_blank" title="<?= $block->escapeHtml(__('Run Feeds Manually')) ?>"><?= $block->escapeHtml(__('Run Feeds Manually')) ?></a>
