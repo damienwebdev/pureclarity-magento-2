@@ -304,6 +304,7 @@ require(
                 statusClassUsers: $('#pc-userFeedStatusClass'),
                 statusClassOrders: $('#pc-ordersFeedStatusClass'),
                 selectedStore: 0,
+                progressCheckRunning: 0,
             };
 
             if (currentState === 'configured' && $('#pc-feeds-in-progress').val() === '1') {
@@ -365,7 +366,9 @@ require(
             }).done(function(response) {
                     $("#pc-feeds-modal-popup").modal('closeModal');
                     pcInitProgress();
-                    setTimeout(pcFeedProgressCheck, 1000);
+                    if (feedRunObject.progressCheckRunning === 0) {
+                        setTimeout(pcFeedProgressCheck, 1000);
+                    }
             }).fail(function(jqXHR, status, err) {
                 modalAlert({
                     title: $.mage.__('Error'),
@@ -411,6 +414,7 @@ require(
         }
 
         function pcFeedProgressCheck() {
+            feedRunObject.progressCheckRunning = 1;
             $.ajax({
                 url: feedRunObject.progressFeedUrl,
                 data: {form_key: window.FORM_KEY, storeid: feedRunObject.selectedStore},
@@ -436,9 +440,6 @@ require(
                         response.user.running ||
                         response.orders.running
                     ) {
-                        feedModalButton.addClass('pc-disabled');
-                        feedModalButton.attr('title', $.mage.__('Feeds In Progress'));
-                        feedModalButton.html($.mage.__('Feeds In Progress'));
                         setTimeout(pcFeedProgressCheck, 1000);
                     } else if (response.product.enabled === false &&
                         response.category.enabled === false &&
@@ -446,10 +447,12 @@ require(
                         response.user.enabled === false &&
                         response.orders.enabled === false
                     ) {
+                        feedRunObject.progressCheckRunning = 0;
                         feedModalButton.addClass('pc-disabled');
                         feedModalButton.attr('title', $.mage.__('Feeds Not Enabled'));
                         feedModalButton.html($.mage.__('Feeds Not Enabled'));
                     } else {
+                        feedRunObject.progressCheckRunning = 0;
                         feedModalButton.attr('title', $.mage.__('Run Feeds Manually'));
                         feedModalButton.html($.mage.__('Run Feeds Manually'));
                         feedModalButton.removeClass('pc-disabled');
