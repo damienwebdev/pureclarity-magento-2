@@ -80,6 +80,11 @@
                     <source_model>Pureclarity\Core\Model\Config\Source\Categories</source_model>
                     <comment>Set the parent category of the Brand Categories. First level children of the selected category will be used to build your brand feed. Products in those categories will be assigned as a specific brand.</comment>
                 </field>
+                <field id="excluded_product_attributes" translate="label" type="multiselect" showInDefault="1" showInWebsite="1" showInStore="1">
+                    <label>Excluded Product Attributes</label>
+                    <source_model>Pureclarity\Core\Model\Config\Source\Attributes</source_model>
+                    <comment>Any product attributes chosen here will not be sent in the product feed.</comment>
+                </field>
             </group>
             <group id="placeholders" type="text" sortOrder="60" showInDefault="1" showInWebsite="1" showInStore="1">
                 <label>Placeholder images</label>
