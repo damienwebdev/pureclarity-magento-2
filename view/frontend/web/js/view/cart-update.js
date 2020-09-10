@@ -14,7 +14,7 @@ define([
             this.data = customerData.get('cart-update');
 
             this.renderTrackingEvents = ko.computed(function () {
-                if (pcjs.sectionUpdated(self.data()['data_id'], 'cart-update')) {
+                if (!pureclarityConfig.state.serversideMode && pcjs.sectionUpdated(self.data()['data_id'], 'cart-update')) {
                     if (self.data().items.length == 0) {
                         pcjs.push("set_basket", {cart_empty: true});
                     } else {
