@@ -284,7 +284,7 @@ class Service extends \Magento\Framework\App\Helper\AbstractHelper
         try {
             $response = $client->send();
             $this->result = json_decode($response->getBody(), true);
-            if (array_key_exists('errors', $this->result)) {
+            if (array_key_exists('errors', $this->result) && !empty($this->result['errors'])) {
                 $this->logger->error('PURECLARITY ERROR: Errors return from PureClarity - ' . var_export($this->result['errors'], true));
                 return;
             }
