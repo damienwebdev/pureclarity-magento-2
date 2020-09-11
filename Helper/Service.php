@@ -280,7 +280,14 @@ class Service extends \Magento\Framework\App\Helper\AbstractHelper
                 ])
             ->setMethod('POST')
             ->setRawBody(Json::encode($requestBody));
-        
+
+        if (isset($requestBody['userAgent'])) {
+            $client->setHeaders([
+                'Content-Type' => 'application/json',
+                'user-agent' => $requestBody['userAgent']
+            ]);
+        }
+
         try {
             $response = $client->send();
             $this->result = json_decode($response->getBody(), true);
