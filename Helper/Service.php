@@ -38,6 +38,9 @@ class Service extends \Magento\Framework\App\Helper\AbstractHelper
     /** @var \Pureclarity\Core\Helper\Service\CustomerDetails */
     private $customerDetails;
 
+    /** @var \Pureclarity\Core\Model\Serverside\Data\Cart */
+    private $cartData;
+
     public function __construct(
         \Magento\Framework\App\Helper\Context $context,
         \Magento\Checkout\Model\Session $checkoutSession,
@@ -52,7 +55,8 @@ class Service extends \Magento\Framework\App\Helper\AbstractHelper
         \Magento\Framework\App\Request\Http $request,
         \Magento\Framework\Registry $registry,
         \Magento\Framework\App\ResponseFactory $responseFactory,
-        \Pureclarity\Core\Helper\Service\CustomerDetails $customerDetails
+        \Pureclarity\Core\Helper\Service\CustomerDetails $customerDetails,
+        \Pureclarity\Core\Model\Serverside\Data\Cart $cartData
     ) {
         $this->logger = $context->getLogger();
         $this->registry = $registry;
@@ -68,6 +72,7 @@ class Service extends \Magento\Framework\App\Helper\AbstractHelper
         $this->request = $request;
         $this->responseFactory = $responseFactory;
         $this->customerDetails = $customerDetails;
+        $this->cartData = $cartData;
 
         $this->category = $this->registry->registry('current_category');
         parent::__construct($context);
@@ -179,6 +184,14 @@ class Service extends \Magento\Framework\App\Helper\AbstractHelper
             if ($customerDetails['trigger'] === true) {
                 $this->addTrackingEvent('customer_details', $customerDetails['customer']);
             }
+
+            $cartCheck = $this->cartData->checkCart();
+            if ($cartCheck['send']) {
+                $this->addTrackingEvent(
+                    'set_basket',
+                    $cartCheck['items'] ?: ['cart_empty' => true]
+                );
+            }
         }
         
         // Set up Request
@@ -271,7 +284,7 @@ class Service extends \Magento\Framework\App\Helper\AbstractHelper
         try {
             $response = $client->send();
             $this->result = json_decode($response->getBody(), true);
-            if (array_key_exists('errors', $this->result)) {
+            if (array_key_exists('errors', $this->result) && !empty($this->result['errors'])) {
                 $this->logger->error('PURECLARITY ERROR: Errors return from PureClarity - ' . var_export($this->result['errors'], true));
                 return;
             }
