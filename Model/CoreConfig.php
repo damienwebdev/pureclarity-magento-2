@@ -28,6 +28,7 @@ class CoreConfig
     const CONFIG_PATH_BRAND_FEED_ENABLED = 'pureclarity/feeds/brand_feed_enabled';
     const CONFIG_PATH_BRAND_CATEGORY = 'pureclarity/feeds/brand_parent_category';
     const CONFIG_PATH_EXCLUDED_PRODUCT_ATTRIBUTES = 'pureclarity/feeds/excluded_product_attributes';
+    const CONFIG_PATH_EXCLUDE_OOS_PRODUCTS_RECS = 'pureclarity/feeds/exclude_out_of_stock_products_from_recs';
     const CONFIG_PATH_PLACEHOLDER_PRODUCT = 'pureclarity/placeholders/placeholder_product';
     const CONFIG_PATH_PLACEHOLDER_CATEGORY = 'pureclarity/placeholders/placeholder_category';
     const CONFIG_PATH_PLACEHOLDER_CATEGORY_SECONDARY = 'pureclarity/placeholders/placeholder_category_secondary';
@@ -229,6 +230,21 @@ class CoreConfig
     {
         return $this->getConfigValue(
             self::CONFIG_PATH_EXCLUDED_PRODUCT_ATTRIBUTES,
+            ScopeInterface::SCOPE_STORE,
+            $storeId
+        );
+    }
+
+    /**
+     * Returns whether to exclude out of stock products from recommenders
+     *
+     * @param integer $storeId
+     * @return string
+     */
+    public function getExcludeOutOfStockFromRecommenders($storeId)
+    {
+        return $this->getConfigFlag(
+            self::CONFIG_PATH_EXCLUDE_OOS_PRODUCTS_RECS,
             ScopeInterface::SCOPE_STORE,
             $storeId
         );
