@@ -423,6 +423,12 @@ class ProductExport
                  $data["OnOffer"] = true;
             }
 
+            if ($this->coreConfig->getExcludeOutOfStockFromRecommenders($this->storeId)
+                && $data['InStock'] === 'false'
+            ) {
+                $data["ExcludeFromRecommenders"] = true;
+            }
+
             // Add attributes
             $this->setAttributes($product, $data);
 

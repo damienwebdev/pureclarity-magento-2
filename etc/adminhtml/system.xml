@@ -85,6 +85,11 @@
                     <source_model>Pureclarity\Core\Model\Config\Source\Attributes</source_model>
                     <comment>Any product attributes chosen here will not be sent in the product feed.</comment>
                 </field>
+                <field id="exclude_out_of_stock_products_from_recs" translate="label" type="select" showInDefault="1" showInWebsite="1" showInStore="1">
+                    <label>Exclude Out of Stock Products From Recommenders</label>
+                    <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
+                    <comment>If set to yes, any product that is out of stock will be excluded from recommenders when sent in the feed.</comment>
+                </field>
             </group>
             <group id="placeholders" type="text" sortOrder="60" showInDefault="1" showInWebsite="1" showInStore="1">
                 <label>Placeholder images</label>
