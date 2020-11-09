@@ -8,9 +8,12 @@ namespace Pureclarity\Core\Helper;
 
 use Magento\Checkout\Model\Session;
 use Magento\Framework\App\Filesystem\DirectoryList;
+use Magento\Framework\Exception\FileSystemException;
+use Magento\Framework\Filesystem\DriverInterface;
 use Magento\Framework\Filesystem\Io\FileFactory;
 use Magento\Framework\UrlInterface;
 use Magento\Store\Model\StoreManagerInterface;
+use Psr\Log\LoggerInterface;
 
 /**
  * Class Data
@@ -34,22 +37,34 @@ class Data
     /** @var DirectoryList $directoryList */
     private $directoryList;
 
+    /** @var DriverInterface $driver */
+    private $driver;
+
+    /** @var LoggerInterface $logger */
+    private $logger;
+
     /**
      * @param StoreManagerInterface $storeManager
      * @param Session $checkoutSession
      * @param FileFactory $ioFileFactory
      * @param DirectoryList $directoryList
+     * @param DriverInterface $driver
+     * @param LoggerInterface $logger
      */
     public function __construct(
         StoreManagerInterface $storeManager,
         Session $checkoutSession,
         FileFactory $ioFileFactory,
-        DirectoryList $directoryList
+        DirectoryList $directoryList,
+        DriverInterface $driver,
+        LoggerInterface $logger
     ) {
         $this->ioFileFactory   = $ioFileFactory;
         $this->storeManager    = $storeManager;
         $this->checkoutSession = $checkoutSession;
         $this->directoryList   = $directoryList;
+        $this->driver          = $driver;
+        $this->logger          = $logger;
     }
     
     public function getAdminImageUrl($store, $image, $type)
@@ -129,14 +144,18 @@ class Data
         $isUploaded = "false",
         $error = ""
     ) {
-        if ($progressFileName != null) {
-            $progressFile = fopen($progressFileName, "w");
-            fwrite(
-                $progressFile,
-                "{\"name\":\"$feedName\",\"cur\":$currentPage,\"max\":$pages,\"isComplete\":$isComplete,"
-                . "\"isUploaded\":$isUploaded,\"error\":\"$error\"}"
-            );
-            fclose($progressFile);
+        if ($progressFileName !== null) {
+            try {
+                $progressFile = $this->driver->fileOpen($progressFileName, "w");
+                $this->driver->fileWrite(
+                    $progressFile,
+                    "{\"name\":\"$feedName\",\"cur\":$currentPage,\"max\":$pages,\"isComplete\":$isComplete,"
+                    . "\"isUploaded\":$isUploaded,\"error\":\"$error\"}"
+                );
+                $this->driver->fileClose($progressFile);
+            } catch (FileSystemException $e) {
+                $this->logger->error('PureClarity Error updating progress file: ' . $e->getMessage());
+            }
         }
     }
 

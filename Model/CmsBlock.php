@@ -12,6 +12,7 @@ use Magento\Framework\File\Csv;
 use Magento\Widget\Model\Widget\InstanceFactory;
 use \Magento\Widget\Model\ResourceModel\Widget\Instance\CollectionFactory as WidgetInstanceCollectionFactory;
 use \Magento\Catalog\Model\ResourceModel\Category\CollectionFactory as CategoryCollectionFactory;
+use Psr\Log\LoggerInterface;
 
 /**
  * Class CmsBlock
@@ -38,6 +39,9 @@ class CmsBlock
     /** @var CategoryCollectionFactory $categoryFactory */
     private $categoryFactory;
 
+    /** @var LoggerInterface $logger */
+    private $logger;
+
     /**
      * @param Csv $csvProcessor
      * @param ComponentRegistrar $componentRegistrar
@@ -45,6 +49,7 @@ class CmsBlock
      * @param BlockFactory $cmsBlockFactory
      * @param WidgetInstanceCollectionFactory $appCollectionFactory
      * @param CategoryCollectionFactory $categoryFactory
+     * @param LoggerInterface $logger
      */
     public function __construct(
         Csv $csvProcessor,
@@ -52,7 +57,8 @@ class CmsBlock
         InstanceFactory $widgetFactory,
         BlockFactory $cmsBlockFactory,
         WidgetInstanceCollectionFactory $appCollectionFactory,
-        CategoryCollectionFactory $categoryFactory
+        CategoryCollectionFactory $categoryFactory,
+        LoggerInterface $logger
     ) {
         $this->csvProcessor = $csvProcessor;
         $this->widgetFactory = $widgetFactory;
@@ -60,6 +66,7 @@ class CmsBlock
         $this->appCollectionFactory = $appCollectionFactory;
         $this->categoryFactory = $categoryFactory;
         $this->componentRegistrar = $componentRegistrar;
+        $this->logger = $logger;
     }
 
     /**
@@ -107,64 +114,64 @@ class CmsBlock
         $alreadyExists = [];
 
         foreach ($files as $fileName) {
-            $file = $path . $fileName;
-            if (!file_exists($file)) {
-                continue;
-            }
+            try {
+                $file = $path . $fileName;
+                $rows = $this->csvProcessor->getData($file);
+                $header = array_shift($rows);
 
-            $rows = $this->csvProcessor->getData($file);
-            $header = array_shift($rows);
+                foreach ($rows as $row) {
+                    $data = [];
+                    foreach ($row as $key => $value) {
+                        $data[$header[$key]] = $value;
+                    }
+                    $row = $data;
 
-            foreach ($rows as $row) {
-                $data = [];
-                foreach ($row as $key => $value) {
-                    $data[$header[$key]] = $value;
+                    $instanceCollection = $this->appCollectionFactory->create()
+                        ->addFilter('title', $row['title'])
+                        ->addFilter('theme_id', $themeId)
+                        ->addFilter('store_ids', $storeId);
+                    if ($instanceCollection->count() > 0) {
+                        $alreadyExists[] = $row['title'];
+                        continue;
+                    }
+
+                    $widgetInstance = $this->widgetFactory->create();
+
+                    $code = $row['type_code'];
+                    $type = $widgetInstance->getWidgetReference('code', $code, 'type');
+                    $pageGroup = [];
+                    $group = $row['page_group'];
+                    $pageGroup['page_group'] = $group;
+
+                    $pageGroup[$group] = array_merge(
+                        $pageGroupConfig[$group],
+                        json_decode($row['group_data'], true)
+                    );
+                    if (!empty($pageGroup[$group]['entities'])) {
+                        $pageGroup[$group]['entities'] = $this->getCategoryByUrlKey(
+                            $pageGroup[$group]['entities']
+                        )->getId();
+                    }
+
+                    $customParameters = ['bmz_id' => $row['bmz_id']];
+                    if ($row['bmz_buffer'] && $row['bmz_buffer'] === 'true') {
+                        $customParameters['pc_bmz_buffer'] = 1;
+                    }
+
+                    $widgetInstance->setType($type)
+                        ->setCode($code)
+                        ->setThemeId($themeId);
+                    $widgetInstance->setTitle($row['title'])
+                        ->setStoreIds([$storeId])
+                        ->setWidgetParameters($customParameters)
+                        ->setSortOrder($row['sort_order'])
+                        ->setPageGroups([$pageGroup]);
+                    $widgetInstance->save();
+
+                    $installed[] = $row['title'];
                 }
-                $row = $data;
-
-                $instanceCollection = $this->appCollectionFactory->create()
-                    ->addFilter('title', $row['title'])
-                    ->addFilter('theme_id', $themeId)
-                    ->addFilter('store_ids', $storeId);
-                if ($instanceCollection->count() > 0) {
-                    $alreadyExists[] = $row['title'];
-                    continue;
-                }
-        
-                $widgetInstance = $this->widgetFactory->create();
-
-                $code = $row['type_code'];
-                $type = $widgetInstance->getWidgetReference('code', $code, 'type');
-                $pageGroup = [];
-                $group = $row['page_group'];
-                $pageGroup['page_group'] = $group;
-
-                $pageGroup[$group] = array_merge(
-                    $pageGroupConfig[$group],
-                    json_decode($row['group_data'], true)
-                );
-                if (!empty($pageGroup[$group]['entities'])) {
-                    $pageGroup[$group]['entities'] = $this->getCategoryByUrlKey(
-                        $pageGroup[$group]['entities']
-                    )->getId();
-                }
-
-                $customParameters = ['bmz_id' => $row['bmz_id']];
-                if ($row['bmz_buffer'] && $row['bmz_buffer'] == 'true') {
-                    $customParameters['pc_bmz_buffer'] = 1;
-                }
-
-                $widgetInstance->setType($type)
-                    ->setCode($code)
-                    ->setThemeId($themeId);
-                $widgetInstance->setTitle($row['title'])
-                    ->setStoreIds([$storeId])
-                    ->setWidgetParameters($customParameters)
-                    ->setSortOrder($row['sort_order'])
-                    ->setPageGroups([$pageGroup]);
-                $widgetInstance->save();
-
-                $installed[] = $row['title'];
+            } catch (\Exception $e) {
+                $this->logger->error('PureClarity Error installing Zones: ' . $e->getMessage());
             }
         }
 
