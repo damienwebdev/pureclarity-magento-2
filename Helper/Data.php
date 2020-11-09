@@ -74,7 +74,7 @@ class Data
     public function useSSL($storeId)
     {
         $pureclarityHostEnv = getenv('PURECLARITY_MAGENTO_USESSL');
-        if ($pureclarityHostEnv != null && strtolower($pureclarityHostEnv) == 'false') {
+        if ($pureclarityHostEnv !== null && strtolower($pureclarityHostEnv) === 'false') {
             return false;
         }
         return true;
@@ -82,7 +82,7 @@ class Data
 
     public function getFileNameForFeed($feedtype, $storeCode)
     {
-        if ($feedtype == "orders") {
+        if ($feedtype === "orders") {
             return $storeCode . "-orders.csv";
         }
         return $storeCode . "-" . $feedtype . ".json";
@@ -91,7 +91,7 @@ class Data
     // MISC/HELPER METHODS
     public function getStoreId($storeId = null)
     {
-        if (is_null($storeId)) {
+        if ($storeId === null) {
             $storeId = $this->storeManager->getStore()->getId();
         }
         return $storeId;
@@ -154,11 +154,13 @@ class Data
     {
         switch ($feedFormat) {
             case 'json':
-                return json_encode($feed);
+                $feed = json_encode($feed);
                 break;
             case 'jsonpretty':
-                return json_encode($feed, JSON_PRETTY_PRINT);
+                $feed = json_encode($feed, JSON_PRETTY_PRINT);
                 break;
         }
+
+        return $feed;
     }
 }
