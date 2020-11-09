@@ -16,6 +16,7 @@ $stores = $block->getPureclarityStoresViewModel();
     <p><?= $block->escapeHtml(__('Thank you for installing the PureClarity plugin for Magento 2.')) ?></p>
     <p><?= $block->escapeHtml(__('Please follow the 3 steps below to get up and running with PureClarity')) ?></p>
 </div>
+<?php $block->getDashboardInfo(); ?>
 <div id="pc-layer1">
     <div id="pc-step1" class="pc-box">
         <div class="pc-box-title-bar"><h3><?= $block->escapeHtml(__('Step 1')) ?></h3></div>
@@ -109,8 +110,11 @@ $stores = $block->getPureclarityStoresViewModel();
             </p>
             <p class="pc-button">
                 <a class="action-default"
-                   href="mailto:support@pureclarity.com?subject=Magento%202%20Support%20Issue&body=Plugin%20Version:%20<?= $block->escapeQuote($block->escapeHtml($state->getPluginVersion())) ?>%0D%0AMagento Version:%20<?= $block->escapeQuote($block->escapeHtml($state->getMagentoVersion())) ?>%0D%0AStore Name: [PLEASE ENTER]%0D%0A" title="<?= $block->escapeHtml(__('Contact support')) ?>">
-                    <?= $block->escapeHtml(__('Contact support')) ?>
+                   href="<?= 'mailto:support@pureclarity.com?subject=Magento%202%20Support%20Issue&body='
+                    . 'Plugin%20Version:%20' . $block->escapeQuote($block->escapeHtml($state->getPluginVersion()))
+                    . '%0D%0AMagento Version:%20' . $block->escapeQuote($block->escapeHtml($state->getMagentoVersion()))
+                    . '%0D%0AStore Name: [PLEASE ENTER]%0D%0A" title="' . $block->escapeHtml(__('Contact support'))
+                    . '">' . $block->escapeHtml(__('Contact support')) ?>
                 </a>
             </p>
         </div>
