@@ -200,9 +200,6 @@ class Cron
      */
     public function doFeed($feedTypes, $storeId, $feedFilePath)
     {
-        //can take a while to run the feed
-        set_time_limit(0);
-
         $hasOrder = in_array(Feed::FEED_TYPE_ORDER, $feedTypes);
         $isOrderOnly = ($hasOrder && count($feedTypes) == 1);
 
