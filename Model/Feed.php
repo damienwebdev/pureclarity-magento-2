@@ -831,7 +831,7 @@ class Feed
 
     private function getUniqueId()
     {
-        if (is_null($this->uniqueId)) {
+        if ($this->uniqueId === null) {
             $this->uniqueId = uniqid();
         }
         return $this->uniqueId;

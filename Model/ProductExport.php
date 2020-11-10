@@ -169,7 +169,7 @@ class ProductExport
     {
         // Use this store, if not passed in.
         $this->storeId = $storeId;
-        if (is_null($this->storeId)) {
+        if ($this->storeId === null) {
             $this->storeId = $this->storeManager->getStore()->getId();
         }
 
