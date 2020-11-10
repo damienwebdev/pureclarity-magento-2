@@ -765,7 +765,7 @@ class Feed
 
         $this->logger->debug(
             "PureClarity: About to send data to {$url} for " . $parameters['feedName']
-            . ": " . print_r($parameters, true)
+            . ": " . var_export($parameters, true)
         );
 
         $post_fields = http_build_query($parameters);
@@ -804,7 +804,7 @@ class Feed
 
         curl_close($ch);
     
-        $this->logger->debug("PureClarity: Response: " . print_r($response, true));
+        $this->logger->debug("PureClarity: Response: " . var_export($response, true));
         $this->logger->debug("PureClarity: At end of send");
     }
 
