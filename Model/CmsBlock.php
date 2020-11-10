@@ -13,6 +13,7 @@ use Magento\Widget\Model\Widget\InstanceFactory;
 use \Magento\Widget\Model\ResourceModel\Widget\Instance\CollectionFactory as WidgetInstanceCollectionFactory;
 use \Magento\Catalog\Model\ResourceModel\Category\CollectionFactory as CategoryCollectionFactory;
 use Psr\Log\LoggerInterface;
+use Pureclarity\Core\Block\Bmz;
 
 /**
  * Class CmsBlock
@@ -189,7 +190,7 @@ class CmsBlock
     {
 
         $instanceCollection = $this->appCollectionFactory->create()
-            ->addFilter('instance_type', 'Pureclarity\Core\Block\Bmz');
+            ->addFilter('instance_type', Bmz::class);
         foreach ($instanceCollection as $widgetInstance) {
             $widgetInstance->delete();
         }

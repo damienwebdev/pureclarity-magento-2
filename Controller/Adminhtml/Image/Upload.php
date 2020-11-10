@@ -8,6 +8,7 @@ namespace Pureclarity\Core\Controller\Adminhtml\Image;
 
 use Magento\Backend\App\Action;
 use Magento\Framework\Controller\ResultFactory;
+use Pureclarity\Core\ImageUpload;
 
 /**
  * Class Upload
@@ -41,7 +42,7 @@ class Upload extends Action
              * than needing to e.g. pass in baseTmpPath here.
              */
             $objectManager = \Magento\Framework\App\ObjectManager::getInstance();
-            $this->imageUploader = $objectManager->create('Pureclarity\Core\ImageUpload');
+            $this->imageUploader = $objectManager->create(ImageUpload::class);
             $this->imageUploader->setBasePath($basePath);
             $result = $this->imageUploader->saveFileToTmpDir($attributeCode);
  

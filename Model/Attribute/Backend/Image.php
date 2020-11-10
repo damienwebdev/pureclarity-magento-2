@@ -10,6 +10,7 @@ use Magento\Catalog\Model\ImageUploader;
 use Magento\Eav\Model\Entity\Attribute\Backend\AbstractBackend;
 use Magento\Framework\App\ObjectManager;
 use Psr\Log\LoggerInterface;
+use Pureclarity\Core\ImageUpload;
 
 /**
  * Class Image
@@ -37,7 +38,7 @@ class Image extends AbstractBackend
     {
         if ($this->imageUploader === null) {
             $this->imageUploader = ObjectManager::getInstance()->get(
-                'Pureclarity\Core\ImageUpload'
+                ImageUpload::class
             );
         }
         return $this->imageUploader;

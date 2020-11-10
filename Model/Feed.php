@@ -10,6 +10,7 @@ use Magento\Catalog\Model\CategoryRepository;
 use Magento\Catalog\Model\ResourceModel\Category\CollectionFactory as CategoryCollectionFactory;
 use Magento\Framework\Exception\CouldNotSaveException;
 use Magento\Framework\Exception\LocalizedException;
+use Magento\Sales\Model\Order;
 use Magento\Store\Model\Store;
 use Magento\Store\Model\StoreFactory;
 use Psr\Log\LoggerInterface;
@@ -238,7 +239,7 @@ class Feed
         $toDate = date('Y-m-d H:i:s', strtotime("now"));
         $objectManager =  \Magento\Framework\App\ObjectManager::getInstance();
         $this->logger->debug("PureClarity: About to initialise orderCollection");
-        $orderCollection = $objectManager->get('Magento\Sales\Model\Order')
+        $orderCollection = $objectManager->get(Order::class)
             ->getCollection()
             ->addAttributeToFilter('store_id', $this->storeId)
             ->addAttributeToFilter('created_at', ['from'=>$fromDate, 'to'=>$toDate]);
@@ -265,7 +266,7 @@ class Feed
             
             // Build Data
             foreach ($orderCollection as $orderData) {
-                $order = $objectManager->create('Magento\Sales\Model\Order')
+                $order = $objectManager->create(Order::class)
                     ->loadByIncrementId($orderData->getIncrementId());
                 if ($order) {
                     $id = $order->getIncrementId();
@@ -766,7 +767,7 @@ class Feed
             "PureClarity: About to send data to {$url} for " . $parameters['feedName']
             . ": " . print_r($parameters, true)
         );
-        
+
         $post_fields = http_build_query($parameters);
         $ch = curl_init();
         curl_setopt($ch, CURLOPT_URL, $url);
