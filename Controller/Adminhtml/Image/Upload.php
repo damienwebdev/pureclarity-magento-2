@@ -31,7 +31,7 @@ class Upload extends Action
         try {
             $attributeCode = $this->getRequest()->getParam('attribute_code');
             if (!$attributeCode) {
-                throw new \Exception('attribute_code missing');
+                throw new \InvalidArgumentException('attribute_code missing');
             }
             
             $basePath = 'catalog/' . $attributeCode;

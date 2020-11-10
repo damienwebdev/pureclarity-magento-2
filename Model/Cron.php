@@ -257,7 +257,7 @@ class Cron
                     $this->logFeedQueue($feedsRemaining, $storeId);
                     break;
                 default:
-                    throw new \Exception("PureClarity feed type not recognised: {$feedType}");
+                    throw new \InvalidArgumentException("PureClarity feed type not recognised: {$feedType}");
             }
         }
         $feedModel->checkSuccess();
