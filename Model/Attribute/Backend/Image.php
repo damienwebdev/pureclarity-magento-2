@@ -58,8 +58,6 @@ class Image extends AbstractBackend
                 } else {
                     if (isset($values[0]['name']) && isset($values[0]['tmp_name'])) {
                         $object->setData($attrCode, $values[0]['name']);
-                    } else {
-                        // don't update
                     }
                 }
             } else {
