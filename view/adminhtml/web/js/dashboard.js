@@ -48,12 +48,6 @@ require(
                         dataType: 'json'
                     }).done(function (data) {
                         if (data.success) {
-                            if (feedRunObject.selectStore.length) {
-                                feedRunObject.selectStore.val($('#pc-sign-up-store-id').val());
-                            } else {
-                                feedRunObject.preselectStore.val($('#pc-sign-up-store-id').val());
-                            }
-                            feedRunObject.selectedStore = $('#pc-sign-up-store-id').val();
                             currentState = 'waiting';
                             setTimeout(checkStatus, 5000);
                         } else {
@@ -95,17 +89,7 @@ require(
                     dataType: 'json'
                 }).done(function (data) {
                     if (data.success) {
-                        $('#pc-welcome').fadeOut(200, function () {
-                            $('#pc-content').fadeIn(200);
-                        });
-                        currentState = 'configured';
-                        if (feedRunObject.selectStore.length) {
-                            feedRunObject.selectStore.val($('#pc-details-store-id').val());
-                        } else {
-                            feedRunObject.preselectStore.val($('#pc-details-store-id').val());
-                        }
-                        feedRunObject.selectedStore = $('#pc-details-store-id').val();
-                        pcFeedProgressCheck();
+                        location.reload();
                     } else {
                         linkAccountContent.modal('openModal');
                         modalAlert({
@@ -192,18 +176,7 @@ require(
                 dataType: 'json'
             }).done(function (data) {
                 if (data.success) {
-                    $('#pc-waiting').fadeOut(200, function () {
-                        $('#pc-content').fadeIn(200);
-                    });
-                    currentState = 'configured';
-                    feedRunObject.statusLabelProducts.html($.mage.__('Waiting for feed run to start'));
-                    feedRunObject.statusClassProducts.attr('class', 'pc-feed-status-icon pc-feed-waiting');
-                    feedRunObject.statusLabelCategories.html($.mage.__('Waiting for feed run to start'));
-                    feedRunObject.statusClassCategories.attr('class', 'pc-feed-status-icon pc-feed-waiting');
-                    feedRunObject.statusLabelUsers.html($.mage.__('Waiting for feed run to start'));
-                    feedRunObject.statusClassUsers.attr('class', 'pc-feed-status-icon pc-feed-waiting');
-                    feedRunObject.statusLabelOrders.html($.mage.__('Waiting for feed run to start'));
-                    feedRunObject.statusClassOrders.attr('class', 'pc-feed-status-icon pc-feed-waiting');
+                    location.reload();
                     pcFeedProgressCheck();
                 } else if (data.error !== '') {
                     modalAlert({
