@@ -31,11 +31,13 @@ require(
         let linkAccountContent = $('#pc-link-account-form-content');
         let signupForm = $('#pc-sign-up-form');
         let saveDetailsForm = $('#pc-save-details-form');
+        let signupSubmitted = false;
 
         function submitSignUp()
         {
             let isValid = signupForm.validation('isValid');
-            if (isValid) {
+            if (isValid && !signupSubmitted) {
+                signupSubmitted = true;
                 $('#pc-sign-up').fadeOut(200, function () {
                     $('#pc-waiting').fadeIn(200);
                     $.ajax({
@@ -55,12 +57,14 @@ require(
                             currentState = 'waiting';
                             setTimeout(checkStatus, 5000);
                         } else {
+                            signupSubmitted = false;
                             $('#pc-waiting').fadeOut(200, function () {
                                 $('#pc-sign-up').fadeIn(200);
                                 $('#pc-sign-up-response-holder').html(data.error).addClass('error');
                             });
                         }
                     }).fail(function(jqXHR, status, err) {
+                        signupSubmitted = false;
                         modalAlert({
                             title: $.mage.__('Error'),
                             content: $.mage.__('Please reload the page and try again'),
