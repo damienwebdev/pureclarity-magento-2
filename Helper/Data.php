@@ -147,14 +147,26 @@ class Data
         if ($progressFileName !== null) {
             try {
                 $progressFile = $this->driver->fileOpen($progressFileName, "w");
-                $this->driver->fileWrite(
-                    $progressFile,
-                    "{\"name\":\"$feedName\",\"cur\":$currentPage,\"max\":$pages,\"isComplete\":$isComplete,"
-                    . "\"isUploaded\":$isUploaded,\"error\":\"$error\"}"
-                );
-                $this->driver->fileClose($progressFile);
             } catch (FileSystemException $e) {
-                $this->logger->error('PureClarity Error updating progress file: ' . $e->getMessage());
+                $this->logger->error('PureClarity Error opening progress file: ' . $e->getMessage());
+            }
+
+            if (isset($progressFile)) {
+                try {
+                    $this->driver->fileWrite(
+                        $progressFile,
+                        "{\"name\":\"$feedName\",\"cur\":$currentPage,\"max\":$pages,\"isComplete\":$isComplete,"
+                        . "\"isUploaded\":$isUploaded,\"error\":\"$error\"}"
+                    );
+                } catch (FileSystemException $e) {
+                    $this->logger->error('PureClarity Error updating progress file: ' . $e->getMessage());
+                }
+
+                try {
+                    $this->driver->fileClose($progressFile);
+                } catch (FileSystemException $e) {
+                    $this->logger->error('PureClarity Error closing progress file: ' . $e->getMessage());
+                }
             }
         }
     }
