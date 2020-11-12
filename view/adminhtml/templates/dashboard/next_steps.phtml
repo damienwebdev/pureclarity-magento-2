@@ -1,0 +1,71 @@
+<?php
+/**
+ * Copyright © PureClarity. All rights reserved.
+ * See LICENSE.txt for license details.
+ */
+
+/** @var \Pureclarity\Core\Block\Adminhtml\Dashboard\NextSteps $block */
+$nextSteps = $block->getNextSteps();
+?>
+
+<div id="pureclarity-next-steps">
+    <?php foreach ($nextSteps as $step): ?>
+        <div id="<?= $block->escapeHtmlAttr($step['id']) ?>" class="pureclarity-info-box">
+            <?php if (isset($step['title'])): ?>
+                <div id="<?= $block->escapeHtmlAttr($step['id']) ?>-title" class="pureclarity-info-title">
+                    <h2><?= $block->escapeHtml($step['title']) ?></h2>
+                </div>
+            <?php endif; ?>
+            <div class="pureclarity-info-content">
+                <?php if (isset($step['description'])): ?>
+                    <p id="<?= $block->escapeHtmlAttr($step['id']) ?>-description"
+                       class="pureclarity-next-step-description"><?= $block->escapeHtml($step['description']) ?></p>
+                <?php endif; ?>
+
+                <?php if (isset($step['vimeoLink'])): ?>
+                    <div class="pureclarity-next-step-vimeo">
+                        <iframe src="<?= $block->escapeUrl($step['vimeoLink']) ?>?title=0&byline=0&portrait=0"
+                                width="640" height="360"
+                                allow="autoplay; fullscreen" allowfullscreen></iframe>
+                    </div>
+                <?php endif; ?>
+
+                <?php if (isset($step['customHTML'])): ?>
+                    <div class="pureclarity-next-step-customhtml"><?= $block->escapeHtml($step['customHTML']) ?></div>
+                <?php endif; ?>
+                <?php if (isset($step['actions'])): ?>
+                    <div class="pureclarity-next-step-actions">
+                        <?php foreach ($step['actions'] as $step_action): ?>
+                            <p class="pureclarity-next-step-action">
+                                <?php if (isset($step_action['actionLinkIsAdmin'])
+                                        && $step_action['actionLinkIsAdmin']
+                                ): ?>
+                                    <a href="<?= $block->escapeUrl($block->getAdminUrl($step_action['actionLink'])) ?>"
+                                       target="_blank" class="pc-button pc-action"
+                                       id="<?= $block->escapeHtmlAttr($step['id']) ?>">
+                                        <?= $block->escapeHtml($step_action['actionText']) ?>
+                                    </a>
+                                <?php elseif (isset($step_action['actionLinkIsPlugin'])
+                                        && $step_action['actionLinkIsPlugin']
+                                ): ?>
+                                    <a href="<?= $block->escapeUrl($block->getUrl($step_action['actionLink'])) ?>"
+                                       target="_blank" class="pc-button pc-action"
+                                       id="<?= $block->escapeHtmlAttr($step['id']) ?>">
+                                        <?= $block->escapeHtml($step_action['actionText']) ?>
+                                    </a>
+                                <?php else: ?>
+                                    <a href="<?= $block->escapeUrl($step_action['actionLink']) ?>" target="_blank"
+                                       class="pc-button pc-action"
+                                       id="<?= $block->escapeHtmlAttr($step['id']) ?>">
+                                        <?= $block->escapeHtml($step_action['actionText']) ?>
+                                    </a>
+                                <?php endif; ?>
+                            </p>
+                        <?php endforeach; ?>
+                    </div>
+                <?php endif; ?>
+            </div>
+        </div>
+    <?php endforeach; ?>
+</div>
+

@@ -135,7 +135,8 @@
 }
 
 #pc-dashboard .action-default,
-.pc-modal button.primary {
+.pc-modal button.primary,
+#pc-dashboard .pc-button {
     background-color: #c4d95a;
     border: 0;
     color: #3c4858 !important;
@@ -841,4 +842,95 @@ svg .pc_donut_text {
     .pc-sign-up-modal .modal-inner-wrap {
         width: 556px;
     }
+}
+
+/**
+ ### CONFIGURED DASHBOARD INFO BOXES ###
+ */
+@media only screen and (min-width: 1501px) {
+    #pc-col1 {
+        width: 60%;
+        float:left;
+    }
+
+    #pc-col2 {
+        width: 40%;
+        float:left;
+    }
+}
+
+.pureclarity-info-box {
+    border: 1px solid #ccc;
+    border-top: 5px solid #68b9d6;
+    border-radius: 5px;
+    background: white;
+    padding: 0;
+    margin: 30px 30px 30px 0;
+}
+
+.pureclarity-info-box .pureclarity-info-title {
+    border-radius: 5px 5px 0 0;
+    border-bottom: 1px solid #ccc;
+    padding: 15px 30px;
+    margin:0;
+}
+
+.pureclarity-info-box.pc-ft-warning,
+.pureclarity-info-box.pc-ft-error {
+    border-top: 1px solid #ccc;
+}
+
+.pureclarity-info-box.pc-ft-warning .pureclarity-info-title {
+    background: #e3d246;
+}
+
+.pureclarity-info-box.pc-ft-error .pureclarity-info-title {
+    background: #f44336;
+}
+
+.pureclarity-info-box.pc-ft-error .pureclarity-info-title h2 {
+    color: #fff;
+}
+.pureclarity-info-box .pureclarity-info-title h2 {
+    padding: 0;
+    margin:0;
+    color: #23282d;
+    font-size: 2.08rem;
+    font-weight: 500;
+}
+
+.pureclarity-info-box .pureclarity-info-content {
+    padding: 15px 30px;
+    margin:0;
+}
+
+.pureclarity-info-box .pureclarity-info-content p {
+    font-size:1.36rem;
+    color: #23282d;
+}
+
+.pureclarity-info-box .pureclarity-info-content ul {
+    list-style: none;
+}
+
+.pureclarity-info-box .pureclarity-info-content ul li::before {
+    content: "\2022";  /* Add content: \2022 is the CSS Code/unicode for a bullet */
+    color: #68b9d6; /* Change the color */
+    font-weight: bold; /* If you want it to be bold */
+    display: inline-block; /* Needed to add space between the bullet and the text */
+    width: 1.0rem; /* Also needed for space (tweak if needed) */
+    margin-left: 1.0rem; /* Also needed for space (tweak if needed) */
+}
+
+.pureclarity-info-box .pureclarity-info-content li {
+    color: #23282d;
+}
+
+.pureclarity-info-box iframe {
+    border:0;
+}
+
+.pureclarity-next-step-actions {
+    display: block;
+    margin-top: 20px;
 }
