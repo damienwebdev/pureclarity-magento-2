@@ -9,10 +9,13 @@ namespace Pureclarity\Core\Setup;
 use Magento\Catalog\Model\Category;
 use Magento\Catalog\Model\Product;
 use Magento\Eav\Model\Entity\Attribute\ScopedAttributeInterface;
+use Magento\Eav\Model\Entity\Attribute\Source\Boolean;
+use Magento\Catalog\Model\Product\Attribute\Frontend\Image as FrontendImage;
 use Magento\Eav\Setup\EavSetupFactory;
 use Magento\Framework\Setup\ModuleContextInterface;
 use Magento\Framework\Setup\ModuleDataSetupInterface;
 use Magento\Framework\Setup\InstallDataInterface;
+use Pureclarity\Core\Model\Attribute\Backend\Image;
 
 /**
  * Class InstallData
@@ -79,7 +82,7 @@ class InstallData implements InstallDataInterface
                     'group' => 'PureClarity',
                     'input' => 'image',
                     'type' => 'varchar',
-                    'backend' => 'Pureclarity\Core\Model\Attribute\Backend\Image',
+                    'backend' => Image::class,
                     'label' => 'PureClarity image',
                     'visible' => 1,
                     'required' => 0,
@@ -98,7 +101,7 @@ class InstallData implements InstallDataInterface
                     'input' => 'boolean',
                     'type' => 'int',
                     'backend' => '',
-                    'source' => 'Magento\Eav\Model\Entity\Attribute\Source\Boolean',
+                    'source' => Boolean::class,
                     'label' => 'Exclude from recommenders',
                     'visible' => 1,
                     'required' => 0,
@@ -147,7 +150,7 @@ class InstallData implements InstallDataInterface
                 'type' => 'int',
                 'label' => 'Exclude from recommenders',
                 'backend' => '',
-                'source' => 'Magento\Eav\Model\Entity\Attribute\Source\Boolean',
+                'source' => Boolean::class,
                 'visible' => 1,
                 'required' => 0,
                 'user_defined' => 1,
@@ -166,7 +169,7 @@ class InstallData implements InstallDataInterface
                 'type' => 'int',
                 'label' => 'New arrival',
                 'backend' => '',
-                'source' => 'Magento\Eav\Model\Entity\Attribute\Source\Boolean',
+                'source' => Boolean::class,
                 'visible' => 1,
                 'required' => 0,
                 'user_defined' => 1,
@@ -185,7 +188,7 @@ class InstallData implements InstallDataInterface
                 'type' => 'int',
                 'label' => 'On offer',
                 'backend' => '',
-                'source' => 'Magento\Eav\Model\Entity\Attribute\Source\Boolean',
+                'source' => Boolean::class,
                 'visible' => 1,
                 'required' => 0,
                 'user_defined' => 1,
@@ -203,7 +206,7 @@ class InstallData implements InstallDataInterface
                 'input' => 'media_image',
                 'type' => 'varchar',
                 'label' => 'PureClarity Overlay Image',
-                'frontend' => 'Magento\Catalog\Model\Product\Attribute\Frontend\Image',
+                'frontend' => FrontendImage::class,
                 'visible' => 1,
                 'required' => 0,
                 'user_defined' => 1,

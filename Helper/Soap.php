@@ -66,12 +66,12 @@ class Soap
         curl_close($soap_do);
 
         $this->logger->debug("------------------ PC DELTA ------------------");
-        $this->logger->debug(print_r($url, true));
+        $this->logger->debug(var_export($url, true));
         if ($payload != null) {
-            $this->logger->debug(print_r($payload, true));
+            $this->logger->debug(var_export($payload, true));
         }
         $this->logger->debug("------------------ RESPONSE ------------------");
-        $this->logger->debug(print_r($result, true));
+        $this->logger->debug(var_export($result, true));
         $this->logger->debug("------------------ END PRODUCT DELTA ------------------");
 
         return $result;

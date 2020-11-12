@@ -169,7 +169,7 @@ class ProductExport
     {
         // Use this store, if not passed in.
         $this->storeId = $storeId;
-        if (is_null($this->storeId)) {
+        if ($this->storeId === null) {
             $this->storeId = $this->storeManager->getStore()->getId();
         }
 
@@ -358,7 +358,7 @@ class ProductExport
             // Swatch renderer
             if ($product->getTypeId() == \Magento\ConfigurableProduct\Model\Product\Type\Configurable::TYPE_CODE) {
                 $swatchBlock = $this->blockFactory
-                                    ->createBlock('\Magento\Swatches\Block\Product\Renderer\Listing\Configurable')
+                                    ->createBlock(\Magento\Swatches\Block\Product\Renderer\Listing\Configurable::class)
                                     ->setData("product", $product);
                 $jsonConfig = $swatchBlock->getJsonConfig();
                 $data["jsonconfig"] = $jsonConfig;

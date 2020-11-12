@@ -8,9 +8,12 @@ namespace Pureclarity\Core\Helper;
 
 use Magento\Checkout\Model\Session;
 use Magento\Framework\App\Filesystem\DirectoryList;
+use Magento\Framework\Exception\FileSystemException;
+use Magento\Framework\Filesystem\DriverInterface;
 use Magento\Framework\Filesystem\Io\FileFactory;
 use Magento\Framework\UrlInterface;
 use Magento\Store\Model\StoreManagerInterface;
+use Psr\Log\LoggerInterface;
 
 /**
  * Class Data
@@ -34,22 +37,34 @@ class Data
     /** @var DirectoryList $directoryList */
     private $directoryList;
 
+    /** @var DriverInterface $driver */
+    private $driver;
+
+    /** @var LoggerInterface $logger */
+    private $logger;
+
     /**
      * @param StoreManagerInterface $storeManager
      * @param Session $checkoutSession
      * @param FileFactory $ioFileFactory
      * @param DirectoryList $directoryList
+     * @param DriverInterface $driver
+     * @param LoggerInterface $logger
      */
     public function __construct(
         StoreManagerInterface $storeManager,
         Session $checkoutSession,
         FileFactory $ioFileFactory,
-        DirectoryList $directoryList
+        DirectoryList $directoryList,
+        DriverInterface $driver,
+        LoggerInterface $logger
     ) {
         $this->ioFileFactory   = $ioFileFactory;
         $this->storeManager    = $storeManager;
         $this->checkoutSession = $checkoutSession;
         $this->directoryList   = $directoryList;
+        $this->driver          = $driver;
+        $this->logger          = $logger;
     }
     
     public function getAdminImageUrl($store, $image, $type)
@@ -74,7 +89,7 @@ class Data
     public function useSSL($storeId)
     {
         $pureclarityHostEnv = getenv('PURECLARITY_MAGENTO_USESSL');
-        if ($pureclarityHostEnv != null && strtolower($pureclarityHostEnv) == 'false') {
+        if ($pureclarityHostEnv !== null && strtolower($pureclarityHostEnv) === 'false') {
             return false;
         }
         return true;
@@ -82,7 +97,7 @@ class Data
 
     public function getFileNameForFeed($feedtype, $storeCode)
     {
-        if ($feedtype == "orders") {
+        if ($feedtype === "orders") {
             return $storeCode . "-orders.csv";
         }
         return $storeCode . "-" . $feedtype . ".json";
@@ -91,7 +106,7 @@ class Data
     // MISC/HELPER METHODS
     public function getStoreId($storeId = null)
     {
-        if (is_null($storeId)) {
+        if ($storeId === null) {
             $storeId = $this->storeManager->getStore()->getId();
         }
         return $storeId;
@@ -129,14 +144,30 @@ class Data
         $isUploaded = "false",
         $error = ""
     ) {
-        if ($progressFileName != null) {
-            $progressFile = fopen($progressFileName, "w");
-            fwrite(
-                $progressFile,
-                "{\"name\":\"$feedName\",\"cur\":$currentPage,\"max\":$pages,\"isComplete\":$isComplete,"
-                . "\"isUploaded\":$isUploaded,\"error\":\"$error\"}"
-            );
-            fclose($progressFile);
+        if ($progressFileName !== null) {
+            try {
+                $progressFile = $this->driver->fileOpen($progressFileName, "w");
+            } catch (FileSystemException $e) {
+                $this->logger->error('PureClarity Error opening progress file: ' . $e->getMessage());
+            }
+
+            if (isset($progressFile)) {
+                try {
+                    $this->driver->fileWrite(
+                        $progressFile,
+                        "{\"name\":\"$feedName\",\"cur\":$currentPage,\"max\":$pages,\"isComplete\":$isComplete,"
+                        . "\"isUploaded\":$isUploaded,\"error\":\"$error\"}"
+                    );
+                } catch (FileSystemException $e) {
+                    $this->logger->error('PureClarity Error updating progress file: ' . $e->getMessage());
+                }
+
+                try {
+                    $this->driver->fileClose($progressFile);
+                } catch (FileSystemException $e) {
+                    $this->logger->error('PureClarity Error closing progress file: ' . $e->getMessage());
+                }
+            }
         }
     }
 
@@ -154,11 +185,13 @@ class Data
     {
         switch ($feedFormat) {
             case 'json':
-                return json_encode($feed);
+                $feed = json_encode($feed);
                 break;
             case 'jsonpretty':
-                return json_encode($feed, JSON_PRETTY_PRINT);
+                $feed = json_encode($feed, JSON_PRETTY_PRINT);
                 break;
         }
+
+        return $feed;
     }
 }

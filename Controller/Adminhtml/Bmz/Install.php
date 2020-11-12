@@ -38,8 +38,6 @@ class Install extends Action
     
     public function execute()
     {
-        session_write_close();
-
         try {
             $storeId =  (int)$this->getRequest()->getParam('storeid');
             $themeId =  (int)$this->getRequest()->getParam('themeid');
