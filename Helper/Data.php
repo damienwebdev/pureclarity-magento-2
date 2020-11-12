@@ -9,7 +9,7 @@ namespace Pureclarity\Core\Helper;
 use Magento\Checkout\Model\Session;
 use Magento\Framework\App\Filesystem\DirectoryList;
 use Magento\Framework\Exception\FileSystemException;
-use Magento\Framework\Filesystem\DriverInterface;
+use Magento\Framework\Filesystem\Driver\File as FileDriver;
 use Magento\Framework\Filesystem\Io\FileFactory;
 use Magento\Framework\UrlInterface;
 use Magento\Store\Model\StoreManagerInterface;
@@ -37,7 +37,7 @@ class Data
     /** @var DirectoryList $directoryList */
     private $directoryList;
 
-    /** @var DriverInterface $driver */
+    /** @var FileDriver $driver */
     private $driver;
 
     /** @var LoggerInterface $logger */
@@ -48,7 +48,7 @@ class Data
      * @param Session $checkoutSession
      * @param FileFactory $ioFileFactory
      * @param DirectoryList $directoryList
-     * @param DriverInterface $driver
+     * @param FileDriver $driver
      * @param LoggerInterface $logger
      */
     public function __construct(
@@ -56,7 +56,7 @@ class Data
         Session $checkoutSession,
         FileFactory $ioFileFactory,
         DirectoryList $directoryList,
-        DriverInterface $driver,
+        FileDriver $driver,
         LoggerInterface $logger
     ) {
         $this->ioFileFactory   = $ioFileFactory;
