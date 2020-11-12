@@ -10,208 +10,318 @@ $regions = $block->getPureclarityRegionsViewModel();
 $stores = $block->getPureclarityStoresViewModel();
 /** @var \Pureclarity\Core\ViewModel\Adminhtml\Dashboard\Store $store */
 $store = $block->getPureclarityStoreViewModel();
+/** @var \Pureclarity\Core\ViewModel\Adminhtml\Dashboard\State $state */
+$state = $block->getPureclarityStateViewModel();
+
+
 ?>
-<div id="pc-welcome" <?php if ($stores->hasMultipleStores()): ?>class="pc-multi-store"<?php endif; ?>>
-    <div id="pc-marketing-info" class="pc-box">
-        <div class="pc-box-content">
-            <h2><?= $block->escapeHtml(__('Welcome to PureClarity')) ?></h2>
-            <p><?= $block->escapeHtml(
-                __('PureClarity, an approved Magento Technology Partner, '
-                    . 'is the leading AI-based eCommerce personalization platform proven to:')
-            ) ?></p>
-            <ul>
-                <li><?= $block->escapeHtml(__('Increase online revenue by 27%')) ?></li>
-                <li><?= $block->escapeHtml(__('Increase online conversion by 72%')) ?></li>
-                <li><?= $block->escapeHtml(__('Increase average order value by 16%')) ?></li>
-            </ul>
-            <p><?= $block->escapeHtml(
-                __('Features include Personalized real-time AI Recommenders, Personalized Marketing Merchandising '
-                    . 'and Campaigns, Personalization within Email and Personalization within Search')
-            ) ?></p>
+<!--<div id="pc-welcome" <?php if ($stores->hasMultipleStores()): ?>class="pc-multi-store"<?php endif; ?>-->
+<div id="pc-signup-col1">
+    <div id="pc-waiting"
+         <?php if ($state->isWaiting() === false): ?>style="display:none"<?php endif; ?>>
+        <div id="pc-sign-up-waiting" class="pc-box">
+            <div class="pc-box-title-bar"><h3><?= $block->escapeHtml(__('Setting up account')) ?></h3></div>
+            <div class="pc-box-content">
+                <div class="pc-loader">
+                    <div class="pc-loader-outer"></div>
+                    <div class="pc-loader-middle"></div>
+                    <div class="pc-loader-inner"></div>
+                </div>
+                <p><?= $block->escapeHtml(__('We\'ll have you up and running')) ?></p>
+                <p><?= $block->escapeHtml(__('before you can say increased revenue')) ?></p>
+            </div>
         </div>
     </div>
-    <div id="pc-sign-up" class="pc-box">
-        <div class="pc-box-title-bar"><h3><?= $block->escapeHtml(__('Sign up for a free trial')) ?></h3></div>
+    <input type="hidden" id="pc-sign-up-waiting-call-url"
+           value="<?= $block->escapeUrl($block->getUrl('pureclarity/dashboard/signupStatus')) ?>" />
+    <div id="pc-sign-up" class="pc-box"<?php if ($state->isWaiting()): ?>style="display:none"<?php endif; ?>>
+        <div class="pc-box-title-bar"><h3><?= $block->escapeHtml(__('Sign up for a 30-day free trial')) ?></h3></div>
         <div class="pc-box-content">
-            <p><?= $block->escapeHtml(__('Try for Free today and increase your online revenue by 27%')) ?></p>
+            <p class="sign-up-subheading"><?= $block->escapeHtml(__('Try for Free today:')) ?></p>
             <ul>
+                <li><?= $block->escapeHtml(__('Get up and running in minutes')) ?></li>
+                <li><?= $block->escapeHtml(__('No credit card or contract required')) ?></li>
                 <li><?= $block->escapeHtml(__('Access to all PureClarity features')) ?></li>
-                <li><?= $block->escapeHtml(__('Access to PureClarity Academy')) ?></li>
-                <li><?= $block->escapeHtml(__('Step by Step implementation guide')) ?></li>
-                <li><?= $block->escapeHtml(__('Full support if needed')) ?></li>
-                <li><?= $block->escapeHtml(__('No credit card required')) ?></li>
+                <li><?= $block->escapeHtml(__('Full support from our dedicated team')) ?></li>
             </ul>
-            <p class="pc-button">
-                <button id="pc-sign-up-button" type="submit" title="Save Details"
-                        class="action-default scalable primary">
-                    <?= $block->escapeHtml(__('Sign up')) ?>
-                </button>
+            <p class="sign-up-instruction">
+                <?= $block->escapeHtml(__(
+                    'Fill out the form below to get started. We\'ll use these details to create your '
+                    . 'PureClarity account.'
+                )) ?>
+                <a id="pc-link-account-button"><?= $block->escapeHtml(__('Already have an account?')) ?></a>
             </p>
+            <div id="pc-sign-up-form-content">
+                <form id="pc-sign-up-form" method="post"
+                      action="<?= $block->escapeUrl($block->getUrl('pureclarity/dashboard/signup')) ?>"
+                      data-mage-init='{"validation":{}}'>
+                    <input type="hidden" name="form_key"
+                           value="<?= $block->escapeQuote($block->escapeHtml($block->getFormKey())) ?>" />
+                    <div class="left">
+                        <h3><?= $block->escapeHtml(__('About you')) ?></h3>
+                        <p class="pc-field">
+                            <label class="label" for="pc-sign-up-firstname">
+                                <?= $block->escapeHtml(__('First Name')) ?>
+                            </label>
+                            <input data-validate='{"required":true}' type="text" name="firstname"
+                                   id="pc-sign-up-firstname"/>
+                        </p>
+                        <p class="pc-field">
+                            <label class="label" for="pc-sign-up-lastname">
+                                <?= $block->escapeHtml(__('Last Name')) ?>
+                            </label>
+                            <input data-validate='{"required":true}' type="text" name="lastname" id="pc-sign-up-lastname"/>
+                        </p>
+                        <p class="pc-field">
+                            <label class="label" for="pc-sign-up-email"><?= $block->escapeHtml(__('Email')) ?></label>
+                            <input data-validate='{"required":true, "email": true}' type="text" name="email"
+                                   id="pc-sign-up-email"/>
+                        </p>
+                        <p class="pc-field">
+                            <label class="label" for="pc-sign-up-company"><?= $block->escapeHtml(__('Company')) ?></label>
+                            <input data-validate='{"required":true}' type="text" name="company" id="pc-sign-up-company"/>
+                        </p>
+                        <p class="pc-field">
+                            <label class="label" for="pc-sign-up-password"><?= $block->escapeHtml(__('Password')) ?></label>
+                            <input data-validate='{"required":true, "validate-admin-password":true}' type="password"
+                                   name="password"
+                                   id="pc-sign-up-password"/>
+                        </p>
+                    </div>
+                    <div class="right">
+                        <h3><?= $block->escapeHtml(__('About the site')) ?></h3>
+                        <?php if ($stores->hasMultipleStores()): ?>
+                            <p class="pc-field">
+                                <label class="label" for="pc-sign-up-store-id">
+                                    <?= $block->escapeHtml(__('Store')) ?>
+                                </label>
+                                <select data-validate='{"required":true}' name="store_id" id="pc-sign-up-store-id">
+                                    <?php foreach ($stores->getStoreList() as $storeId => $storeName): ?>
+                                        <option value="<?= $block->escapeQuote($block->escapeHtml($storeId)) ?>"
+                                                <?php if ($storeId === (int)$stores->getMagentoDefaultStore()->getId()):
+                                                ?>selected="selected"<?php
+                                        endif ?>>
+                                            <?= $block->escapeQuote($block->escapeHtml($storeName)) ?>
+                                        </option>
+                                    <?php endforeach ?>
+                                </select>
+                            </p>
+                        <?php else: ?>
+                            <input type="hidden" name="store_id" id="pc-sign-up-store-id" value="0"/>
+                        <?php endif; ?>
+                        <p class="pc-field">
+                            <label class="label" for="pc-sign-up-store-name">
+                                <?= $block->escapeHtml(__('Store Name')) ?>
+                            </label>
+                            <input data-validate='{"required":true}' type="text" name="store_name"
+                                   id="pc-sign-up-store-name" value="" />
+                        </p>
+                        <p class="pc-field">
+                            <label class="label" for="pc-sign-up-store-url"><?= $block->escapeHtml(__('URL')) ?></label>
+                            <input data-validate='{"required":true}' type="text" name="url" id="pc-sign-up-store-url"
+                                   value="<?= $block->escapeQuote(
+                                       $block->escapeHtml($store->getStoreURL($stores->getMagentoDefaultStore()->getId()))
+                                   ) ?>"/>
+                        </p>
+                        <p class="details">
+                            <span class="label"><?= $block->escapeHtml(__('Currency')) ?></span>
+                            <span class="value" id="pc-sign-up-store-currency">
+                            <?= $block->escapeHtml(
+                                $store->getStoreCurrency($stores->getMagentoDefaultStore()->getId())
+                            ) ?>
+                        </span>
+                        </p>
+                        <p class="details">
+                            <span class="label"><?= $block->escapeHtml(__('Timezone')) ?></span>
+                            <span class="value" id="pc-sign-up-store-timezone">
+                            <?= $block->escapeHtml(
+                                $store->getStoreTimezone($stores->getMagentoDefaultStore()->getId())
+                            ) ?>
+                        </span>
+                        </p>
+                        <p class="pc-field">
+                            <label class="label" for="pc-sign-up-region"><?= $block->escapeHtml(__('Region')) ?></label>
+                            <select data-validate='{"required":true}' name="region" id="pc-sign-up-region">
+                                <?php foreach ($regions->getPureClarityRegions() as $region): ?>
+                                    <option value="<?= $block->escapeHtml($region['value']) ?>">
+                                        <?= $block->escapeHtml($region['label']) ?>
+                                    </option>
+                                <?php endforeach ?>
+                            </select>
+                        </p>
+                    </div>
+                </form>
+                <div id="pc-sign-up-response-holder"></div>
+                <div class="pc-sign-up-submit-button">
+                    <button id="pc-sign-up-submit-button" type="button"
+                            title="<?= $block->escapeHtml(__('Sign up')) ?>"
+                            class="action-default scalable primary">
+                        <?= $block->escapeHtml(__('Sign up')) ?>
+                    </button>
+                </div>
+            </div>
         </div>
     </div>
-    <div id="pc-existing-account" class="pc-box">
+</div>
+<div id="pc-signup-col2">
+    <div id="pc-marketing-info" class="pc-box pc-signup-boxes">
+        <div class="pc-box-content">
+            <p><?= $block->escapeHtml(__('With our leading eCommerce personalisation platform, you can enjoy:')) ?></p>
+            <div class="pc_stat_donuts">
+                <div class="pc_stat_donut">
+                    <svg class="pc_donut" width="120" height="120" xmlns="http://www.w3.org/2000/svg">
+                        <g>
+                            <title><?= $block->escapeHtml(__('26.6% Increase in revenue')) ?></title>
+                            <circle class="pc_donut_base" r="42" cy="60" cx="60" stroke-width="25" stroke="#e9f1f4"
+                                    fill="transparent"
+                                    stroke-dasharray="0" />
+                            <circle class="pc_donut_animation" r="42" cy="60" cx="60" stroke-width="25" stroke="#c4d95a"
+                                    fill="transparent"
+                                    stroke-dasharray="70.195,263.89" />
+                            <text class="pc_donut_text" x="60" y="-60" alignment-baseline="central" text-anchor="middle"
+                                  font-size="19"
+                                  font-weight="bold">26.6%</text>
+                        </g>
+                    </svg>
+                    <span>
+                        <?= $block->escapeHtml(__('Increase in')) ?><br />
+                        <?= $block->escapeHtml(__('revenue')) ?>
+                    </span>
+                </div>
+                <div class="pc_stat_donut">
+                    <svg class="pc_donut" width="120" height="120" xmlns="http://www.w3.org/2000/svg">
+                        <g>
+                            <title><?= $block->escapeHtml(__('71.5% Increase in conversion')) ?></title>
+                            <circle class="pc_donut_base" r="42" cy="60" cx="60" stroke-width="25" stroke="#e9f1f4"
+                                    fill="transparent" stroke-dasharray="0" />
+                            <circle class="pc_donut_animation" r="42" cy="60" cx="60" stroke-width="25" stroke="#68b8db"
+                                    fill="transparent" stroke-dasharray="188.68,263.89" />
+                            <text class="pc_donut_text" x="60" y="-60" alignment-baseline="central" text-anchor="middle"
+                                  font-size="19" font-weight="bold">71.5%</text>
+                        </g>
+                    </svg>
+                    <span>
+                        <?= $block->escapeHtml(__('Increase in')) ?><br />
+                        <?= $block->escapeHtml(__('conversion')) ?>
+                    </span>
+                </div>
+                <div class="pc_stat_donut">
+                    <svg class="pc_donut" width="120" height="120" xmlns="http://www.w3.org/2000/svg">
+                        <g>
+                            <title><?= $block->escapeHtml(__('15.6% Increase in average order value')) ?></title>
+                            <circle class="pc_donut_base" r="42" cy="60" cx="60" stroke-width="25" stroke="#e9f1f4"
+                                    fill="transparent" stroke-dasharray="0" />
+                            <circle class="pc_donut_animation" r="42" cy="60" cx="60" stroke-width="25" stroke="#e3d246"
+                                    fill="transparent" stroke-dasharray="41.167,263.89" />
+                            <text class="pc_donut_text" x="60" y="-60" alignment-baseline="central" text-anchor="middle"
+                                  font-size="19" font-weight="bold">15.6%</text>
+                        </g>
+                    </svg>
+                    <span>
+                        <?= $block->escapeHtml(__('Increase in')) ?><br />
+                        <?= $block->escapeHtml(__('average order value')) ?>
+                    </span>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div id="pc-features" class="pc-box" style="overflow: hidden">
+        <div class="pc-box-content">
+            <p><?= $block->escapeHtml(__( 'You\'ll also get access to these fantastic features:')) ?></p>
+            <div id="pc-features-list">
+                <div class="pc-feature">
+                    <img src="<?= $block->escapeUrl($block->getImageUrl('features-personalised-content.jpg' )) ?>" alt="<?= $block->escapeHtmlAttr(__('Personalised content')) ?>"/>
+                    <h3><?= $block->escapeHtml(__( 'Personalised content')) ?></h3>
+                    <p><?= $block->escapeHtml(__( 'Display personalised banners, images & text to engage with visitors, turn them into buyers and incentivise returning customers.')) ?></p>
+                </div>
+                <div class="pc-feature">
+                    <img src="<?= $block->escapeUrl($block->getImageUrl('features-intelligent-recs.jpg' )) ?>" alt="<?= $block->escapeHtmlAttr(__('Intelligent recommendations')) ?>"/>
+                    <h3><?= $block->escapeHtml(__( 'Intelligent recommendations')) ?></h3>
+                    <p><?= $block->escapeHtml(__( 'Use powerful personalised recommendations to upsell and cross-sell products at the right time.')) ?></p>
+                </div>
+                <div class="pc-feature">
+                    <img src="<?= $block->escapeUrl($block->getImageUrl('features-search.jpg' )) ?>" alt="<?= $block->escapeHtmlAttr(__('Personalisation within search')) ?>"/>
+                    <h3><?= $block->escapeHtml(__( 'Personalisation within search')) ?></h3>
+                    <p><?= $block->escapeHtml(__( 'Help customers find what they’re looking for by displaying relevant products as they search.')) ?></p>
+                </div>
+                <div class="pc-feature">
+                    <img src="<?= $block->escapeUrl($block->getImageUrl('features-email.jpg' )) ?>" alt="<?= $block->escapeHtmlAttr(__('Personalisation within email')) ?>"/>
+                    <h3><?= $block->escapeHtml(__( 'Personalisation within email')) ?></h3>
+                    <p><?= $block->escapeHtml(__( 'Use personalised email campaigns to entice customers back based on products they’ve viewed and bought in the past.')) ?></p>
+                </div>
+                <div class="pc-feature">
+                    <img src="<?= $block->escapeUrl($block->getImageUrl('features-chat.jpg' )) ?>" alt="<?= $block->escapeHtmlAttr(__('Live chat')) ?>"/>
+                    <h3><?= $block->escapeHtml(__( 'Live chat')) ?></h3>
+                    <p><?= $block->escapeHtml(__( 'Use a combination of real-time information about the customers current behaviours so you can help them find exactly what they want.')) ?></p>
+                </div>
+                <div class="pc-feature">
+                    <img src="<?= $block->escapeUrl($block->getImageUrl('features-popups.jpg' )) ?>" alt="<?= $block->escapeHtmlAttr(__('Personalised pop-ups')) ?>"/>
+                    <h3><?= $block->escapeHtml(__( 'Personalised pop-ups')) ?></h3>
+                    <p><?= $block->escapeHtml(__( 'Keep your customers informed of your latest products, news and offers with personalised email capture pop-ups.')) ?></p>
+                </div>
+                <div class="pc-feature">
+                    <img src="<?= $block->escapeUrl($block->getImageUrl('features-segmentation.jpg' )) ?>" alt="<?= $block->escapeHtmlAttr(__('Audience segmentation')) ?>"/>
+                    <h3><?= $block->escapeHtml(__( 'Audience segmentation')) ?></h3>
+                    <p><?= $block->escapeHtml(__( 'Use pre-built and custom made conditions to target visitors using powerful, goal orientated marketing campaigns.')) ?></p>
+                </div>
+                <div class="pc-feature">
+                    <img src="<?= $block->escapeUrl($block->getImageUrl('features-analytics.jpg')) ?>" alt="<?= $block->escapeHtmlAttr(__('Insights & analytics')) ?>"/>
+                    <h3><?= $block->escapeHtml(__( 'Insights & analytics')) ?></h3>
+                    <p><?= $block->escapeHtml(__( 'Gain deeper insights into visitor behaviour and learn how to maximise your web stores potential in order to increase revenue.')) ?></p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<div id="pc-link-account-form-holder">
+    <div id="pc-link-account-form-content">
         <input type="hidden" id="pc-get-store-details-url"
                value="<?= $block->escapeUrl($block->getUrl('pureclarity/dashboard/getStoreDetails')) ?>"/>
         <form id="pc-save-details-form" method="post"
               action="<?= $block->escapeUrl($block->getUrl('pureclarity/dashboard/configure')) ?>"
               data-mage-init='{"validation":{}}'>
-            <div class="pc-box-title-bar"><h3><?= $block->escapeHtml(__('Already have an account?')) ?></h3></div>
-            <div class="pc-box-content">
-                <p><?= $block->escapeHtml(__('Enter your account details to get started')) ?></p>
-                <div id="pc-account-details">
+            <p><?= $block->escapeHtml(__('Enter your account details to get started')) ?></p>
+            <div id="pc-account-details">
+                <p class="pc-field">
+                    <label for="pc-details-access-key"><?= $block->escapeHtml(__('Access Key')) ?></label>
+                    <input data-validate='{"required":true}' type="text" name="access_key"
+                           id="pc-details-access-key"/>
+                </p>
+                <p class="pc-field">
+                    <label for="pc-details-secret-key"><?= $block->escapeHtml(__('Secret Key')) ?></label>
+                    <input data-validate='{"required":true}' type="text" name="secret_key"
+                           id="pc-details-secret-key"/>
+                </p>
+                <?php if ($stores->hasMultipleStores()): ?>
                     <p class="pc-field">
-                        <label for="pc-details-access-key"><?= $block->escapeHtml(__('Access Key')) ?></label>
-                        <input data-validate='{"required":true}' type="text" name="access_key"
-                               id="pc-details-access-key"/>
-                    </p>
-                    <p class="pc-field">
-                        <label for="pc-details-secret-key"><?= $block->escapeHtml(__('Secret Key')) ?></label>
-                        <input data-validate='{"required":true}' type="text" name="secret_key"
-                               id="pc-details-secret-key"/>
-                    </p>
-                    <?php if ($stores->hasMultipleStores()): ?>
-                        <p class="pc-field">
-                            <label class="label" for="pc-details-store-id">
-                                <?= $block->escapeHtml(__('Store')) ?>
-                            </label>
-                            <select data-validate='{"required":true}' name="store_id" id="pc-details-store-id">
-                                <?php foreach ($stores->getStoreList() as $storeId => $storeName): ?>
-                                    <option value="<?= $block->escapeQuote($block->escapeHtml($storeId)) ?>"
+                        <label class="label" for="pc-details-store-id">
+                            <?= $block->escapeHtml(__('Store')) ?>
+                        </label>
+                        <select data-validate='{"required":true}' name="store_id" id="pc-details-store-id">
+                            <?php foreach ($stores->getStoreList() as $storeId => $storeName): ?>
+                                <option value="<?= $block->escapeQuote($block->escapeHtml($storeId)) ?>"
                                         <?php if ($storeId === (int)$stores->getMagentoDefaultStore()->getId()):
-                                            ?>selected="selected"<?php
-                                        endif ?>>
-                                        <?= $block->escapeQuote($block->escapeHtml($storeName)) ?>
-                                    </option>
-                                <?php endforeach ?>
-                            </select>
-                        </p>
-                    <?php else: ?>
-                        <input type="hidden" name="store_id" id="pc-details-store-id" value="0"/>
-                    <?php endif; ?>
-                    <p class="pc-field">
-                        <label for="pc-details-region"><?= $block->escapeHtml(__('Region')) ?></label>
-                        <select data-validate='{"required":true}' name="region" id="pc-details-region">
-                            <?php foreach ($regions->getPureClarityRegions() as $region): ?>
-                                <option value="<?= $block->escapeHtml($region['value']) ?>">
-                                    <?= $block->escapeHtml($region['label']) ?>
+                                        ?>selected="selected"<?php
+                                endif ?>>
+                                    <?= $block->escapeQuote($block->escapeHtml($storeName)) ?>
                                 </option>
                             <?php endforeach ?>
                         </select>
                     </p>
-                </div>
-                <div id="pc-clearfix"></div>
-                <p class="pc-button">
-                    <button id="pc-save-details-button" type="button"
-                            title="<?= $block->escapeHtml(__('Save Details')) ?>"
-                            class="action-default scalable primary">
-                        <?= $block->escapeHtml(__('Save Details')) ?>
-                    </button>
+                <?php else: ?>
+                    <input type="hidden" name="store_id" id="pc-details-store-id" value="0"/>
+                <?php endif; ?>
+                <p class="pc-field">
+                    <label for="pc-details-region"><?= $block->escapeHtml(__('Region')) ?></label>
+                    <select data-validate='{"required":true}' name="region" id="pc-details-region">
+                        <?php foreach ($regions->getPureClarityRegions() as $region): ?>
+                            <option value="<?= $block->escapeHtml($region['value']) ?>">
+                                <?= $block->escapeHtml($region['label']) ?>
+                            </option>
+                        <?php endforeach ?>
+                    </select>
                 </p>
             </div>
         </form>
-    </div>
-    <div id="pc-sign-up-form-holder">
-        <div id="pc-sign-up-form-content">
-            <form id="pc-sign-up-form" method="post"
-                  action="<?= $block->escapeUrl($block->getUrl('pureclarity/dashboard/signup')) ?>"
-                  data-mage-init='{"validation":{}}'>
-                <input type="hidden" name="form_key"
-                       value="<?= $block->escapeQuote($block->escapeHtml($block->getFormKey())) ?>" />
-                <div class="left">
-                    <h3><?= $block->escapeHtml(__('About you')) ?></h3>
-                    <p class="pc-field">
-                        <label class="label" for="pc-sign-up-firstname">
-                            <?= $block->escapeHtml(__('First Name')) ?>
-                        </label>
-                        <input data-validate='{"required":true}' type="text" name="firstname"
-                               id="pc-sign-up-firstname"/>
-                    </p>
-                    <p class="pc-field">
-                        <label class="label" for="pc-sign-up-lastname">
-                            <?= $block->escapeHtml(__('Last Name')) ?>
-                        </label>
-                        <input data-validate='{"required":true}' type="text" name="lastname" id="pc-sign-up-lastname"/>
-                    </p>
-                    <p class="pc-field">
-                        <label class="label" for="pc-sign-up-email"><?= $block->escapeHtml(__('Email')) ?></label>
-                        <input data-validate='{"required":true, "email": true}' type="text" name="email"
-                               id="pc-sign-up-email"/>
-                    </p>
-                    <p class="pc-field">
-                        <label class="label" for="pc-sign-up-company"><?= $block->escapeHtml(__('Company')) ?></label>
-                        <input data-validate='{"required":true}' type="text" name="company" id="pc-sign-up-company"/>
-                    </p>
-                    <p class="pc-field">
-                        <label class="label" for="pc-sign-up-password"><?= $block->escapeHtml(__('Password')) ?></label>
-                        <input data-validate='{"required":true, "validate-admin-password":true}' type="password"
-                               name="password"
-                               id="pc-sign-up-password"/>
-                    </p>
-                </div>
-                <div class="right">
-                    <h3><?= $block->escapeHtml(__('About the site')) ?></h3>
-                    <?php if ($stores->hasMultipleStores()): ?>
-                        <p class="pc-field">
-                            <label class="label" for="pc-sign-up-store-id">
-                                <?= $block->escapeHtml(__('Store')) ?>
-                            </label>
-                            <select data-validate='{"required":true}' name="store_id" id="pc-sign-up-store-id">
-                                <?php foreach ($stores->getStoreList() as $storeId => $storeName): ?>
-                                    <option value="<?= $block->escapeQuote($block->escapeHtml($storeId)) ?>"
-                                        <?php if ($storeId === (int)$stores->getMagentoDefaultStore()->getId()):
-                                            ?>selected="selected"<?php
-                                        endif ?>>
-                                        <?= $block->escapeQuote($block->escapeHtml($storeName)) ?>
-                                    </option>
-                                <?php endforeach ?>
-                            </select>
-                        </p>
-                    <?php else: ?>
-                        <input type="hidden" name="store_id" id="pc-sign-up-store-id" value="0"/>
-                    <?php endif; ?>
-                    <p class="pc-field">
-                        <label class="label" for="pc-sign-up-store-name">
-                            <?= $block->escapeHtml(__('Store Name')) ?>
-                        </label>
-                        <input data-validate='{"required":true}' type="text" name="store_name"
-                               id="pc-sign-up-store-name" value="" />
-                    </p>
-                    <p class="pc-field">
-                        <label class="label" for="pc-sign-up-store-url"><?= $block->escapeHtml(__('URL')) ?></label>
-                        <input data-validate='{"required":true}' type="text" name="url" id="pc-sign-up-store-url"
-                               value="<?= $block->escapeQuote(
-                                   $block->escapeHtml($store->getStoreURL($stores->getMagentoDefaultStore()->getId()))
-                               ) ?>"/>
-                    </p>
-                    <p class="details">
-                        <span class="label"><?= $block->escapeHtml(__('Currency')) ?></span>
-                        <span class="value" id="pc-sign-up-store-currency">
-                            <?= $block->escapeHtml(
-                                $store->getStoreCurrency($stores->getMagentoDefaultStore()->getId())
-                            ) ?>
-                        </span>
-                    </p>
-                    <p class="details">
-                        <span class="label"><?= $block->escapeHtml(__('Timezone')) ?></span>
-                        <span class="value" id="pc-sign-up-store-timezone">
-                            <?= $block->escapeHtml(
-                                $store->getStoreTimezone($stores->getMagentoDefaultStore()->getId())
-                            ) ?>
-                        </span>
-                    </p>
-                    <p class="pc-field">
-                        <label class="label" for="pc-sign-up-region"><?= $block->escapeHtml(__('Region')) ?></label>
-                        <select data-validate='{"required":true}' name="region" id="pc-sign-up-region">
-                            <?php foreach ($regions->getPureClarityRegions() as $region): ?>
-                                <option value="<?= $block->escapeHtml($region['value']) ?>">
-                                    <?= $block->escapeHtml($region['label']) ?>
-                                </option>
-                            <?php endforeach ?>
-                        </select>
-                    </p>
-                </div>
-            </form>
-            <div id="pc-sign-up-response-holder"></div>
-        </div>
     </div>
 </div>

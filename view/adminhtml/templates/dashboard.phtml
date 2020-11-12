@@ -12,18 +12,14 @@ $state = $block->getPureclarityStateViewModel();
 <div id="pc-dashboard">
     <input type="hidden" id="pc-current-state"
            value="<?= $block->escapeQuote($block->escapeHtml($state->getStateName())) ?>"/>
-    <?php if ($state->isNotConfigured()): ?>
+    <?php if ($state->isNotConfigured() || $state->isWaiting()): ?>
         <?= $block->getChildHtml('pureclarity_dashboard_content_signup') ?>
     <?php endif; ?>
-    <div id="pc-waiting"
-        <?php if ($state->isWaiting() === false): ?>style="display:none"<?php endif; ?>>
-        <?= $block->getChildHtml('pureclarity_dashboard_content_waiting') ?>
-    </div>
-    <div id="pc-content"
-        <?php if ($state->isNotConfigured() || $state->isWaiting()): ?>style="display:none"<?php endif; ?>>
-        <?= $block->getChildHtml('pureclarity_dashboard_content_configured') ?>
-    </div>
-    <div id="pc-clearfix"></div>
+    <?php if (!$state->isNotConfigured() && !$state->isWaiting()): ?>
+        <div id="pc-content">
+            <?= $block->getChildHtml('pureclarity_dashboard_content_configured') ?>
+        </div>
+    <?php endif; ?>
 </div>
 <div id="pc-version">
     <div id="pc-logo"><span><?= $block->escapeHtml(__('PureClarity')) ?></span></div>
