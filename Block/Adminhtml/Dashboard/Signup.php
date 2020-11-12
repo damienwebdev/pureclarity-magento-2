@@ -9,6 +9,7 @@ namespace Pureclarity\Core\Block\Adminhtml\Dashboard;
 use Magento\Backend\Block\Template\Context;
 use Magento\Framework\Data\Form\FormKey;
 use Magento\Framework\View\Element\Template;
+use Pureclarity\Core\ViewModel\Adminhtml\Dashboard\State;
 use Pureclarity\Core\ViewModel\Adminhtml\Stores;
 use Pureclarity\Core\ViewModel\Adminhtml\Dashboard\Regions;
 use Pureclarity\Core\ViewModel\Adminhtml\Dashboard\Store;
@@ -29,6 +30,9 @@ class Signup extends Template
     /** @var Store $storeViewModel */
     private $storeViewModel;
 
+    /** @var State $stateViewModel */
+    private $stateViewModel;
+
     /** @var FormKey $formKey */
     private $formKey;
 
@@ -37,6 +41,7 @@ class Signup extends Template
      * @param Stores $storesViewModel
      * @param Regions $regionsViewModel
      * @param Store $storeViewModel
+     * @param State $stateViewModel
      * @param array $data
      */
     public function __construct(
@@ -44,12 +49,14 @@ class Signup extends Template
         Stores $storesViewModel,
         Regions $regionsViewModel,
         Store $storeViewModel,
+        State $stateViewModel,
         array $data = []
     ) {
         parent::__construct($context, $data);
         $this->storesViewModel  = $storesViewModel;
         $this->regionsViewModel = $regionsViewModel;
         $this->storeViewModel   = $storeViewModel;
+        $this->stateViewModel   = $stateViewModel;
         $this->formKey          = $context->getFormKey();
     }
 
@@ -78,10 +85,26 @@ class Signup extends Template
     }
 
     /**
+     * @return State
+     */
+    public function getPureclarityStateViewModel()
+    {
+        return $this->stateViewModel;
+    }
+
+    /**
      * @return string
      */
     public function getFormKey()
     {
         return $this->formKey->getFormKey();
+    }
+
+    /**
+     * @return string
+     */
+    public function getImageUrl($image)
+    {
+        return $this->getViewFileUrl('Pureclarity_Core::images/' . $image);
     }
 }
