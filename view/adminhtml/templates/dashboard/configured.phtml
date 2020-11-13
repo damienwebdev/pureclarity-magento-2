@@ -16,6 +16,7 @@ $stores = $block->getPureclarityStoresViewModel();
     <?= $block->getChildHtml('pureclarity_dashboard_content_next_steps') ?>
 </div>
 <div id="pc-col2">
+    <?= $block->getChildHtml('pureclarity_dashboard_content_account_status') ?>
     <?= $block->getChildHtml('pureclarity_dashboard_content_stats') ?>
     <div id="pc-step2" class="pc-box">
         <div class="pc-box-title-bar"><h3><?= $block->escapeHtml(__('Step 2')) ?></h3></div>
