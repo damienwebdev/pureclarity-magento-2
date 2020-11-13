@@ -1,0 +1,70 @@
+<?php
+/**
+ * Copyright © PureClarity. All rights reserved.
+ * See LICENSE.txt for license details.
+ */
+
+/** @var \Pureclarity\Core\Block\Adminhtml\Dashboard\Stats $block */
+$stats = $block->getStats();
+?>
+<div id="pureclarity-headline-stats" class="pureclarity-info-box pc-col-box">
+    <div class="pureclarity-info-title">
+        <h2><?= $block->escapeHtml(__('Performance')) ?></h2>
+    </div>
+    <div class="pureclarity-info-content">
+        <p class="pureclarity-stats-text">
+            <?= $block->escapeHtml(
+                __('PureClarity provides rich analytics and insights into your store. Here is a ')
+            ) ?>
+            <strong><?= $block->escapeHtml(__('real time summary')) ?></strong>
+            <?= $block->escapeHtml(__(' for today and the last 30 days.')) ?>
+        </p>
+        <div class="pureclarity-headline-stats-tabs">
+            <?php foreach ($stats as $statType => $stat): ?>
+                <span id="pureclarity-headline-stat-<?php $block->escapeHtmlAttr($statType); ?>"
+                      class="pureclarity-headline-stat-tab
+                    <?php if ('today' === $statType): ?>
+                        pureclarity-headline-stat-active
+                    <?php endif; ?>">
+                    <?= $block->escapeHtml($block->getStatTitle($statType)); ?>
+                </span>
+            <?php endforeach; ?>
+        </div>
+        <?php foreach ($stats as $statType => $stat): ?>
+            <div id="pureclarity-headline-stat-<?php $block->escapeHtmlAttr($statType) ?>-content"
+                 class="pureclarity-headline-stat"
+                <?php if ('today' !== $statType): ?>
+                    style="display:none"
+                <?php endif; ?>>
+                <?php if ($block->hasRecTotalStats($stat)): ?>
+                    <p class="pureclarity-headline-stat-rec-total">
+                        <?= $block->escapeHtml(__('PureClarity Recommenders have made:')) ?>
+                        <span class="pureclarity-rec-total">
+                            <?= $block->escapeHtml($stat['RecommenderProductTotalDisplay']) ?>
+                        </span>
+                        <?= $block->escapeHtml(__('From ', 'pureclarity')) ?>
+                        <span class="pureclarity-sub-total"><?= $block->escapeHtml($stat['OrderCount']) ?></span>
+                        <?= $block->escapeHtml(__(' Orders Totalling ')) ?>
+                        <span class="pureclarity-sub-total"><?= $block->escapeHtml($stat['SalesTotalDisplay']) ?></span>
+                    </p>
+                <?php endif; ?>
+                <?php foreach ($block->getStatKeysToShow() as $key => $label): ?>
+                    <?php if (isset($stat[$key])): ?>
+                        <p class="pureclarity-headline-stat-row">
+                            <span class="pureclarity-stat-label"><?= $block->escapeHtml($label) ?>:</span>
+                            <span class="pureclarity-stat-value">
+                                <?= $block->escapeHtml($block->getStatDisplay($key, $stat[$key])) ?>
+                            </span>
+                        </p>
+                    <?php endif; ?>
+                <?php endforeach; ?>
+            </div>
+        <?php endforeach; ?>
+        <div class="pureclarity-clearfix"></div>
+        <p class="pureclarity-stats-button">
+            <a class="pc-button" href="https://admin.pureclarity.com/analytics/site" target="_blank">
+                <?= $block->escapeHtml('View the full range of analytics in the PureClarity Admin') ?>
+            </a>
+        </p>
+    </div>
+</div>
