@@ -308,6 +308,18 @@ require(
                 pcFeedSetInfoStore();
             }
 
+            if (currentState === 'configured') {
+                $('.pureclarity-headline-stat-tab').on('click', function () {
+                    $('.pureclarity-headline-stat-tab').each(function(){
+                        $(this).removeClass('pureclarity-headline-stat-active');
+                    })
+                    $(this).addClass('pureclarity-headline-stat-active');
+                    var pcStatContentId = $(this).attr('id');
+                    $('.pureclarity-headline-stat').hide();
+                    $('#' + pcStatContentId + '-content').show();
+                });
+            }
+
             let feedInfoStoreSelect = $('select#pc-feed-info-store');
             if (feedInfoStoreSelect.length) {
                 feedInfoStoreSelect.on('change', pcFeedSetInfoStore);
