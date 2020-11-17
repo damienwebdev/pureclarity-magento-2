@@ -461,6 +461,12 @@ require(
                         feedModalButton.attr('title', $.mage.__('Feeds Not Enabled'));
                         feedModalButton.html($.mage.__('Feeds Not Enabled'));
                     } else {
+                        var welcomeBanner = $('#pc-banner-welcome');
+                        if (welcomeBanner) {
+                            welcomeBanner.hide(1000, function (){
+                                $('#pc-banner-getting-started').show(1000);
+                            });
+                        }
                         feedRunObject.progressCheckRunning = 0;
                         feedModalButton.attr('title', $.mage.__('Run Feeds Manually'));
                         feedModalButton.html($.mage.__('Run Feeds Manually'));
