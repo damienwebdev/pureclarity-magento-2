@@ -20,6 +20,19 @@ $stores = $block->getPureclarityStoresViewModel();
     <?= $block->getChildHtml('pureclarity_dashboard_content_account_status') ?>
     <?= $block->getChildHtml('pureclarity_dashboard_content_stats') ?>
     <?= $block->getChildHtml('pureclarity_dashboard_content_install_zones') ?>
+    <div class="pureclarity-info-box">
+        <div class="pureclarity-info-title">
+            <h2><?= $block->escapeHtml(__('Review')) ?></h2>
+        </div>
+        <div class="pureclarity-info-content">
+            <p>
+                <?= $block->escapeHtml(__('Enjoying PureClarity? Give us a review on the ')) ?>
+                <a href="https://marketplace.magento.com/pureclarity-pureclarity-magento-2.html" target="_blank">
+                    <?= $block->escapeHtml(__('Magento Marketplace')) ?>
+                </a>
+            </p>
+        </div>
+    </div>
     <?= $block->getChildHtml('pureclarity_dashboard_content_feeds') ?>
 </div>
 
