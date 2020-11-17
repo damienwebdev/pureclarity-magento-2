@@ -629,6 +629,19 @@ svg .pc_donut_text {
 
 /** THANKYOU PAGE - LAYOUT **/
 
+.pc-banner {
+    margin: 30px 0 0 0;
+    background: white;
+    padding: 15px 30px;
+    border-radius: 5px;
+    border-top: 5px solid #c4d95a;
+}
+
+.pc-banner h3 {
+    margin: 0;
+}
+
+
 #pc-dashboard #pc-thanks {
     padding-top: 24px;
     font-size: 1.4em;
