@@ -75,6 +75,7 @@ class Process
             $requestData['default_store_id'] = $this->checkStoreId($requestData['store_id']);
             $this->saveConfig($requestData);
             $this->setConfiguredState();
+            $this->setWelcomeState('auto');
             $this->completeSignup();
             $this->setDefaultStore($requestData['store_id']);
             $this->triggerFeeds($requestData);
@@ -123,6 +124,7 @@ class Process
                 $requestData['default_store_id'] = $this->checkStoreId($requestData['store_id']);
                 $this->saveConfig($requestData);
                 $this->setConfiguredState();
+                $this->setWelcomeState('manual');
                 $this->setDefaultStore($requestData['default_store_id']);
                 $this->triggerFeeds($requestData);
             } catch (CouldNotSaveException $e) {
@@ -188,6 +190,27 @@ class Process
     {
         $state = $this->stateRepository->getByNameAndStore('is_configured', 0);
         $state->setName('is_configured');
+        $state->setValue('1');
+        $state->setStoreId(0);
+        $this->stateRepository->save($state);
+    }
+
+    /**
+     * Saves the is_configured flag
+     *
+     * @param string $type
+     * @return void
+     * @throws CouldNotSaveException
+     */
+    private function setWelcomeState($type)
+    {
+        $state = $this->stateRepository->getByNameAndStore('show_welcome_banner', 0);
+        if ($type === 'manual') {
+            $state->setName('show_manual_welcome_banner');
+        } else {
+            $state->setName('show_welcome_banner');
+        }
+
         $state->setValue('1');
         $state->setStoreId(0);
         $this->stateRepository->save($state);
