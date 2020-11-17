@@ -12,6 +12,22 @@ $stores = $block->getPureclarityStoresViewModel();
 $themes = $block->getPureclarityThemesViewModel();
 
 ?>
+<div class="pureclarity-info-box pc-col-box">
+    <div class="pureclarity-info-title">
+        <h2><?= $block->escapeHtml(__('Zones')) ?></h2>
+    </div>
+    <div class="pureclarity-info-content">
+        <p><?= $block->escapeHtml(
+            __('Set up the Zones within your Magento 2 site. A number of default Zones will be installed.')
+        ) ?></p>
+        <p class="pureclarity-info-button">
+            <a class="pc-button" id="pc-zonepopupbutton" target="_blank"
+               title="<?= $block->escapeHtml(__('Set up Zones')) ?>">
+                <?= $block->escapeHtml(__('Set up Zones')) ?>
+            </a>
+        </p>
+    </div>
+</div>
 <div id="pc-zone-modal-popup" style="display:none" class="admin__scope-old">
     <div id="pc-zone-modal-content">
         <p><?= $block->escapeHtml(

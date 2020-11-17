@@ -18,21 +18,7 @@ $stores = $block->getPureclarityStoresViewModel();
 <div id="pc-col2">
     <?= $block->getChildHtml('pureclarity_dashboard_content_account_status') ?>
     <?= $block->getChildHtml('pureclarity_dashboard_content_stats') ?>
-    <div id="pc-step2" class="pc-box">
-        <div class="pc-box-title-bar"><h3><?= $block->escapeHtml(__('Step 2')) ?></h3></div>
-        <div class="pc-box-content">
-            <p><?= $block->escapeHtml(
-                __('Set up the Zones within your Magento 2 site. A number of default Zones will be installed.')
-            ) ?></p>
-            <p class="pc-button">
-                <a class="action-default" id="pc-zonepopupbutton" target="_blank"
-                   title="<?= $block->escapeHtml(__('Set up Zones')) ?>">
-                    <?= $block->escapeHtml(__('Set up Zones')) ?>
-                </a>
-            </p>
-        </div>
-        <?= $block->getChildHtml('pureclarity_dashboard_content_install_zones') ?>
-    </div>
+    <?= $block->getChildHtml('pureclarity_dashboard_content_install_zones') ?>
     <?= $block->getChildHtml('pureclarity_dashboard_content_feeds') ?>
 </div>
 
