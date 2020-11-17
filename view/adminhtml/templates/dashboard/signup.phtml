@@ -240,7 +240,10 @@ $state = $block->getPureclarityStateViewModel();
                     <img src="<?= $block->escapeUrl($block->getImageUrl('features-personalised-content.jpg')) ?>"
                          alt="<?= $block->escapeHtmlAttr(__('Personalised content')) ?>"/>
                     <h3><?= $block->escapeHtml(__('Personalised content')) ?></h3>
-                    <p><?= $block->escapeHtml(__('Display personalised banners, images & text to engage with visitors, turn them into buyers and incentivise returning customers.')) ?></p>
+                    <p><?= $block->escapeHtml(__(
+                        'Display personalised banners, images & text to engage with visitors, '
+                        . 'turn them into buyers and incentivise returning customers.'
+                    )) ?></p>
                 </div>
                 <div class="pc-feature">
                     <img src="<?= $block->escapeUrl($block->getImageUrl('features-intelligent-recs.jpg')) ?>"
