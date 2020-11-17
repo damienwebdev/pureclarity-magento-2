@@ -658,7 +658,7 @@ svg .pc_donut_text {
     text-align: right;
     display: inline-block;
     margin-right: 5px;
-    font-weight: 400;
+    font-weight: 600;
 }
 
 #pc-dashboard .pc-feed-status-icon {
@@ -672,7 +672,7 @@ svg .pc_donut_text {
 }
 
 #pc-dashboard p.pc-feed {
-    margin: 0;
+    margin: 5px 0;
 }
 
 #pc-dashboard .pc-feed-status-icon.pc-feed-in-progress {
@@ -928,6 +928,11 @@ svg .pc_donut_text {
 
 .pureclarity-info-box iframe {
     border:0;
+}
+
+.pureclarity-info-box .pureclarity-info-button {
+    clear:both;
+    margin-top:20px;
 }
 
 .pureclarity-next-step-actions {
