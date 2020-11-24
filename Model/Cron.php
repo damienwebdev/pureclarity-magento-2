@@ -258,6 +258,7 @@ class Cron
             }
         }
         $feedModel->checkSuccess();
+        $this->setBannerStatus();
         $this->removeFeedQueue($storeId);
     }
 
@@ -493,6 +494,43 @@ class Cron
             $this->stateRepository->save($state);
         } catch (CouldNotSaveException $e) {
             $this->logger->error('Could not save last feed error: ' . $e->getMessage());
+        }
+    }
+
+    /**
+     * Sorts out the state for the banner display on the dashboard.
+     */
+    private function setBannerStatus()
+    {
+        try {
+
+            $showBanner = $this->stateRepository->getByNameAndStore('show_welcome_banner', 0);
+            $showManualBanner = $this->stateRepository->getByNameAndStore('show_manual_welcome_banner', 0);
+
+            if ($showBanner->getValue() || $showManualBanner->getValue()) {
+
+                // set one day timer on getting started banner
+                $gettingStarted = $this->stateRepository->getByNameAndStore(
+                    'show_getting_started_banner',
+                    0
+                );
+                $gettingStarted->setName('show_getting_started_banner');
+                $gettingStarted->setValue(time() + 86400);
+                $gettingStarted->setStoreId(0);
+                $this->stateRepository->save($gettingStarted);
+                // Delete banner flags, no longer needed
+
+                if ($showBanner->getId()) {
+                    $this->stateRepository->delete($showBanner);
+                }
+                if ($showManualBanner->getId()) {
+                    $this->stateRepository->delete($showManualBanner);
+                }
+            }
+        } catch (CouldNotSaveException $e) {
+            $this->logger->error('Could not save banner status: ' . $e->getMessage());
+        } catch (CouldNotDeleteException $e) {
+            $this->logger->error('Could not delete banner flags: ' . $e->getMessage());
         }
     }
 }

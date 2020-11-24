@@ -1,0 +1,55 @@
+<?php
+/**
+ * Copyright © PureClarity. All rights reserved.
+ * See LICENSE.txt for license details.
+ */
+
+/** @var \Pureclarity\Core\Block\Adminhtml\Dashboard\AccountStatus $block */
+$status = $block->getAccountStatus();
+
+if (isset($status['IsSignedUp']) && 0 === $status['IsSignedUp']): ?>
+    <div id="pureclarity-account-info"
+         class="pureclarity-info-box <?= $block->escapeHtmlAttr($block->getStatusClass($status['DaysLeft'])) ?>">
+        <div class="pureclarity-info-title">
+            <h2>
+                <?= $block->escapeHtml(__('Free Trial Status')) ?>:
+                <?php if ($status['DaysLeft'] > 0): ?>
+                    <?= $block->escapeHtml($status['DaysLeft']) ?> <?= $block->escapeHtml(__('days left')) ?>
+                <?php elseif (0 === $status['DaysLeft']): ?>
+                    <?= $block->escapeHtml(__('Expires today')) ?>
+                <?php else: ?>
+                    <?= $block->escapeHtml(__('Expired')) ?>
+                <?php endif; ?>
+            </h2>
+        </div>
+        <div class="pureclarity-info-content">
+            <p>
+                <?php if ($status['DaysLeft'] > 0): ?>
+                    <?= $block->escapeHtml(__('You have')) ?>&nbsp;
+                    <?= $block->escapeHtml($status['DaysLeft']) ?>&nbsp;
+                    <?= $block->escapeHtml(__('days left of your Free Trial. Activate your subscription now.')) ?>
+                <?php elseif (0 === $status['DaysLeft']): ?>
+                    <?= $block->escapeHtml(__(
+                        'Your free trial expires today. Activate your subscription now or your'
+                        . 'account will be suspended.'
+                    )) ?>
+                <?php else: ?>
+                    <?= $block->escapeHtml(__(
+                        'Your free trial has expired and will be suspended. Activate your subscription now.'
+                    )) ?>
+                <?php endif; ?>
+            </p>
+            <p>
+                <?= $block->escapeHtml(__('Ends')) ?>:&nbsp;
+                <?= $block->escapeHtml($block->getEndDate($status['DaysLeft'])) ?>
+            </p>
+            <p class="pureclarity-info-button">
+                <a class="pc-button" href="http://admin.pureclarity.com/my-account/billing"
+                   target="_blank">
+                    <?= $block->escapeHtml(__('Activate your subscription now')) ?>
+                </a>
+            </p>
+        </div>
+    </div>
+    <?php
+endif;

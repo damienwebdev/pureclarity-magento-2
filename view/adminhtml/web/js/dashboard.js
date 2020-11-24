@@ -308,6 +308,18 @@ require(
                 pcFeedSetInfoStore();
             }
 
+            if (currentState === 'configured') {
+                $('.pureclarity-headline-stat-tab').on('click', function () {
+                    $('.pureclarity-headline-stat-tab').each(function(){
+                        $(this).removeClass('pureclarity-headline-stat-active');
+                    })
+                    $(this).addClass('pureclarity-headline-stat-active');
+                    var pcStatContentId = $(this).attr('id');
+                    $('.pureclarity-headline-stat').hide();
+                    $('#' + pcStatContentId + '-content').show();
+                });
+            }
+
             let feedInfoStoreSelect = $('select#pc-feed-info-store');
             if (feedInfoStoreSelect.length) {
                 feedInfoStoreSelect.on('change', pcFeedSetInfoStore);
@@ -449,6 +461,12 @@ require(
                         feedModalButton.attr('title', $.mage.__('Feeds Not Enabled'));
                         feedModalButton.html($.mage.__('Feeds Not Enabled'));
                     } else {
+                        var welcomeBanner = $('#pc-banner-welcome');
+                        if (welcomeBanner) {
+                            welcomeBanner.hide(1000, function (){
+                                $('#pc-banner-getting-started').show(1000);
+                            });
+                        }
                         feedRunObject.progressCheckRunning = 0;
                         feedModalButton.attr('title', $.mage.__('Run Feeds Manually'));
                         feedModalButton.html($.mage.__('Run Feeds Manually'));

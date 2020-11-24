@@ -135,7 +135,8 @@
 }
 
 #pc-dashboard .action-default,
-.pc-modal button.primary {
+.pc-modal button.primary,
+#pc-dashboard .pc-button {
     background-color: #c4d95a;
     border: 0;
     color: #3c4858 !important;
@@ -628,6 +629,19 @@ svg .pc_donut_text {
 
 /** THANKYOU PAGE - LAYOUT **/
 
+.pc-banner {
+    margin: 30px 0 0 0;
+    background: white;
+    padding: 15px 30px;
+    border-radius: 5px;
+    border-top: 5px solid #c4d95a;
+}
+
+.pc-banner h3 {
+    margin: 0;
+}
+
+
 #pc-dashboard #pc-thanks {
     padding-top: 24px;
     font-size: 1.4em;
@@ -657,7 +671,7 @@ svg .pc_donut_text {
     text-align: right;
     display: inline-block;
     margin-right: 5px;
-    font-weight: 400;
+    font-weight: 600;
 }
 
 #pc-dashboard .pc-feed-status-icon {
@@ -671,7 +685,7 @@ svg .pc_donut_text {
 }
 
 #pc-dashboard p.pc-feed {
-    margin: 0;
+    margin: 5px 0;
 }
 
 #pc-dashboard .pc-feed-status-icon.pc-feed-in-progress {
@@ -841,4 +855,185 @@ svg .pc_donut_text {
     .pc-sign-up-modal .modal-inner-wrap {
         width: 556px;
     }
+}
+
+/**
+ ### CONFIGURED DASHBOARD INFO BOXES ###
+ */
+@media only screen and (min-width: 1501px) {
+    #pc-col1 {
+        width: 60%;
+        float:left;
+    }
+
+    #pc-col2 {
+        width: 40%;
+        float:left;
+    }
+}
+
+.pureclarity-info-box {
+    border: 1px solid #ccc;
+    border-top: 5px solid #68b9d6;
+    border-radius: 5px;
+    background: white;
+    padding: 0;
+    margin: 30px 30px 30px 0;
+}
+
+.pureclarity-info-box .pureclarity-info-title {
+    border-radius: 5px 5px 0 0;
+    border-bottom: 1px solid #ccc;
+    padding: 15px 30px;
+    margin:0;
+}
+
+.pureclarity-info-box.pc-ft-warning,
+.pureclarity-info-box.pc-ft-error {
+    border-top: 1px solid #ccc;
+}
+
+.pureclarity-info-box.pc-ft-warning .pureclarity-info-title {
+    background: #e3d246;
+}
+
+.pureclarity-info-box.pc-ft-error .pureclarity-info-title {
+    background: #f44336;
+}
+
+.pureclarity-info-box.pc-ft-error .pureclarity-info-title h2 {
+    color: #fff;
+}
+.pureclarity-info-box .pureclarity-info-title h2 {
+    padding: 0;
+    margin:0;
+    color: #23282d;
+    font-size: 2.08rem;
+    font-weight: 500;
+}
+
+.pureclarity-info-box .pureclarity-info-content {
+    padding: 15px 30px;
+    margin:0;
+}
+
+.pureclarity-info-box .pureclarity-info-content p {
+    font-size:1.36rem;
+    color: #23282d;
+}
+
+.pureclarity-info-box .pureclarity-info-content ul {
+    list-style: none;
+}
+
+.pureclarity-info-box .pureclarity-info-content ul li::before {
+    content: "\2022";  /* Add content: \2022 is the CSS Code/unicode for a bullet */
+    color: #68b9d6; /* Change the color */
+    font-weight: bold; /* If you want it to be bold */
+    display: inline-block; /* Needed to add space between the bullet and the text */
+    width: 1.0rem; /* Also needed for space (tweak if needed) */
+    margin-left: 1.0rem; /* Also needed for space (tweak if needed) */
+}
+
+.pureclarity-info-box .pureclarity-info-content li {
+    color: #23282d;
+}
+
+.pureclarity-info-box iframe {
+    border:0;
+}
+
+.pureclarity-info-box .pureclarity-info-button {
+    clear:both;
+    margin-top:20px;
+}
+
+.pureclarity-next-step-actions {
+    display: block;
+    margin-top: 20px;
+}
+
+#pureclarity-headline-stats .pureclarity-headline-stats-content {
+    padding: 15px 30px;
+    margin:0;
+}
+
+#pureclarity-headline-stats .pureclarity-headline-stats-tabs {
+    border-bottom: 2px solid #68b9d6;
+    padding: 5px;
+    height: 45px;
+}
+
+#pureclarity-headline-stats .pureclarity-headline-stat-tab {
+    background: #fff;
+    font-size: 1.92rem;
+    color: #313238;
+    padding:5px;
+    cursor: pointer;
+    float: right;
+    border: 2px solid #ccc;
+    margin-bottom:2px;
+    border-bottom: 0;
+}
+
+#pureclarity-headline-stats .pureclarity-headline-stat-tab:first-of-type {
+    float:left;
+}
+
+#pureclarity-headline-stats .pureclarity-headline-stat-tab.pureclarity-headline-stat-active {
+    color: #23282d;
+    border: 2px solid #68b9d6;
+    border-bottom: none;
+    padding-bottom: 7px;
+    margin-bottom:0;
+}
+
+#pureclarity-headline-stats .pureclarity-headline-stat-rec-total {
+    text-align: center;
+    padding: 10px 0;
+    font-size: 1.5rem;
+}
+
+#pureclarity-headline-stats .pureclarity-headline-stat-rec-total span.pureclarity-rec-total {
+    font-size: 1.92rem;
+    font-weight: 700;
+    display: block;
+}
+
+#pureclarity-headline-stats .pureclarity-headline-stat-rec-total span.pureclarity-sub-total {
+    font-size: 1.72rem;
+    font-weight: 700;
+}
+
+#pureclarity-headline-stats .pureclarity-stats-button {
+    clear:both;
+    padding-top:20px;
+}
+
+
+.pureclarity-headline-stat-row {
+    margin: 0;
+    clear:both;
+    border-bottom: 1px solid #ccc;
+    height:30px;
+}
+.pureclarity-headline-stat-row:hover {
+    background: #ddd;
+}
+
+.pureclarity-stat-label {
+    padding: 5px;
+    font-weight: 500;
+    width: 40%;
+    display:block;
+    float: left;
+    font-size:1.36rem;
+}
+
+.pureclarity-stat-value {
+    width: 40%;
+    display:block;
+    float: right;
+    padding: 5px;
+    text-align: right;
 }

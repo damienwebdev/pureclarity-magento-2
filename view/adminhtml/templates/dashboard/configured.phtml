@@ -12,112 +12,27 @@ $state = $block->getPureclarityStateViewModel();
 $stores = $block->getPureclarityStoresViewModel();
 
 ?>
-<div id="pc-thanks">
-    <p><?= $block->escapeHtml(__('Thank you for installing the PureClarity plugin for Magento 2.')) ?></p>
-    <p><?= $block->escapeHtml(__('Please follow the 3 steps below to get up and running with PureClarity')) ?></p>
+<?= $block->getChildHtml('pureclarity_dashboard_welcome_banner') ?>
+<div id="pc-col1">
+    <?= $block->getChildHtml('pureclarity_dashboard_content_next_steps') ?>
 </div>
-<?php $block->getDashboardInfo(); ?>
-<div id="pc-layer1">
-    <div id="pc-step1" class="pc-box">
-        <div class="pc-box-title-bar"><h3><?= $block->escapeHtml(__('Step 1')) ?></h3></div>
-        <div class="pc-box-content">
-            <p><?= $block->escapeHtml(
-                __('Configure your Zones and style your templates using the Recommender '
-                    . 'Designer within the PureClarity Admin area')
-            ) ?></p>
-            <p class="pc-button">
-                <a class="action-default"
-                   href="https://admin.pureclarity.com"
-                   target="_blank" title="<?= $block->escapeHtml(__('Go to PureClarity Admin')) ?>">
-                    <?= $block->escapeHtml(__('Go to PureClarity Admin')) ?>
-                </a>
-            </p>
+<div id="pc-col2">
+    <?= $block->getChildHtml('pureclarity_dashboard_content_account_status') ?>
+    <?= $block->getChildHtml('pureclarity_dashboard_content_stats') ?>
+    <?= $block->getChildHtml('pureclarity_dashboard_content_install_zones') ?>
+    <div class="pureclarity-info-box">
+        <div class="pureclarity-info-title">
+            <h2><?= $block->escapeHtml(__('Review')) ?></h2>
         </div>
-    </div>
-    <div id="pc-step2" class="pc-box">
-        <div class="pc-box-title-bar"><h3><?= $block->escapeHtml(__('Step 2')) ?></h3></div>
-        <div class="pc-box-content">
-            <p><?= $block->escapeHtml(
-                __('Set up the Zones within your Magento 2 site. A number of default Zones will be installed.')
-            ) ?></p>
-            <p class="pc-button">
-                <a class="action-default" id="pc-zonepopupbutton" target="_blank"
-                   title="<?= $block->escapeHtml(__('Set up Zones')) ?>">
-                    <?= $block->escapeHtml(__('Set up Zones')) ?>
-                </a>
-            </p>
-        </div>
-        <?= $block->getChildHtml('pureclarity_dashboard_content_install_zones') ?>
-    </div>
-    <div id="pc-step3" class="pc-box">
-        <div class="pc-box-title-bar"><h3><?= $block->escapeHtml(__('Step 3')) ?></h3></div>
-        <div class="pc-box-content">
+        <div class="pureclarity-info-content">
             <p>
-                <?= $block->escapeHtml(
-                    __('Customize your Campaigns and Segments within the PureClarity Admin Area '
-                        . 'to optimize the performance of your Zones')
-                ) ?>
-            </p>
-            <p class="pc-button">
-                <a class="action-default" href="https://admin.pureclarity.com" target="_blank"
-                   title="<?= $block->escapeHtml(__('Go to PureClarity Admin')) ?>">
-                    <?= $block->escapeHtml(__('Go to PureClarity Admin')) ?>
+                <?= $block->escapeHtml(__('Enjoying PureClarity? Give us a review on the ')) ?>
+                <a href="https://marketplace.magento.com/pureclarity-pureclarity-magento-2.html" target="_blank">
+                    <?= $block->escapeHtml(__('Magento Marketplace')) ?>
                 </a>
             </p>
         </div>
     </div>
-</div>
-<div id="pc-layer2" <?php if ($stores->hasMultipleStores()): ?>class="pc-multi-store"<?php endif; ?>>
-    <div id="pc-feeds" class="pc-box">
-        <?= $block->getChildHtml('pureclarity_dashboard_content_feeds') ?>
-    </div>
-    <div id="pc-configuration" class="pc-box">
-        <div class="pc-box-title-bar"><h3><?= $block->escapeHtml(__('Advanced Configuration')) ?></h3></div>
-        <div class="pc-box-content">
-            <p>
-                <?= $block->escapeHtml(
-                    __('You can enable brand feeds, configure placeholder images '
-                        . 'and more in the PureClarity plugin configuration')
-                ) ?>
-            </p>
-            <p class="pc-button">
-                <a class="action-default"
-                   href="<?= $block->escapeUrl($block->getUrl('adminhtml/system_config/edit/section/pureclarity')) ?>"
-                   title="<?= $block->escapeHtml(__('Configure')) ?>">
-                    <?= $block->escapeHtml(__('Configure')) ?>
-                </a>
-            </p>
-        </div>
-    </div>
-    <div id="pc-help" class="pc-box">
-        <div class="pc-box-title-bar"><h3><?= $block->escapeHtml(__('Help')) ?></h3></div>
-        <div class="pc-box-content">
-            <p>
-                <?= $block->escapeHtml(
-                    __('We have comprehensive documentation available which will help with any questions you may have')
-                ) ?>
-            </p>
-            <p class="pc-button">
-                <a class="action-default" href="https://www.pureclarity.com/docs/magento-2/" target="_blank"
-                   title="<?= $block->escapeHtml(__('Access Documentation')) ?>">
-                    <?= $block->escapeHtml(__('Access Documentation')) ?>
-                </a>
-            </p>
-            <p>
-                <?= $block->escapeHtml(
-                    __('If you have any issues please contact our Support Team at support@pureclarity.com')
-                ) ?>
-            </p>
-            <p class="pc-button">
-                <a class="action-default"
-                   href="<?= 'mailto:support@pureclarity.com?subject=Magento%202%20Support%20Issue&body='
-                    . 'Plugin%20Version:%20' . $block->escapeQuote($block->escapeHtml($state->getPluginVersion()))
-                    . '%0D%0AMagento Version:%20' . $block->escapeQuote($block->escapeHtml($state->getMagentoVersion()))
-                    . '%0D%0AStore Name: [PLEASE ENTER]%0D%0A" title="' . $block->escapeHtml(__('Contact support'))
-                    . '">' . $block->escapeHtml(__('Contact support')) ?>
-                </a>
-            </p>
-        </div>
-    </div>
+    <?= $block->getChildHtml('pureclarity_dashboard_content_feeds') ?>
 </div>
 

@@ -21,6 +21,10 @@
             <block class="Pureclarity\Core\Block\Adminhtml\Dashboard" name="pureclarity.dashboard.content" as="pureclarity_dashboard_content" template="Pureclarity_Core::dashboard.phtml">
                 <block class="Pureclarity\Core\Block\Adminhtml\Dashboard\Signup" name="pureclarity.dashboard.content.signup" as="pureclarity_dashboard_content_signup" template="Pureclarity_Core::dashboard/signup.phtml" />
                 <block class="Pureclarity\Core\Block\Adminhtml\Dashboard\Configured" name="pureclarity.dashboard.content.configured" as="pureclarity_dashboard_content_configured" template="Pureclarity_Core::dashboard/configured.phtml">
+                    <block class="Pureclarity\Core\Block\Adminhtml\Dashboard\WelcomeBanner" name="pureclarity.dashboard.content.welcome.banner" as="pureclarity_dashboard_welcome_banner" template="Pureclarity_Core::dashboard/welcome_banner.phtml" />
+                    <block class="Pureclarity\Core\Block\Adminhtml\Dashboard\NextSteps" name="pureclarity.dashboard.content.next.steps" as="pureclarity_dashboard_content_next_steps" template="Pureclarity_Core::dashboard/next_steps.phtml" />
+                    <block class="Pureclarity\Core\Block\Adminhtml\Dashboard\Stats" name="pureclarity.dashboard.content.stats" as="pureclarity_dashboard_content_stats" template="Pureclarity_Core::dashboard/stats.phtml" />
+                    <block class="Pureclarity\Core\Block\Adminhtml\Dashboard\AccountStatus" name="pureclarity.dashboard.content.account.status" as="pureclarity_dashboard_content_account_status" template="Pureclarity_Core::dashboard/account_status.phtml" />
                     <block class="Pureclarity\Core\Block\Adminhtml\Dashboard\InstallZonesModal" name="pureclarity.dashboard.content.install.zones" as="pureclarity_dashboard_content_install_zones" template="Pureclarity_Core::dashboard/install_zones_modal.phtml" />
                     <block class="Pureclarity\Core\Block\Adminhtml\Dashboard\Feeds" name="pureclarity.dashboard.content.feeds" as="pureclarity_dashboard_content_feeds" template="Pureclarity_Core::dashboard/feeds.phtml" />
                 </block>

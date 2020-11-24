@@ -1,0 +1,35 @@
+<?php
+/**
+ * Copyright © PureClarity. All rights reserved.
+ * See LICENSE.txt for license details.
+ */
+
+/** @var \Pureclarity\Core\Block\Adminhtml\Dashboard\WelcomeBanner $block */
+
+/** @var \Pureclarity\Core\ViewModel\Adminhtml\Dashboard\Welcome $welcome */
+$welcome = $block->getPureclarityWelcomeViewModel();
+
+?>
+<?php if ($welcome->showWelcomeBanner()): ?>
+    <div id="pc-banner-welcome" class="pc-banner">
+        <h3><?= $block->escapeHtml(__(
+            'Thanks for signing up for a free trial. Your site data is now being synced to PureClarity.'
+        )) ?></h3>
+    </div>
+<?php endif; ?>
+<?php if ($welcome->showManualWelcomeBanner()): ?>
+    <div id="pc-banner-welcome" class="pc-banner">
+        <h3><?= $block->escapeHtml(__(
+            'Your PureClarity account is now linked to this store. Your site data is now being synced to PureClarity.'
+        )) ?></h3>
+    </div>
+<?php endif; ?>
+<div id="pc-banner-getting-started" class="pc-banner"
+    <?php if (!$welcome->showGettingStartedBanner()): ?>
+        style="display:none"
+    <?php endif; ?>
+>
+    <h3><?= $block->escapeHtml(__(
+        'Your site data has been sent to PureClarity. Use the panels below to get started.'
+    )) ?></h3>
+</div>
