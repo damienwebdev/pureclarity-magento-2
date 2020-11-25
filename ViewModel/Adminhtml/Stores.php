@@ -111,20 +111,4 @@ class Stores
     {
         return $this->storeManager->hasSingleStore() === false;
     }
-
-    /**
-     * Gets list of stores for display
-     *
-     * @return string[]
-     */
-    public function getStoreList()
-    {
-        $options = [];
-
-        foreach ($this->storeManager->getStores() as $store) {
-            $options[(int)$store->getId()] = $store->getName();
-        }
-
-        return $options;
-    }
 }
