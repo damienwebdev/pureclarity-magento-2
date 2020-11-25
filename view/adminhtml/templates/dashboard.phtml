@@ -7,18 +7,17 @@
 /** @var \Pureclarity\Core\Block\Adminhtml\Dashboard $block */
 /** @var \Pureclarity\Core\ViewModel\Adminhtml\Dashboard\State $state */
 $state = $block->getPureclarityStateViewModel();
+/** @var \Pureclarity\Core\ViewModel\Adminhtml\Stores $stores */
+$stores = $block->getPureclarityStoresViewModel();
 
 ?>
 <div id="pc-dashboard">
     <input type="hidden" id="pc-current-state"
-           value="<?= $block->escapeQuote($block->escapeHtml($state->getStateName())) ?>"/>
-    <?php if ($state->isNotConfigured() || $state->isWaiting()): ?>
+           value="<?= $block->escapeQuote($block->escapeHtml($state->getStateName($stores->getStoreId()))) ?>"/>
+    <?php if ($state->isConfigured($stores->getStoreId()) === false): ?>
         <?= $block->getChildHtml('pureclarity_dashboard_content_signup') ?>
-    <?php endif; ?>
-    <?php if (!$state->isNotConfigured() && !$state->isWaiting()): ?>
-        <div id="pc-content">
-            <?= $block->getChildHtml('pureclarity_dashboard_content_configured') ?>
-        </div>
+    <?php else: ?>
+        <?= $block->getChildHtml('pureclarity_dashboard_content_configured') ?>
     <?php endif; ?>
 </div>
 <div id="pc-version">
