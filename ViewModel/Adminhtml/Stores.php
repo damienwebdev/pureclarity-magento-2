@@ -10,7 +10,7 @@ use Magento\Framework\App\RequestInterface;
 use Magento\Framework\Exception\NoSuchEntityException;
 use Magento\Store\Model\StoreManagerInterface;
 use Magento\Store\Api\Data\StoreInterface;
-use Pureclarity\Core\Api\StateRepositoryInterface;
+use Psr\Log\LoggerInterface;
 
 /**
  * Class Stores
@@ -19,34 +19,34 @@ use Pureclarity\Core\Api\StateRepositoryInterface;
  */
 class Stores
 {
-    /** @var StoreManagerInterface $storeManager */
-    private $storeManager;
-
-    /** @var StateRepositoryInterface $stateRepository */
-    private $stateRepository;
-
-    /** @var RequestInterface $request */
-    private $request;
-
     /** @var StoreInterface $selectedStore */
     private $selectedStore;
 
     /** @var StoreInterface $defaultStore */
     private $defaultMagentoStore;
 
+    /** @var StoreManagerInterface $storeManager */
+    private $storeManager;
+
+    /** @var RequestInterface $request */
+    private $request;
+
+    /** @var LoggerInterface $logger */
+    private $logger;
+
     /**
      * @param StoreManagerInterface $storeManager
-     * @param StateRepositoryInterface $stateRepository
      * @param RequestInterface $request
+     * @param LoggerInterface $logger
      */
     public function __construct(
         StoreManagerInterface $storeManager,
-        StateRepositoryInterface $stateRepository,
-        RequestInterface $request
+        RequestInterface $request,
+        LoggerInterface $logger
     ) {
-        $this->storeManager    = $storeManager;
-        $this->stateRepository = $stateRepository;
-        $this->request         = $request;
+        $this->storeManager = $storeManager;
+        $this->request      = $request;
+        $this->logger       = $logger;
     }
 
     /**
@@ -76,7 +76,7 @@ class Stores
                 try {
                     $this->selectedStore = $this->storeManager->getStore($storeId);
                 } catch (NoSuchEntityException $e) {
-
+                    $this->logger->error('PureClarity: Admin Dashboard could not load selected store');
                 }
             }
         }
