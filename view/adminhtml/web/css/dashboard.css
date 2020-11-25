@@ -1037,3 +1037,41 @@ svg .pc_donut_text {
     padding: 5px;
     text-align: right;
 }
+
+/** TOOLBAR */
+
+#pureclarity-toolbar #pc-title-bar-buttons {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    position: relative;
+    right: 0;
+}
+
+#pureclarity-toolbar .pc-topbar-button {
+    float: left;
+    margin: 0 10px;
+}
+
+#pureclarity-toolbar .page-actions-buttons a {
+    float:left;
+    display:block;
+    padding: 35px 10px 0 10px;
+    background-size: 30px 30px;
+    background-repeat: no-repeat;
+    text-align: center;
+    background-position: center top;
+    text-decoration: underline;
+}
+
+#pureclarity-toolbar .page-actions-buttons #pureclarity-toolbar-settings {
+    background-image: url('images/settings.png');
+}
+
+#pureclarity-toolbar .page-actions-buttons #pureclarity-toolbar-documentation {
+    background-image: url('images/documentation.png');
+}
+
+#pureclarity-toolbar .page-actions-buttons #pureclarity-toolbar-support {
+    background-image: url('images/support.png');
+}
