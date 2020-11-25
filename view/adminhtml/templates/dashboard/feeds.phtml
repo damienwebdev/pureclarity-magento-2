@@ -12,7 +12,7 @@ $stores = $block->getPureclarityStoresViewModel();
 /** @var \Pureclarity\Core\ViewModel\Adminhtml\Dashboard\FeedStatus $feeds */
 $feeds = $block->getPureclarityFeedStatusViewModel();
 
-$defaultStoreId = (int)$stores->getPureClarityDefaultStore();
+$storeId = $stores->getStoreId();
 
 ?>
 <div class="pureclarity-info-box pc-col-box">
@@ -24,51 +24,37 @@ $defaultStoreId = (int)$stores->getPureClarityDefaultStore();
             'Full data feeds are sent nightly to PureClarity to ensure data is up to date in our system, '
             . 'below is the status of each of the data feed types:'
         )) ?></p>
-        <?php if ($stores->hasMultipleStores()): ?>
-        <div class="pc-feed-field-select">
-            <label for="pc-feed-info-store" class="pc-feedName"><?= $block->escapeHtml('Store') ?>:</label>
-            <select id="pc-feed-info-store" class="select admin__controle-select">
-                <?php foreach ($stores->getStoreList() as $storeId => $storeName): ?>
-                    <option value="<?= $block->escapeQuote($block->escapeHtml($storeId)) ?>"
-                        <?php if ($storeId === $defaultStoreId): ?>selected="selected"<?php endif ?>>
-                        <?= $block->escapeQuote($block->escapeHtml($storeName)) ?>
-                    </option>
-                <?php endforeach ?>
-            </select>
-        </div>
-        <?php else: ?>
             <input id="pc-feed-info-store" type="hidden"
-                   value="<?= $block->escapeQuote($block->escapeHtml($defaultStoreId)) ?>" />
-        <?php endif ?>
+                   value="<?= $block->escapeQuote($block->escapeHtml($storeId)) ?>" />
         <p class="pc-feed">
             <span class="pc-feedName"><?= $block->escapeHtml(__('Products')) ?>:</span>
             <span id="pc-productFeedStatusClass"
                   class="pc-feed-status-icon <?= $block->escapeHtml(
-                      $feeds->getProductFeedStatusClass($defaultStoreId)
+                      $feeds->getProductFeedStatusClass($storeId)
                   ) ?>"
             ></span>
             <span id="pc-productFeedStatusLabel" class="pc-feedStatus">
-                <?= $block->escapeHtml($feeds->getProductFeedStatusLabel($defaultStoreId)) ?>
+                <?= $block->escapeHtml($feeds->getProductFeedStatusLabel($storeId)) ?>
             </span>
         </p>
         <p class="pc-feed">
             <span class="pc-feedName"><?= $block->escapeHtml(__('Categories')) ?>:</span>
             <span id="pc-categoryFeedStatusClass"
                   class="pc-feed-status-icon <?= $block->escapeHtml(
-                      $feeds->getCategoryFeedStatusClass($defaultStoreId)
+                      $feeds->getCategoryFeedStatusClass($storeId)
                   ) ?>"
             ></span>
             <span id="pc-categoryFeedStatusLabel" class="pc-feedStatus">
-                <?= $block->escapeHtml($feeds->getCategoryFeedStatusLabel($defaultStoreId)) ?>
+                <?= $block->escapeHtml($feeds->getCategoryFeedStatusLabel($storeId)) ?>
             </span>
         </p>
         <p class="pc-feed">
             <span class="pc-feedName"><?= $block->escapeHtml(__('Users')) ?>:</span>
             <span id="pc-userFeedStatusClass"
-                  class="pc-feed-status-icon <?= $block->escapeHtml($feeds->getUserFeedStatusClass($defaultStoreId)) ?>"
+                  class="pc-feed-status-icon <?= $block->escapeHtml($feeds->getUserFeedStatusClass($storeId)) ?>"
             ></span>
             <span id="pc-userFeedStatusLabel" class="pc-feedStatus">
-                <?= $block->escapeHtml($feeds->getUserFeedStatusLabel($defaultStoreId)) ?>
+                <?= $block->escapeHtml($feeds->getUserFeedStatusLabel($storeId)) ?>
             </span>
         </p>
 
@@ -76,26 +62,26 @@ $defaultStoreId = (int)$stores->getPureClarityDefaultStore();
             <span class="pc-feedName"><?= $block->escapeHtml(__('Order History')) ?>:</span>
             <span id="pc-ordersFeedStatusClass"
                   class="pc-feed-status-icon <?= $block->escapeHtml(
-                      $feeds->getOrdersFeedStatusClass($defaultStoreId)
+                      $feeds->getOrdersFeedStatusClass($storeId)
                   ) ?>"
             ></span>
             <span id="pc-ordersFeedStatusLabel" class="pc-feedStatus">
-                <?= $block->escapeHtml($feeds->getOrdersFeedStatusLabel($defaultStoreId)) ?>
+                <?= $block->escapeHtml($feeds->getOrdersFeedStatusLabel($storeId)) ?>
             </span>
         </p>
         <p class="pc-feed">
             <span class="pc-feedName"><?= $block->escapeHtml(__('Brands')) ?>:</span>
             <span id="pc-brandFeedStatusClass"
                   class="pc-feed-status-icon <?= $block->escapeHtml(
-                      $feeds->getBrandFeedStatusClass($defaultStoreId)
+                      $feeds->getBrandFeedStatusClass($storeId)
                   ) ?>"
             ></span>
             <span id="pc-brandFeedStatusLabel" class="pc-feedStatus">
-                <?= $block->escapeHtml($feeds->getBrandFeedStatusLabel($defaultStoreId)) ?>
+                <?= $block->escapeHtml($feeds->getBrandFeedStatusLabel($storeId)) ?>
             </span>
         </p>
         <p class="pureclarity-info-button">
-            <?php if ($feeds->getAreFeedsDisabled($defaultStoreId)): ?>
+            <?php if ($feeds->getAreFeedsDisabled($storeId)): ?>
                 <a class="pc-button pc-disabled" id="pc-feedpopupbutton" target="_blank"
                    title="<?= $block->escapeHtml(__('Feeds Not Enabled')) ?>">
                     <?= $block->escapeHtml(__('Feeds Not Enabled')) ?>
@@ -128,7 +114,7 @@ $defaultStoreId = (int)$stores->getPureClarityDefaultStore();
             <label for="pc-chkCategories"><?= $block->escapeHtml('Categories') ?></label>
             <input id="pc-chkCategories" type="checkbox" checked="checked" />
         </div>
-        <?php if ($feeds->isFeedEnabled('brand', $defaultStoreId)): ?>
+        <?php if ($feeds->isFeedEnabled('brand', $storeId)): ?>
         <div class="pc-feed-field">
             <label for="pc-chkBrands"><?= $block->escapeHtml('Brands') ?></label>
             <input id="pc-chkBrands" type="checkbox" checked="checked" />
@@ -161,4 +147,4 @@ $defaultStoreId = (int)$stores->getPureClarityDefaultStore();
 <input id="pc-feed-progress-url" type="hidden"
        value="<?= $block->escapeUrl($block->getUrl('pureclarity/datafeed/progress')) ?>" />
 <input id="pc-feeds-in-progress" type="hidden"
-       value="<?= $block->escapeQuote($block->escapeHtml($feeds->getAreFeedsInProgress($defaultStoreId))) ?>" />
+       value="<?= $block->escapeQuote($block->escapeHtml($feeds->getAreFeedsInProgress($storeId))) ?>" />

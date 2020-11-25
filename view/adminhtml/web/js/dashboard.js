@@ -282,7 +282,6 @@ require(
             feedRunObject = {
                 runFeedUrl: $("#pc-feed-run-url").val(),
                 progressFeedUrl: $("#pc-feed-progress-url").val(),
-                selectStore: $('select#pc-feed-info-store'),
                 preselectStore: $('input#pc-feed-info-store'),
                 messageContainer: $('#pc-statusMessage'),
                 chkProducts: $('#pc-chkProducts'),
@@ -343,11 +342,7 @@ require(
                 return;
             }
 
-            if (feedRunObject.selectStore.length) {
-                feedRunObject.selectedStore = feedRunObject.selectStore.val();
-            } else {
-                feedRunObject.selectedStore = feedRunObject.preselectStore.val();
-            }
+            feedRunObject.selectedStore = feedRunObject.preselectStore.val();
             feedRunObject.chkProducts.prop("disabled", true);
             feedRunObject.chkCategories.prop("disabled", true);
 
@@ -424,6 +419,7 @@ require(
 
         function pcFeedProgressCheck() {
             feedRunObject.progressCheckRunning = 1;
+            feedRunObject.selectedStore = feedRunObject.preselectStore.val();
             $.ajax({
                 url: feedRunObject.progressFeedUrl,
                 data: {form_key: window.FORM_KEY, storeid: feedRunObject.selectedStore},
