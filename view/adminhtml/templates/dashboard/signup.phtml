@@ -98,9 +98,7 @@ $state = $block->getPureclarityStateViewModel();
                     <div class="right">
                         <h3><?= $block->escapeHtml(__('About the site')) ?></h3>
                         <input type="hidden" name="store_id" id="pc-sign-up-store-id" value="<?= $block->escapeQuote(
-                            $block->escapeHtml($store->getStoreURL(
-                                $stores->getStoreId()
-                            ))
+                            $block->escapeHtml($stores->getStoreId())
                         ) ?>"/>
                         <p class="pc-field">
                             <label class="label" for="pc-sign-up-store-name">
