@@ -5,7 +5,9 @@
  */
 
 /** @var \Pureclarity\Core\Block\Adminhtml\Dashboard\Stats $block */
-$stats = $block->getStats();
+/** @var \Pureclarity\Core\ViewModel\Adminhtml\Stores $stores */
+$stores = $block->getPureclarityStoresViewModel();
+$stats = $block->getStats($stores->getStoreId());
 ?>
 <div id="pureclarity-headline-stats" class="pureclarity-info-box pc-col-box">
     <div class="pureclarity-info-title">
