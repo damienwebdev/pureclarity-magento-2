@@ -14,10 +14,10 @@ $store = $block->getPureclarityStoreViewModel();
 $state = $block->getPureclarityStateViewModel();
 
 ?>
-<!--<div id="pc-welcome" <?php if ($stores->hasMultipleStores()): ?>class="pc-multi-store"<?php endif; ?>-->
 <div id="pc-signup-col1">
     <div id="pc-waiting"
-         <?php if ($state->isWaiting() === false): ?>style="display:none"<?php endif; ?>>
+        <?php if ($state->isWaiting($stores->getStoreId()) === false): ?>style="display:none"<?php endif; ?>
+    >
         <div id="pc-sign-up-waiting" class="pc-box">
             <div class="pc-box-title-bar"><h3><?= $block->escapeHtml(__('Setting up account')) ?></h3></div>
             <div class="pc-box-content">
@@ -33,7 +33,9 @@ $state = $block->getPureclarityStateViewModel();
     </div>
     <input type="hidden" id="pc-sign-up-waiting-call-url"
            value="<?= $block->escapeUrl($block->getUrl('pureclarity/dashboard/signupStatus')) ?>" />
-    <div id="pc-sign-up" class="pc-box" <?php if ($state->isWaiting()): ?>style="display:none"<?php endif; ?>>
+    <div id="pc-sign-up" class="pc-box"
+        <?php if ($state->isWaiting($stores->getStoreId())): ?>style="display:none"<?php endif; ?>
+    >
         <div class="pc-box-title-bar"><h3><?= $block->escapeHtml(__('Sign up for a 30-day free trial')) ?></h3></div>
         <div class="pc-box-content">
             <p class="sign-up-subheading"><?= $block->escapeHtml(__('Try for Free today:')) ?></p>
@@ -95,25 +97,11 @@ $state = $block->getPureclarityStateViewModel();
                     </div>
                     <div class="right">
                         <h3><?= $block->escapeHtml(__('About the site')) ?></h3>
-                        <?php if ($stores->hasMultipleStores()): ?>
-                            <p class="pc-field">
-                                <label class="label" for="pc-sign-up-store-id">
-                                    <?= $block->escapeHtml(__('Store')) ?>
-                                </label>
-                                <select data-validate='{"required":true}' name="store_id" id="pc-sign-up-store-id">
-                                    <?php foreach ($stores->getStoreList() as $storeId => $storeName): ?>
-                                        <option value="<?= $block->escapeQuote($block->escapeHtml($storeId)) ?>"
-                                            <?php if ($storeId === (int)$stores->getMagentoDefaultStore()->getId()):
-                                                ?>selected="selected"<?php
-                                            endif ?>>
-                                            <?= $block->escapeQuote($block->escapeHtml($storeName)) ?>
-                                        </option>
-                                    <?php endforeach ?>
-                                </select>
-                            </p>
-                        <?php else: ?>
-                            <input type="hidden" name="store_id" id="pc-sign-up-store-id" value="0"/>
-                        <?php endif; ?>
+                        <input type="hidden" name="store_id" id="pc-sign-up-store-id" value="<?= $block->escapeQuote(
+                            $block->escapeHtml($store->getStoreURL(
+                                $stores->getStoreId()
+                            ))
+                        ) ?>"/>
                         <p class="pc-field">
                             <label class="label" for="pc-sign-up-store-name">
                                 <?= $block->escapeHtml(__('Store Name')) ?>
@@ -126,7 +114,7 @@ $state = $block->getPureclarityStateViewModel();
                             <input data-validate='{"required":true}' type="text" name="url" id="pc-sign-up-store-url"
                                    value="<?= $block->escapeQuote(
                                        $block->escapeHtml($store->getStoreURL(
-                                           $stores->getMagentoDefaultStore()->getId()
+                                           $stores->getStoreId()
                                        ))
                                    ) ?>"/>
                         </p>
@@ -134,7 +122,7 @@ $state = $block->getPureclarityStateViewModel();
                             <span class="label"><?= $block->escapeHtml(__('Currency')) ?></span>
                             <span class="value" id="pc-sign-up-store-currency">
                             <?= $block->escapeHtml(
-                                $store->getStoreCurrency($stores->getMagentoDefaultStore()->getId())
+                                $store->getStoreCurrency($stores->getStoreId())
                             ) ?>
                         </span>
                         </p>
@@ -142,7 +130,7 @@ $state = $block->getPureclarityStateViewModel();
                             <span class="label"><?= $block->escapeHtml(__('Timezone')) ?></span>
                             <span class="value" id="pc-sign-up-store-timezone">
                             <?= $block->escapeHtml(
-                                $store->getStoreTimezone($stores->getMagentoDefaultStore()->getId())
+                                $store->getStoreTimezone($stores->getStoreId())
                             ) ?>
                         </span>
                         </p>
@@ -329,25 +317,8 @@ $state = $block->getPureclarityStateViewModel();
                     <input data-validate='{"required":true}' type="text" name="secret_key"
                            id="pc-details-secret-key"/>
                 </p>
-                <?php if ($stores->hasMultipleStores()): ?>
-                    <p class="pc-field">
-                        <label class="label" for="pc-details-store-id">
-                            <?= $block->escapeHtml(__('Store')) ?>
-                        </label>
-                        <select data-validate='{"required":true}' name="store_id" id="pc-details-store-id">
-                            <?php foreach ($stores->getStoreList() as $storeId => $storeName): ?>
-                                <option value="<?= $block->escapeQuote($block->escapeHtml($storeId)) ?>"
-                                    <?php if ($storeId === (int)$stores->getMagentoDefaultStore()->getId()):
-                                        ?>selected="selected"<?php
-                                    endif ?>>
-                                    <?= $block->escapeQuote($block->escapeHtml($storeName)) ?>
-                                </option>
-                            <?php endforeach ?>
-                        </select>
-                    </p>
-                <?php else: ?>
-                    <input type="hidden" name="store_id" id="pc-details-store-id" value="0"/>
-                <?php endif; ?>
+                <input type="hidden" name="store_id" id="pc-details-store-id"
+                       value="<?= $block->escapeHtmlAttr($stores->getStoreId()) ?>"/>
                 <p class="pc-field">
                     <label for="pc-details-region"><?= $block->escapeHtml(__('Region')) ?></label>
                     <select data-validate='{"required":true}' name="region" id="pc-details-region">

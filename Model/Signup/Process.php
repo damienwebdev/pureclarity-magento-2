@@ -8,6 +8,7 @@ namespace Pureclarity\Core\Model\Signup;
 
 use Magento\Framework\App\Cache\Manager;
 use Magento\Framework\App\Cache\Type\Config as CacheTypeConfig;
+use Magento\Framework\Exception\CouldNotDeleteException;
 use Magento\Framework\Exception\CouldNotSaveException;
 use Magento\Store\Model\StoreManagerInterface;
 use Pureclarity\Core\Api\StateRepositoryInterface;
@@ -72,36 +73,15 @@ class Process
         ];
 
         try {
-            $requestData['default_store_id'] = $this->checkStoreId($requestData['store_id']);
             $this->saveConfig($requestData);
-            $this->setConfiguredState();
             $this->setWelcomeState('auto');
             $this->completeSignup();
-            $this->setDefaultStore($requestData['store_id']);
             $this->triggerFeeds($requestData);
         } catch (CouldNotSaveException $e) {
             $result['errors'][] = __('Error processing request: %1', $e->getMessage());
         }
 
         return $result;
-    }
-
-    /**
-     * Checks provided store ID, if 0 then returns default store ID
-     * @param string $storeId
-     * @return int
-     */
-    private function checkStoreId($storeId)
-    {
-        $storeId = (int)$storeId;
-        if ($storeId === 0) {
-            $store = $this->storeManager->getDefaultStoreView();
-            if ($store) {
-                $storeId = $store->getId();
-            }
-        }
-
-        return $storeId;
     }
 
     /**
@@ -121,11 +101,8 @@ class Process
 
         if (empty($result['errors'])) {
             try {
-                $requestData['default_store_id'] = $this->checkStoreId($requestData['store_id']);
                 $this->saveConfig($requestData);
-                $this->setConfiguredState();
                 $this->setWelcomeState('manual');
-                $this->setDefaultStore($requestData['default_store_id']);
                 $this->triggerFeeds($requestData);
             } catch (CouldNotSaveException $e) {
                 $result['errors'][] = __('Error processing request: %1', $e->getMessage());
@@ -183,21 +160,6 @@ class Process
     /**
      * Saves the is_configured flag
      *
-     * @return void
-     * @throws CouldNotSaveException
-     */
-    private function setConfiguredState()
-    {
-        $state = $this->stateRepository->getByNameAndStore('is_configured', 0);
-        $state->setName('is_configured');
-        $state->setValue('1');
-        $state->setStoreId(0);
-        $this->stateRepository->save($state);
-    }
-
-    /**
-     * Saves the is_configured flag
-     *
      * @param string $type
      * @return void
      * @throws CouldNotSaveException
@@ -220,32 +182,14 @@ class Process
      * Updates the signup request to be complete
      *
      * @return void
-     * @throws CouldNotSaveException
+     * @throws CouldNotDeleteException
      */
     private function completeSignup()
     {
         $state = $this->stateRepository->getByNameAndStore('signup_request', 0);
-        $state->setName('signup_request');
-        $state->setValue('complete');
-        $state->setStoreId(0);
-        $this->stateRepository->save($state);
-    }
-
-    /**
-     * Saves the signup store as the default store (so dashboard load right store)
-     *
-     * @param integer $storeId
-     *
-     * @return void
-     * @throws CouldNotSaveException
-     */
-    private function setDefaultStore($storeId)
-    {
-        $state = $this->stateRepository->getByNameAndStore('default_store', 0);
-        $state->setName('default_store');
-        $state->setValue($storeId);
-        $state->setStoreId(0);
-        $this->stateRepository->save($state);
+        if ($state->getId()) {
+            $this->stateRepository->delete($state);
+        }
     }
 
     /**
@@ -264,6 +208,14 @@ class Process
             'orders'
         ];
 
-        $cronFeed->scheduleSelectedFeeds($requestData['default_store_id'], $feeds);
+        $storeId = (int)$requestData['store_id'];
+        if ($storeId === 0) {
+            $store = $this->storeManager->getDefaultStoreView();
+            if ($store) {
+                $storeId = (int)$store->getId();
+            }
+        }
+
+        $cronFeed->scheduleSelectedFeeds($storeId, $feeds);
     }
 }
