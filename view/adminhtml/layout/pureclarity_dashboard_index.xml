@@ -17,6 +17,18 @@
         <link src="Pureclarity_Core::js/dashboard.js"/>
     </head>
     <body>
+        <referenceContainer name="page.main.actions">
+            <block class="Pureclarity\Core\Block\Adminhtml\Toolbar" name="pureclarity_toolbar" template="Pureclarity_Core::toolbar.phtml">
+                <block class="Magento\Backend\Block\Store\Switcher" name="store_switcher">
+                    <action method="setUseConfirm">
+                        <argument name="params" xsi:type="string">0</argument>
+                    </action>
+                    <action method="hasDefaultOption">
+                        <argument name="params" xsi:type="boolean">false</argument>
+                    </action>
+                </block>
+            </block>
+        </referenceContainer>
         <referenceContainer name="content">
             <block class="Pureclarity\Core\Block\Adminhtml\Dashboard" name="pureclarity.dashboard.content" as="pureclarity_dashboard_content" template="Pureclarity_Core::dashboard.phtml">
                 <block class="Pureclarity\Core\Block\Adminhtml\Dashboard\Signup" name="pureclarity.dashboard.content.signup" as="pureclarity_dashboard_content_signup" template="Pureclarity_Core::dashboard/signup.phtml" />
