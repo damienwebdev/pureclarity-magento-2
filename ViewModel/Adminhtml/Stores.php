@@ -6,6 +6,8 @@
 
 namespace Pureclarity\Core\ViewModel\Adminhtml;
 
+use Magento\Framework\App\RequestInterface;
+use Magento\Framework\Exception\NoSuchEntityException;
 use Magento\Store\Model\StoreManagerInterface;
 use Magento\Store\Api\Data\StoreInterface;
 use Pureclarity\Core\Api\StateRepositoryInterface;
@@ -23,22 +25,67 @@ class Stores
     /** @var StateRepositoryInterface $stateRepository */
     private $stateRepository;
 
+    /** @var RequestInterface $request */
+    private $request;
+
+    /** @var StoreInterface $selectedStore */
+    private $selectedStore;
+
     /** @var StoreInterface $defaultStore */
     private $defaultMagentoStore;
-
-    /** @var integer $defaultPureClarityStoreId */
-    private $defaultPureClarityStoreId;
 
     /**
      * @param StoreManagerInterface $storeManager
      * @param StateRepositoryInterface $stateRepository
+     * @param RequestInterface $request
      */
     public function __construct(
         StoreManagerInterface $storeManager,
-        StateRepositoryInterface $stateRepository
+        StateRepositoryInterface $stateRepository,
+        RequestInterface $request
     ) {
         $this->storeManager    = $storeManager;
         $this->stateRepository = $stateRepository;
+        $this->request         = $request;
+    }
+
+    /**
+     * Gets the current store id
+     *
+     * @return int
+     */
+    public function getStoreId()
+    {
+        $store = $this->getStore();
+        if ($store) {
+            return (int)$store->getId();
+        }
+        return 0;
+    }
+
+    /**
+     * Gets the current chosen store
+     *
+     * @return StoreInterface
+     */
+    public function getStore()
+    {
+        if ($this->selectedStore === null) {
+            $storeId = $this->request->getParam('store');
+            if ($storeId) {
+                try {
+                    $this->selectedStore = $this->storeManager->getStore($storeId);
+                } catch (NoSuchEntityException $e) {
+
+                }
+            }
+        }
+
+        if (!$this->selectedStore) {
+            return $this->getMagentoDefaultStore();
+        }
+
+        return $this->selectedStore;
     }
 
     /**
@@ -53,25 +100,6 @@ class Stores
         }
 
         return $this->defaultMagentoStore;
-    }
-
-    /**
-     * Gets the id of the default store for pureclarity
-     *
-     * @return integer
-     */
-    public function getPureClarityDefaultStore()
-    {
-        if ($this->defaultPureClarityStoreId === null) {
-            $defaultStore = $this->stateRepository->getByNameAndStore('default_store', 0);
-            $storeId = (int)$defaultStore->getValue();
-            if (empty($storeId)) {
-                $storeId = (int)$this->getMagentoDefaultStore()->getId();
-            }
-            $this->defaultPureClarityStoreId = $storeId;
-        }
-
-        return $this->defaultPureClarityStoreId;
     }
 
     /**
