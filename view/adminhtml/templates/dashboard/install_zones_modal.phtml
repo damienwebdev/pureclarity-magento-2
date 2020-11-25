@@ -33,21 +33,8 @@ $themes = $block->getPureclarityThemesViewModel();
         <p><?= $block->escapeHtml(
             'Please select the Theme that you would like to install the PureClarity Zone widgets on:'
         ) ?></p>
-        <?php if ($stores->hasMultipleStores()): ?>
-            <div class="pc-zone-field">
-                <label for="pc-zone-selectStore"><?= $block->escapeHtml('Store') ?></label>
-                <select id="pc-zone-selectStore" class="select admin__controle-select">
-                    <?php foreach ($stores->getStoreList() as $storeId => $name): ?>
-                        <option value="<?= $block->escapeQuote($block->escapeHtml($storeId)) ?>" >
-                            <?= $block->escapeHtml($name) ?>
-                        </option>
-                    <?php endforeach; ?>
-                </select>
-            </div>
-        <?php else: ?>
-            <input id="pc-defaultStore" type="hidden"
-                   value="<?= $block->escapeQuote($block->escapeHtml($stores->getPureClarityDefaultStore())) ?>" />
-        <?php endif ?>
+        <input id="pc-defaultStore" type="hidden"
+               value="<?= $block->escapeQuote($block->escapeHtml($stores->getStoreId())) ?>" />
         <div class="pc-zone-field pc-topbuffer">
             <label for="pc-zone-selectTheme"><?= $block->escapeHtml('Theme') ?></label>
             <select id="pc-zone-selectTheme" class="select admin__controle-select">
