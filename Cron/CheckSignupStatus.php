@@ -9,6 +9,7 @@ namespace Pureclarity\Core\Cron;
 use Magento\Framework\App\Area;
 use Magento\Framework\App\State;
 use Magento\Framework\Exception\LocalizedException;
+use Magento\Store\Model\StoreManagerInterface;
 use Psr\Log\LoggerInterface;
 use Pureclarity\Core\Api\StateRepositoryInterface;
 use Pureclarity\Core\Model\Signup\Process;
@@ -33,8 +34,11 @@ class CheckSignupStatus
     /** @var LoggerInterface $logger */
     private $logger;
 
-    /** @var State $state*/
+    /** @var State $state */
     private $state;
+
+    /** @var StoreManagerInterface $storeManager */
+    private $storeManager;
 
     /**
      * @param RequestStatus $requestStatus
@@ -42,19 +46,22 @@ class CheckSignupStatus
      * @param StateRepositoryInterface $stateRepository
      * @param LoggerInterface $logger
      * @param State $state
+     * @param StoreManagerInterface $storeManager
      */
     public function __construct(
         RequestStatus $requestStatus,
         Process $requestProcess,
         StateRepositoryInterface $stateRepository,
         LoggerInterface $logger,
-        State $state
+        State $state,
+        StoreManagerInterface $storeManager
     ) {
         $this->requestStatus   = $requestStatus;
         $this->requestProcess  = $requestProcess;
         $this->stateRepository = $stateRepository;
         $this->logger          = $logger;
         $this->state           = $state;
+        $this->storeManager    = $storeManager;
     }
 
     /**
@@ -67,24 +74,34 @@ class CheckSignupStatus
         try {
             $this->state->setAreaCode(Area::AREA_ADMINHTML);
         } catch (LocalizedException $e) {
-            $this->logger->error('PureClarity Setup Warning: ' .$e->getMessage());
+            $this->logger->error('PureClarity Setup Warning: ' . $e->getMessage());
         }
 
-        $isConfiguredState = $this->stateRepository->getByNameAndStore('is_configured', 0);
+        if ($this->storeManager->hasSingleStore() === false) {
+            // is multi-store, check all stores for signup
+            foreach ($this->storeManager->getStores() as $store) {
+                $this->checkSignup((int)$store->getId());
+            }
+        } else {
+            // single store so set this to 0
+            $this->checkSignup(0);
+        }
+    }
+    /**
+     * Checks to see if there is a signup request in progress for the given store
+     * and if so checks it's status and processes if necessary
+     * @param $storeId
+     */
+    public function checkSignup($storeId)
+    {
+        $signupState = $this->stateRepository->getByNameAndStore('signup_request', $storeId);
 
-        if ($isConfiguredState->getId() === null ||
-            ($isConfiguredState->getId() && $isConfiguredState->getValue() !== '1')
-        ) {
-            $signupState = $this->stateRepository->getByNameAndStore('signup_request', 0);
-
-            if ($signupState->getId() !== null && $signupState->getValue() !== 'complete') {
-                $response = $this->requestStatus->checkStatus();
-                if ($response['complete'] === true) {
-                    $this->requestProcess->process($response['response']);
-                    $result['success'] = true;
-                } elseif ($response['error']) {
-                    $this->logger->error('PureClarity Setup Error: ' . $response['error']);
-                }
+        if ($signupState->getId() !== null) {
+            $response = $this->requestStatus->checkStatus($storeId);
+            if ($response['complete'] === true) {
+                $this->requestProcess->process($response['response']);
+            } elseif ($response['error']) {
+                $this->logger->error('PureClarity Setup Error: ' . $response['error']);
             }
         }
     }

@@ -128,7 +128,7 @@ require(
             $.ajax({
                 showLoader: false,
                 url: $('#pc-sign-up-waiting-call-url').val(),
-                data: '',
+                data: { 'store': $('#pc-sign-up-store-id').val() },
                 type: "GET",
                 dataType: 'json'
             }).done(function (data) {

@@ -15,6 +15,7 @@ use Pureclarity\Core\Api\StateRepositoryInterface;
 use Pureclarity\Core\Model\CoreConfig;
 use Pureclarity\Core\Model\Cron;
 use Pureclarity\Core\Model\CronFactory;
+use Psr\Log\LoggerInterface;
 
 /**
  * Class Process
@@ -38,25 +39,31 @@ class Process
     /** @var Manager $cacheManager */
     private $cacheManager;
 
+    /** @var LoggerInterface $logger */
+    private $logger;
+
     /**
      * @param StateRepositoryInterface $stateRepository
      * @param CoreConfig $coreConfig
      * @param CronFactory $cronFactory
      * @param StoreManagerInterface $storeManager
      * @param Manager $cacheManager
+     * @param LoggerInterface $logger
      */
     public function __construct(
         StateRepositoryInterface $stateRepository,
         CoreConfig $coreConfig,
         CronFactory $cronFactory,
         StoreManagerInterface $storeManager,
-        Manager $cacheManager
+        Manager $cacheManager,
+        LoggerInterface $logger
     ) {
         $this->stateRepository = $stateRepository;
         $this->coreConfig      = $coreConfig;
         $this->cronFactory     = $cronFactory;
         $this->storeManager    = $storeManager;
         $this->cacheManager    = $cacheManager;
+        $this->logger          = $logger;
     }
 
     /**
@@ -74,9 +81,9 @@ class Process
 
         try {
             $this->saveConfig($requestData);
-            $this->setWelcomeState('auto');
-            $this->completeSignup();
-            $this->triggerFeeds($requestData);
+            $this->setWelcomeState('auto', $requestData['store_id']);
+            $this->completeSignup((int)$requestData['store_id']);
+            $this->triggerFeeds((int)$requestData['store_id']);
         } catch (CouldNotSaveException $e) {
             $result['errors'][] = __('Error processing request: %1', $e->getMessage());
         }
@@ -102,8 +109,8 @@ class Process
         if (empty($result['errors'])) {
             try {
                 $this->saveConfig($requestData);
-                $this->setWelcomeState('manual');
-                $this->triggerFeeds($requestData);
+                $this->setWelcomeState('manual', (int)$requestData['store_id']);
+                $this->triggerFeeds((int)$requestData['store_id']);
             } catch (CouldNotSaveException $e) {
                 $result['errors'][] = __('Error processing request: %1', $e->getMessage());
             }
@@ -148,12 +155,13 @@ class Process
      */
     private function saveConfig($requestData)
     {
-        $this->coreConfig->setAccessKey($requestData['access_key'], (int)$requestData['store_id']);
-        $this->coreConfig->setSecretKey($requestData['secret_key'], (int)$requestData['store_id']);
-        $this->coreConfig->setRegion($requestData['region'], (int)$requestData['store_id']);
-        $this->coreConfig->setIsActive(1, (int)$requestData['store_id']);
-        $this->coreConfig->setDeltasEnabled(1, (int)$requestData['store_id']);
-        $this->coreConfig->setIsDailyFeedActive(1, (int)$requestData['store_id']);
+        $storeId = (int)$requestData['store_id'];
+        $this->coreConfig->setAccessKey($requestData['access_key'], $storeId);
+        $this->coreConfig->setSecretKey($requestData['secret_key'], $storeId);
+        $this->coreConfig->setRegion($requestData['region'], $storeId);
+        $this->coreConfig->setIsActive(1, $storeId);
+        $this->coreConfig->setDeltasEnabled(1, $storeId);
+        $this->coreConfig->setIsDailyFeedActive(1, $storeId);
         $this->cacheManager->clean([CacheTypeConfig::TYPE_IDENTIFIER]);
     }
 
@@ -161,43 +169,44 @@ class Process
      * Saves the is_configured flag
      *
      * @param string $type
+     * @param int $storeId
      * @return void
      * @throws CouldNotSaveException
      */
-    private function setWelcomeState($type)
+    private function setWelcomeState($type, $storeId)
     {
-        $state = $this->stateRepository->getByNameAndStore('show_welcome_banner', 0);
-        if ($type === 'manual') {
-            $state->setName('show_manual_welcome_banner');
-        } else {
-            $state->setName('show_welcome_banner');
-        }
-
-        $state->setValue('1');
-        $state->setStoreId(0);
+        $state = $this->stateRepository->getByNameAndStore('show_welcome_banner', $storeId);
+        $state->setName('show_welcome_banner');
+        $state->setValue($type);
+        $state->setStoreId($storeId);
         $this->stateRepository->save($state);
     }
 
     /**
      * Updates the signup request to be complete
      *
+     * @param int $storeId
+     *
      * @return void
-     * @throws CouldNotDeleteException
      */
-    private function completeSignup()
+    private function completeSignup($storeId)
     {
-        $state = $this->stateRepository->getByNameAndStore('signup_request', 0);
-        if ($state->getId()) {
-            $this->stateRepository->delete($state);
+        try {
+            $state = $this->stateRepository->getByNameAndStore('signup_request', $storeId);
+            if ($state->getId()) {
+                $this->stateRepository->delete($state);
+            }
+        } catch (CouldNotDeleteException $e) {
+            $this->logger->error('PureClarity: could not clear signup state. Error was: ' . $e->getMessage());
         }
     }
 
     /**
      * Triggers a run of all feeds
      *
-     * @param mixed[] $requestData
+     * @param int $storeId
      */
-    private function triggerFeeds($requestData)
+    private function triggerFeeds($storeId)
     {
         /** @var Cron $cronFeed */
         $cronFeed = $this->cronFactory->create();
@@ -208,7 +217,6 @@ class Process
             'orders'
         ];
 
-        $storeId = (int)$requestData['store_id'];
         if ($storeId === 0) {
             $store = $this->storeManager->getDefaultStoreView();
             if ($store) {
