@@ -24,9 +24,6 @@ class Index extends Action
     /** @var PageFactory $resultPageFactory */
     protected $resultPageFactory;
 
-    /** @var RequestInterface $request */
-    protected $request;
-
     /** @var StoreManagerInterface $storeManager */
     protected $storeManager;
 
@@ -36,20 +33,17 @@ class Index extends Action
     /**
      * @param Context $context
      * @param PageFactory $resultPageFactory
-     * @param RequestInterface $request
      * @param StoreManagerInterface $storeManager
      * @param CoreConfig $coreConfig
      */
     public function __construct(
         Context $context,
         PageFactory $resultPageFactory,
-        RequestInterface $request,
         StoreManagerInterface $storeManager,
         CoreConfig $coreConfig
     ) {
         parent::__construct($context);
         $this->resultPageFactory = $resultPageFactory;
-        $this->request           = $request;
         $this->storeManager      = $storeManager;
         $this->coreConfig        = $coreConfig;
     }
@@ -63,7 +57,7 @@ class Index extends Action
     {
         // if multistore, need to pre-select a store
         if ($this->storeManager->hasSingleStore() === false) {
-            $this->request->setParams(['store' => $this->preSelectStore()]);
+            $this->getRequest()->setParams(['store' => $this->preSelectStore()]);
         }
         $resultPage = $this->resultPageFactory->create();
         $resultPage->setActiveMenu('Magento_Backend::content');
@@ -79,8 +73,9 @@ class Index extends Action
     public function preSelectStore()
     {
         // if there is one specified in the request, prioritise that.
-        if ((int)$this->request->getParam('store')) {
-            return (int)$this->request->getParam('store');
+        $storeId = $this->getRequest()->getParam('store');
+        if ($storeId !== null) {
+            return (int)$storeId;
         }
 
         // Check all stores for a configured store, and return the first
