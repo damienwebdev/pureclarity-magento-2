@@ -5,7 +5,8 @@
  */
 
 /** @var \Pureclarity\Core\Block\Adminhtml\Dashboard\AccountStatus $block */
-$status = $block->getAccountStatus();
+$stores = $block->getPureclarityStoresViewModel();
+$status = $block->getAccountStatus($stores->getStoreId());
 
 if (isset($status['IsSignedUp']) && 0 === $status['IsSignedUp']): ?>
     <div id="pureclarity-account-info"
