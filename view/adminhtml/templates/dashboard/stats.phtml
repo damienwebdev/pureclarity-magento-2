@@ -23,7 +23,7 @@ $stats = $block->getStats($stores->getStoreId());
         </p>
         <div class="pureclarity-headline-stats-tabs">
             <?php foreach ($stats as $statType => $stat): ?>
-                <span id="pureclarity-headline-stat-<?= $block->escapeHtmlAttr($statType) ?>"
+                <span id="pureclarity-headline-stat-<?= $block->escapeQuote($block->escapeHtml($statType)) ?>"
                       class="pureclarity-headline-stat-tab
                     <?php if ('today' === $statType): ?>
                         pureclarity-headline-stat-active
@@ -33,7 +33,7 @@ $stats = $block->getStats($stores->getStoreId());
             <?php endforeach; ?>
         </div>
         <?php foreach ($stats as $statType => $stat): ?>
-            <div id="pureclarity-headline-stat-<?= $block->escapeHtmlAttr($statType) ?>-content"
+            <div id="pureclarity-headline-stat-<?= $block->escapeQuote($block->escapeHtml($statType)) ?>-content"
                  class="pureclarity-headline-stat"
                 <?php if ('today' !== $statType): ?>
                     style="display:none"

@@ -224,7 +224,7 @@ $state = $block->getPureclarityStateViewModel();
             <div id="pc-features-list">
                 <div class="pc-feature">
                     <img src="<?= $block->escapeUrl($block->getImageUrl('features-personalised-content.jpg')) ?>"
-                         alt="<?= $block->escapeHtmlAttr(__('Personalised content')) ?>"/>
+                         alt="<?= $block->escapeQuote($block->escapeHtml(__('Personalised content'))) ?>"/>
                     <h3><?= $block->escapeHtml(__('Personalised content')) ?></h3>
                     <p><?= $block->escapeHtml(__(
                         'Display personalised banners, images & text to engage with visitors, '
@@ -233,7 +233,7 @@ $state = $block->getPureclarityStateViewModel();
                 </div>
                 <div class="pc-feature">
                     <img src="<?= $block->escapeUrl($block->getImageUrl('features-intelligent-recs.jpg')) ?>"
-                         alt="<?= $block->escapeHtmlAttr(__('Intelligent recommendations')) ?>"/>
+                         alt="<?= $block->escapeQuote($block->escapeHtml(__('Intelligent recommendations'))) ?>"/>
                     <h3><?= $block->escapeHtml(__('Intelligent recommendations')) ?></h3>
                     <p><?= $block->escapeHtml(__(
                         'Use powerful personalised recommendations to upsell and cross-sell products at the right time.'
@@ -241,7 +241,7 @@ $state = $block->getPureclarityStateViewModel();
                 </div>
                 <div class="pc-feature">
                     <img src="<?= $block->escapeUrl($block->getImageUrl('features-search.jpg')) ?>"
-                         alt="<?= $block->escapeHtmlAttr(__('Personalisation within search')) ?>"/>
+                         alt="<?= $block->escapeQuote($block->escapeHtml(__('Personalisation within search'))) ?>"/>
                     <h3><?= $block->escapeHtml(__('Personalisation within search')) ?></h3>
                     <p><?= $block->escapeHtml(__(
                         'Help customers find what they’re looking for by displaying relevant products as they search.'
@@ -249,7 +249,7 @@ $state = $block->getPureclarityStateViewModel();
                 </div>
                 <div class="pc-feature">
                     <img src="<?= $block->escapeUrl($block->getImageUrl('features-email.jpg')) ?>"
-                         alt="<?= $block->escapeHtmlAttr(__('Personalisation within email')) ?>"/>
+                         alt="<?= $block->escapeQuote($block->escapeHtml(__('Personalisation within email'))) ?>"/>
                     <h3><?= $block->escapeHtml(__('Personalisation within email')) ?></h3>
                     <p><?= $block->escapeHtml(__(
                         'Use personalised email campaigns to entice customers back based on products '
@@ -258,7 +258,7 @@ $state = $block->getPureclarityStateViewModel();
                 </div>
                 <div class="pc-feature">
                     <img src="<?= $block->escapeUrl($block->getImageUrl('features-chat.jpg')) ?>"
-                         alt="<?= $block->escapeHtmlAttr(__('Live chat')) ?>"/>
+                         alt="<?= $block->escapeQuote($block->escapeHtml(__('Live chat'))) ?>"/>
                     <h3><?= $block->escapeHtml(__('Live chat')) ?></h3>
                     <p><?= $block->escapeHtml(__(
                         'Use a combination of real-time information about the customers current behaviours '
@@ -267,7 +267,7 @@ $state = $block->getPureclarityStateViewModel();
                 </div>
                 <div class="pc-feature">
                     <img src="<?= $block->escapeUrl($block->getImageUrl('features-popups.jpg')) ?>"
-                         alt="<?= $block->escapeHtmlAttr(__('Personalised pop-ups')) ?>"/>
+                         alt="<?= $block->escapeQuote($block->escapeHtml(__('Personalised pop-ups'))) ?>"/>
                     <h3><?= $block->escapeHtml(__('Personalised pop-ups')) ?></h3>
                     <p><?= $block->escapeHtml(__(
                         'Keep your customers informed of your latest products, news and offers with '
@@ -276,7 +276,7 @@ $state = $block->getPureclarityStateViewModel();
                 </div>
                 <div class="pc-feature">
                     <img src="<?= $block->escapeUrl($block->getImageUrl('features-segmentation.jpg')) ?>"
-                         alt="<?= $block->escapeHtmlAttr(__('Audience segmentation')) ?>"/>
+                         alt="<?= $block->escapeQuote($block->escapeHtml(__('Audience segmentation'))) ?>"/>
                     <h3><?= $block->escapeHtml(__('Audience segmentation')) ?></h3>
                     <p><?= $block->escapeHtml(__(
                         'Use pre-built and custom made conditions to target visitors using powerful, '
@@ -285,7 +285,7 @@ $state = $block->getPureclarityStateViewModel();
                 </div>
                 <div class="pc-feature">
                     <img src="<?= $block->escapeUrl($block->getImageUrl('features-analytics.jpg')) ?>"
-                         alt="<?= $block->escapeHtmlAttr(__('Insights & analytics')) ?>"/>
+                         alt="<?= $block->escapeQuote($block->escapeHtml(__('Insights & analytics'))) ?>"/>
                     <h3><?= $block->escapeHtml(__('Insights & analytics')) ?></h3>
                     <p><?= $block->escapeHtml(__(
                         'Gain deeper insights into visitor behaviour and learn how to maximise your '
@@ -316,7 +316,7 @@ $state = $block->getPureclarityStateViewModel();
                            id="pc-details-secret-key"/>
                 </p>
                 <input type="hidden" name="store_id" id="pc-details-store-id"
-                       value="<?= $block->escapeHtmlAttr($stores->getStoreId()) ?>"/>
+                       value="<?= $block->escapeQuote($block->escapeHtml($stores->getStoreId())) ?>"/>
                 <p class="pc-field">
                     <label for="pc-details-region"><?= $block->escapeHtml(__('Region')) ?></label>
                     <select data-validate='{"required":true}' name="region" id="pc-details-region">
