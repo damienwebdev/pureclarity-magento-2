@@ -25,7 +25,9 @@ $nextSteps = $block->getNextSteps($stores->getStoreId());
             <div class="pureclarity-info-content">
                 <?php if (isset($step['description'])): ?>
                     <p id="<?= $block->escapeQuote($block->escapeHtml($step['id'])) ?>-description"
-                       class="pureclarity-next-step-description"><?= $block->escapeHtml($step['description']) ?></p>
+                       class="pureclarity-next-step-description"><?=
+                        $block->escapeHtml($step['description'], ['br', 'ul', 'li', 'strong', 'em'])
+                        ?></p>
                 <?php endif; ?>
 
                 <?php if (isset($step['vimeoLink'])): ?>
@@ -37,7 +39,9 @@ $nextSteps = $block->getNextSteps($stores->getStoreId());
                 <?php endif; ?>
 
                 <?php if (isset($step['customHTML'])): ?>
-                    <div class="pureclarity-next-step-customhtml"><?= $block->escapeHtml($step['customHTML']) ?></div>
+                    <div class="pureclarity-next-step-customhtml"><?=
+                        $block->escapeHtml($step['customHTML'], ['br', 'ul', 'li', 'strong', 'em'])
+                    ?></div>
                 <?php endif; ?>
                 <?php if (isset($step['actions'])): ?>
                     <div class="pureclarity-next-step-actions">
