@@ -11,6 +11,8 @@ $nextSteps = $block->getNextSteps($stores->getStoreId());
 ?>
 
 <div id="pureclarity-next-steps">
+    <input type="hidden" id="pc-next-steps-track-call-url"
+           value="<?= $block->escapeUrl($block->getUrl('pureclarity/dashboard/nextStepsClick')) ?>" />
     <?php foreach ($nextSteps as $step): ?>
         <div id="<?= $block->escapeQuote($block->escapeHtml($step['id'])) ?>" class="pureclarity-info-box">
             <?php if (isset($step['title'])): ?>
