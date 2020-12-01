@@ -301,10 +301,22 @@ $state = $block->getPureclarityStateViewModel();
         <input type="hidden" id="pc-get-store-details-url"
                value="<?= $block->escapeUrl($block->getUrl('pureclarity/dashboard/getStoreDetails')) ?>"/>
         <form id="pc-save-details-form" method="post"
-              action="<?= $block->escapeUrl($block->getUrl('pureclarity/dashboard/configure')) ?>"
+              action="<?= $block->escapeUrl($block->getUrl('pureclarity/dashboard/linkAccount')) ?>"
               data-mage-init='{"validation":{}}'>
             <p><?= $block->escapeHtml(__('Enter your account details to get started')) ?></p>
             <div id="pc-account-details">
+                <p class="pc-field">
+                    <input type="radio" value="link" name="type" id="pc-link-type-link" class="pc-radio"/>
+                    <label for="pc-link-type-link" class="pc-radio"><?= $block->escapeHtml(
+                        __('Link my existing PureClarity store to this Magento instance')
+                    ) ?></label>
+                </p>
+                <p class="pc-field">
+                    <input type="radio" value="link" name="type" id="pc-link-type-add" class="pc-radio" />
+                    <label for="pc-link-type-add" class="pc-radio"><?= $block->escapeHtml(
+                        __('Create a new store on my existing account')
+                    ) ?></label>
+                </p>
                 <p class="pc-field">
                     <label for="pc-details-access-key"><?= $block->escapeHtml(__('Access Key')) ?></label>
                     <input data-validate='{"required":true}' type="text" name="access_key"

@@ -32,6 +32,7 @@ require(
         let signupForm = $('#pc-sign-up-form');
         let saveDetailsForm = $('#pc-save-details-form');
         let signupSubmitted = false;
+        let linkSubmitted = false;
 
         function submitSignUp()
         {
@@ -79,19 +80,35 @@ require(
         function submitSaveDetails()
         {
             let isValid = saveDetailsForm.validation('isValid');
-            if (isValid) {
+            if (isValid && !linkSubmitted) {
+                linkSubmitted = true;
                 linkAccountContent.modal('closeModal');
-                $.ajax({
-                    showLoader: true,
-                    url: saveDetailsForm.attr('action'),
-                    data: saveDetailsForm.serialize(),
-                    type: "POST",
-                    dataType: 'json'
-                }).done(function (data) {
-                    if (data.success) {
-                        location.reload();
-                    } else {
-                        linkAccountContent.modal('openModal');
+                $('#pc-sign-up').fadeOut(200, function () {
+                    $('#pc-waiting').fadeIn(200);
+                    $.ajax({
+                        showLoader: true,
+                        url: saveDetailsForm.attr('action'),
+                        data: saveDetailsForm.serialize(),
+                        type: "POST",
+                        dataType: 'json'
+                    }).done(function (data) {
+                        if (data.success) {
+                            if($('#pc-link-type').val() === 'add') {
+                                currentState = 'waiting';
+                                setTimeout(checkStatus, 5000);
+                            } else {
+                                location.reload();
+                            }
+                        } else {
+                            linkSubmitted = false;
+                            $('#pc-waiting').fadeOut(200, function () {
+                                $('#pc-sign-up').fadeIn(200);
+                                linkAccountContent.modal('openModal');
+                                $('#pc-link-account-response-holder').html(data.error).addClass('error');
+                            });
+                        }
+                    }).fail(function(jqXHR, status, err) {
+                        linkSubmitted = false;
                         modalAlert({
                             title: $.mage.__('Error'),
                             content: $.mage.__('Please reload the page and try again'),
@@ -104,20 +121,6 @@ require(
                                 }
                             }]
                         });
-                    }
-                }).fail(function(jqXHR, status, err) {
-                    linkAccountContent.modal('openModal');
-                    modalAlert({
-                        title: $.mage.__('Error'),
-                        content: $.mage.__('Please reload the page and try again'),
-                        modalClass: 'alert',
-                        buttons: [{
-                            text: $.mage.__('Ok'),
-                            class: 'action primary accept',
-                            click: function () {
-                                this.closeModal(true);
-                            }
-                        }]
                     });
                 });
             }

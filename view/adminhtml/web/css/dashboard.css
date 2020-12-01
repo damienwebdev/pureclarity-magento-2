@@ -443,7 +443,7 @@ svg .pc_donut_text {
     display:block;
 }
 
-.pc-link-account-modal #pc-save-details-form  label {
+.pc-link-account-modal #pc-save-details-form  label:not(.pc-radio) {
     display: block;
     width: 20%;
     float: left;
@@ -451,7 +451,7 @@ svg .pc_donut_text {
     text-align: right;
 }
 
-.pc-link-account-modal #pc-save-details-form  input,
+.pc-link-account-modal #pc-save-details-form  input:not(.pc-radio),
 .pc-link-account-modal #pc-save-details-form  select {
     width: 50%;
     padding: 5px;
