@@ -10,7 +10,9 @@ $status = $block->getAccountStatus($stores->getStoreId());
 
 if (isset($status['IsSignedUp']) && 0 === $status['IsSignedUp']): ?>
     <div id="pureclarity-account-info"
-         class="pureclarity-info-box <?= $block->escapeHtmlAttr($block->getStatusClass($status['DaysLeft'])) ?>">
+         class="pureclarity-info-box <?= $block->escapeQuote($block->escapeHtml(
+             $block->getStatusClass($status['DaysLeft'])
+         )) ?>">
         <div class="pureclarity-info-title">
             <h2>
                 <?= $block->escapeHtml(__('Free Trial Status')) ?>:

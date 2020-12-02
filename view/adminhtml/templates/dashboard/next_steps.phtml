@@ -12,15 +12,17 @@ $nextSteps = $block->getNextSteps($stores->getStoreId());
 
 <div id="pureclarity-next-steps">
     <?php foreach ($nextSteps as $step): ?>
-        <div id="<?= $block->escapeHtmlAttr($step['id']) ?>" class="pureclarity-info-box">
+        <div id="<?= $block->escapeQuote($block->escapeHtml($step['id'])) ?>" class="pureclarity-info-box">
             <?php if (isset($step['title'])): ?>
-                <div id="<?= $block->escapeHtmlAttr($step['id']) ?>-title" class="pureclarity-info-title">
+                <div id="<?= $block->escapeQuote($block->escapeHtml(
+                    $step['id']
+                )) ?>-title" class="pureclarity-info-title">
                     <h2><?= $block->escapeHtml($step['title']) ?></h2>
                 </div>
             <?php endif; ?>
             <div class="pureclarity-info-content">
                 <?php if (isset($step['description'])): ?>
-                    <p id="<?= $block->escapeHtmlAttr($step['id']) ?>-description"
+                    <p id="<?= $block->escapeQuote($block->escapeHtml($step['id'])) ?>-description"
                        class="pureclarity-next-step-description"><?= $block->escapeHtml($step['description']) ?></p>
                 <?php endif; ?>
 
@@ -44,7 +46,7 @@ $nextSteps = $block->getNextSteps($stores->getStoreId());
                                 ): ?>
                                     <a href="<?= $block->escapeUrl($block->getAdminUrl($step_action['actionLink'])) ?>"
                                        target="_blank" class="pc-button pc-action"
-                                       id="<?= $block->escapeHtmlAttr($step['id']) ?>">
+                                       id="<?= $block->escapeQuote($block->escapeHtml($step['id'])) ?>">
                                         <?= $block->escapeHtml($step_action['actionText']) ?>
                                     </a>
                                 <?php elseif (isset($step_action['actionLinkIsPlugin'])
@@ -52,13 +54,13 @@ $nextSteps = $block->getNextSteps($stores->getStoreId());
                                 ): ?>
                                     <a href="<?= $block->escapeUrl($block->getUrl($step_action['actionLink'])) ?>"
                                        target="_blank" class="pc-button pc-action"
-                                       id="<?= $block->escapeHtmlAttr($step['id']) ?>">
+                                       id="<?= $block->escapeQuote($block->escapeHtml($step['id'])) ?>">
                                         <?= $block->escapeHtml($step_action['actionText']) ?>
                                     </a>
                                 <?php else: ?>
                                     <a href="<?= $block->escapeUrl($step_action['actionLink']) ?>" target="_blank"
                                        class="pc-button pc-action"
-                                       id="<?= $block->escapeHtmlAttr($step['id']) ?>">
+                                       id="<?= $block->escapeQuote($block->escapeHtml($step['id'])) ?>">
                                         <?= $block->escapeHtml($step_action['actionText']) ?>
                                     </a>
                                 <?php endif; ?>
