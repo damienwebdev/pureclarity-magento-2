@@ -93,7 +93,7 @@ require(
                         dataType: 'json'
                     }).done(function (data) {
                         if (data.success) {
-                            if($('#pc-link-type').val() === 'add') {
+                            if($('#pc-save-details-form input:radio[name=type]:checked').val() === 'add') {
                                 currentState = 'waiting';
                                 setTimeout(checkStatus, 5000);
                             } else {
