@@ -92,7 +92,11 @@ class AddStore
             return $result;
         }
 
-        if ($response['status'] !== 200) {
+        if ($response['status'] === 403) {
+            $result['error'] = __(
+                'Account not found. Please check your Access Key & Secret Key are correct and try again.'
+            );
+        } elseif ($response['status'] !== 200) {
             $result['error'] = __(
                 'PureClarity server error occurred. If this persists,'
                 . 'please contact PureClarity support. Error code %1',
