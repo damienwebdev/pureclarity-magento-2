@@ -30,7 +30,6 @@ require(
         let signUpButton = $('#pc-sign-up-submit-button');
         let linkAccountContent = $('#pc-link-account-form-content');
         let signupForm = $('#pc-sign-up-form');
-        let saveDetailsForm = $('#pc-save-details-form');
         let signupSubmitted = false;
         let linkSubmitted = false;
 
@@ -79,6 +78,7 @@ require(
 
         function submitSaveDetails()
         {
+            let saveDetailsForm = $('#pc-save-details-form');
             let isValid = saveDetailsForm.validation('isValid');
             if (isValid && !linkSubmitted) {
                 linkSubmitted = true;
@@ -183,6 +183,24 @@ require(
             });
         }
 
+        function initLinkAccountToggle() {
+            $('#pc-save-details-form input:radio[name=type]').change(function () {
+                if($(this).val() === 'link') {
+                    $('#pc-details-store-fields').hide();
+                    $('#pc-details-add-info').hide();
+                    $('#pc-details-link-info').show();
+                    $('#pc-details-store-name').removeClass('required');
+                    $('#pc-details-store-url').removeClass('required');
+                } else {
+                    $('#pc-details-store-fields').show();
+                    $('#pc-details-add-info').show();
+                    $('#pc-details-link-info').hide();
+                    $('#pc-details-store-name').addClass('required');
+                    $('#pc-details-store-url').addClass('required');
+                }
+            });
+        }
+
         if (currentState === 'not_configured') {
 
             initSlick();
@@ -196,6 +214,8 @@ require(
                     click: submitSaveDetails
                 }]
             };
+
+            initLinkAccountToggle();
 
             modal(options, linkAccountContent);
             $('#pc-link-account-button').on('click', function () {

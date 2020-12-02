@@ -443,7 +443,8 @@ svg .pc_donut_text {
     display:block;
 }
 
-.pc-link-account-modal #pc-save-details-form  label:not(.pc-radio) {
+.pc-link-account-modal #pc-save-details-form  label:not(.pc-radio),
+.pc-link-account-modal #pc-save-details-form span.label  {
     display: block;
     width: 20%;
     float: left;
@@ -455,6 +456,13 @@ svg .pc_donut_text {
 .pc-link-account-modal #pc-save-details-form  select {
     width: 50%;
     padding: 5px;
+    margin-left: 2em;
+    float: left;
+}
+
+.pc-link-account-modal #pc-save-details-form span.value {
+    width: 50%;
+    padding: 0;
     margin-left: 2em;
     float: left;
 }
@@ -478,7 +486,12 @@ svg .pc_donut_text {
 }
 
 .pc-link-account-modal #pc-account-details {
-    margin-top: 3rem;
+    margin-top: 1rem;
+}
+
+.pc-link-account-modal  .pc-link-info {
+    margin-bottom: 3rem;
+    font-weight: 600;
 }
 
 /** MODALS **/
