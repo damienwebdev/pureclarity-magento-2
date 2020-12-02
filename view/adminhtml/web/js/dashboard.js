@@ -86,7 +86,7 @@ require(
                 $('#pc-sign-up').fadeOut(200, function () {
                     $('#pc-waiting').fadeIn(200);
                     $.ajax({
-                        showLoader: true,
+                        showLoader: false,
                         url: saveDetailsForm.attr('action'),
                         data: saveDetailsForm.serialize(),
                         type: "POST",
