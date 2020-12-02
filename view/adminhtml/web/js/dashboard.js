@@ -123,55 +123,12 @@ require(
             }
         }
 
-        function getStoreDetails()
-        {
-            $.ajax({
-                showLoader: true,
-                url: $('#pc-get-store-details-url').val(),
-                data: { 'form_key': window.FORM_KEY, 'store_id': $('select#pc-sign-up-store-id').val() },
-                type: "POST",
-                dataType: 'json'
-            }).done(function (data) {
-                if (data.success && data.store_data) {
-                    $('#pc-sign-up-store-currency').html(data.store_data.currency);
-                    $('#pc-sign-up-store-timezone').html(data.store_data.timezone);
-                    $('#pc-sign-up-store-url').val(data.store_data.url);
-                } else {
-                    modalAlert({
-                        title: $.mage.__('Error'),
-                        content: data.error,
-                        modalClass: 'alert',
-                        buttons: [{
-                            text: $.mage.__('Ok'),
-                            class: 'action primary accept',
-                            click: function () {
-                                this.closeModal(true);
-                            }
-                        }]
-                    });
-                }
-            }).fail(function(jqXHR, status, err) {
-                modalAlert({
-                    title: $.mage.__('Error'),
-                    content: $.mage.__('Please reload the page and try again'),
-                    modalClass: 'alert',
-                    buttons: [{
-                        text: $.mage.__('Ok'),
-                        class: 'action primary accept',
-                        click: function () {
-                            this.closeModal(true);
-                        }
-                    }]
-                });
-            });
-        }
-
         function checkStatus()
         {
             $.ajax({
                 showLoader: false,
                 url: $('#pc-sign-up-waiting-call-url').val(),
-                data: '',
+                data: { 'store': $('#pc-sign-up-store-id').val() },
                 type: "GET",
                 dataType: 'json'
             }).done(function (data) {
@@ -244,10 +201,6 @@ require(
 
             signUpButton.on('click', submitSignUp);
 
-            let selectStoreSignup = $('select#pc-sign-up-store-id');
-            if (selectStoreSignup.length) {
-                selectStoreSignup.on('change', getStoreDetails);
-            }
         }
 
         if (currentState === 'waiting') {
@@ -282,7 +235,6 @@ require(
             feedRunObject = {
                 runFeedUrl: $("#pc-feed-run-url").val(),
                 progressFeedUrl: $("#pc-feed-progress-url").val(),
-                selectStore: $('select#pc-feed-info-store'),
                 preselectStore: $('input#pc-feed-info-store'),
                 messageContainer: $('#pc-statusMessage'),
                 chkProducts: $('#pc-chkProducts'),
@@ -343,11 +295,7 @@ require(
                 return;
             }
 
-            if (feedRunObject.selectStore.length) {
-                feedRunObject.selectedStore = feedRunObject.selectStore.val();
-            } else {
-                feedRunObject.selectedStore = feedRunObject.preselectStore.val();
-            }
+            feedRunObject.selectedStore = feedRunObject.preselectStore.val();
             feedRunObject.chkProducts.prop("disabled", true);
             feedRunObject.chkCategories.prop("disabled", true);
 
@@ -424,6 +372,7 @@ require(
 
         function pcFeedProgressCheck() {
             feedRunObject.progressCheckRunning = 1;
+            feedRunObject.selectedStore = feedRunObject.preselectStore.val();
             $.ajax({
                 url: feedRunObject.progressFeedUrl,
                 data: {form_key: window.FORM_KEY, storeid: feedRunObject.selectedStore},

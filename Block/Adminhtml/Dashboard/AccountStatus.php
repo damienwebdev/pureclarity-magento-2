@@ -9,6 +9,7 @@ namespace Pureclarity\Core\Block\Adminhtml\Dashboard;
 use Magento\Backend\Block\Template\Context;
 use Magento\Framework\View\Element\Template;
 use Pureclarity\Core\Model\Dashboard;
+use Pureclarity\Core\ViewModel\Adminhtml\Stores;
 
 /**
  * Class AccountStatus
@@ -20,30 +21,43 @@ class AccountStatus extends Template
     /** @var Dashboard $dashboard */
     private $dashboard;
 
+    /** @var Stores $storesViewModel */
+    private $storesViewModel;
+
     /**
      * @param Context $context
      * @param Dashboard $dashboard
+     * @param Stores $storesViewModel
      * @param array $data
      */
     public function __construct(
         Context $context,
         Dashboard $dashboard,
+        Stores $storesViewModel,
         array $data = []
     ) {
         parent::__construct($context, $data);
-        $this->dashboard = $dashboard;
-        ;
+        $this->dashboard       = $dashboard;
+        $this->storesViewModel = $storesViewModel;
+    }
+
+    /**
+     * @return Stores
+     */
+    public function getPureclarityStoresViewModel()
+    {
+        return $this->storesViewModel;
     }
 
     /**
      * Gets the account status for display.
      *
+     * @param integer $storeId
      * @return mixed[]
      */
-    public function getAccountStatus()
+    public function getAccountStatus($storeId)
     {
-        // TODO: sort out multistore code here
-        return $this->dashboard->getAccountStatus(0);
+        return $this->dashboard->getAccountStatus($storeId);
     }
 
     /**

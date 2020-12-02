@@ -5,7 +5,9 @@
  */
 
 /** @var \Pureclarity\Core\Block\Adminhtml\Dashboard\NextSteps $block */
-$nextSteps = $block->getNextSteps();
+/** @var \Pureclarity\Core\ViewModel\Adminhtml\Stores $stores */
+$stores = $block->getPureclarityStoresViewModel();
+$nextSteps = $block->getNextSteps($stores->getStoreId());
 ?>
 
 <div id="pureclarity-next-steps">

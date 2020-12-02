@@ -6,6 +6,7 @@
 
 namespace Pureclarity\Core\Setup;
 
+use Magento\Framework\Exception\CouldNotDeleteException;
 use Magento\Framework\Exception\CouldNotSaveException;
 use Magento\Framework\Setup\ModuleDataSetupInterface;
 use Magento\Framework\Setup\UpgradeDataInterface;
@@ -66,6 +67,12 @@ class UpgradeData implements UpgradeDataInterface
             $this->checkForPreviousInstall();
             $setup->endSetup();
         }
+
+        if (version_compare($context->getVersion(), '3.0.0', '<')) {
+            $setup->startSetup();
+            $this->cleanState();
+            $setup->endSetup();
+        }
     }
 
     /**
@@ -104,6 +111,33 @@ class UpgradeData implements UpgradeDataInterface
                 $this->logger->error('PureClarity: could not set state on upgrade: ' . $e->getMessage());
             }
 
+        }
+    }
+
+    /**
+     * Cleans out old state values that are not used any more
+     *
+     * @return void
+     */
+    private function cleanState()
+    {
+        try {
+            $configuredState = $this->stateRepository->getByNameAndStore('is_configured', 0);
+            if ($configuredState->getId()) {
+                $this->stateRepository->delete($configuredState);
+            }
+
+            $defaultStoreState = $this->stateRepository->getByNameAndStore('default_store', 0);
+            if ($defaultStoreState->getId()) {
+                $this->stateRepository->delete($defaultStoreState);
+            }
+
+            $signupState = $this->stateRepository->getByNameAndStore('signup_request', 0);
+            if ($signupState->getId() && $signupState->getValue() === 'complete') {
+                $this->stateRepository->delete($signupState);
+            }
+        } catch (CouldNotDeleteException $e) {
+            $this->logger->error('PureClarity: could not delete old state on upgrade: ' . $e->getMessage());
         }
     }
 }

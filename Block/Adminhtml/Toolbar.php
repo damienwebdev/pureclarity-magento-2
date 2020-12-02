@@ -12,11 +12,11 @@ use Pureclarity\Core\ViewModel\Adminhtml\Dashboard\State;
 use Pureclarity\Core\ViewModel\Adminhtml\Stores;
 
 /**
- * Class Dashboard
+ * Class Toolbar
  *
- * Block for Dashboard page content
+ * Block for Toolbar on Dashboard page
  */
-class Dashboard extends Template
+class Toolbar extends Template
 {
     /** @var State $stateViewModel */
     private $stateViewModel;

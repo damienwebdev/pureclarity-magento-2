@@ -252,10 +252,10 @@ class Request
 
         $this->serializer->serialize($signupData);
 
-        $state = $this->stateRepository->getByNameAndStore('signup_request', 0);
+        $state = $this->stateRepository->getByNameAndStore('signup_request', $params['store_id']);
         $state->setName('signup_request');
         $state->setValue($this->serializer->serialize($signupData));
-        $state->setStoreId(0);
+        $state->setStoreId($params['store_id']);
 
         $this->stateRepository->save($state);
     }

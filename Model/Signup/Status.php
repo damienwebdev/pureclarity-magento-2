@@ -51,9 +51,10 @@ class Status
     /**
      * Calls PureClarity API to check status of signup request
      *
+     * @param int $storeId
      * @return mixed[]
      */
-    public function checkStatus()
+    public function checkStatus($storeId)
     {
         $result = [
             'error' => '',
@@ -62,7 +63,7 @@ class Status
         ];
 
         try {
-            $state = $this->stateRepository->getByNameAndStore('signup_request', 0);
+            $state = $this->stateRepository->getByNameAndStore('signup_request', $storeId);
 
             if ($state->getValue() !== 'complete') {
                 $signUpRequest = $this->serializer->unserialize($state->getValue());

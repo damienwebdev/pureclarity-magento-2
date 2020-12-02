@@ -10,7 +10,9 @@ use Magento\Framework\Notification\MessageInterface;
 use Magento\Framework\App\Config\ScopeConfigInterface;
 use Magento\Framework\Phrase;
 use Magento\Framework\UrlInterface;
+use Magento\Store\Model\StoreManagerInterface;
 use Pureclarity\Core\Api\StateRepositoryInterface;
+use Pureclarity\Core\Model\CoreConfig;
 
 /**
  * Class Welcome
@@ -22,28 +24,28 @@ class Welcome implements MessageInterface
     /** @var string */
     const MESSAGE_IDENTITY = 'pureclarity_system_message';
 
-    /** @var ScopeConfigInterface $scopeConfig */
-    private $scopeConfig;
-
-    /** @var StateRepositoryInterface $stateRepository */
-    private $stateRepository;
-
     /** @var UrlInterface $url */
     private $url;
 
+    /** @var StoreManagerInterface $storeManager */
+    private $storeManager;
+
+    /** @var CoreConfig $coreConfig */
+    private $coreConfig;
+
     /**
-     * @param ScopeConfigInterface $scopeConfig
-     * @param StateRepositoryInterface $stateRepository
      * @param UrlInterface $url
+     * @param StoreManagerInterface $storeManager
+     * @param CoreConfig $coreConfig
      */
     public function __construct(
-        ScopeConfigInterface $scopeConfig,
-        StateRepositoryInterface $stateRepository,
-        UrlInterface $url
+        UrlInterface $url,
+        StoreManagerInterface $storeManager,
+        CoreConfig $coreConfig
     ) {
-        $this->scopeConfig     = $scopeConfig;
-        $this->stateRepository = $stateRepository;
         $this->url             = $url;
+        $this->storeManager    = $storeManager;
+        $this->coreConfig      = $coreConfig;
     }
 
     /**
@@ -63,13 +65,14 @@ class Welcome implements MessageInterface
      */
     public function isDisplayed()
     {
-        $shouldDisplay = false;
-        $accessKey = $this->scopeConfig->getValue('pureclarity/credentials/access_key');
+        $shouldDisplay = true;
 
-        if (!$accessKey) {
-            $state = $this->stateRepository->getByNameAndStore('is_configured', 0);
-            if ($state->getId() === null) {
-                $shouldDisplay = true;
+        // Check all stores for a configured store, and if one is found, set to not display
+        foreach ($this->storeManager->getStores() as $storeView) {
+            $accessKey = $this->coreConfig->getAccessKey($storeView->getId());
+            $secretKey = $this->coreConfig->getSecretKey($storeView->getId());
+            if ($accessKey && $secretKey) {
+                $shouldDisplay = false;
             }
         }
 
