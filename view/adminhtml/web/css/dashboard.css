@@ -494,6 +494,24 @@ svg .pc_donut_text {
     font-weight: 600;
 }
 
+.pc-link-account-modal #pc-account-details #pc-link-account-response-holder {
+    clear: both;
+    width: 100%;
+    padding: 8px;
+    margin-top: 15px;
+    display: inline-block;
+    text-align: center;
+    color: #000;
+}
+
+.pc-link-account-modal #pc-account-details #pc-link-account-response-holder.error {
+    background-color: rgba(255, 0, 0, 0.4);
+}
+
+.pc-link-account-modal #pc-account-details #pc-link-account-response-holder.success {
+    background-color:rgba(0,255,0,0.4);
+}
+
 /** MODALS **/
 
 .pc-link-account-modal .modal-inner-wrap {
