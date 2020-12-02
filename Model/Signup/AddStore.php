@@ -35,6 +35,7 @@ class AddStore
      * @param AddStoreFactory $addStoreFactory
      * @param Serializer $serializer
      * @param StateRepositoryInterface $stateRepository
+     * @param LoggerInterface $logger
      */
     public function __construct(
         AddStoreFactory $addStoreFactory,
