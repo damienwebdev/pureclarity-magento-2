@@ -13,11 +13,12 @@ use Magento\Framework\Controller\Result\JsonFactory;
 use Magento\Framework\Data\Form\FormKey\Validator;
 use Pureclarity\Core\Model\Signup\Process;
 use Pureclarity\Core\Model\Account\Validate;
+use Pureclarity\Core\Model\Signup\AddStore;
 
 /**
- * Class Configure
+ * Class LinkAccount
  *
- * controller for pureclarity/dashboard/configure POST request
+ * controller for pureclarity/dashboard/linkAccount POST request
  */
 class LinkAccount extends Action
 {
@@ -33,22 +34,28 @@ class LinkAccount extends Action
     /** @var Validate $validate */
     private $validate;
 
+    /** @var AddStore $addStore */
+    private $addStore;
+
     /**
      * @param Context $context
      * @param Process $requestProcess
      * @param JsonFactory $jsonFactory
      * @param Validate $validate
+     * @param AddStore $addStore
      */
     public function __construct(
         Context $context,
         Process $requestProcess,
         JsonFactory $jsonFactory,
-        Validate $validate
+        Validate $validate,
+        AddStore $addStore
     ) {
         $this->requestProcess   = $requestProcess;
         $this->jsonFactory      = $jsonFactory;
         $this->formKeyValidator = $context->getFormKeyValidator();
         $this->validate         = $validate;
+        $this->addStore         = $addStore;
         parent::__construct($context);
     }
 
@@ -72,20 +79,22 @@ class LinkAccount extends Action
             $params = $this->getRequest()->getParams();
 
             if ($params['type'] === 'link') {
-                $validateResponse = $this->validate->sendRequest($this->getRequest()->getParams());
+                $response = $this->validate->sendRequest($this->getRequest()->getParams());
             } else {
-                //$validateResponse = $this->addStore->sendRequest($this->getRequest()->getParams());
+                $response = $this->addStore->sendRequest($this->getRequest()->getParams());
             }
 
-            if ($validateResponse['error']) {
-                $result['error'] = $validateResponse['error'];
+            if ($response['error']) {
+                $result['error'] = $response['error'];
             } else {
                 // link existing account
                 if ($params['type'] === 'link') {
                     $response = $this->requestProcess->processManualConfigure($params);
-                }
-                if ($response['errors']) {
-                    $result['error'] = implode(',', $response['errors']);
+                    if ($response['errors']) {
+                        $result['error'] = implode(',', $response['errors']);
+                    } else {
+                        $result['success'] = true;
+                    }
                 } else {
                     $result['success'] = true;
                 }
