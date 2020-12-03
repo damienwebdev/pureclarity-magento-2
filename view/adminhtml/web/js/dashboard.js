@@ -208,6 +208,34 @@ require(
             checkStatus();
         }
 
+        if (currentState === 'configured') {
+            function pcNextStepsAction(action) {
+                if (action.hasClass('pureclarity-clicked') === false) {
+                    var linkId = action.attr('id');
+                    action.addClass('pureclarity-clicked');
+
+                    $.ajax({
+                        showLoader: true,
+                        url: $('#pc-next-steps-track-call-url').val(),
+                        data: { form_key: window.FORM_KEY, 'store': $('#pc-current-store-id').val(), 'next-step-id': linkId },
+                        type: "POST",
+                        dataType: 'json'
+                    }).done(function (data) {
+                        action.click();
+                    }).error(function(jqXHR, status, err) {
+                        action.click();
+                    }).fail(function(jqXHR, status, err) {
+                        action.click();
+                    });
+                    return false;
+                }
+            }
+
+            $('.pc-action').on('click', function () {
+                pcNextStepsAction($(this));
+            });
+        }
+
         let feedModalButton = $('#pc-feedpopupbutton');
         if (feedModalButton.length) {
             let options = {
