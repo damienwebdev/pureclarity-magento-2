@@ -443,7 +443,8 @@ svg .pc_donut_text {
     display:block;
 }
 
-.pc-link-account-modal #pc-save-details-form  label {
+.pc-link-account-modal #pc-save-details-form  label:not(.pc-radio),
+.pc-link-account-modal #pc-save-details-form span.label  {
     display: block;
     width: 20%;
     float: left;
@@ -451,10 +452,17 @@ svg .pc_donut_text {
     text-align: right;
 }
 
-.pc-link-account-modal #pc-save-details-form  input,
+.pc-link-account-modal #pc-save-details-form  input:not(.pc-radio),
 .pc-link-account-modal #pc-save-details-form  select {
     width: 50%;
     padding: 5px;
+    margin-left: 2em;
+    float: left;
+}
+
+.pc-link-account-modal #pc-save-details-form span.value {
+    width: 50%;
+    padding: 0;
     margin-left: 2em;
     float: left;
 }
@@ -478,7 +486,30 @@ svg .pc_donut_text {
 }
 
 .pc-link-account-modal #pc-account-details {
-    margin-top: 3rem;
+    margin-top: 1rem;
+}
+
+.pc-link-account-modal  .pc-link-info {
+    margin-bottom: 3rem;
+    font-weight: 600;
+}
+
+.pc-link-account-modal #pc-account-details #pc-link-account-response-holder {
+    clear: both;
+    width: 100%;
+    padding: 8px;
+    margin-top: 15px;
+    display: inline-block;
+    text-align: center;
+    color: #000;
+}
+
+.pc-link-account-modal #pc-account-details #pc-link-account-response-holder.error {
+    background-color: rgba(255, 0, 0, 0.4);
+}
+
+.pc-link-account-modal #pc-account-details #pc-link-account-response-holder.success {
+    background-color:rgba(0,255,0,0.4);
 }
 
 /** MODALS **/

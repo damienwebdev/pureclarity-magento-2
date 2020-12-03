@@ -220,7 +220,7 @@ $state = $block->getPureclarityStateViewModel();
     </div>
     <div id="pc-features" class="pc-box" style="overflow: hidden">
         <div class="pc-box-content">
-            <p><?= $block->escapeHtml(__('You\'ll also get access to these fantastic features:')) ?></p>
+            <p><?= $block->escapeHtml(__('You\'ll also get access to all of these fantastic features:')) ?></p>
             <div id="pc-features-list">
                 <div class="pc-feature">
                     <img src="<?= $block->escapeUrl($block->getImageUrl('features-personalised-content.jpg')) ?>"
@@ -301,10 +301,37 @@ $state = $block->getPureclarityStateViewModel();
         <input type="hidden" id="pc-get-store-details-url"
                value="<?= $block->escapeUrl($block->getUrl('pureclarity/dashboard/getStoreDetails')) ?>"/>
         <form id="pc-save-details-form" method="post"
-              action="<?= $block->escapeUrl($block->getUrl('pureclarity/dashboard/configure')) ?>"
+              action="<?= $block->escapeUrl($block->getUrl('pureclarity/dashboard/linkAccount')) ?>"
               data-mage-init='{"validation":{}}'>
-            <p><?= $block->escapeHtml(__('Enter your account details to get started')) ?></p>
+            <input type="hidden" name="currency" value="<?= $block->escapeQuote($block->escapeHtml(
+                $store->getStoreCurrency($stores->getStoreId())
+            )) ?>"/>
+            <input type="hidden" name="timezone" value="<?= $block->escapeQuote($block->escapeHtml(
+                $store->getStoreTimezone($stores->getStoreId())
+            )) ?>"/>
             <div id="pc-account-details">
+                <p class="pc-field">
+                    <input type="radio" value="link" name="type" id="pc-link-type-link"
+                           class="pc-radio" checked="checked" />
+                    <label for="pc-link-type-link" class="pc-radio"><?= $block->escapeHtml(
+                        __('Link an existing PureClarity store')
+                    ) ?></label>
+                </p>
+                <p class="pc-field">
+                    <input type="radio" value="add" name="type" id="pc-link-type-add" class="pc-radio" />
+                    <label for="pc-link-type-add" class="pc-radio"><?= $block->escapeHtml(
+                        __('Create a new PureClarity store')
+                    ) ?></label>
+                </p>
+                <p id="pc-details-link-info" class="pc-link-info"><?= $block->escapeHtml(__(
+                    'Please enter the Access Key and Secret Key of the existing '
+                    . 'PureClarity store and it will be linked to this Magento store'
+                )) ?></p>
+                <p id="pc-details-add-info" class="pc-link-info" style="display:none;"><?= $block->escapeHtml(__(
+                    'Please enter the Access Key and Secret Key of any existing PureClarity store on your account. '
+                    . 'PureClarity will create a new store that is linked to your existing account. '
+                    . 'Additional charges may apply.'
+                )) ?></p>
                 <p class="pc-field">
                     <label for="pc-details-access-key"><?= $block->escapeHtml(__('Access Key')) ?></label>
                     <input data-validate='{"required":true}' type="text" name="access_key"
@@ -327,6 +354,40 @@ $state = $block->getPureclarityStateViewModel();
                         <?php endforeach ?>
                     </select>
                 </p>
+                <div id="pc-details-store-fields" style="display:none;">
+                    <p class="pc-field">
+                        <label class="label" for="pc-details-store-name">
+                            <?= $block->escapeHtml(__('Store Name')) ?>
+                        </label>
+                        <input type="text" name="store_name" id="pc-details-store-name" value="" />
+                    </p>
+                    <p class="pc-field">
+                        <label class="label" for="pc-details-store-url"><?= $block->escapeHtml(__('URL')) ?></label>
+                        <input type="text" name="url" id="pc-details-store-url"
+                           value="<?= $block->escapeQuote(
+                               $block->escapeHtml($store->getStoreURL(
+                                   $stores->getStoreId()
+                               ))
+                           ) ?>"/>
+                    </p>
+                    <p class="pc-field">
+                        <span class="label"><?= $block->escapeHtml(__('Currency')) ?></span>
+                        <span class="value" id="pc-details-store-currency">
+                            <?= $block->escapeHtml(
+                                $store->getStoreCurrency($stores->getStoreId())
+                            ) ?>
+                        </span>
+                    </p>
+                    <p class="pc-field">
+                        <span class="label"><?= $block->escapeHtml(__('Timezone')) ?></span>
+                        <span class="value" id="pc-details-store-timezone">
+                                <?= $block->escapeHtml(
+                                    $store->getStoreTimezone($stores->getStoreId())
+                                ) ?>
+                            </span>
+                    </p>
+                </div>
+                <div id="pc-link-account-response-holder"></div>
             </div>
         </form>
     </div>

@@ -30,8 +30,8 @@ require(
         let signUpButton = $('#pc-sign-up-submit-button');
         let linkAccountContent = $('#pc-link-account-form-content');
         let signupForm = $('#pc-sign-up-form');
-        let saveDetailsForm = $('#pc-save-details-form');
         let signupSubmitted = false;
+        let linkSubmitted = false;
 
         function submitSignUp()
         {
@@ -78,20 +78,37 @@ require(
 
         function submitSaveDetails()
         {
+            let saveDetailsForm = $('#pc-save-details-form');
             let isValid = saveDetailsForm.validation('isValid');
-            if (isValid) {
+            if (isValid && !linkSubmitted) {
+                linkSubmitted = true;
                 linkAccountContent.modal('closeModal');
-                $.ajax({
-                    showLoader: true,
-                    url: saveDetailsForm.attr('action'),
-                    data: saveDetailsForm.serialize(),
-                    type: "POST",
-                    dataType: 'json'
-                }).done(function (data) {
-                    if (data.success) {
-                        location.reload();
-                    } else {
-                        linkAccountContent.modal('openModal');
+                $('#pc-sign-up').fadeOut(200, function () {
+                    $('#pc-waiting').fadeIn(200);
+                    $.ajax({
+                        showLoader: false,
+                        url: saveDetailsForm.attr('action'),
+                        data: saveDetailsForm.serialize(),
+                        type: "POST",
+                        dataType: 'json'
+                    }).done(function (data) {
+                        if (data.success) {
+                            if($('#pc-save-details-form input:radio[name=type]:checked').val() === 'add') {
+                                currentState = 'waiting';
+                                setTimeout(checkStatus, 5000);
+                            } else {
+                                location.reload();
+                            }
+                        } else {
+                            linkSubmitted = false;
+                            $('#pc-waiting').fadeOut(200, function () {
+                                $('#pc-sign-up').fadeIn(200);
+                                linkAccountContent.modal('openModal');
+                                $('#pc-link-account-response-holder').html(data.error).addClass('error');
+                            });
+                        }
+                    }).fail(function(jqXHR, status, err) {
+                        linkSubmitted = false;
                         modalAlert({
                             title: $.mage.__('Error'),
                             content: $.mage.__('Please reload the page and try again'),
@@ -104,20 +121,6 @@ require(
                                 }
                             }]
                         });
-                    }
-                }).fail(function(jqXHR, status, err) {
-                    linkAccountContent.modal('openModal');
-                    modalAlert({
-                        title: $.mage.__('Error'),
-                        content: $.mage.__('Please reload the page and try again'),
-                        modalClass: 'alert',
-                        buttons: [{
-                            text: $.mage.__('Ok'),
-                            class: 'action primary accept',
-                            click: function () {
-                                this.closeModal(true);
-                            }
-                        }]
                     });
                 });
             }
@@ -180,6 +183,24 @@ require(
             });
         }
 
+        function initLinkAccountToggle() {
+            $('#pc-save-details-form input:radio[name=type]').change(function () {
+                if($(this).val() === 'link') {
+                    $('#pc-details-store-fields').hide();
+                    $('#pc-details-add-info').hide();
+                    $('#pc-details-link-info').show();
+                    $('#pc-details-store-name').removeClass('required');
+                    $('#pc-details-store-url').removeClass('required');
+                } else {
+                    $('#pc-details-store-fields').show();
+                    $('#pc-details-add-info').show();
+                    $('#pc-details-link-info').hide();
+                    $('#pc-details-store-name').addClass('required');
+                    $('#pc-details-store-url').addClass('required');
+                }
+            });
+        }
+
         if (currentState === 'not_configured') {
 
             initSlick();
@@ -193,6 +214,8 @@ require(
                     click: submitSaveDetails
                 }]
             };
+
+            initLinkAccountToggle();
 
             modal(options, linkAccountContent);
             $('#pc-link-account-button').on('click', function () {
