@@ -15,6 +15,9 @@ use Pureclarity\Core\Api\StateRepositoryInterface;
  */
 class Welcome
 {
+    /** @var string $welcomeType */
+    private $welcomeType;
+
     /** @var bool $showWelcome */
     private $showWelcome;
 
@@ -39,13 +42,13 @@ class Welcome
     /**
      * Returns whether to show the welcome banner.
      *
+     * @param integer $storeId
      * @return bool
      */
-    public function showWelcomeBanner()
+    public function showWelcomeBanner($storeId)
     {
         if ($this->showWelcome === null) {
-            $state = $this->stateRepository->getByNameAndStore('show_welcome_banner', 0);
-            $this->showWelcome = ($state->getId() !== null && $state->getValue() !== '0');
+            $this->showWelcome = ($this->getWelcomeType($storeId) === 'auto');
         }
         return $this->showWelcome;
     }
@@ -53,13 +56,13 @@ class Welcome
     /**
      * Returns whether to show the manual configuration welcome banner.
      *
+     * @param integer $storeId
      * @return bool
      */
-    public function showManualWelcomeBanner()
+    public function showManualWelcomeBanner($storeId)
     {
         if ($this->showManualWelcome === null) {
-            $state = $this->stateRepository->getByNameAndStore('show_manual_welcome_banner', 0);
-            $this->showManualWelcome = ($state->getId() !== null && $state->getValue() !== '0');
+            $this->showManualWelcome = ($this->getWelcomeType($storeId) === 'manual');
         }
         return $this->showManualWelcome;
     }
@@ -67,18 +70,34 @@ class Welcome
     /**
      * Returns whether to show the post-welcome banner.
      *
+     * @param integer $storeId
      * @return bool
      */
-    public function showGettingStartedBanner()
+    public function showGettingStartedBanner($storeId)
     {
         if ($this->showGettingStarted === null) {
-            $state = $this->stateRepository->getByNameAndStore('show_getting_started_banner', 0);
+            $state = $this->stateRepository->getByNameAndStore('show_getting_started_banner', $storeId);
             $showTime = $state->getValue();
-            $this->showGettingStarted = false === $this->showWelcomeBanner()
-                && false === $this->showManualWelcomeBanner()
+            $this->showGettingStarted = false === $this->showWelcomeBanner($storeId)
+                && false === $this->showManualWelcomeBanner($storeId)
                 && (false === empty($showTime))
                 && time() < $showTime;
         }
         return $this->showGettingStarted;
+    }
+
+    /**
+     * Gets the welcome banner type from the state table
+     *
+     * @param integer $storeId
+     * @return string
+     */
+    public function getWelcomeType($storeId)
+    {
+        if ($this->welcomeType === null) {
+            $state = $this->stateRepository->getByNameAndStore('show_welcome_banner', $storeId);
+            $this->welcomeType = ($state->getId() !== null) ? $state->getValue() : '';
+        }
+        return $this->welcomeType;
     }
 }

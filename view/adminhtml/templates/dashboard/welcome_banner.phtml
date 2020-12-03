@@ -7,17 +7,19 @@
 /** @var \Pureclarity\Core\Block\Adminhtml\Dashboard\WelcomeBanner $block */
 
 /** @var \Pureclarity\Core\ViewModel\Adminhtml\Dashboard\Welcome $welcome */
+/** @var \Pureclarity\Core\ViewModel\Adminhtml\Stores $stores */
+$stores = $block->getPureclarityStoresViewModel();
 $welcome = $block->getPureclarityWelcomeViewModel();
 
 ?>
-<?php if ($welcome->showWelcomeBanner()): ?>
+<?php if ($welcome->showWelcomeBanner($stores->getStoreId())): ?>
     <div id="pc-banner-welcome" class="pc-banner">
         <h3><?= $block->escapeHtml(__(
             'Thanks for signing up for a free trial. Your site data is now being synced to PureClarity.'
         )) ?></h3>
     </div>
 <?php endif; ?>
-<?php if ($welcome->showManualWelcomeBanner()): ?>
+<?php if ($welcome->showManualWelcomeBanner($stores->getStoreId())): ?>
     <div id="pc-banner-welcome" class="pc-banner">
         <h3><?= $block->escapeHtml(__(
             'Your PureClarity account is now linked to this store. Your site data is now being synced to PureClarity.'
@@ -25,7 +27,7 @@ $welcome = $block->getPureclarityWelcomeViewModel();
     </div>
 <?php endif; ?>
 <div id="pc-banner-getting-started" class="pc-banner"
-    <?php if (!$welcome->showGettingStartedBanner()): ?>
+    <?php if (!$welcome->showGettingStartedBanner($stores->getStoreId())): ?>
         style="display:none"
     <?php endif; ?>
 >
