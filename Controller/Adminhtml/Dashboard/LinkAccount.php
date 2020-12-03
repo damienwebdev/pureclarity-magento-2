@@ -76,12 +76,12 @@ class LinkAccount extends Action
         } elseif (!$this->formKeyValidator->validate($this->getRequest())) {
             $result['error'] = __('Invalid form key, please reload the page and try again');
         } else {
-            $params = $this->getRequest()->getParams();
+            $params = array_map('trim', $this->getRequest()->getParams());
 
             if ($params['type'] === 'link') {
-                $response = $this->validate->sendRequest($this->getRequest()->getParams());
+                $response = $this->validate->sendRequest($params);
             } else {
-                $response = $this->addStore->sendRequest($this->getRequest()->getParams());
+                $response = $this->addStore->sendRequest($params);
             }
 
             if ($response['error']) {
