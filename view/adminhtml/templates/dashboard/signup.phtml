@@ -324,12 +324,13 @@ $state = $block->getPureclarityStateViewModel();
                     ) ?></label>
                 </p>
                 <p id="pc-details-link-info" class="pc-link-info"><?= $block->escapeHtml(__(
-                    'Please enter the AccessKey and SecretKey of the existing '
+                    'Please enter the Access Key and Secret Key of the existing '
                     . 'PureClarity store and it will be linked to this Magento store'
                 )) ?></p>
                 <p id="pc-details-add-info" class="pc-link-info" style="display:none;"><?= $block->escapeHtml(__(
-                    'Please enter the AccessKey and SecretKey of any existing PureClarity store on your account, '
-                    . 'this will mean the new PureClarity store will be linked to your existing account'
+                    'Please enter the Access Key and Secret Key of any existing PureClarity store on your account. '
+                    . 'PureClarity will create a new store that is linked to your existing account. '
+                    . 'Additional charges may apply.'
                 )) ?></p>
                 <p class="pc-field">
                     <label for="pc-details-access-key"><?= $block->escapeHtml(__('Access Key')) ?></label>
