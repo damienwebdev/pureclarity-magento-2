@@ -258,7 +258,7 @@ class Cron
             }
         }
         $feedModel->checkSuccess();
-        $this->setBannerStatus();
+        $this->setBannerStatus($storeId);
         $this->removeFeedQueue($storeId);
     }
 
@@ -499,33 +499,27 @@ class Cron
 
     /**
      * Sorts out the state for the banner display on the dashboard.
+     * @param integer $storeId
      */
-    private function setBannerStatus()
+    private function setBannerStatus($storeId)
     {
         try {
 
-            $showBanner = $this->stateRepository->getByNameAndStore('show_welcome_banner', 0);
-            $showManualBanner = $this->stateRepository->getByNameAndStore('show_manual_welcome_banner', 0);
+            $showBanner = $this->stateRepository->getByNameAndStore('show_welcome_banner', $storeId);
 
-            if ($showBanner->getValue() || $showManualBanner->getValue()) {
-
+            if ($showBanner->getId()) {
                 // set one day timer on getting started banner
                 $gettingStarted = $this->stateRepository->getByNameAndStore(
                     'show_getting_started_banner',
-                    0
+                    $storeId
                 );
                 $gettingStarted->setName('show_getting_started_banner');
                 $gettingStarted->setValue(time() + 86400);
-                $gettingStarted->setStoreId(0);
+                $gettingStarted->setStoreId($storeId);
                 $this->stateRepository->save($gettingStarted);
                 // Delete banner flags, no longer needed
 
-                if ($showBanner->getId()) {
-                    $this->stateRepository->delete($showBanner);
-                }
-                if ($showManualBanner->getId()) {
-                    $this->stateRepository->delete($showManualBanner);
-                }
+                $this->stateRepository->delete($showBanner);
             }
         } catch (CouldNotSaveException $e) {
             $this->logger->error('Could not save banner status: ' . $e->getMessage());
