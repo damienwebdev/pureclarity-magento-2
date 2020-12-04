@@ -6,6 +6,7 @@
 
 namespace Pureclarity\Core\Test\Unit\ViewModel\Adminhtml;
 
+use Magento\Framework\App\RequestInterface;
 use Magento\Store\Api\Data\StoreInterface;
 use Magento\Store\Model\StoreManagerInterface;
 use PHPUnit\Framework\MockObject\MockObject;
@@ -13,6 +14,7 @@ use PHPUnit\Framework\TestCase;
 use Pureclarity\Core\Api\StateRepositoryInterface;
 use Pureclarity\Core\Model\State;
 use Pureclarity\Core\ViewModel\Adminhtml\Stores;
+use Psr\Log\LoggerInterface;
 
 /**
  * Class StoresTest
@@ -30,26 +32,24 @@ class StoresTest extends TestCase
     /** @var MockObject|StateRepositoryInterface $stateRepository */
     private $stateRepository;
 
-    /** @var MockObject|StoreInterface $store */
-    private $store;
-
     protected function setUp()
     {
         $this->storeManager = $this->getMockBuilder(StoreManagerInterface::class)
             ->disableOriginalConstructor()
             ->getMock();
 
-        $this->stateRepository = $this->getMockBuilder(StateRepositoryInterface::class)
+        $request = $this->getMockBuilder(RequestInterface::class)
             ->disableOriginalConstructor()
             ->getMock();
 
-        $this->store = $this->getMockBuilder(StoreInterface::class)
+        $logger = $this->getMockBuilder(LoggerInterface::class)
             ->disableOriginalConstructor()
             ->getMock();
 
         $this->object = new Stores(
             $this->storeManager,
-            $this->stateRepository
+            $request,
+            $logger
         );
     }
 
@@ -141,55 +141,5 @@ class StoresTest extends TestCase
             ->willReturn(false);
 
         $this->assertEquals(true, $this->object->hasMultipleStores());
-    }
-
-    public function testGetPureClarityDefaultStoreWithDefault()
-    {
-        $stateObject = $this->getStateMock('2');
-        $this->stateRepository->expects($this->once())
-            ->method('getByNameAndStore')
-            ->willReturn($stateObject);
-
-        $storeId = $this->object->getPureClarityDefaultStore();
-        $this->assertEquals(2, $storeId);
-
-        // call again, to ensure in-object caching works
-        $storeId = $this->object->getPureClarityDefaultStore();
-        $this->assertEquals(2, $storeId);
-    }
-
-    public function testGetPureClarityDefaultStoreNoDefault()
-    {
-        $stateObject = $this->getStateMock();
-        $this->stateRepository->expects($this->once())
-            ->method('getByNameAndStore')
-            ->willReturn($stateObject);
-
-        $this->storeManager->expects($this->once())
-            ->method('getDefaultStoreView')
-            ->willReturn($this->getStoreMock(7, 'Store 7'));
-
-        $storeId = $this->object->getPureClarityDefaultStore();
-        $this->assertEquals(7, $storeId);
-
-        $storeId = $this->object->getPureClarityDefaultStore();
-        $this->assertEquals(7, $storeId);
-    }
-
-    public function testGetStoreList()
-    {
-        $this->storeManager->expects($this->once())
-            ->method('getStores')
-            ->willReturn([
-                $this->getStoreMock(2, 'Store 2'),
-                $this->getStoreMock(7, 'Store 7')
-            ]);
-
-        $expected = [
-            2 => 'Store 2',
-            7 => 'Store 7'
-        ];
-
-        $this->assertEquals($expected, $this->object->getStoreList());
     }
 }

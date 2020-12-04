@@ -166,7 +166,7 @@ class StatusTest extends TestCase
         $this->curlMock->expects($this->any())->method('getStatus')->willReturn(200);
 
         // Validate state save was called correctly with correct values
-        $this->object->checkStatus();
+        $this->object->checkStatus(1);
 
         $this->assertArrayHasKey('Id', $this->requestParams);
         $this->assertEquals(self::REQUEST_ID, $this->requestParams['Id']);
@@ -195,7 +195,7 @@ class StatusTest extends TestCase
         $this->curlMock->expects($this->any())->method('getBody')->willReturn(json_encode($data));
         $this->curlMock->expects($this->any())->method('getStatus')->willReturn(200);
 
-        $result = $this->object->checkStatus();
+        $result = $this->object->checkStatus(1);
 
         $this->assertEquals(false, $result['complete']);
         $this->assertEquals([], $result['response']);
@@ -230,7 +230,7 @@ class StatusTest extends TestCase
         $this->curlMock->expects($this->any())->method('getBody')->willReturn(json_encode($data));
         $this->curlMock->expects($this->any())->method('getStatus')->willReturn(200);
 
-        $result = $this->object->checkStatus();
+        $result = $this->object->checkStatus(1);
 
         $this->assertEquals(true, $result['complete']);
         $this->assertEquals([
@@ -260,7 +260,7 @@ class StatusTest extends TestCase
         $this->curlMock->expects($this->any())->method('getBody')->willReturn(json_encode($data));
         $this->curlMock->expects($this->any())->method('getStatus')->willReturn(400);
 
-        $result = $this->object->checkStatus();
+        $result = $this->object->checkStatus(1);
 
         $this->assertEquals(false, $result['complete']);
         $this->assertEquals([], $result['response']);
@@ -281,7 +281,7 @@ class StatusTest extends TestCase
         $this->curlMock->expects($this->any())->method('getBody')->willReturn(json_encode($data));
         $this->curlMock->expects($this->any())->method('getStatus')->willReturn(504);
 
-        $result = $this->object->checkStatus();
+        $result = $this->object->checkStatus(1);
 
         $this->assertEquals(false, $result['complete']);
         $this->assertEquals([], $result['response']);
@@ -302,7 +302,7 @@ class StatusTest extends TestCase
             ->method('post')
             ->willThrowException(new \Exception('Request timed out'));
 
-        $result = $this->object->checkStatus();
+        $result = $this->object->checkStatus(1);
 
         $this->assertEquals(false, $result['complete']);
         $this->assertEquals([], $result['response']);
@@ -319,7 +319,7 @@ class StatusTest extends TestCase
             ->method('post')
             ->willThrowException(new \Exception('Some other error'));
 
-        $result = $this->object->checkStatus();
+        $result = $this->object->checkStatus(1);
 
         $this->assertEquals(false, $result['complete']);
         $this->assertEquals([], $result['response']);

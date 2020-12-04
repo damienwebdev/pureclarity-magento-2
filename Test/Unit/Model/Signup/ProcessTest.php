@@ -20,6 +20,7 @@ use Pureclarity\Core\Model\Cron;
 use Pureclarity\Core\Model\Signup\Process;
 use Pureclarity\Core\Model\CronFactory;
 use Pureclarity\Core\Model\State;
+use Psr\Log\LoggerInterface;
 
 /**
  * Class ProcessTest
@@ -90,12 +91,17 @@ class ProcessTest extends TestCase
             ->disableOriginalConstructor()
             ->getMock();
 
+        $logger = $this->getMockBuilder(LoggerInterface::class)
+            ->disableOriginalConstructor()
+            ->getMock();
+
         $this->object = new Process(
             $this->stateRepositoryInterfaceMock,
             $this->coreConfigMock,
             $this->cronFactoryMock,
             $this->storeManagerInterfaceMock,
-            $this->cacheManagerMock
+            $this->cacheManagerMock,
+            $logger
         );
     }
 

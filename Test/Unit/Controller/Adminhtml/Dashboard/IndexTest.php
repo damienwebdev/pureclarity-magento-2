@@ -6,6 +6,7 @@
 
 namespace Pureclarity\Core\Test\Unit\Controller\Adminhtml\Dashboard;
 
+use Magento\Store\Model\StoreManagerInterface;
 use PHPUnit\Framework\TestCase;
 use Pureclarity\Core\Controller\Adminhtml\Dashboard\Index;
 use Magento\Backend\App\Action\Context;
@@ -13,6 +14,7 @@ use Magento\Framework\View\Result\Page;
 use Magento\Framework\View\Result\PageFactory;
 use Magento\Backend\App\Action;
 use PHPUnit\Framework\MockObject\MockObject;
+use Pureclarity\Core\Model\CoreConfig;
 
 /**
  * Class IndexTest
@@ -52,9 +54,19 @@ class IndexTest extends TestCase
             ->method('create')
             ->willReturn($this->resultPage);
 
+        $storeManager = $this->getMockBuilder(StoreManagerInterface::class)
+            ->disableOriginalConstructor()
+            ->getMock();
+
+        $coreConfig = $this->getMockBuilder(CoreConfig::class)
+            ->disableOriginalConstructor()
+            ->getMock();
+
         $this->object = new Index(
             $this->context,
-            $this->resultPageFactory
+            $this->resultPageFactory,
+            $storeManager,
+            $coreConfig
         );
     }
 

@@ -8,7 +8,7 @@ namespace Pureclarity\Core\Test\Unit\Controller\Adminhtml\Dashboard;
 
 use Magento\Framework\App\Request\Http;
 use PHPUnit\Framework\TestCase;
-use Pureclarity\Core\Controller\Adminhtml\Dashboard\Configure;
+use Pureclarity\Core\Controller\Adminhtml\Dashboard\LinkAccount;
 use Magento\Backend\App\Action\Context;
 use Magento\Backend\App\Action;
 use Magento\Framework\Controller\Result\Json;
@@ -16,21 +16,24 @@ use Magento\Framework\Controller\Result\JsonFactory;
 use Magento\Framework\Data\Form\FormKey\Validator;
 use Pureclarity\Core\Model\Signup\Process;
 use PHPUnit\Framework\MockObject\MockObject;
+use Pureclarity\Core\Model\Account\Validate;
+use Pureclarity\Core\Model\Signup\AddStore;
 
 /**
- * Class ConfigureTest
+ * Class LinkAccountTest
  *
- * Tests the methods in \Pureclarity\Core\Controller\Adminhtml\Dashboard\Configure
+ * Tests the methods in \Pureclarity\Core\Controller\Adminhtml\Dashboard\LinkAccount
  */
-class ConfigureTest extends TestCase
+class LinkAccountTest extends TestCase
 {
     /** @var array $defaultParams */
     private $defaultParams = [
+        'type' => 'link',
         'param1' => 'param1',
         'param2' => 'param1',
     ];
 
-    /** @var Configure $object */
+    /** @var LinkAccount $object */
     private $object;
 
     /** @var MockObject|Context $context */
@@ -89,10 +92,20 @@ class ConfigureTest extends TestCase
             ->method('create')
             ->willReturn($this->json);
 
-        $this->object = new Configure(
+        $validate = $this->getMockBuilder(Validate::class)
+            ->disableOriginalConstructor()
+            ->getMock();
+
+        $addStore = $this->getMockBuilder(AddStore::class)
+            ->disableOriginalConstructor()
+            ->getMock();
+
+        $this->object = new LinkAccount(
             $this->context,
             $this->requestProcess,
-            $this->jsonFactory
+            $this->jsonFactory,
+            $validate,
+            $addStore
         );
     }
 
@@ -119,7 +132,7 @@ class ConfigureTest extends TestCase
 
     public function testInstance()
     {
-        $this->assertInstanceOf(Configure::class, $this->object);
+        $this->assertInstanceOf(LinkAccount::class, $this->object);
     }
 
     public function testAction()

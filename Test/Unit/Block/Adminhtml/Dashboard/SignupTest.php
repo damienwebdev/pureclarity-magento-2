@@ -14,7 +14,10 @@ use Pureclarity\Core\Block\Adminhtml\Dashboard\Signup;
 use Pureclarity\Core\ViewModel\Adminhtml\Dashboard\Regions;
 use Pureclarity\Core\ViewModel\Adminhtml\Dashboard\Store;
 use Pureclarity\Core\ViewModel\Adminhtml\Stores;
+use Pureclarity\Core\ViewModel\Adminhtml\Dashboard\State;
 use PHPUnit\Framework\MockObject\MockObject;
+use Magento\Framework\App\RequestInterface;
+use Magento\Framework\View\Asset\Repository;
 
 /**
  * Class SignupTest
@@ -67,11 +70,16 @@ class SignupTest extends TestCase
             ->disableOriginalConstructor()
             ->getMock();
 
+        $stateViewModel = $this->getMockBuilder(State::class)
+            ->disableOriginalConstructor()
+            ->getMock();
+
         $this->object = new Signup(
             $this->context,
             $this->storesViewModel,
             $this->regionsViewModel,
-            $this->storeViewModel
+            $this->storeViewModel,
+            $stateViewModel
         );
     }
 

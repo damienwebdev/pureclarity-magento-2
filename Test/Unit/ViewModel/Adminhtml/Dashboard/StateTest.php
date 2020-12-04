@@ -7,10 +7,12 @@
 namespace Pureclarity\Core\Test\Unit\ViewModel\Adminhtml\Dashboard;
 
 use Magento\Framework\App\ProductMetadataInterface;
+use Magento\Framework\App\RequestInterface;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 use Pureclarity\Core\Api\StateRepositoryInterface;
 use Pureclarity\Core\Helper\Data;
+use Pureclarity\Core\Model\CoreConfig;
 use Pureclarity\Core\ViewModel\Adminhtml\Dashboard\State;
 use Pureclarity\Core\Model\State as StateModel;
 
@@ -40,9 +42,19 @@ class StateTest extends TestCase
             ->disableOriginalConstructor()
             ->getMock();
 
+        $request = $this->getMockBuilder(RequestInterface::class)
+            ->disableOriginalConstructor()
+            ->getMock();
+
+        $coreConfig = $this->getMockBuilder(CoreConfig::class)
+            ->disableOriginalConstructor()
+            ->getMock();
+
         $this->object = new State(
             $this->stateRepository,
-            $this->productMetadata
+            $this->productMetadata,
+            $request,
+            $coreConfig
         );
     }
 
@@ -89,7 +101,7 @@ class StateTest extends TestCase
             ->method('getByNameAndStore')
             ->willReturn($this->getStateMock());
 
-        $this->assertEquals(State::STATE_NOT_CONFIGURED, $this->object->getStateName());
+        $this->assertEquals(State::STATE_NOT_CONFIGURED, $this->object->getStateName(1));
     }
 
     public function testGetStateNameWaiting()
@@ -102,7 +114,7 @@ class StateTest extends TestCase
             ->method('getByNameAndStore')
             ->willReturn($this->getStateMock('1', 'signup_request', 'notcomplete', '0'));
 
-        $this->assertEquals(State::STATE_WAITING, $this->object->getStateName());
+        $this->assertEquals(State::STATE_WAITING, $this->object->getStateName(1));
     }
 
     public function testGetStateNameConfigured()
@@ -111,42 +123,7 @@ class StateTest extends TestCase
             ->method('getByNameAndStore')
             ->willReturn($this->getStateMock('1', 'is_configured', '1', '0'));
 
-        $this->assertEquals(State::STATE_CONFIGURED, $this->object->getStateName());
-    }
-
-    public function testIsNotConfiguredTrue()
-    {
-        $this->stateRepository->expects($this->at(0))
-            ->method('getByNameAndStore')
-            ->willReturn($this->getStateMock());
-
-        $this->stateRepository->expects($this->at(1))
-            ->method('getByNameAndStore')
-            ->willReturn($this->getStateMock());
-
-        $this->assertEquals(true, $this->object->isNotConfigured());
-    }
-
-    public function testIsNotConfiguredFalseConfigured()
-    {
-        $this->stateRepository->expects($this->at(0))
-            ->method('getByNameAndStore')
-            ->willReturn($this->getStateMock('1', 'is_configured', '1', '0'));
-
-        $this->assertEquals(false, $this->object->isNotConfigured());
-    }
-
-    public function testIsNotConfiguredFalseWaiting()
-    {
-        $this->stateRepository->expects($this->at(0))
-            ->method('getByNameAndStore')
-            ->willReturn($this->getStateMock());
-
-        $this->stateRepository->expects($this->at(1))
-            ->method('getByNameAndStore')
-            ->willReturn($this->getStateMock('1', 'signup_request', 'notcomplete', '0'));
-
-        $this->assertEquals(false, $this->object->isNotConfigured());
+        $this->assertEquals(State::STATE_CONFIGURED, $this->object->getStateName(1));
     }
 
     public function testIsWaitingTrue()
@@ -159,7 +136,7 @@ class StateTest extends TestCase
             ->method('getByNameAndStore')
             ->willReturn($this->getStateMock('1', 'signup_request', 'notcomplete', '0'));
 
-        $this->assertEquals(true, $this->object->isWaiting());
+        $this->assertEquals(true, $this->object->isWaiting(1));
     }
 
     public function testIsWaitingFalseConfigured()
@@ -168,7 +145,7 @@ class StateTest extends TestCase
             ->method('getByNameAndStore')
             ->willReturn($this->getStateMock('1', 'is_configured', '1', '0'));
 
-        $this->assertEquals(false, $this->object->isWaiting());
+        $this->assertEquals(false, $this->object->isWaiting(1));
     }
 
     public function testIsWaitingFalseNotStarted()
@@ -181,7 +158,7 @@ class StateTest extends TestCase
             ->method('getByNameAndStore')
             ->willReturn($this->getStateMock());
 
-        $this->assertEquals(false, $this->object->isWaiting());
+        $this->assertEquals(false, $this->object->isWaiting(1));
     }
 
     public function testGetPluginVersion()

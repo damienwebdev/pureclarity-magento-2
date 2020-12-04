@@ -10,6 +10,7 @@ use Magento\Framework\App\Area;
 use Magento\Framework\App\State;
 use Magento\Framework\Exception\LocalizedException;
 use Magento\Framework\Phrase;
+use Magento\Store\Model\StoreManagerInterface;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 use Psr\Log\LoggerInterface;
@@ -72,12 +73,17 @@ class CheckSignupStatusTest extends TestCase
             ->disableOriginalConstructor()
             ->getMock();
 
+        $storeManager = $this->getMockBuilder(StoreManagerInterface::class)
+            ->disableOriginalConstructor()
+            ->getMock();
+
         $this->object = new CheckSignupStatus(
             $this->requestStatus,
             $this->requestProcess,
             $this->stateRepository,
             $this->logger,
-            $this->state
+            $this->state,
+            $storeManager
         );
     }
 
