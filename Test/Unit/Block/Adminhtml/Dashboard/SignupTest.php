@@ -58,6 +58,24 @@ class SignupTest extends TestCase
             ->method('getFormKey')
             ->willReturn($this->formKey);
 
+        $request = $this->getMockBuilder(RequestInterface::class)
+            ->disableOriginalConstructor()
+            ->getMock();
+
+        $assetRepo = $this->getMockBuilder(Repository::class)
+            ->disableOriginalConstructor()
+            ->getMock();
+
+        $this->context->method('getFormKey')
+            ->willReturn($this->formKey);
+
+        $this->context->method('getRequest')
+            ->willReturn($request);
+
+        $assetRepo->method('getUrlWithParams')->willReturnCallback(function ($param) {
+            return str_replace('Pureclarity_Core::images/', 'https://www.test.com/', $param);
+        });
+
         $this->storesViewModel = $this->getMockBuilder(Stores::class)
             ->disableOriginalConstructor()
             ->getMock();
