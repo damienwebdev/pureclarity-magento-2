@@ -352,7 +352,7 @@ class RequestTest extends TestCase
         $signUpValues = json_decode($this->stateSaveValue, true);
 
         $this->assertEquals('signup_request', $this->stateSaveName);
-        $this->assertEquals(0, $this->stateSaveStoreId);
+        $this->assertEquals(1, $this->stateSaveStoreId);
 
         $this->assertArrayHasKey('id', $signUpValues);
         $this->assertArrayHasKey('store_id', $signUpValues);

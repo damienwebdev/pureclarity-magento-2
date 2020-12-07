@@ -32,6 +32,9 @@ class StateTest extends TestCase
     /** @var MockObject|ProductMetadataInterface $productMetadata */
     private $productMetadata;
 
+    /** @var MockObject|CoreConfig $productMetadata */
+    private $coreConfig;
+
     protected function setUp()
     {
         $this->stateRepository = $this->getMockBuilder(StateRepositoryInterface::class)
@@ -46,7 +49,7 @@ class StateTest extends TestCase
             ->disableOriginalConstructor()
             ->getMock();
 
-        $coreConfig = $this->getMockBuilder(CoreConfig::class)
+        $this->coreConfig = $this->getMockBuilder(CoreConfig::class)
             ->disableOriginalConstructor()
             ->getMock();
 
@@ -54,7 +57,7 @@ class StateTest extends TestCase
             $this->stateRepository,
             $this->productMetadata,
             $request,
-            $coreConfig
+            $this->coreConfig
         );
     }
 
@@ -108,10 +111,6 @@ class StateTest extends TestCase
     {
         $this->stateRepository->expects($this->at(0))
             ->method('getByNameAndStore')
-            ->willReturn($this->getStateMock());
-
-        $this->stateRepository->expects($this->at(1))
-            ->method('getByNameAndStore')
             ->willReturn($this->getStateMock('1', 'signup_request', 'notcomplete', '0'));
 
         $this->assertEquals(State::STATE_WAITING, $this->object->getStateName(1));
@@ -119,9 +118,15 @@ class StateTest extends TestCase
 
     public function testGetStateNameConfigured()
     {
-        $this->stateRepository->expects($this->at(0))
-            ->method('getByNameAndStore')
-            ->willReturn($this->getStateMock('1', 'is_configured', '1', '0'));
+        $this->coreConfig->expects($this->at(0))
+            ->method('getAccessKey')
+            ->with(1)
+            ->willReturn('ABCDEFGHI');
+
+        $this->coreConfig->expects($this->at(1))
+            ->method('getSecretKey')
+            ->with(1)
+            ->willReturn('ABCDEFGHIJKLMNOP');
 
         $this->assertEquals(State::STATE_CONFIGURED, $this->object->getStateName(1));
     }
@@ -130,31 +135,14 @@ class StateTest extends TestCase
     {
         $this->stateRepository->expects($this->at(0))
             ->method('getByNameAndStore')
-            ->willReturn($this->getStateMock());
-
-        $this->stateRepository->expects($this->at(1))
-            ->method('getByNameAndStore')
             ->willReturn($this->getStateMock('1', 'signup_request', 'notcomplete', '0'));
 
         $this->assertEquals(true, $this->object->isWaiting(1));
     }
 
-    public function testIsWaitingFalseConfigured()
+    public function testIsWaitingFalse()
     {
         $this->stateRepository->expects($this->at(0))
-            ->method('getByNameAndStore')
-            ->willReturn($this->getStateMock('1', 'is_configured', '1', '0'));
-
-        $this->assertEquals(false, $this->object->isWaiting(1));
-    }
-
-    public function testIsWaitingFalseNotStarted()
-    {
-        $this->stateRepository->expects($this->at(0))
-            ->method('getByNameAndStore')
-            ->willReturn($this->getStateMock());
-
-        $this->stateRepository->expects($this->at(1))
             ->method('getByNameAndStore')
             ->willReturn($this->getStateMock());
 

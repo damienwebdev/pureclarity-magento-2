@@ -100,6 +100,14 @@ class SignupStatusTest extends TestCase
             ->willReturn($response);
     }
 
+    private function setupRequestGetParamStore($store)
+    {
+        $this->request->expects($this->once())
+            ->method('getParam')
+            ->with('store')
+            ->willReturn($store);
+    }
+
     public function testInstance()
     {
         $this->assertInstanceOf(SignupStatus::class, $this->object);
@@ -128,6 +136,7 @@ class SignupStatusTest extends TestCase
     public function testExecuteInvalidSignupStatusErrors()
     {
         $this->setupRequestIsGet(true);
+        $this->setupRequestGetParamStore(1);
 
         $this->requestStatus->expects($this->once())
             ->method('checkStatus')
@@ -150,6 +159,7 @@ class SignupStatusTest extends TestCase
     public function testExecuteSuccess()
     {
         $this->setupRequestIsGet(true);
+        $this->setupRequestGetParamStore(1);
 
         $this->requestStatus->expects($this->once())
             ->method('checkStatus')

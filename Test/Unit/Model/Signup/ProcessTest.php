@@ -8,6 +8,7 @@ namespace Pureclarity\Core\Test\Unit\Model\Signup;
 
 use Magento\Framework\App\Cache\Manager;
 use Magento\Framework\App\Cache\Type\Config;
+use Magento\Framework\Exception\CouldNotDeleteException;
 use Magento\Framework\Exception\CouldNotSaveException;
 use Magento\Framework\Phrase;
 use Magento\Store\Api\Data\StoreInterface;
@@ -58,6 +59,9 @@ class ProcessTest extends TestCase
     /** @var MockObject|Manager $cacheManagerMock */
     private $cacheManagerMock;
 
+    /** @var MockObject|LoggerInterface $logger */
+    private $logger;
+
     protected function setUp()
     {
         $this->stateRepositoryInterfaceMock = $this->getMockBuilder(StateRepositoryInterface::class)
@@ -91,7 +95,7 @@ class ProcessTest extends TestCase
             ->disableOriginalConstructor()
             ->getMock();
 
-        $logger = $this->getMockBuilder(LoggerInterface::class)
+        $this->logger = $this->getMockBuilder(LoggerInterface::class)
             ->disableOriginalConstructor()
             ->getMock();
 
@@ -101,7 +105,7 @@ class ProcessTest extends TestCase
             $this->cronFactoryMock,
             $this->storeManagerInterfaceMock,
             $this->cacheManagerMock,
-            $logger
+            $this->logger
         );
     }
 
@@ -154,10 +158,6 @@ class ProcessTest extends TestCase
 
     public function testProcess()
     {
-        $this->stateRepositoryInterfaceMock->expects($this->any())
-            ->method('getByNameAndStore')
-            ->willReturn($this->getStateMock());
-
         $this->coreConfigMock->expects($this->exactly(1))
             ->method('setAccessKey');
 
@@ -205,21 +205,24 @@ class ProcessTest extends TestCase
             ->method('clean')
             ->with([Config::TYPE_IDENTIFIER]);
 
-        // test setConfiguredState calls
+        // test setWelcomeState calls
+
+        $this->stateRepositoryInterfaceMock->expects($this->at(0))
+            ->method('getByNameAndStore')
+            ->willReturn($this->getStateMock());
 
         $this->stateRepositoryInterfaceMock->expects($this->at(1))
             ->method('save')
-            ->with($this->getStateMock('1', 'is_configured', '1', '0'));
+            ->with($this->getStateMock('1', 'show_welcome_banner', 'auto', self::STORE_ID));
 
         // test completeSignup calls
-        $this->stateRepositoryInterfaceMock->expects($this->at(3))
-            ->method('save')
-            ->with($this->getStateMock('1', 'signup_request', 'complete', '0'));
+        $this->stateRepositoryInterfaceMock->expects($this->at(2))
+            ->method('getByNameAndStore')
+            ->willReturn($this->getStateMock('1', 'signup_request', 'complete', self::STORE_ID));
 
-        // test setDefaultStore calls
-        $this->stateRepositoryInterfaceMock->expects($this->at(5))
-            ->method('save')
-            ->with($this->getStateMock('1', 'default_store', self::STORE_ID, '0'));
+        $this->stateRepositoryInterfaceMock->expects($this->at(3))
+            ->method('delete')
+            ->with($this->getStateMock('1', 'signup_request', 'complete', self::STORE_ID));
 
         // test triggerFeeds calls
         $this->cronMock->expects($this->at(0))
@@ -234,10 +237,6 @@ class ProcessTest extends TestCase
         $this->stateRepositoryInterfaceMock->expects($this->any())
             ->method('getByNameAndStore')
             ->willReturn($this->getStateMock());
-
-        $this->stateRepositoryInterfaceMock->expects($this->at(5))
-            ->method('save')
-            ->with($this->getStateMock('1', 'default_store', 17, '0'));
 
         // test triggerFeeds calls
         $this->cronMock->expects($this->at(0))
@@ -270,6 +269,31 @@ class ProcessTest extends TestCase
 
         $result = $this->object->process($this->getDefaultParams());
         $this->assertEquals(['Error processing request: Some save error'], $result['errors']);
+    }
+
+    public function testProcessDeleteError()
+    {
+        $this->stateRepositoryInterfaceMock->expects($this->any())
+            ->method('delete')
+            ->willThrowException(new CouldNotDeleteException(new Phrase('Some delete error')));
+
+        $this->stateRepositoryInterfaceMock->expects($this->at(0))
+            ->method('getByNameAndStore')
+            ->willReturn($this->getStateMock());
+
+        $this->stateRepositoryInterfaceMock->expects($this->at(1))
+            ->method('getByNameAndStore')
+            ->willReturn($this->getStateMock());
+
+        $this->stateRepositoryInterfaceMock->expects($this->at(2))
+            ->method('getByNameAndStore')
+            ->willReturn($this->getStateMock('1', 'signup_request', '', self::STORE_ID));
+
+        $this->logger->expects($this->once())
+            ->method('error')
+            ->with('PureClarity: could not clear signup state. Error was: Some delete error');
+
+        $this->object->process($this->getDefaultParams());
     }
 
     public function testManualConfigureWithEmptyParams()

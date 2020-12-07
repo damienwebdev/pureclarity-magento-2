@@ -4,7 +4,7 @@
  * See LICENSE.txt for license details.
  */
 
-namespace Pureclarity\Core\Test\Unit\Model;
+namespace Pureclarity\Core\Test\Unit\Helper\Service;
 
 use PHPUnit\Framework\TestCase;
 use Pureclarity\Core\Helper\Service\Url;
@@ -93,15 +93,47 @@ class UrlTest extends TestCase
         );
     }
 
+    /**
+     * Tests that the Delta endpoint is returned correctly - with env variable set to override the real value
+     */
     public function testGetDeltaEndpoint()
     {
+        $localUrl = 'http://127.0.0.1';
+        putenv('PURECLARITY_HOST=' . $localUrl);
+
+        foreach (array_keys($this->regions) as $regionId) {
+            $this->assertEquals($localUrl . '/api/productdelta', $this->object->getDeltaEndpoint($regionId));
+        }
+    }
+
+    /**
+     * Tests that the Delta endpoint is returned correctly - with env set to empty so it returns a real value
+     */
+    public function testGetDeltaEndpointReal()
+    {
+        putenv('PURECLARITY_HOST=');
+
         foreach ($this->regions as $regionId => $url) {
-            $this->assertEquals($url. '/api/productdelta', $this->object->getDeltaEndpoint($regionId));
+            $this->assertEquals($url . '/api/productdelta', $this->object->getDeltaEndpoint($regionId));
         }
     }
 
     public function testGetSignupRequestEndpointUrl()
     {
+        $localUrl = 'http://127.0.0.1';
+        putenv('PURECLARITY_HOST=' . $localUrl);
+
+        foreach (array_keys($this->regions) as $regionId) {
+            $this->assertEquals(
+                $localUrl . '/api/plugin/signuprequest',
+                $this->object->getSignupRequestEndpointUrl($regionId)
+            );
+        }
+    }
+
+    public function testGetSignupRequestEndpointUrlReal()
+    {
+        putenv('PURECLARITY_HOST=');
         foreach ($this->regions as $regionId => $url) {
             $this->assertEquals(
                 $url . '/api/plugin/signuprequest',
@@ -112,6 +144,20 @@ class UrlTest extends TestCase
 
     public function testGetSignupStatusEndpointUrl()
     {
+        $localUrl = 'http://127.0.0.1';
+        putenv('PURECLARITY_HOST=' . $localUrl);
+
+        foreach (array_keys($this->regions) as $regionId) {
+            $this->assertEquals(
+                $localUrl . '/api/plugin/signupstatus',
+                $this->object->getSignupStatusEndpointUrl($regionId)
+            );
+        }
+    }
+
+    public function testGetSignupStatusEndpointUrlReal()
+    {
+        putenv('PURECLARITY_HOST=');
         foreach ($this->regions as $regionId => $url) {
             $this->assertEquals(
                 $url . '/api/plugin/signupstatus',
@@ -122,16 +168,21 @@ class UrlTest extends TestCase
 
     public function testGetFeedSftpUrl()
     {
-        foreach ($this->sftpRegions as $regionId => $url) {
+        $localUrl = 'http://127.0.0.1';
+        putenv('PURECLARITY_FEED_HOST=' . $localUrl);
+        putenv('PURECLARITY_FEED_PORT=1234');
+        foreach (array_keys($this->regions) as $regionId) {
             $this->assertEquals(
-                $url . '/',
+                $localUrl . ':1234/',
                 $this->object->getFeedSftpUrl($regionId)
             );
         }
     }
 
-    public function testGetFeedSftpUrlWithEnv()
+    public function testGetFeedSftpUrlReal()
     {
+        putenv('PURECLARITY_FEED_HOST=');
+        putenv('PURECLARITY_FEED_PORT=');
         foreach ($this->sftpRegions as $regionId => $url) {
             $this->assertEquals(
                 $url . '/',
@@ -147,6 +198,17 @@ class UrlTest extends TestCase
 
     public function testGetClientScriptUrl()
     {
+        $localUrl = 'http://127.0.0.1/';
+        putenv('PURECLARITY_SCRIPT_URL=' . $localUrl);
+        $this->assertEquals(
+            $localUrl . 'ACCESSKEY1234/cs.js',
+            $this->object->getClientScriptUrl('ACCESSKEY1234')
+        );
+    }
+
+    public function testGetClientScriptUrlReal()
+    {
+        putenv('PURECLARITY_SCRIPT_URL=');
         $this->assertEquals(
             $this->scriptUrl . '/ACCESSKEY1234/cs.js',
             $this->object->getClientScriptUrl('ACCESSKEY1234')
@@ -155,6 +217,19 @@ class UrlTest extends TestCase
 
     public function testGetServerSideEndpoint()
     {
+        $localUrl = 'http://127.0.0.1';
+        putenv('PURECLARITY_HOST=' . $localUrl);
+        foreach (array_keys($this->regions) as $regionId) {
+            $this->assertEquals(
+                $localUrl . '/api/serverside',
+                $this->object->getServerSideEndpoint($regionId)
+            );
+        }
+    }
+
+    public function testGetServerSideEndpointReal()
+    {
+        putenv('PURECLARITY_HOST=');
         foreach ($this->regions as $regionId => $url) {
             $this->assertEquals(
                 $url . '/api/serverside',

@@ -187,7 +187,7 @@ class Request
                     $result['error'] = __('Signup error: %1', implode('|', $responseData['errors']));
                 } elseif ($status !== 200) {
                     $result['error'] = __(
-                        'PureClarity server error occurred. If this persists,'
+                        'PureClarity server error occurred. If this persists, '
                         . 'please contact PureClarity support. Error code ' . $status
                     );
                 } else {

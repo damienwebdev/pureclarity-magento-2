@@ -6,6 +6,7 @@
 
 namespace Pureclarity\Core\Test\Unit\Setup;
 
+use Magento\Framework\Exception\CouldNotDeleteException;
 use Magento\Framework\Phrase;
 use Magento\Store\Api\Data\StoreInterface;
 use Magento\Store\Model\StoreManagerInterface;
@@ -85,7 +86,7 @@ class UpgradeDataTest extends TestCase
 
     private function setupGetVersion($version)
     {
-        $this->context->expects($this->at(0))
+        $this->context->expects($this->any())
             ->method('getVersion')
             ->willReturn('1.0.0');
     }
@@ -119,23 +120,23 @@ class UpgradeDataTest extends TestCase
      * @param string $storeId
      * @return MockObject
      */
-    private function getStateMock($name = null, $value = null, $storeId = null)
+    private function getStateMock($id = null, $name = null, $value = null, $storeId = null)
     {
         $state = $this->getMockBuilder(State::class)
             ->disableOriginalConstructor()
             ->getMock();
 
-        $state->expects($this->once())
-            ->method('setStoreId')
-            ->with($storeId);
+        $state->method('getId')
+            ->willReturn($id);
 
-        $state->expects($this->once())
-            ->method('setName')
-            ->with($name);
+        $state->method('getStoreId')
+            ->willReturn($storeId);
 
-        $state->expects($this->once())
-            ->method('setValue')
-            ->with($value);
+        $state->method('getName')
+            ->willReturn($name);
+
+        $state->method('getValue')
+            ->willReturn($value);
 
         return $state;
     }
@@ -155,14 +156,16 @@ class UpgradeDataTest extends TestCase
         $this->setupGetVersion('1.0.0');
         $this->setupGetStores();
 
-        $this->setup->expects($this->once())->method('startSetup');
-        $this->setup->expects($this->once())->method('endSetup');
+        $this->setup->expects($this->exactly(2))->method('startSetup');
+        $this->setup->expects($this->exactly(2))->method('endSetup');
 
         $this->coreConfig->expects($this->any())
             ->method('getAccessKey')
             ->willReturn(null);
 
-        $this->stateRepository->expects($this->never())->method('getByNameAndStore');
+        $this->stateRepository->expects($this->any())
+            ->method('getByNameAndStore')
+            ->willReturn($this->getStateMock());
 
         $this->object->upgrade($this->setup, $this->context);
     }
@@ -172,23 +175,55 @@ class UpgradeDataTest extends TestCase
         $this->setupGetVersion('1.0.0');
         $this->setupGetStores();
 
-        $this->setup->expects($this->once())->method('startSetup');
-        $this->setup->expects($this->once())->method('endSetup');
+        $this->setup->expects($this->exactly(2))->method('startSetup');
+        $this->setup->expects($this->exactly(2))->method('endSetup');
 
         $this->coreConfig->expects($this->at(0))
             ->method('getAccessKey')
             ->with(1)
             ->willReturn('ACCESSKEY1234');
 
+        $stateMock = $this->getStateMock();
+
+        $stateMock->expects($this->once())
+            ->method('setName')
+            ->with('is_configured');
+
+        $stateMock->expects($this->once())
+            ->method('setValue')
+            ->with(1);
+
+        $stateMock->expects($this->once())
+            ->method('setStoreId')
+            ->with(0);
+
         $this->stateRepository->expects($this->at(0))
             ->method('getByNameAndStore')
             ->with('is_configured', 0)
-            ->willReturn($this->getStateMock('is_configured', '1', '0'));
+            ->willReturn($stateMock);
+
+        $stateMock2 = $this->getStateMock();
+
+        $stateMock2->expects($this->once())
+            ->method('setName')
+            ->with('default_store');
+
+        $stateMock2->expects($this->once())
+            ->method('setValue')
+            ->with(1);
+
+        $stateMock2->expects($this->once())
+            ->method('setStoreId')
+            ->with(0);
 
         $this->stateRepository->expects($this->at(2))
             ->method('getByNameAndStore')
             ->with('default_store', 0)
-            ->willReturn($this->getStateMock('default_store', '1', '0'));
+            ->willReturn($stateMock2);
+
+        $this->stateRepository->expects($this->any())
+            ->method('getByNameAndStore')
+            ->willReturn($this->getStateMock());
 
         $this->object->upgrade($this->setup, $this->context);
     }
@@ -198,8 +233,8 @@ class UpgradeDataTest extends TestCase
         $this->setupGetVersion('1.0.0');
         $this->setupGetStores();
 
-        $this->setup->expects($this->once())->method('startSetup');
-        $this->setup->expects($this->once())->method('endSetup');
+        $this->setup->expects($this->exactly(2))->method('startSetup');
+        $this->setup->expects($this->exactly(2))->method('endSetup');
 
         $this->coreConfig->expects($this->at(0))
             ->method('getAccessKey')
@@ -210,15 +245,47 @@ class UpgradeDataTest extends TestCase
             ->with(2)
             ->willReturn('ACCESSKEY1234');
 
+        $stateMock = $this->getStateMock();
+
+        $stateMock->expects($this->once())
+            ->method('setName')
+            ->with('is_configured');
+
+        $stateMock->expects($this->once())
+            ->method('setValue')
+            ->with(1);
+
+        $stateMock->expects($this->once())
+            ->method('setStoreId')
+            ->with(0);
+
         $this->stateRepository->expects($this->at(0))
             ->method('getByNameAndStore')
             ->with('is_configured', 0)
-            ->willReturn($this->getStateMock('is_configured', '1', '0'));
+            ->willReturn($stateMock);
+
+        $stateMock2 = $this->getStateMock();
+
+        $stateMock2->expects($this->once())
+            ->method('setName')
+            ->with('default_store');
+
+        $stateMock2->expects($this->once())
+            ->method('setValue')
+            ->with(2);
+
+        $stateMock2->expects($this->once())
+            ->method('setStoreId')
+            ->with(0);
 
         $this->stateRepository->expects($this->at(2))
             ->method('getByNameAndStore')
             ->with('default_store', 0)
-            ->willReturn($this->getStateMock('default_store', '2', '0'));
+            ->willReturn($stateMock2);
+
+        $this->stateRepository->expects($this->any())
+            ->method('getByNameAndStore')
+            ->willReturn($this->getStateMock());
 
         $this->object->upgrade($this->setup, $this->context);
     }
@@ -228,18 +295,22 @@ class UpgradeDataTest extends TestCase
         $this->setupGetVersion('1.0.0');
         $this->setupGetStores();
 
-        $this->setup->expects($this->once())->method('startSetup');
-        $this->setup->expects($this->once())->method('endSetup');
+        $this->setup->expects($this->exactly(2))->method('startSetup');
+        $this->setup->expects($this->exactly(2))->method('endSetup');
 
         $this->coreConfig->expects($this->at(0))
             ->method('getAccessKey')
             ->with(1)
             ->willReturn('ACCESSKEY1234');
 
+        $this->stateRepository->expects($this->any())
+            ->method('getByNameAndStore')
+            ->willReturn($this->getStateMock());
+
         $this->stateRepository->expects($this->at(0))
             ->method('getByNameAndStore')
             ->with('is_configured', 0)
-            ->willReturn($this->getStateMock('is_configured', '1', '0'));
+            ->willReturn($this->getStateMock(null, 'is_configured', '1', '0'));
 
         $this->stateRepository->expects($this->any())
             ->method('save')
@@ -252,10 +323,101 @@ class UpgradeDataTest extends TestCase
         $this->object->upgrade($this->setup, $this->context);
     }
 
-    public function testNoUpgrade()
+    public function test300OnlyUpgrade()
     {
         $this->context->expects($this->at(0))
             ->method('getVersion')
+            ->willReturn('2.0.0');
+
+        $this->setup->expects($this->once())->method('startSetup');
+        $this->setup->expects($this->once())->method('endSetup');
+
+        $this->stateRepository->expects($this->any())
+            ->method('getByNameAndStore')
+            ->willReturn($this->getStateMock());
+
+        $this->object->upgrade($this->setup, $this->context);
+    }
+
+    /**
+     * @runInSeparateProcess
+     */
+    public function test300UpgradeDoesDeletes()
+    {
+        $this->context->expects($this->at(0))
+            ->method('getVersion')
+            ->willReturn('2.0.0');
+
+        $this->setup->expects($this->once())->method('startSetup');
+        $this->setup->expects($this->once())->method('endSetup');
+
+        $configuredState = $this->getStateMock(1, 'is_configured');
+        $this->stateRepository->expects($this->at(0))
+            ->method('getByNameAndStore')
+            ->with('is_configured', 0)
+            ->willReturn($configuredState);
+
+        $this->stateRepository->expects($this->at(1))
+            ->method('delete')
+            ->with($configuredState);
+
+        $defaultState = $this->getStateMock(2, 'default_store');
+        $this->stateRepository->expects($this->at(2))
+            ->method('getByNameAndStore')
+            ->with('default_store', 0)
+            ->willReturn($defaultState);
+
+        $this->stateRepository->expects($this->at(3))
+            ->method('delete')
+            ->with($defaultState);
+
+        $signupState = $this->getStateMock(3, 'signup_request', 'complete');
+
+        $this->stateRepository->expects($this->at(4))
+            ->method('getByNameAndStore')
+            ->with('signup_request', 0)
+            ->willReturn($signupState);
+
+        $this->stateRepository->expects($this->at(5))
+            ->method('delete')
+            ->with($signupState);
+
+        $this->object->upgrade($this->setup, $this->context);
+    }
+
+    /**
+     * @runInSeparateProcess
+     */
+    public function test300UpgradeDoesDeleteError()
+    {
+        $this->context->expects($this->at(0))
+            ->method('getVersion')
+            ->willReturn('2.0.0');
+
+        $this->setup->expects($this->once())->method('startSetup');
+        $this->setup->expects($this->once())->method('endSetup');
+
+        $configuredState = $this->getStateMock(1, 'is_configured');
+        $this->stateRepository->expects($this->at(0))
+            ->method('getByNameAndStore')
+            ->with('is_configured', 0)
+            ->willReturn($configuredState);
+
+        $this->stateRepository->expects($this->at(1))
+            ->method('delete')
+            ->with($configuredState)
+            ->willThrowException(new CouldNotDeleteException(new Phrase('Some delete error')));
+
+        $this->logger->expects($this->once())
+            ->method('error')
+            ->with('PureClarity: could not delete old state on upgrade: Some delete error');
+
+        $this->object->upgrade($this->setup, $this->context);
+    }
+
+    public function testNoUpgrade()
+    {
+        $this->context->method('getVersion')
             ->willReturn('9.9.9');
 
         $this->setup->expects($this->never())->method('startSetup');

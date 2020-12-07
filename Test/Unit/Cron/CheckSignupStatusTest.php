@@ -10,6 +10,7 @@ use Magento\Framework\App\Area;
 use Magento\Framework\App\State;
 use Magento\Framework\Exception\LocalizedException;
 use Magento\Framework\Phrase;
+use Magento\Store\Api\Data\StoreInterface;
 use Magento\Store\Model\StoreManagerInterface;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
@@ -51,6 +52,9 @@ class CheckSignupStatusTest extends TestCase
     /** @var MockObject|State $state*/
     private $state;
 
+    /** @var MockObject|StoreManagerInterface $storeManager */
+    private $storeManager;
+
     protected function setUp()
     {
         $this->requestStatus = $this->getMockBuilder(RequestStatus::class)
@@ -73,7 +77,7 @@ class CheckSignupStatusTest extends TestCase
             ->disableOriginalConstructor()
             ->getMock();
 
-        $storeManager = $this->getMockBuilder(StoreManagerInterface::class)
+        $this->storeManager = $this->getMockBuilder(StoreManagerInterface::class)
             ->disableOriginalConstructor()
             ->getMock();
 
@@ -83,7 +87,7 @@ class CheckSignupStatusTest extends TestCase
             $this->stateRepository,
             $this->logger,
             $this->state,
-            $storeManager
+            $this->storeManager
         );
     }
 
@@ -100,23 +104,51 @@ class CheckSignupStatusTest extends TestCase
             ->disableOriginalConstructor()
             ->getMock();
 
-        $state->expects($this->any())
-            ->method('getId')
+        $state->method('getId')
             ->willReturn($id);
 
-        $state->expects($this->any())
-            ->method('getStoreId')
+        $state->method('getStoreId')
             ->willReturn($storeId);
 
-        $state->expects($this->any())
-            ->method('getName')
+        $state->method('getName')
             ->willReturn($name);
 
-        $state->expects($this->any())
-            ->method('getValue')
+        $state->method('getValue')
             ->willReturn($value);
 
         return $state;
+    }
+
+    /**
+     * Sets the expected return value on storeManager > hasSingleStore
+     * @param bool $return
+     */
+    private function setupHasSingleStore($return)
+    {
+        $this->storeManager->expects($this->exactly(1))
+            ->method('hasSingleStore')
+            ->willReturn($return);
+    }
+
+    private function setupGetStores()
+    {
+        $store1 = $this->getMockBuilder(StoreInterface::class)
+            ->disableOriginalConstructor()
+            ->getMock();
+
+        $store1->method('getId')
+            ->willReturn('1');
+
+        $store2 = $this->getMockBuilder(StoreInterface::class)
+            ->disableOriginalConstructor()
+            ->getMock();
+
+        $store2->method('getId')
+            ->willReturn('17');
+
+        $this->storeManager->expects($this->at(1))
+            ->method('getStores')
+            ->willReturn([$store1, $store2]);
     }
 
     public function testInstance()
@@ -126,86 +158,50 @@ class CheckSignupStatusTest extends TestCase
 
     public function testExecuteSetAreaCodeException()
     {
+        $this->setupHasSingleStore(true);
+
+        $this->stateRepository->expects($this->exactly(1))
+            ->method('getByNameAndStore')
+            ->with('signup_request', 0)
+            ->willReturn($this->getStateMock());
+
         $this->state->expects($this->once())
             ->method('setAreaCode')
             ->with(Area::AREA_ADMINHTML)
             ->willThrowException(new LocalizedException(new Phrase('Area code already set')));
 
-        $this->stateRepository->expects($this->once())
-            ->method('getByNameAndStore')
-            ->with('is_configured', 0)
-            ->willReturn($this->getStateMock(1, 'is_configured', '1', 0));
-
-        $this->logger->expects($this->once())
-            ->method('error')
-            ->with('PureClarity Setup Warning: Area code already set');
-
         $this->object->execute();
     }
 
-    public function testExecuteAlreadyConfigured()
+    public function testSingleStoreNoRequest()
     {
+        $this->setupHasSingleStore(true);
+
         $this->stateRepository->expects($this->exactly(1))
             ->method('getByNameAndStore')
-            ->with('is_configured', 0)
-            ->willReturn($this->getStateMock(1, 'is_configured', '1', 0));
+            ->with('signup_request', 0)
+            ->willReturn($this->getStateMock(null, '', '', 0));
 
         $this->requestStatus->expects($this->never())
             ->method('checkStatus');
 
-        $this->object->execute();
-    }
-
-    public function testExecuteNotConfiguredNoSignup()
-    {
-        $this->stateRepository->expects($this->at(0))
-            ->method('getByNameAndStore')
-            ->with('is_configured', 0)
-            ->willReturn($this->getStateMock());
-
-        $this->stateRepository->expects($this->at(1))
-            ->method('getByNameAndStore')
-            ->with('signup_request', 0)
-            ->willReturn($this->getStateMock());
-
-        $this->requestStatus->expects($this->never())
-            ->method('checkStatus');
+        $this->requestProcess->expects($this->never())
+            ->method('process');
 
         $this->object->execute();
     }
 
-    public function testExecuteNotConfiguredSignupComplete()
+    public function testSingleStoreIncomplete()
     {
-        $this->stateRepository->expects($this->at(0))
-            ->method('getByNameAndStore')
-            ->with('is_configured', 0)
-            ->willReturn($this->getStateMock());
-
-        $this->stateRepository->expects($this->at(1))
+        $this->setupHasSingleStore(true);
+        $this->stateRepository->expects($this->exactly(1))
             ->method('getByNameAndStore')
             ->with('signup_request', 0)
-            ->willReturn($this->getStateMock(1, 'signup_request', 'complete', 0));
+            ->willReturn($this->getStateMock(1, 'signup_request', '{}', 0));
 
-        $this->requestStatus->expects($this->never())
-            ->method('checkStatus');
-
-        $this->object->execute();
-    }
-
-    public function testExecuteNotConfiguredNotComplete()
-    {
-        $this->stateRepository->expects($this->at(0))
-            ->method('getByNameAndStore')
-            ->with('is_configured', 0)
-            ->willReturn($this->getStateMock());
-
-        $this->stateRepository->expects($this->at(1))
-            ->method('getByNameAndStore')
-            ->with('signup_request', 0)
-            ->willReturn($this->getStateMock(1, 'signup_request', 'in-progress', 0));
-
-        $this->requestStatus->expects($this->exactly(1))
+        $this->requestStatus->expects($this->once())
             ->method('checkStatus')
+            ->with(0)
             ->willReturn([
                 'complete' => false,
                 'error' => ''
@@ -217,49 +213,43 @@ class CheckSignupStatusTest extends TestCase
         $this->object->execute();
     }
 
-    public function testExecuteNotConfiguredError()
+    public function testSingleStoreError()
     {
-        $this->stateRepository->expects($this->at(0))
-            ->method('getByNameAndStore')
-            ->with('is_configured', 0)
-            ->willReturn($this->getStateMock());
-
-        $this->stateRepository->expects($this->at(1))
+        $this->setupHasSingleStore(true);
+        $this->stateRepository->expects($this->exactly(1))
             ->method('getByNameAndStore')
             ->with('signup_request', 0)
-            ->willReturn($this->getStateMock(1, 'signup_request', 'in-progress', 0));
+            ->willReturn($this->getStateMock(1, 'signup_request', '{}', 0));
 
-        $this->requestStatus->expects($this->exactly(1))
+        $this->requestStatus->expects($this->once())
             ->method('checkStatus')
+            ->with(0)
             ->willReturn([
                 'complete' => false,
-                'error' => 'some error'
+                'error' => 'There was an error'
             ]);
+
+        $this->logger->expects($this->once())
+            ->method('error')
+            ->with('PureClarity Setup Error: There was an error');
 
         $this->requestProcess->expects($this->never())
             ->method('process');
 
-        $this->logger->expects($this->once())
-            ->method('error')
-            ->with('PureClarity Setup Error: some error');
-
         $this->object->execute();
     }
 
-    public function testExecuteComplete()
+    public function testSingleStoreComplete()
     {
-        $this->stateRepository->expects($this->at(0))
-            ->method('getByNameAndStore')
-            ->with('is_configured', 0)
-            ->willReturn($this->getStateMock());
-
-        $this->stateRepository->expects($this->at(1))
+        $this->setupHasSingleStore(true);
+        $this->stateRepository->expects($this->exactly(1))
             ->method('getByNameAndStore')
             ->with('signup_request', 0)
-            ->willReturn($this->getStateMock(1, 'signup_request', 'in-progress', 0));
+            ->willReturn($this->getStateMock(1, 'signup_request', '{}', 0));
 
-        $this->requestStatus->expects($this->exactly(1))
+        $this->requestStatus->expects($this->once())
             ->method('checkStatus')
+            ->with(0)
             ->willReturn([
                 'complete' => true,
                 'error' => '',
@@ -272,6 +262,108 @@ class CheckSignupStatusTest extends TestCase
 
         $this->logger->expects($this->never())
             ->method('error');
+
+        $this->object->execute();
+    }
+
+    /**
+     * @runInSeparateProcess
+     */
+    public function testMultiStoreNoRequests()
+    {
+        $this->setupHasSingleStore(false);
+        $this->setupGetStores();
+
+        $this->stateRepository->expects($this->at(0))
+            ->method('getByNameAndStore')
+            ->with('signup_request', 1)
+            ->willReturn($this->getStateMock());
+
+        $this->stateRepository->expects($this->at(1))
+            ->method('getByNameAndStore')
+            ->with('signup_request', 17)
+            ->willReturn($this->getStateMock());
+
+        $this->requestStatus->expects($this->never())
+            ->method('checkStatus');
+
+        $this->requestProcess->expects($this->never())
+            ->method('process');
+
+        $this->logger->expects($this->never())
+            ->method('error');
+
+        $this->object->execute();
+    }
+
+    /**
+     * @runInSeparateProcess
+     */
+    public function testMultiStoreOneRequest()
+    {
+        $this->setupHasSingleStore(false);
+        $this->setupGetStores();
+
+        $this->stateRepository->expects($this->at(0))
+            ->method('getByNameAndStore')
+            ->with('signup_request', 1)
+            ->willReturn($this->getStateMock());
+
+        $this->stateRepository->expects($this->at(1))
+            ->method('getByNameAndStore')
+            ->with('signup_request', 17)
+            ->willReturn($this->getStateMock(1));
+
+        $this->requestStatus->expects($this->once())
+            ->method('checkStatus')
+            ->with(17)
+            ->willReturn([
+                'complete' => false,
+                'error' => '',
+                'response' => $this->defaultParams
+            ]);
+
+        $this->requestProcess->expects($this->never())
+            ->method('process');
+
+        $this->logger->expects($this->never())
+            ->method('error');
+
+        $this->object->execute();
+    }
+
+    public function testMultiStoreAllRequests()
+    {
+        $this->setupHasSingleStore(false);
+        $this->setupGetStores();
+
+        $this->stateRepository->expects($this->at(0))
+            ->method('getByNameAndStore')
+            ->with('signup_request', 1)
+            ->willReturn($this->getStateMock(1, 'signup_request', '{}', 1));
+
+        $this->stateRepository->expects($this->at(1))
+            ->method('getByNameAndStore')
+            ->with('signup_request', 17)
+            ->willReturn($this->getStateMock(2, 'signup_request', '{}', 17));
+
+        $this->requestStatus->expects($this->at(0))
+            ->method('checkStatus')
+            ->with(1)
+            ->willReturn([
+                'complete' => false,
+                'error' => '',
+                'response' => $this->defaultParams
+            ]);
+
+        $this->requestStatus->expects($this->at(1))
+            ->method('checkStatus')
+            ->with(17)
+            ->willReturn([
+                'complete' => false,
+                'error' => '',
+                'response' => $this->defaultParams
+            ]);
 
         $this->object->execute();
     }
