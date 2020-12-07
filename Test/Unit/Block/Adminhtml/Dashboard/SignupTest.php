@@ -54,7 +54,7 @@ class SignupTest extends TestCase
             ->disableOriginalConstructor()
             ->getMock();
 
-        $this->context->expects($this->any())
+        $this->context->expects(self::any())
             ->method('getFormKey')
             ->willReturn($this->formKey);
 
@@ -75,6 +75,9 @@ class SignupTest extends TestCase
         $assetRepo->method('getUrlWithParams')->willReturnCallback(function ($param) {
             return str_replace('Pureclarity_Core::images/', 'https://www.test.com/', $param);
         });
+
+        $this->context->method('getAssetRepository')
+            ->willReturn($assetRepo);
 
         $this->storesViewModel = $this->getMockBuilder(Stores::class)
             ->disableOriginalConstructor()
@@ -103,36 +106,48 @@ class SignupTest extends TestCase
 
     public function testInstance()
     {
-        $this->assertInstanceOf(Signup::class, $this->object);
+        self::assertInstanceOf(Signup::class, $this->object);
     }
 
     public function testTemplate()
     {
-        $this->assertInstanceOf(Template::class, $this->object);
+        self::assertInstanceOf(Template::class, $this->object);
     }
 
     public function testGetPureclarityStoresViewModel()
     {
-        $this->assertInstanceOf(Stores::class, $this->object->getPureclarityStoresViewModel());
+        self::assertInstanceOf(Stores::class, $this->object->getPureclarityStoresViewModel());
     }
 
     public function testGetPureclarityRegionsViewModel()
     {
-        $this->assertInstanceOf(Regions::class, $this->object->getPureclarityRegionsViewModel());
+        self::assertInstanceOf(Regions::class, $this->object->getPureclarityRegionsViewModel());
     }
 
     public function testGetPureclarityStoreViewModel()
     {
-        $this->assertInstanceOf(Store::class, $this->object->getPureclarityStoreViewModel());
+        self::assertInstanceOf(Store::class, $this->object->getPureclarityStoreViewModel());
     }
 
-    public function testGetformKey()
+    public function testGetPureclarityStateViewModel()
+    {
+        self::assertInstanceOf(State::class, $this->object->getPureclarityStateViewModel());
+    }
+
+    public function testGetFormKey()
     {
         $formKey = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
-        $this->formKey->expects($this->once())
+        $this->formKey->expects(self::once())
             ->method('getFormKey')
             ->willReturn($formKey);
 
-        $this->assertEquals($formKey, $this->object->getFormKey());
+        self::assertEquals($formKey, $this->object->getFormKey());
+    }
+
+    public function testGetImageUrl()
+    {
+        $image = $this->object->getImageUrl('image.jpg');
+
+        self::assertEquals('https://www.test.com/image.jpg', $image);
     }
 }

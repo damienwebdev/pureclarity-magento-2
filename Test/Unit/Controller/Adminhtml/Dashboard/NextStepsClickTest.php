@@ -8,32 +8,29 @@ namespace Pureclarity\Core\Test\Unit\Controller\Adminhtml\Dashboard;
 
 use Magento\Framework\App\Request\Http;
 use PHPUnit\Framework\TestCase;
-use Pureclarity\Core\Controller\Adminhtml\Dashboard\LinkAccount;
+use Pureclarity\Core\Controller\Adminhtml\Dashboard\NextStepsClick;
 use Magento\Backend\App\Action\Context;
 use Magento\Backend\App\Action;
 use Magento\Framework\Controller\Result\Json;
 use Magento\Framework\Controller\Result\JsonFactory;
 use Magento\Framework\Data\Form\FormKey\Validator;
-use Pureclarity\Core\Model\Signup\Process;
 use PHPUnit\Framework\MockObject\MockObject;
-use Pureclarity\Core\Model\Account\Validate;
-use Pureclarity\Core\Model\Signup\AddStore;
+use Pureclarity\Core\Model\NextSteps\Complete;
 
 /**
- * Class LinkAccountTest
+ * Class NextStepsClickTest
  *
- * Tests the methods in \Pureclarity\Core\Controller\Adminhtml\Dashboard\LinkAccount
+ * Tests the methods in \Pureclarity\Core\Controller\Adminhtml\Dashboard\NextStepsClick
  */
-class LinkAccountTest extends TestCase
+class NextStepsClickTest extends TestCase
 {
     /** @var array $defaultParams */
     private $defaultParams = [
-        'type' => 'link',
-        'param1' => 'param1',
-        'param2' => 'param1',
+        'store' => '1',
+        'next-step-id' => 'next-step-id-one-seven'
     ];
 
-    /** @var LinkAccount $object */
+    /** @var NextStepsClick $object */
     private $object;
 
     /** @var MockObject|Context $context */
@@ -42,17 +39,11 @@ class LinkAccountTest extends TestCase
     /** @var MockObject|JsonFactory $jsonFactory */
     private $jsonFactory;
 
-    /** @var MockObject|Validate $validate */
-    private $validate;
-
-    /** @var MockObject|AddStore $addStore */
-    private $addStore;
+    /** @var MockObject|Complete $complete */
+    private $complete;
 
     /** @var MockObject|Json $json */
     private $json;
-
-    /** @var MockObject|Process $requestProcess */
-    private $requestProcess;
 
     /** @var MockObject|Validator $formKeyValidator */
     private $formKeyValidator;
@@ -80,10 +71,6 @@ class LinkAccountTest extends TestCase
         $this->context->method('getFormKeyValidator')
             ->willReturn($this->formKeyValidator);
 
-        $this->requestProcess = $this->getMockBuilder(Process::class)
-            ->disableOriginalConstructor()
-            ->getMock();
-
         $this->jsonFactory = $this->getMockBuilder(JsonFactory::class)
             ->disableOriginalConstructor()
             ->getMock();
@@ -95,20 +82,14 @@ class LinkAccountTest extends TestCase
         $this->jsonFactory->method('create')
             ->willReturn($this->json);
 
-        $this->validate = $this->getMockBuilder(Validate::class)
+        $this->complete = $this->getMockBuilder(Complete::class)
             ->disableOriginalConstructor()
             ->getMock();
 
-        $this->addStore = $this->getMockBuilder(AddStore::class)
-            ->disableOriginalConstructor()
-            ->getMock();
-
-        $this->object = new LinkAccount(
+        $this->object = new NextStepsClick(
             $this->context,
-            $this->requestProcess,
             $this->jsonFactory,
-            $this->validate,
-            $this->addStore
+            $this->complete
         );
     }
 
@@ -135,7 +116,7 @@ class LinkAccountTest extends TestCase
 
     public function testInstance()
     {
-        self::assertInstanceOf(LinkAccount::class, $this->object);
+        self::assertInstanceOf(NextStepsClick::class, $this->object);
     }
 
     public function testAction()
@@ -174,26 +155,16 @@ class LinkAccountTest extends TestCase
         self::assertInstanceOf(Json::class, $result);
     }
 
-    public function testExecuteLinkError()
+    public function testExecuteMissingStore()
     {
-        $this->setupRequestGetParams();
         $this->setupRequestIsPost(true);
         $this->setupFormKeyValidator(true);
-
-        $this->validate->expects(self::once())
-            ->method('sendRequest')
-            ->with($this->defaultParams)
-            ->willReturn([
-                'error' => 'An Error'
-            ]);
-
-        $this->requestProcess->expects(self::never())
-            ->method('processManualConfigure');
+        $this->setupRequestGetParams(['next-step-id' => 'one']);
 
         $this->json->expects(self::once())
             ->method('setData')
             ->with([
-                'error' => 'An Error',
+                'error' => 'Missing Store ID',
                 'success' => false
             ]);
 
@@ -201,101 +172,15 @@ class LinkAccountTest extends TestCase
         self::assertInstanceOf(Json::class, $result);
     }
 
-    public function testExecuteLinkInvalidConfigureErrors()
+    public function testExecuteComplete()
     {
         $this->setupRequestGetParams();
         $this->setupRequestIsPost(true);
         $this->setupFormKeyValidator(true);
 
-        $this->requestProcess->expects(self::once())
-            ->method('processManualConfigure')
-            ->with($this->defaultParams)
-            ->willReturn([
-                'errors' => ['error1', 'error2']
-            ]);
-
-        $this->json->expects(self::once())
-            ->method('setData')
-            ->with([
-                'error' => 'error1,error2',
-                'success' => false
-            ]);
-
-        $result = $this->object->execute();
-        self::assertInstanceOf(Json::class, $result);
-    }
-
-    public function testExecuteLinkAccountSuccess()
-    {
-        $this->setupRequestIsPost(true);
-        $this->setupRequestGetParams();
-        $this->setupFormKeyValidator(true);
-
-        $this->requestProcess->expects(self::once())
-            ->method('processManualConfigure')
-            ->with($this->defaultParams)
-            ->willReturn([
-                'errors' => [],
-                'success' => true
-            ]);
-
-        $this->json->expects(self::once())
-            ->method('setData')
-            ->with([
-                'error' => '',
-                'success' => true
-            ]);
-
-        $result = $this->object->execute();
-        self::assertInstanceOf(Json::class, $result);
-    }
-
-    public function testExecuteAddStoreError()
-    {
-        $params = $this->defaultParams;
-        $params['type'] = 'add';
-
-        $this->setupRequestGetParams($params);
-        $this->setupRequestIsPost(true);
-        $this->setupFormKeyValidator(true);
-
-        $this->addStore->expects(self::once())
-            ->method('sendRequest')
-            ->with($params)
-            ->willReturn([
-                'error' => 'An Add Store Error'
-            ]);
-
-        $this->requestProcess->expects(self::never())
-            ->method('processManualConfigure');
-
-        $this->json->expects(self::once())
-            ->method('setData')
-            ->with([
-                'error' => 'An Add Store Error',
-                'success' => false
-            ]);
-
-        $result = $this->object->execute();
-        self::assertInstanceOf(Json::class, $result);
-    }
-
-    public function testExecuteAddStoreSuccess()
-    {
-        $params = $this->defaultParams;
-        $params['type'] = 'add';
-
-        $this->setupRequestGetParams($params);
-        $this->setupRequestIsPost(true);
-        $this->setupFormKeyValidator(true);
-
-        $this->addStore->expects(self::once())
-            ->method('sendRequest')
-            ->with($params)
-            ->willReturn(['error' => '']);
-
-        $this->requestProcess->expects(self::never())
-            ->method('processManualConfigure');
+        $this->complete->expects(self::once())
+            ->method('markNextStepComplete')
+            ->with('1','next-step-id-one-seven');
 
         $this->json->expects(self::once())
             ->method('setData')

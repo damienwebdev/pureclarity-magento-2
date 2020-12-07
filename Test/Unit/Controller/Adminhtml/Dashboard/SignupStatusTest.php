@@ -133,6 +133,21 @@ class SignupStatusTest extends TestCase
         $this->assertInstanceOf(Json::class, $result);
     }
 
+    public function testExecuteInvalidNoStore()
+    {
+        $this->setupRequestIsGet(true);
+
+        $this->json->expects($this->once())
+            ->method('setData')
+            ->with([
+                'error' => 'Invalid request, please reload the page and try again',
+                'success' => false
+            ]);
+
+        $result = $this->object->execute();
+        $this->assertInstanceOf(Json::class, $result);
+    }
+
     public function testExecuteInvalidSignupStatusErrors()
     {
         $this->setupRequestIsGet(true);
