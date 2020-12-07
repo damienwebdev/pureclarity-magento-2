@@ -67,7 +67,7 @@ class AddStore
         } catch (\Exception $e) {
             $result = [
                 'error' => __(
-                    'PureClarity Link Account Error:' . $e->getMessage()
+                    'PureClarity Add Store Error: ' . $e->getMessage()
                 )
             ];
         }
@@ -88,7 +88,7 @@ class AddStore
         ];
 
         if (!empty($response['errors'])) {
-            $result['error'] = implode($response['errors']);
+            $result['error'] = implode(', ', $response['errors']);
             return $result;
         }
 
@@ -98,7 +98,7 @@ class AddStore
             );
         } elseif ($response['status'] !== 200) {
             $result['error'] = __(
-                'PureClarity server error occurred. If this persists,'
+                'PureClarity server error occurred. If this persists, '
                 . 'please contact PureClarity support. Error code %1',
                 $response['status']
             );
@@ -126,8 +126,6 @@ class AddStore
                 'region' =>  $params['region']
             ];
 
-            $this->serializer->serialize($signupData);
-
             $state = $this->stateRepository->getByNameAndStore('signup_request', $params['store_id']);
             $state->setName('signup_request');
             $state->setValue($this->serializer->serialize($signupData));
@@ -135,7 +133,7 @@ class AddStore
 
             $this->stateRepository->save($state);
         } catch (CouldNotSaveException $e) {
-            $this->logger->error('PureClarity Link Account Error: could not save state:' . $e->getMessage());
+            $this->logger->error('PureClarity Add Store Error: could not save state: ' . $e->getMessage());
         }
     }
 }

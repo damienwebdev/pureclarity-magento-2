@@ -43,9 +43,8 @@ class Validate
             $result = $this->processResponse($response);
         } catch (\Exception $e) {
             $result = [
-                'valid_account' => false,
                 'error' => __(
-                    'PureClarity Link Account Error:' . $e->getMessage()
+                    'PureClarity Link Account Error: ' . $e->getMessage()
                 )
             ];
         }
@@ -61,22 +60,21 @@ class Validate
     public function processResponse($response)
     {
         $result = [
-            'valid_account' => false,
             'error' => ''
         ];
 
         if (!empty($response['errors'])) {
-            $result['error'] = implode($response['errors']);
+            $result['error'] = implode(', ', $response['errors']);
             return $result;
         }
 
         if ($response['status'] !== 200) {
             $result['error'] = __(
-                'PureClarity server error occurred. If this persists,'
+                'PureClarity server error occurred. If this persists, '
                 . 'please contact PureClarity support. Error code %1',
                 $response['status']
             );
-        } elseif (isset($response['response'])) {
+        } elseif (isset($response['response']['IsValid'])) {
             if ($response['response']['IsValid'] !== true) {
                 $result['error'] = __('Account not found, please check your details and try again.');
             }
