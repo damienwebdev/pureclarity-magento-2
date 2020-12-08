@@ -14,7 +14,7 @@ use Pureclarity\Core\ViewModel\Adminhtml\Stores;
 use PHPUnit\Framework\MockObject\MockObject;
 
 /**
- * Class StatsTest
+ * Class WelcomeBannerTest
  *
  * Tests the methods in \Pureclarity\Core\Block\Adminhtml\Dashboard\WelcomeBanner
  */
@@ -53,16 +53,25 @@ class WelcomeBannerTest extends TestCase
         );
     }
 
+    /**
+     * Tests class gets instantiated correctly
+     */
     public function testInstance()
     {
         self::assertInstanceOf(WelcomeBanner::class, $this->object);
     }
 
+    /**
+     * Tests that getPureclarityStoresViewModel returns the right class
+     */
     public function testGetPureclarityStoresViewModel()
     {
         self::assertInstanceOf(Stores::class, $this->object->getPureclarityStoresViewModel());
     }
 
+    /**
+     * Tests that getPureclarityWelcomeViewModel returns the right class
+     */
     public function testGetPureclarityWelcomeViewModel()
     {
         self::assertInstanceOf(Welcome::class, $this->object->getPureclarityWelcomeViewModel());

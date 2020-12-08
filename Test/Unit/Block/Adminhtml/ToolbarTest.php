@@ -44,21 +44,33 @@ class ToolbarTest extends TestCase
         );
     }
 
+    /**
+     * Tests class gets instantiated correctly
+     */
     public function testInstance()
     {
         self::assertInstanceOf(Toolbar::class, $this->object);
     }
 
+    /**
+     * Tests class gets instantiated correctly
+     */
     public function testTemplate()
     {
         self::assertInstanceOf(Template::class, $this->object);
     }
 
+    /**
+     * Tests that getPureclarityStateViewModel returns the right class
+     */
     public function testGetPureclarityStateViewModel()
     {
         self::assertInstanceOf(State::class, $this->object->getPureclarityStateViewModel());
     }
 
+    /**
+     * Tests that getPureclarityStoresViewModel returns the right class
+     */
     public function testGetPureclarityStoresViewModel()
     {
         self::assertInstanceOf(Stores::class, $this->object->getPureclarityStoresViewModel());

@@ -62,6 +62,7 @@ class StateTest extends TestCase
     }
 
     /**
+     * Generates a State mock
      * @param string $id
      * @param string $name
      * @param string $value
@@ -93,11 +94,17 @@ class StateTest extends TestCase
         return $state;
     }
 
+    /**
+     * Tests class gets instantiated correctly
+     */
     public function testInstance()
     {
         $this->assertInstanceOf(State::class, $this->object);
     }
 
+    /**
+     * Tests getStateName returns correct value when module is not configured on a store
+     */
     public function testGetStateNameNotConfigured()
     {
         $this->stateRepository->expects($this->atMost(2))
@@ -107,6 +114,9 @@ class StateTest extends TestCase
         $this->assertEquals(State::STATE_NOT_CONFIGURED, $this->object->getStateName(1));
     }
 
+    /**
+     * Tests getStateName returns correct value when module is waiting for a signup on a store
+     */
     public function testGetStateNameWaiting()
     {
         $this->stateRepository->expects($this->at(0))
@@ -116,6 +126,9 @@ class StateTest extends TestCase
         $this->assertEquals(State::STATE_WAITING, $this->object->getStateName(1));
     }
 
+    /**
+     * Tests getStateName returns correct value when module is configured on a store
+     */
     public function testGetStateNameConfigured()
     {
         $this->coreConfig->expects($this->at(0))
@@ -131,6 +144,9 @@ class StateTest extends TestCase
         $this->assertEquals(State::STATE_CONFIGURED, $this->object->getStateName(1));
     }
 
+    /**
+     * Tests isWaiting returns correct value when module is waiting on a signup on a store
+     */
     public function testIsWaitingTrue()
     {
         $this->stateRepository->expects($this->at(0))
@@ -140,6 +156,9 @@ class StateTest extends TestCase
         $this->assertEquals(true, $this->object->isWaiting(1));
     }
 
+    /**
+     * Tests isWaiting returns correct value when module is not waiting on a signup on a store
+     */
     public function testIsWaitingFalse()
     {
         $this->stateRepository->expects($this->at(0))
@@ -149,11 +168,17 @@ class StateTest extends TestCase
         $this->assertEquals(false, $this->object->isWaiting(1));
     }
 
+    /**
+     * Tests getPluginVersion returns correct version of the plugin
+     */
     public function testGetPluginVersion()
     {
         $this->assertEquals(Data::CURRENT_VERSION, $this->object->getPluginVersion());
     }
 
+    /**
+     * Tests isUpToDate returns correct flag when no github version is stored
+     */
     public function testIsUpToDateTrueEmptyNewVersion()
     {
         $this->stateRepository->expects($this->at(0))
@@ -163,6 +188,9 @@ class StateTest extends TestCase
         $this->assertEquals(true, $this->object->isUpToDate());
     }
 
+    /**
+     * Tests isUpToDate returns correct flag when module version matches github version
+     */
     public function testIsUpToDateTrueNewVersionMatches()
     {
         $this->stateRepository->expects($this->at(0))
@@ -172,6 +200,9 @@ class StateTest extends TestCase
         $this->assertEquals(true, $this->object->isUpToDate());
     }
 
+    /**
+     * Tests isUpToDate returns correct flag when github version is higher
+     */
     public function testIsUpToDateFalse()
     {
         $this->stateRepository->expects($this->at(0))
@@ -181,6 +212,9 @@ class StateTest extends TestCase
         $this->assertEquals(false, $this->object->isUpToDate());
     }
 
+    /**
+     * Tests getNewVersion returns correct version when one is stores
+     */
     public function testGetNewVersion()
     {
         $this->stateRepository->expects($this->at(0))
@@ -190,6 +224,9 @@ class StateTest extends TestCase
         $this->assertEquals('9.9.9', $this->object->getNewVersion());
     }
 
+    /**
+     * Tests getNewVersion returns correct version when none is stored
+     */
     public function testGetNewVersionEmpty()
     {
         $this->stateRepository->expects($this->at(0))
@@ -199,6 +236,9 @@ class StateTest extends TestCase
         $this->assertEquals('', $this->object->getNewVersion());
     }
 
+    /**
+     * Tests getMagentoVersion returns correct version of Magento
+     */
     public function testGetMagentoVersion()
     {
         $this->productMetadata->expects($this->at(0))

@@ -14,7 +14,7 @@ use Pureclarity\Core\ViewModel\Adminhtml\Stores;
 use PHPUnit\Framework\MockObject\MockObject;
 
 /**
- * Class AccountStatusTest
+ * Class NextStepsTest
  *
  * Tests the methods in \Pureclarity\Core\Block\Adminhtml\Dashboard\NextSteps
  */
@@ -53,16 +53,25 @@ class NextStepsTest extends TestCase
         );
     }
 
+    /**
+     * Tests class gets instantiated correctly
+     */
     public function testInstance()
     {
         self::assertInstanceOf(NextSteps::class, $this->object);
     }
 
+    /**
+     * Tests that getPureclarityStoresViewModel returns the right class
+     */
     public function testGetPureclarityStoresViewModel()
     {
         self::assertInstanceOf(Stores::class, $this->object->getPureclarityStoresViewModel());
     }
 
+    /**
+     * Tests that getNextSteps returns the data returned by the dashboard class
+     */
     public function testGetNextSteps()
     {
         $this->dashboard->method('getNextSteps')
@@ -71,6 +80,9 @@ class NextStepsTest extends TestCase
         self::assertEquals(['data'], $this->object->getNextSteps(17));
     }
 
+    /**
+     * Tests that testGetAdminUrl returns an Admin URL with the provided link appended
+     */
     public function testGetAdminUrl()
     {
         self::assertEquals(

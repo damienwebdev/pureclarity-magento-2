@@ -112,6 +112,10 @@ class LinkAccountTest extends TestCase
         );
     }
 
+    /**
+     * Sets up Http getParams with either the default params or provided ones
+     * @param array $params
+     */
     private function setupRequestGetParams($params = [])
     {
         $this->request->expects(self::once())
@@ -119,6 +123,10 @@ class LinkAccountTest extends TestCase
             ->willReturn(empty($params) ? $this->defaultParams : $params);
     }
 
+    /**
+     * Sets up Http isPost with the provided flag
+     * @param bool $response
+     */
     private function setupRequestIsPost($response)
     {
         $this->request->expects(self::once())
@@ -126,6 +134,10 @@ class LinkAccountTest extends TestCase
             ->willReturn($response);
     }
 
+    /**
+     * Sets up Validator validate with the provided flag
+     * @param bool $response
+     */
     private function setupFormKeyValidator($response)
     {
         $this->formKeyValidator->expects(self::once())
@@ -133,16 +145,25 @@ class LinkAccountTest extends TestCase
             ->willReturn($response);
     }
 
+    /**
+     * Tests class gets instantiated correctly
+     */
     public function testInstance()
     {
         self::assertInstanceOf(LinkAccount::class, $this->object);
     }
 
+    /**
+     * Tests class gets instantiated correctly
+     */
     public function testAction()
     {
         self::assertInstanceOf(Action::class, $this->object);
     }
 
+    /**
+     * Tests execute response to a non-POST call
+     */
     public function testExecuteInvalidPost()
     {
         $this->setupRequestIsPost(false);
@@ -158,6 +179,9 @@ class LinkAccountTest extends TestCase
         self::assertInstanceOf(Json::class, $result);
     }
 
+    /**
+     * Tests execute response to an invalid form key
+     */
     public function testExecuteInvalidFormKey()
     {
         $this->setupRequestIsPost(true);
@@ -174,6 +198,9 @@ class LinkAccountTest extends TestCase
         self::assertInstanceOf(Json::class, $result);
     }
 
+    /**
+     * Tests that execute handles an error response from the validate account call
+     */
     public function testExecuteLinkError()
     {
         $this->setupRequestGetParams();
@@ -201,6 +228,9 @@ class LinkAccountTest extends TestCase
         self::assertInstanceOf(Json::class, $result);
     }
 
+    /**
+     * Tests that execute handles an error response from the processManualConfigure call
+     */
     public function testExecuteLinkInvalidConfigureErrors()
     {
         $this->setupRequestGetParams();
@@ -225,6 +255,9 @@ class LinkAccountTest extends TestCase
         self::assertInstanceOf(Json::class, $result);
     }
 
+    /**
+     * Tests that execute handles a link existing account request correctly
+     */
     public function testExecuteLinkAccountSuccess()
     {
         $this->setupRequestIsPost(true);
@@ -250,6 +283,9 @@ class LinkAccountTest extends TestCase
         self::assertInstanceOf(Json::class, $result);
     }
 
+    /**
+     * Tests that execute handles an add store request error
+     */
     public function testExecuteAddStoreError()
     {
         $params = $this->defaultParams;
@@ -280,6 +316,9 @@ class LinkAccountTest extends TestCase
         self::assertInstanceOf(Json::class, $result);
     }
 
+    /**
+     * Tests that execute handles an add store success
+     */
     public function testExecuteAddStoreSuccess()
     {
         $params = $this->defaultParams;

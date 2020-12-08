@@ -75,16 +75,25 @@ class UrlTest extends TestCase
         $this->object = new Url();
     }
 
+    /**
+     * Tests class gets instantiated correctly
+     */
     public function testStoreDataInstance()
     {
         $this->assertInstanceOf(Url::class, $this->object);
     }
 
+    /**
+     * Tests that the admin url is returned correctly
+     */
     public function testGetAdminUrl()
     {
         $this->assertEquals('https://admin.pureclarity.com', $this->object->getAdminUrl());
     }
 
+    /**
+     * Tests that the github url is returned correctly
+     */
     public function testGetGithubUrl()
     {
         $this->assertEquals(
@@ -118,6 +127,9 @@ class UrlTest extends TestCase
         }
     }
 
+    /**
+     * Tests that the signup request endpoint is returned correctly - with env variable set to override the real value
+     */
     public function testGetSignupRequestEndpointUrl()
     {
         $localUrl = 'http://127.0.0.1';
@@ -131,6 +143,9 @@ class UrlTest extends TestCase
         }
     }
 
+    /**
+     * Tests that the signup request endpoint is returned correctly - with env set to empty so it returns a real value
+     */
     public function testGetSignupRequestEndpointUrlReal()
     {
         putenv('PURECLARITY_HOST=');
@@ -142,6 +157,9 @@ class UrlTest extends TestCase
         }
     }
 
+    /**
+     * Tests that the signup status endpoint is returned correctly - with env variable set to override the real value
+     */
     public function testGetSignupStatusEndpointUrl()
     {
         $localUrl = 'http://127.0.0.1';
@@ -155,6 +173,9 @@ class UrlTest extends TestCase
         }
     }
 
+    /**
+     * Tests that the signup status endpoint is returned correctly - with env set to empty so it returns a real value
+     */
     public function testGetSignupStatusEndpointUrlReal()
     {
         putenv('PURECLARITY_HOST=');
@@ -166,6 +187,9 @@ class UrlTest extends TestCase
         }
     }
 
+    /**
+     * Tests that the sftp endpoint is returned correctly - with env variable set to override the real value
+     */
     public function testGetFeedSftpUrl()
     {
         $localUrl = 'http://127.0.0.1';
@@ -179,6 +203,9 @@ class UrlTest extends TestCase
         }
     }
 
+    /**
+     * Tests that the sftp endpoint is returned correctly - with env set to empty so it returns a real value
+     */
     public function testGetFeedSftpUrlReal()
     {
         putenv('PURECLARITY_FEED_HOST=');
@@ -191,11 +218,17 @@ class UrlTest extends TestCase
         }
     }
 
+    /**
+     * Tests that the client script base url is returned correctly
+     */
     public function testGetClientScriptBaseUrl()
     {
         $this->assertEquals($this->scriptUrl, $this->object->getClientScriptBaseUrl());
     }
 
+    /**
+     * Tests that the client script url is returned correctly - with env variable set to override the real value
+     */
     public function testGetClientScriptUrl()
     {
         $localUrl = 'http://127.0.0.1/';
@@ -206,6 +239,9 @@ class UrlTest extends TestCase
         );
     }
 
+    /**
+     * Tests that the client script url is returned correctly - with env set to empty so it returns a real value
+     */
     public function testGetClientScriptUrlReal()
     {
         putenv('PURECLARITY_SCRIPT_URL=');
@@ -215,6 +251,9 @@ class UrlTest extends TestCase
         );
     }
 
+    /**
+     * Tests that the serverside endpoint is returned correctly - with env variable set to override the real value
+     */
     public function testGetServerSideEndpoint()
     {
         $localUrl = 'http://127.0.0.1';
@@ -227,6 +266,9 @@ class UrlTest extends TestCase
         }
     }
 
+    /**
+     * Tests that the serverside endpoint is returned correctly - with env set to empty so it returns a real value
+     */
     public function testGetServerSideEndpointReal()
     {
         putenv('PURECLARITY_HOST=');

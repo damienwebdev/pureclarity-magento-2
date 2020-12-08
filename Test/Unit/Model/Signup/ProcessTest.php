@@ -109,6 +109,10 @@ class ProcessTest extends TestCase
         );
     }
 
+    /**
+     * Returns default params for use with calls
+     * @return array
+     */
     private function getDefaultParams()
     {
         return [
@@ -120,6 +124,7 @@ class ProcessTest extends TestCase
     }
 
     /**
+     * Generates a State mock
      * @param string $id
      * @param string $name
      * @param string $value
@@ -151,11 +156,17 @@ class ProcessTest extends TestCase
         return $state;
     }
 
+    /**
+     * Tests class gets instantiated correctly
+     */
     public function testProcessInstance()
     {
         $this->assertInstanceOf(Process::class, $this->object);
     }
 
+    /**
+     * Tests that process calls the right things on a standard signup
+     */
     public function testProcess()
     {
         $this->coreConfigMock->expects($this->exactly(1))
@@ -232,6 +243,9 @@ class ProcessTest extends TestCase
         $this->object->process($this->getDefaultParams());
     }
 
+    /**
+     * Tests that process calls the right things when a 0 store_id is provided
+     */
     public function testProcessWithDefaultStore()
     {
         $this->stateRepositoryInterfaceMock->expects($this->any())
@@ -257,6 +271,9 @@ class ProcessTest extends TestCase
         $this->object->process($params);
     }
 
+    /**
+     * Tests that process handles an error in state saving
+     */
     public function testProcessSaveError()
     {
         $this->stateRepositoryInterfaceMock->expects($this->any())
@@ -271,6 +288,9 @@ class ProcessTest extends TestCase
         $this->assertEquals(['Error processing request: Some save error'], $result['errors']);
     }
 
+    /**
+     * Tests that process handles an error in state deletion
+     */
     public function testProcessDeleteError()
     {
         $this->stateRepositoryInterfaceMock->expects($this->any())
@@ -296,6 +316,9 @@ class ProcessTest extends TestCase
         $this->object->process($this->getDefaultParams());
     }
 
+    /**
+     * Tests that process handles a manual configuration with no data provided
+     */
     public function testManualConfigureWithEmptyParams()
     {
         $result = $this->object->processManualConfigure([]);
@@ -310,6 +333,9 @@ class ProcessTest extends TestCase
         $this->assertEquals($expectedErrors, $result['errors']);
     }
 
+    /**
+     * Tests that process handles a manual configuration with invalid data provided
+     */
     public function testManualConfigureWithInvalidParams()
     {
         $params = $this->getDefaultParams();
@@ -331,6 +357,9 @@ class ProcessTest extends TestCase
         $this->assertEquals($expectedErrors, $result['errors']);
     }
 
+    /**
+     * Tests that process handles a manual configuration with valid data provided
+     */
     public function testManualConfigureWithValidParams()
     {
         $this->stateRepositoryInterfaceMock->expects($this->any())
@@ -341,6 +370,9 @@ class ProcessTest extends TestCase
         $this->assertEquals([], $result['errors']);
     }
 
+    /**
+     * Tests that process handles a manual configuration with a save error
+     */
     public function testManualConfigureWithSaveError()
     {
         $this->stateRepositoryInterfaceMock->expects($this->any())

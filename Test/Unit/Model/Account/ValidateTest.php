@@ -8,7 +8,6 @@ namespace Pureclarity\Core\Test\Unit\Model\Account;
 
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
-use Psr\Log\LoggerInterface;
 use Pureclarity\Core\Model\Account\Validate;
 use PureClarity\Api\Account\Validate as ApiValidate;
 use PureClarity\Api\Account\ValidateFactory;
@@ -28,7 +27,7 @@ class ValidateTest extends TestCase
     /** @var Validate $object */
     private $object;
 
-    /** @var MockObject|LoggerInterface $validateFactory */
+    /** @var MockObject|ValidateFactory $validateFactory */
     private $validateFactory;
 
     /** @var MockObject|ApiValidate $validate */
@@ -52,6 +51,9 @@ class ValidateTest extends TestCase
         );
     }
 
+    /**
+     * Returns default parameters to use in calls
+     */
     private function getDefaultParams()
     {
         return [
@@ -62,11 +64,17 @@ class ValidateTest extends TestCase
         ];
     }
 
+    /**
+     * Tests class gets instantiated correctly
+     */
     public function testInstance()
     {
         self::assertInstanceOf(Validate::class, $this->object);
     }
 
+    /**
+     * Tests that sendRequest handles errors
+     */
     public function testSendRequestErrors()
     {
         $this->validate->expects(self::once())
@@ -83,6 +91,9 @@ class ValidateTest extends TestCase
         );
     }
 
+    /**
+     * Tests that sendRequest handles a non-200 http status
+     */
     public function testSendRequestNon200Status()
     {
         $this->validate->expects(self::once())
@@ -103,6 +114,9 @@ class ValidateTest extends TestCase
         );
     }
 
+    /**
+     * Tests that sendRequest handles an invalid response
+     */
     public function testSendRequestInvalidResponse()
     {
         $this->validate->expects(self::once())
@@ -123,6 +137,9 @@ class ValidateTest extends TestCase
         );
     }
 
+    /**
+     * Tests that sendRequest handles an invalid account
+     */
     public function testSendRequestNotValidAccount()
     {
         $this->validate->expects(self::once())
@@ -145,6 +162,9 @@ class ValidateTest extends TestCase
         );
     }
 
+    /**
+     * Tests that sendRequest handles a valid account
+     */
     public function testSendRequestValidAccount()
     {
         $this->validate->expects(self::once())
@@ -162,6 +182,9 @@ class ValidateTest extends TestCase
         self::assertEquals(['error' => ''], $result);
     }
 
+    /**
+     * Tests that sendRequest handles a thrown \Exception
+     */
     public function testSendRequestException()
     {
         $this->validate->expects(self::once())

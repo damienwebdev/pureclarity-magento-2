@@ -104,36 +104,57 @@ class SignupTest extends TestCase
         );
     }
 
+    /**
+     * Tests class gets instantiated correctly
+     */
     public function testInstance()
     {
         self::assertInstanceOf(Signup::class, $this->object);
     }
 
+    /**
+     * Tests class gets instantiated correctly
+     */
     public function testTemplate()
     {
         self::assertInstanceOf(Template::class, $this->object);
     }
 
+    /**
+     * Tests that getPureclarityStoresViewModel returns the right class
+     */
     public function testGetPureclarityStoresViewModel()
     {
         self::assertInstanceOf(Stores::class, $this->object->getPureclarityStoresViewModel());
     }
 
+    /**
+     * Tests that testGetPureclarityRegionsViewModel returns the right class
+     */
     public function testGetPureclarityRegionsViewModel()
     {
         self::assertInstanceOf(Regions::class, $this->object->getPureclarityRegionsViewModel());
     }
 
+    /**
+     * Tests that getPureclarityStoreViewModel returns the right class
+     */
     public function testGetPureclarityStoreViewModel()
     {
         self::assertInstanceOf(Store::class, $this->object->getPureclarityStoreViewModel());
     }
 
+    /**
+     * Tests that getPureclarityStateViewModel returns the right class
+     */
     public function testGetPureclarityStateViewModel()
     {
         self::assertInstanceOf(State::class, $this->object->getPureclarityStateViewModel());
     }
 
+    /**
+     * Tests that getFormKey returns the formkey from Magento
+     */
     public function testGetFormKey()
     {
         $formKey = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
@@ -144,6 +165,9 @@ class SignupTest extends TestCase
         self::assertEquals($formKey, $this->object->getFormKey());
     }
 
+    /**
+     * Tests that getFormKey returns the image url provided by Magento
+     */
     public function testGetImageUrl()
     {
         $image = $this->object->getImageUrl('image.jpg');

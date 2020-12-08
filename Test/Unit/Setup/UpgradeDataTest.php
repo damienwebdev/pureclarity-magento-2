@@ -84,6 +84,10 @@ class UpgradeDataTest extends TestCase
         );
     }
 
+    /**
+     * Sets up the ModuleContextInterface getVersion with the provided version
+     * @param string $version
+     */
     private function setupGetVersion($version)
     {
         $this->context->expects($this->any())
@@ -91,6 +95,9 @@ class UpgradeDataTest extends TestCase
             ->willReturn('1.0.0');
     }
 
+    /**
+     * Sets up StoreManagerInterface getStores to return 2 stores
+     */
     private function setupGetStores()
     {
         $store1 = $this->getMockBuilder(StoreInterface::class)
@@ -115,6 +122,9 @@ class UpgradeDataTest extends TestCase
     }
 
     /**
+     * Generates a State mock
+     *
+     * @param integer $id
      * @param string $name
      * @param string $value
      * @param string $storeId
@@ -141,16 +151,25 @@ class UpgradeDataTest extends TestCase
         return $state;
     }
 
+    /**
+     * Tests class gets instantiated correctly
+     */
     public function testInstance()
     {
         $this->assertInstanceOf(UpgradeData::class, $this->object);
     }
 
+    /**
+     * Tests class gets implements the correct interface
+     */
     public function testInterface()
     {
         $this->assertInstanceOf(UpgradeDataInterface::class, $this->object);
     }
 
+    /**
+     * Tests that the 2.0.0 upgrade handles un-configured setup
+     */
     public function testUpgrade200NotConfigured()
     {
         $this->setupGetVersion('1.0.0');
@@ -170,6 +189,9 @@ class UpgradeDataTest extends TestCase
         $this->object->upgrade($this->setup, $this->context);
     }
 
+    /**
+     * Tests that the 2.0.0 upgrade handles configured setup on one store
+     */
     public function testUpgrade200ConfiguredStore1()
     {
         $this->setupGetVersion('1.0.0');
@@ -228,6 +250,9 @@ class UpgradeDataTest extends TestCase
         $this->object->upgrade($this->setup, $this->context);
     }
 
+    /**
+     * Tests that the 2.0.0 upgrade handles configured setup the second store
+     */
     public function testUpgrade200ConfiguredStore2()
     {
         $this->setupGetVersion('1.0.0');
@@ -290,6 +315,9 @@ class UpgradeDataTest extends TestCase
         $this->object->upgrade($this->setup, $this->context);
     }
 
+    /**
+     * Tests that the 2.0.0 upgrade handles an Exception
+     */
     public function testUpgrade200Exception()
     {
         $this->setupGetVersion('1.0.0');
@@ -323,6 +351,9 @@ class UpgradeDataTest extends TestCase
         $this->object->upgrade($this->setup, $this->context);
     }
 
+    /**
+     * Tests that the 3.0.0 upgrade only gets called if 2.0.0 is already installed
+     */
     public function test300OnlyUpgrade()
     {
         $this->context->expects($this->at(0))
@@ -340,7 +371,7 @@ class UpgradeDataTest extends TestCase
     }
 
     /**
-     * @runInSeparateProcess
+     * Tests that the 3.0.0 upgrade does the relevant deletes if data present
      */
     public function test300UpgradeDoesDeletes()
     {
@@ -386,7 +417,7 @@ class UpgradeDataTest extends TestCase
     }
 
     /**
-     * @runInSeparateProcess
+     * Tests that the 3.0.0 upgrade handles a delete failure
      */
     public function test300UpgradeDoesDeleteError()
     {
@@ -415,6 +446,9 @@ class UpgradeDataTest extends TestCase
         $this->object->upgrade($this->setup, $this->context);
     }
 
+    /**
+     * Tests that no upgrade happens with a high version number
+     */
     public function testNoUpgrade()
     {
         $this->context->method('getVersion')

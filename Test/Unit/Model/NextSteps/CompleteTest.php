@@ -4,7 +4,7 @@
  * See LICENSE.txt for license details.
  */
 
-namespace Pureclarity\Core\Test\Unit\Model\Account;
+namespace Pureclarity\Core\Test\Unit\Model\NextSteps;
 
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
@@ -28,7 +28,7 @@ class CompleteTest extends TestCase
     /** @var Complete $object */
     private $object;
 
-    /** @var MockObject|LoggerInterface $completeFactory */
+    /** @var MockObject|CompleteFactory $completeFactory */
     private $completeFactory;
 
     /** @var MockObject|CoreConfig $coreConfig */
@@ -65,11 +65,17 @@ class CompleteTest extends TestCase
         );
     }
 
+    /**
+     * Tests class gets instantiated correctly
+     */
     public function testInstance()
     {
         self::assertInstanceOf(Complete::class, $this->object);
     }
 
+    /**
+     * Tests that markNextStepComplete handles an API call correctly
+     */
     public function testRequest()
     {
         $this->coreConfig->expects(self::once())
@@ -96,6 +102,9 @@ class CompleteTest extends TestCase
         $this->object->markNextStepComplete(self::STORE_ID, 'next-step-id-17');
     }
 
+    /**
+     * Tests that markNextStepComplete handles an Exception correctly
+     */
     public function testRequestException()
     {
         $this->coreConfig->expects(self::once())

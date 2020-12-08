@@ -92,6 +92,7 @@ class CheckSignupStatusTest extends TestCase
     }
 
     /**
+     * Returns a State mock
      * @param string $id
      * @param string $name
      * @param string $value
@@ -151,11 +152,17 @@ class CheckSignupStatusTest extends TestCase
             ->willReturn([$store1, $store2]);
     }
 
+    /**
+     * Tests class gets instantiated correctly
+     */
     public function testInstance()
     {
         $this->assertInstanceOf(CheckSignupStatus::class, $this->object);
     }
 
+    /**
+     * Tests how execute handles the 'Area code already set' exception
+     */
     public function testExecuteSetAreaCodeException()
     {
         $this->setupHasSingleStore(true);
@@ -173,6 +180,9 @@ class CheckSignupStatusTest extends TestCase
         $this->object->execute();
     }
 
+    /**
+     * Tests how execute handles a single store setup with no signup request present
+     */
     public function testSingleStoreNoRequest()
     {
         $this->setupHasSingleStore(true);
@@ -191,6 +201,9 @@ class CheckSignupStatusTest extends TestCase
         $this->object->execute();
     }
 
+    /**
+     * Tests how execute handles a single store setup with an incomplete signup request present
+     */
     public function testSingleStoreIncomplete()
     {
         $this->setupHasSingleStore(true);
@@ -213,6 +226,9 @@ class CheckSignupStatusTest extends TestCase
         $this->object->execute();
     }
 
+    /**
+     * Tests how execute handles a single store setup with an error in checkStatus
+     */
     public function testSingleStoreError()
     {
         $this->setupHasSingleStore(true);
@@ -239,6 +255,9 @@ class CheckSignupStatusTest extends TestCase
         $this->object->execute();
     }
 
+    /**
+     * Tests how execute handles a single store setup with a complete signup request
+     */
     public function testSingleStoreComplete()
     {
         $this->setupHasSingleStore(true);
@@ -267,7 +286,7 @@ class CheckSignupStatusTest extends TestCase
     }
 
     /**
-     * @runInSeparateProcess
+     * Tests how execute handles a multi store setup with no signup requests
      */
     public function testMultiStoreNoRequests()
     {
@@ -297,7 +316,7 @@ class CheckSignupStatusTest extends TestCase
     }
 
     /**
-     * @runInSeparateProcess
+     * Tests how execute handles a multi store setup with one signup request
      */
     public function testMultiStoreOneRequest()
     {
@@ -332,6 +351,9 @@ class CheckSignupStatusTest extends TestCase
         $this->object->execute();
     }
 
+    /**
+     * Tests how execute handles a multi store setup with every store having a signup request
+     */
     public function testMultiStoreAllRequests()
     {
         $this->setupHasSingleStore(false);

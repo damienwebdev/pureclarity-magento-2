@@ -19,7 +19,7 @@ use Pureclarity\Core\Model\State as StateModel;
  */
 class WelcomeTest extends TestCase
 {
-    /** @var State $object */
+    /** @var Welcome $object */
     private $object;
 
     /** @var MockObject|StateRepositoryInterface $stateRepository */
@@ -37,6 +37,7 @@ class WelcomeTest extends TestCase
     }
 
     /**
+     * Generates a State Mock
      * @param string $id
      * @param string $name
      * @param string $value
@@ -64,11 +65,17 @@ class WelcomeTest extends TestCase
         return $state;
     }
 
+    /**
+     * Tests class gets instantiated correctly
+     */
     public function testInstance()
     {
         self::assertInstanceOf(Welcome::class, $this->object);
     }
 
+    /**
+     * Tests that showWelcomeBanner returns false when no state value is present
+     */
     public function testShowWelcomeBannerFalse()
     {
         $this->stateRepository->expects(self::once())
@@ -81,6 +88,9 @@ class WelcomeTest extends TestCase
         self::assertEquals(false, $this->object->showWelcomeBanner(17));
     }
 
+    /**
+     * Tests that showWelcomeBanner returns false when state is "manual"
+     */
     public function testShowWelcomeBannerFalseManual()
     {
         $this->stateRepository->expects(self::once())
@@ -93,6 +103,9 @@ class WelcomeTest extends TestCase
         self::assertEquals(false, $this->object->showWelcomeBanner(17));
     }
 
+    /**
+     * Tests that showWelcomeBanner returns true when state is "auto"
+     */
     public function testShowWelcomeBannerTrue()
     {
         $this->stateRepository->expects(self::once())
@@ -105,6 +118,9 @@ class WelcomeTest extends TestCase
         self::assertEquals(true, $this->object->showWelcomeBanner(17));
     }
 
+    /**
+     * Tests that showManualWelcomeBanner returns false when state is empty
+     */
     public function testShowManualWelcomeBannerFalse()
     {
         $this->stateRepository->expects(self::once())
@@ -115,6 +131,9 @@ class WelcomeTest extends TestCase
         self::assertEquals(false, $this->object->showManualWelcomeBanner(17));
     }
 
+    /**
+     * Tests that showManualWelcomeBanner returns false when state is "auto"
+     */
     public function testShowManualWelcomeBannerFalseAuto()
     {
         $this->stateRepository->expects(self::once())
@@ -127,6 +146,9 @@ class WelcomeTest extends TestCase
         self::assertEquals(false, $this->object->showManualWelcomeBanner(17));
     }
 
+    /**
+     * Tests that showManualWelcomeBanner returns true when state is "manual"
+     */
     public function testShowManualWelcomeBannerTrue()
     {
         $this->stateRepository->expects(self::once())
@@ -139,6 +161,9 @@ class WelcomeTest extends TestCase
         self::assertEquals(true, $this->object->showManualWelcomeBanner(17));
     }
 
+    /**
+     * Tests that showGettingStartedBanner returns false when state is empty
+     */
     public function testShowGettingStartedBannerFalseEmpty()
     {
         $this->stateRepository->expects(self::at(0))
@@ -156,6 +181,9 @@ class WelcomeTest extends TestCase
         self::assertEquals(false, $this->object->showGettingStartedBanner(17));
     }
 
+    /**
+     * Tests that showGettingStartedBanner returns false when show_welcome_banner state is present
+     */
     public function testShowGettingStartedBannerFalseShowBanner()
     {
         $this->stateRepository->expects(self::at(0))
@@ -173,6 +201,10 @@ class WelcomeTest extends TestCase
         self::assertEquals(false, $this->object->showGettingStartedBanner(17));
     }
 
+    /**
+     * Tests that showGettingStartedBanner returns true
+     * when show_getting_started_banner state value is a time in the future
+     */
     public function testShowGettingStartedBannerTrue()
     {
         $this->stateRepository->expects(self::at(0))

@@ -85,6 +85,9 @@ class DashboardTest extends TestCase
         );
     }
 
+    /**
+     * Sets up the standard config calls used by the dashbaord class create
+     */
     private function setupDashboard()
     {
         $this->coreConfig->expects(self::once())
@@ -111,11 +114,17 @@ class DashboardTest extends TestCase
             ->willReturn($this->dashboard);
     }
 
+    /**
+     * Tests class gets instantiated correctly
+     */
     public function testInstance()
     {
         self::assertInstanceOf(Dashboard::class, $this->object);
     }
 
+    /**
+     * Tests that an exception on any data call is handled
+     */
     public function testException()
     {
         $this->setupDashboard();
@@ -136,6 +145,9 @@ class DashboardTest extends TestCase
         );
     }
 
+    /**
+     * Tests that an getNextSteps returns the correct data
+     */
     public function testGetNextSteps()
     {
         $this->setupDashboard();
@@ -152,6 +164,9 @@ class DashboardTest extends TestCase
         );
     }
 
+    /**
+     * Tests that an getNextSteps handles no data returned
+     */
     public function testGetNextStepsEmpty()
     {
         $this->setupDashboard();
@@ -168,6 +183,9 @@ class DashboardTest extends TestCase
         );
     }
 
+    /**
+     * Tests that an getStats returns the correct data
+     */
     public function testGetStats()
     {
         $this->setupDashboard();
@@ -184,6 +202,9 @@ class DashboardTest extends TestCase
         );
     }
 
+    /**
+     * Tests that an getStats handles no data returned
+     */
     public function testGetStatsEmpty()
     {
         $this->setupDashboard();
@@ -200,6 +221,9 @@ class DashboardTest extends TestCase
         );
     }
 
+    /**
+     * Tests that an getAccountStatus returns the correct data
+     */
     public function testGetAccountStatus()
     {
         $this->setupDashboard();
@@ -216,6 +240,9 @@ class DashboardTest extends TestCase
         );
     }
 
+    /**
+     * Tests that an getAccountStatus handles no data returned
+     */
     public function testGetAccountStatusEmpty()
     {
         $this->setupDashboard();

@@ -74,48 +74,74 @@ class AccountStatusTest extends TestCase
         );
     }
 
+    /**
+     * Tests class gets instantiated correctly
+     */
     public function testInstance()
     {
         self::assertInstanceOf(AccountStatus::class, $this->object);
     }
 
+    /**
+     * Tests that getPureclarityStoresViewModel returns the right class
+     */
     public function testGetPureclarityStoresViewModel()
     {
         self::assertInstanceOf(Stores::class, $this->object->getPureclarityStoresViewModel());
     }
 
+    /**
+     * Tests that getStatusClass returns an empty value when above 4 days of trial left
+     */
     public function testGetStatusClassNone()
     {
         self::assertEquals('', $this->object->getStatusClass(17));
     }
 
-    public function testGetAccountStatus()
-    {
-        $this->dashboard->method('getAccountStatus')
-            ->with(17)
-            ->willReturn(['data']);
-        self::assertEquals(['data'], $this->object->getAccountStatus(17));
-    }
-
+    /**
+     * Tests that getStatusClass returns the right value when less than 4 days of trial left
+     */
     public function testGetStatusClassWarning()
     {
         self::assertEquals('pc-ft-warning', $this->object->getStatusClass(3));
     }
 
+    /**
+     * Tests that getStatusClass returns the right value when no days of trial left
+     */
     public function testGetStatusClassError()
     {
         self::assertEquals('pc-ft-error', $this->object->getStatusClass(0));
     }
 
+    /**
+     * Tests that getAccountStatus returns the data returned by the dashboard class
+     */
+    public function testGetAccountStatus()
+    {
+        $this->dashboard->method('getAccountStatus')
+            ->with(17)
+            ->willReturn(['data']);
+
+        self::assertEquals(['data'], $this->object->getAccountStatus(17));
+    }
+
+    /**
+     * Tests that getEndDate returns a value from Magento's date formatter when called
+     */
     public function testGetEndDate()
     {
         self::assertEquals('System Date', $this->object->getEndDate(10));
     }
 
+    /**
+     * Tests that getEndDate handles possible error from Magento's date formatter
+     */
     public function testGetEndDateError()
     {
         $this->localeDate->method('formatDateTime')
             ->willThrowException(new \Exception('SomeError'));
+
         self::assertEquals('', $this->object->getEndDate(17));
     }
 }

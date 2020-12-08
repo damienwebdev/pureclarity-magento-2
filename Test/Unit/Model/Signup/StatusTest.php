@@ -87,6 +87,8 @@ class StatusTest extends TestCase
     }
 
     /**
+     * Generates a State Mock with signup data
+     *
      * @return MockObject
      */
     private function getRealStateObject()
@@ -106,6 +108,7 @@ class StatusTest extends TestCase
     }
 
     /**
+     * Generates a State Mock
      * @param string $id
      * @param string $name
      * @param string $value
@@ -137,11 +140,17 @@ class StatusTest extends TestCase
         return $state;
     }
 
-    public function testProcessInstance()
+    /**
+     * Tests class gets instantiated correctly
+     */
+    public function testInstance()
     {
         $this->assertInstanceOf(Status::class, $this->object);
     }
 
+    /**
+     * Tests checkStatus handles a successful request
+     */
     public function testCheckStatusRequest()
     {
         $this->stateRepositoryMock->expects($this->once())
@@ -172,6 +181,9 @@ class StatusTest extends TestCase
         $this->assertEquals(self::REQUEST_ID, $this->requestParams['Id']);
     }
 
+    /**
+     * Tests checkStatus handles an incomplete signup request
+     */
     public function testIncompleteCheckStatus()
     {
         $this->stateRepositoryMock->expects($this->once())
@@ -205,6 +217,9 @@ class StatusTest extends TestCase
         );
     }
 
+    /**
+     * Tests checkStatus handles an complete signup request
+     */
     public function testCompleteCheckStatus()
     {
         $this->stateRepositoryMock->expects($this->once())
@@ -246,6 +261,9 @@ class StatusTest extends TestCase
         );
     }
 
+    /**
+     * Tests checkStatus handles 400 response
+     */
     public function test400Response()
     {
         $this->stateRepositoryMock->expects($this->once())
@@ -267,6 +285,9 @@ class StatusTest extends TestCase
         $this->assertEquals('Signup error: An error', $result['error']);
     }
 
+    /**
+     * Tests checkStatus handles an unexpected response format
+     */
     public function testUnexpectedResponse()
     {
         $this->stateRepositoryMock->expects($this->once())
@@ -292,6 +313,9 @@ class StatusTest extends TestCase
         );
     }
 
+    /**
+     * Tests checkStatus handles a timeout
+     */
     public function testTimeoutResponse()
     {
         $this->stateRepositoryMock->expects($this->once())
@@ -309,6 +333,9 @@ class StatusTest extends TestCase
         $this->assertEquals('Connection to PureClarity server timed out, please try again', $result['error']);
     }
 
+    /**
+     * Tests checkStatus handles an Exception
+     */
     public function testGeneralException()
     {
         $this->stateRepositoryMock->expects($this->once())

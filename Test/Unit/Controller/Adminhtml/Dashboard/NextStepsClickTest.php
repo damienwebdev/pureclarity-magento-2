@@ -93,6 +93,10 @@ class NextStepsClickTest extends TestCase
         );
     }
 
+    /**
+     * Sets up Http getParams with either the default params or provided ones
+     * @param array $params
+     */
     private function setupRequestGetParams($params = [])
     {
         $this->request->expects(self::once())
@@ -100,6 +104,10 @@ class NextStepsClickTest extends TestCase
             ->willReturn(empty($params) ? $this->defaultParams : $params);
     }
 
+    /**
+     * Sets up Http isPost with the provided flag
+     * @param bool $response
+     */
     private function setupRequestIsPost($response)
     {
         $this->request->expects(self::once())
@@ -107,6 +115,10 @@ class NextStepsClickTest extends TestCase
             ->willReturn($response);
     }
 
+    /**
+     * Sets up Validator validate with the provided flag
+     * @param bool $response
+     */
     private function setupFormKeyValidator($response)
     {
         $this->formKeyValidator->expects(self::once())
@@ -114,16 +126,25 @@ class NextStepsClickTest extends TestCase
             ->willReturn($response);
     }
 
+    /**
+     * Tests class gets instantiated correctly
+     */
     public function testInstance()
     {
         self::assertInstanceOf(NextStepsClick::class, $this->object);
     }
 
+    /**
+     * Tests class gets instantiated correctly
+     */
     public function testAction()
     {
         self::assertInstanceOf(Action::class, $this->object);
     }
 
+    /**
+     * Tests execute response to a non-POST call
+     */
     public function testExecuteInvalidPost()
     {
         $this->setupRequestIsPost(false);
@@ -139,6 +160,9 @@ class NextStepsClickTest extends TestCase
         self::assertInstanceOf(Json::class, $result);
     }
 
+    /**
+     * Tests execute response to an invalid form key
+     */
     public function testExecuteInvalidFormKey()
     {
         $this->setupRequestIsPost(true);
@@ -155,6 +179,9 @@ class NextStepsClickTest extends TestCase
         self::assertInstanceOf(Json::class, $result);
     }
 
+    /**
+     * Tests execute response to a missing store ID
+     */
     public function testExecuteMissingStore()
     {
         $this->setupRequestIsPost(true);
@@ -172,6 +199,9 @@ class NextStepsClickTest extends TestCase
         self::assertInstanceOf(Json::class, $result);
     }
 
+    /**
+     * Tests that execute handles a successful call to the complete function
+     */
     public function testExecuteComplete()
     {
         $this->setupRequestGetParams();

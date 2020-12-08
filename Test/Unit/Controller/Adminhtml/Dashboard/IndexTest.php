@@ -37,10 +37,10 @@ class IndexTest extends TestCase
     /** @var MockObject|Page $resultPage */
     private $resultPage;
 
-    /** @var MockObject|Page $storeManager */
+    /** @var MockObject|StoreManagerInterface $storeManager */
     private $storeManager;
 
-    /** @var MockObject|Page $coreConfig */
+    /** @var MockObject|CoreConfig $coreConfig */
     private $coreConfig;
 
     /** @var MockObject|Http $request */
@@ -87,6 +87,9 @@ class IndexTest extends TestCase
         );
     }
 
+    /**
+     * Sets up StoreManagerInterface getStores so it returns 2 stores
+     */
     private function setupGetStores()
     {
         $store1 = $this->getMockBuilder(StoreInterface::class)
@@ -109,6 +112,9 @@ class IndexTest extends TestCase
             ->willReturn([$store1, $store2]);
     }
 
+    /**
+     * Sets up StoreManagerInterface getDefaultStoreView so it returns a store
+     */
     private function setupDefaultStore()
     {
         $store1 = $this->getMockBuilder(StoreInterface::class)
@@ -123,16 +129,25 @@ class IndexTest extends TestCase
             ->willReturn($store1);
     }
 
+    /**
+     * Tests class gets instantiated correctly
+     */
     public function testInstance()
     {
         self::assertInstanceOf(Index::class, $this->object);
     }
 
+    /**
+     * Tests class gets instantiated correctly
+     */
     public function testAction()
     {
         self::assertInstanceOf(Action::class, $this->object);
     }
 
+    /**
+     * Tests the execute function in single store mode, making sure menu is set correctly
+     */
     public function testExecute()
     {
         $this->resultPage->expects(self::once())
@@ -143,6 +158,9 @@ class IndexTest extends TestCase
         self::assertInstanceOf(Page::class, $result);
     }
 
+    /**
+     * Tests the execute function in multi store mode, with a store selected
+     */
     public function testExecuteMultiStoreSelected()
     {
         $this->resultPage->expects(self::once())
@@ -165,6 +183,10 @@ class IndexTest extends TestCase
         self::assertInstanceOf(Page::class, $result);
     }
 
+    /**
+     * Tests the execute function in multi store mode, with no store selected and one store being configured
+     * meaning the configured store should be selected
+     */
     public function testExecuteMultiStoreNoneSelectedOneConfigured()
     {
         $this->resultPage->expects(self::once())
@@ -196,6 +218,10 @@ class IndexTest extends TestCase
         self::assertInstanceOf(Page::class, $result);
     }
 
+    /**
+     * Tests the execute function in multi store mode, with no store selected and no stores being configured
+     * meaning the default store should be selected
+     */
     public function testExecuteMultiStoreDefault()
     {
         $this->resultPage->expects(self::once())
@@ -220,6 +246,10 @@ class IndexTest extends TestCase
         self::assertInstanceOf(Page::class, $result);
     }
 
+    /**
+     * Tests the execute function in multi store mode, with no store selected, no stores being configured
+     * and no default store so 0 should be selected
+     */
     public function testExecuteMultiStoreNone()
     {
         $this->resultPage->expects(self::once())

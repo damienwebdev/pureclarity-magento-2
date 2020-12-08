@@ -57,6 +57,7 @@ class StoresTest extends TestCase
     }
 
     /**
+     * Generates a StoreInterface Mock
      * @param integer $id
      * @param string $name
      * @return MockObject
@@ -78,11 +79,17 @@ class StoresTest extends TestCase
         return $store;
     }
 
+    /**
+     * Tests class gets instantiated correctly
+     */
     public function testInstance()
     {
         self::assertInstanceOf(Stores::class, $this->object);
     }
 
+    /**
+     * Tests getStoreId returns the store ID based on the store ID in request when present.
+     */
     public function testGetStoreIdWithRequest()
     {
         $loadedStore = $this->getStoreMock(17, 'Store 1');
@@ -106,10 +113,11 @@ class StoresTest extends TestCase
         self::assertEquals(17, $store);
     }
 
+    /**
+     * Tests that getStoreId returns 0 as the store id when no store is loaded
+     */
     public function testGetStoreIdZero()
     {
-        $loadedStore = $this->getStoreMock(17, 'Store 1');
-
         $this->request->method('getParam')
             ->with('store')
             ->willReturn(null);
@@ -123,6 +131,9 @@ class StoresTest extends TestCase
         self::assertEquals(0, $store);
     }
 
+    /**
+     * Tests getStore uses the store ID in request when present.
+     */
     public function testGetStoreWithRequest()
     {
         $loadedStore = $this->getStoreMock(3, 'Store 1');
@@ -146,6 +157,9 @@ class StoresTest extends TestCase
         self::assertEquals($loadedStore, $store);
     }
 
+    /**
+     * Tests getStore handles an Exception on loading a store
+     */
     public function testGetStoreWithRequestException()
     {
         $this->request->method('getParam')
@@ -170,6 +184,9 @@ class StoresTest extends TestCase
         self::assertEquals(3, $store->getId());
     }
 
+    /**
+     * Tests getStore handles loading the default store when no request value present
+     */
     public function testGetStoreWithNoRequest()
     {
         $this->request->method('getParam')
@@ -193,6 +210,9 @@ class StoresTest extends TestCase
         self::assertEquals(3, $store->getId());
     }
 
+    /**
+     * Tests getMagentoDefaultStore handles loading the default store
+     */
     public function testGetMagentoDefaultStore()
     {
         $this->storeManager->expects(self::once())
@@ -209,6 +229,9 @@ class StoresTest extends TestCase
         self::assertEquals(3, $store->getId());
     }
 
+    /**
+     * Tests hasMultipleStores returns the correct flag from Magento
+     */
     public function testHasMultipleStoresFalse()
     {
         $this->storeManager->expects(self::once())
@@ -218,6 +241,9 @@ class StoresTest extends TestCase
         self::assertEquals(false, $this->object->hasMultipleStores());
     }
 
+    /**
+     * Tests hasMultipleStores returns the correct flag from Magento
+     */
     public function testHasMultipleStoresTrue()
     {
         $this->storeManager->expects(self::once())

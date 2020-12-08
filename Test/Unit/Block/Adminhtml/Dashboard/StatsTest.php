@@ -53,16 +53,25 @@ class StatsTest extends TestCase
         );
     }
 
+    /**
+     * Tests class gets instantiated correctly
+     */
     public function testInstance()
     {
         self::assertInstanceOf(Stats::class, $this->object);
     }
 
+    /**
+     * Tests that getPureclarityStoresViewModel returns the right class
+     */
     public function testGetPureclarityStoresViewModel()
     {
         self::assertInstanceOf(Stores::class, $this->object->getPureclarityStoresViewModel());
     }
 
+    /**
+     * Tests that getNextSteps returns the data returned by the dashboard class
+     */
     public function testGetNextSteps()
     {
         $this->dashboard->method('getStats')
@@ -71,6 +80,9 @@ class StatsTest extends TestCase
         self::assertEquals(['data'], $this->object->getStats(17));
     }
 
+    /**
+     * Tests that getStatTitle returns the correct title for the "today" type
+     */
     public function testGetStatTitleToday()
     {
         self::assertEquals(
@@ -79,6 +91,9 @@ class StatsTest extends TestCase
         );
     }
 
+    /**
+     * Tests that getStatTitle returns the correct title for the "last30days" type
+     */
     public function testGetStatTitle30Days()
     {
         self::assertEquals(
@@ -87,6 +102,9 @@ class StatsTest extends TestCase
         );
     }
 
+    /**
+     * Tests that hasRecTotalStats returns the correct flag when there is a recommender total to show
+     */
     public function testHasRecTotalStatsTrue()
     {
         self::assertEquals(
@@ -100,6 +118,9 @@ class StatsTest extends TestCase
         );
     }
 
+    /**
+     * Tests that hasRecTotalStats returns the correct flag when there isn't a recommender total to show due to no data
+     */
     public function testHasRecTotalStatsFalseNoData()
     {
         self::assertEquals(
@@ -108,6 +129,9 @@ class StatsTest extends TestCase
         );
     }
 
+    /**
+     * Tests that hasRecTotalStats returns the correct flag when there isn't a recommender total to show due to no total
+     */
     public function testHasRecTotalStatsFalseNoTotal()
     {
         self::assertEquals(
@@ -121,6 +145,9 @@ class StatsTest extends TestCase
         );
     }
 
+    /**
+     * Tests that getStatKeysToShow returns the correct stats to show
+     */
     public function testGetStatKeysToShow()
     {
         self::assertEquals(
@@ -136,6 +163,9 @@ class StatsTest extends TestCase
         );
     }
 
+    /**
+     * Tests that getStatDisplay formats a random field correctly (i.e. no formatting)
+     */
     public function testGetStatDisplayUnformatted()
     {
         self::assertEquals(
@@ -144,6 +174,9 @@ class StatsTest extends TestCase
         );
     }
 
+    /**
+     * Tests that getStatDisplay formats the ConversionRate field correctly
+     */
     public function testGetStatDisplayFormatted()
     {
         self::assertEquals(

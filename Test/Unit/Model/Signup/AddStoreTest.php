@@ -89,6 +89,10 @@ class AddStoreTest extends TestCase
         );
     }
 
+    /**
+     * Returns default params for use with calls
+     * @return array
+     */
     private function getDefaultParams()
     {
         return [
@@ -100,6 +104,7 @@ class AddStoreTest extends TestCase
     }
 
     /**
+     * Generates a State mock
      * @param string $id
      * @param string $name
      * @param string $value
@@ -127,11 +132,17 @@ class AddStoreTest extends TestCase
         return $state;
     }
 
+    /**
+     * Tests class gets instantiated correctly
+     */
     public function testInstance()
     {
         self::assertInstanceOf(AddStore::class, $this->object);
     }
 
+    /**
+     * Tests how sendRequest handles an error response
+     */
     public function testSendRequestErrors()
     {
         $params = $this->getDefaultParams();
@@ -151,6 +162,9 @@ class AddStoreTest extends TestCase
         );
     }
 
+    /**
+     * Tests how sendRequest handles a 403 response
+     */
     public function testSendRequest403Status()
     {
         $params = $this->getDefaultParams();
@@ -173,6 +187,9 @@ class AddStoreTest extends TestCase
         );
     }
 
+    /**
+     * Tests how sendRequest handles a non-200/non-403 response
+     */
     public function testSendRequestNon200Status()
     {
         $params = $this->getDefaultParams();
@@ -196,6 +213,9 @@ class AddStoreTest extends TestCase
         );
     }
 
+    /**
+     * Tests how sendRequest handles an invalid response
+     */
     public function testSendRequestInvalidResponse()
     {
         $params = $this->getDefaultParams();
@@ -218,6 +238,9 @@ class AddStoreTest extends TestCase
         );
     }
 
+    /**
+     * Tests how sendRequest handles a valid response
+     */
     public function testSendRequestValidResponse()
     {
         $params = $this->getDefaultParams();
@@ -274,6 +297,9 @@ class AddStoreTest extends TestCase
         );
     }
 
+    /**
+     * Tests how sendRequest handles a bad attempt at saving the signup request
+     */
     public function testSendRequestBadSave()
     {
         $params = $this->getDefaultParams();
@@ -335,6 +361,9 @@ class AddStoreTest extends TestCase
         );
     }
 
+    /**
+     * Tests how sendRequest handles an Exception thrown by the addStore->request method
+     */
     public function testSendRequestException()
     {
         $params = $this->getDefaultParams();
