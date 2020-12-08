@@ -7,12 +7,12 @@
 namespace Pureclarity\Core\Test\Unit\ViewModel\Adminhtml;
 
 use Magento\Framework\App\RequestInterface;
+use Magento\Framework\Exception\NoSuchEntityException;
+use Magento\Framework\Phrase;
 use Magento\Store\Api\Data\StoreInterface;
 use Magento\Store\Model\StoreManagerInterface;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
-use Pureclarity\Core\Api\StateRepositoryInterface;
-use Pureclarity\Core\Model\State;
 use Pureclarity\Core\ViewModel\Adminhtml\Stores;
 use Psr\Log\LoggerInterface;
 
@@ -29,8 +29,11 @@ class StoresTest extends TestCase
     /** @var MockObject|StoreManagerInterface $storeManager */
     private $storeManager;
 
-    /** @var MockObject|StateRepositoryInterface $stateRepository */
-    private $stateRepository;
+    /** @var MockObject|RequestInterface $request */
+    private $request;
+
+    /** @var MockObject|LoggerInterface $logger */
+    private $logger;
 
     protected function setUp()
     {
@@ -38,48 +41,19 @@ class StoresTest extends TestCase
             ->disableOriginalConstructor()
             ->getMock();
 
-        $request = $this->getMockBuilder(RequestInterface::class)
+        $this->request = $this->getMockBuilder(RequestInterface::class)
             ->disableOriginalConstructor()
             ->getMock();
 
-        $logger = $this->getMockBuilder(LoggerInterface::class)
+        $this->logger = $this->getMockBuilder(LoggerInterface::class)
             ->disableOriginalConstructor()
             ->getMock();
 
         $this->object = new Stores(
             $this->storeManager,
-            $request,
-            $logger
+            $this->request,
+            $this->logger
         );
-    }
-
-    /**
-     * @param string $value
-     * @return MockObject
-     */
-    private function getStateMock($value = null)
-    {
-        $state = $this->getMockBuilder(State::class)
-            ->disableOriginalConstructor()
-            ->getMock();
-
-        $state->expects($this->any())
-            ->method('getId')
-            ->willReturn(1);
-
-        $state->expects($this->any())
-            ->method('getStoreId')
-            ->willReturn('0');
-
-        $state->expects($this->any())
-            ->method('getName')
-            ->willReturn('default_store');
-
-        $state->expects($this->any())
-            ->method('getValue')
-            ->willReturn($value);
-
-        return $state;
     }
 
     /**
@@ -93,11 +67,11 @@ class StoresTest extends TestCase
             ->disableOriginalConstructor()
             ->getMock();
 
-        $store->expects($this->any())
+        $store->expects(self::any())
             ->method('getId')
             ->willReturn($id);
 
-        $store->expects($this->any())
+        $store->expects(self::any())
             ->method('getName')
             ->willReturn($name);
 
@@ -106,40 +80,150 @@ class StoresTest extends TestCase
 
     public function testInstance()
     {
-        $this->assertInstanceOf(Stores::class, $this->object);
+        self::assertInstanceOf(Stores::class, $this->object);
+    }
+
+    public function testGetStoreIdWithRequest()
+    {
+        $loadedStore = $this->getStoreMock(17, 'Store 1');
+
+        $this->request->method('getParam')
+            ->with('store')
+            ->willReturn(17);
+
+        $this->storeManager->expects(self::once())
+            ->method('getStore')
+            ->with(17)
+            ->willReturn($loadedStore);
+
+        $store = $this->object->getStoreId();
+
+        self::assertEquals(17, $store);
+
+        // call again, to check caching works
+        $store = $this->object->getStoreId();
+
+        self::assertEquals(17, $store);
+    }
+
+    public function testGetStoreIdZero()
+    {
+        $loadedStore = $this->getStoreMock(17, 'Store 1');
+
+        $this->request->method('getParam')
+            ->with('store')
+            ->willReturn(null);
+
+        $this->storeManager->expects(self::once())
+            ->method('getDefaultStoreView')
+            ->willReturn(null);
+
+        $store = $this->object->getStoreId();
+
+        self::assertEquals(0, $store);
+    }
+
+    public function testGetStoreWithRequest()
+    {
+        $loadedStore = $this->getStoreMock(3, 'Store 1');
+
+        $this->request->method('getParam')
+            ->with('store')
+            ->willReturn(3);
+
+        $this->storeManager->expects(self::once())
+            ->method('getStore')
+            ->with(3)
+            ->willReturn($loadedStore);
+
+        $store = $this->object->getStore();
+
+        self::assertEquals($loadedStore, $store);
+
+        // call again, to check caching works
+        $store = $this->object->getStore();
+
+        self::assertEquals($loadedStore, $store);
+    }
+
+    public function testGetStoreWithRequestException()
+    {
+        $this->request->method('getParam')
+            ->with('store')
+            ->willReturn(17);
+
+        $this->storeManager->expects(self::once())
+            ->method('getStore')
+            ->with(17)
+            ->willThrowException(new NoSuchEntityException(new Phrase('An error')));
+
+        $this->logger->expects(self::once())
+            ->method('error')
+            ->with('PureClarity: Admin Dashboard could not load selected store - An error');
+
+        $this->storeManager->expects(self::once())
+            ->method('getDefaultStoreView')
+            ->willReturn($this->getStoreMock(3, 'Store 1'));
+
+        $store = $this->object->getStore();
+
+        self::assertEquals(3, $store->getId());
+    }
+
+    public function testGetStoreWithNoRequest()
+    {
+        $this->request->method('getParam')
+            ->with('store')
+            ->willReturn(null);
+
+        $this->storeManager->expects(self::never())
+            ->method('getStore');
+
+        $this->storeManager->expects(self::once())
+            ->method('getDefaultStoreView')
+            ->willReturn($this->getStoreMock(3, 'Store 1'));
+
+        $store = $this->object->getStore();
+
+        self::assertEquals(3, $store->getId());
+
+        // call again, to ensure in-object caching works
+        $store = $this->object->getMagentoDefaultStore();
+
+        self::assertEquals(3, $store->getId());
     }
 
     public function testGetMagentoDefaultStore()
     {
-        $this->storeManager->expects($this->once())
+        $this->storeManager->expects(self::once())
             ->method('getDefaultStoreView')
             ->willReturn($this->getStoreMock(3, 'Store 1'));
 
         $store = $this->object->getMagentoDefaultStore();
 
-        $this->assertEquals(3, $store->getId());
+        self::assertEquals(3, $store->getId());
 
         // call again, to ensure in-object caching works
         $store = $this->object->getMagentoDefaultStore();
 
-        $this->assertEquals(3, $store->getId());
+        self::assertEquals(3, $store->getId());
     }
 
     public function testHasMultipleStoresFalse()
     {
-        $this->storeManager->expects($this->once())
+        $this->storeManager->expects(self::once())
             ->method('hasSingleStore')
             ->willReturn(true);
 
-        $this->assertEquals(false, $this->object->hasMultipleStores());
+        self::assertEquals(false, $this->object->hasMultipleStores());
     }
 
     public function testHasMultipleStoresTrue()
     {
-        $this->storeManager->expects($this->once())
+        $this->storeManager->expects(self::once())
             ->method('hasSingleStore')
             ->willReturn(false);
 
-        $this->assertEquals(true, $this->object->hasMultipleStores());
+        self::assertEquals(true, $this->object->hasMultipleStores());
     }
 }
