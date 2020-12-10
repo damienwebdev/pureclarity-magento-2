@@ -101,7 +101,7 @@ class Dashboard
                 $response = $dash->request();
                 $this->dashboardInfo[$storeId] = $this->serializer->unserialize($response['body']);
             } catch (\Exception $e) {
-                $this->logger->error('PureClarity Dasbhoard Error: ' . $e->getMessage());
+                $this->logger->error('PureClarity Dashboard Error: ' . $e->getMessage());
             }
         }
 

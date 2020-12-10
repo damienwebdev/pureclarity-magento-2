@@ -66,6 +66,7 @@ class NextStepsClick extends Action
             $result['error'] = __('Missing Store ID');
         } else {
             $this->complete->markNextStepComplete($params['store'], $params['next-step-id']);
+            $result['success'] = true;
         }
 
         $json = $this->jsonFactory->create();

@@ -76,7 +76,9 @@ class Stores
                 try {
                     $this->selectedStore = $this->storeManager->getStore($storeId);
                 } catch (NoSuchEntityException $e) {
-                    $this->logger->error('PureClarity: Admin Dashboard could not load selected store');
+                    $this->logger->error(
+                        'PureClarity: Admin Dashboard could not load selected store - ' . $e->getMessage()
+                    );
                 }
             }
         }

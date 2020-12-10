@@ -8,6 +8,7 @@ namespace Pureclarity\Core\Test\Unit\Model\Signup;
 
 use Magento\Framework\App\Cache\Manager;
 use Magento\Framework\App\Cache\Type\Config;
+use Magento\Framework\Exception\CouldNotDeleteException;
 use Magento\Framework\Exception\CouldNotSaveException;
 use Magento\Framework\Phrase;
 use Magento\Store\Api\Data\StoreInterface;
@@ -20,6 +21,7 @@ use Pureclarity\Core\Model\Cron;
 use Pureclarity\Core\Model\Signup\Process;
 use Pureclarity\Core\Model\CronFactory;
 use Pureclarity\Core\Model\State;
+use Psr\Log\LoggerInterface;
 
 /**
  * Class ProcessTest
@@ -57,6 +59,9 @@ class ProcessTest extends TestCase
     /** @var MockObject|Manager $cacheManagerMock */
     private $cacheManagerMock;
 
+    /** @var MockObject|LoggerInterface $logger */
+    private $logger;
+
     protected function setUp()
     {
         $this->stateRepositoryInterfaceMock = $this->getMockBuilder(StateRepositoryInterface::class)
@@ -90,15 +95,24 @@ class ProcessTest extends TestCase
             ->disableOriginalConstructor()
             ->getMock();
 
+        $this->logger = $this->getMockBuilder(LoggerInterface::class)
+            ->disableOriginalConstructor()
+            ->getMock();
+
         $this->object = new Process(
             $this->stateRepositoryInterfaceMock,
             $this->coreConfigMock,
             $this->cronFactoryMock,
             $this->storeManagerInterfaceMock,
-            $this->cacheManagerMock
+            $this->cacheManagerMock,
+            $this->logger
         );
     }
 
+    /**
+     * Returns default params for use with calls
+     * @return array
+     */
     private function getDefaultParams()
     {
         return [
@@ -110,6 +124,7 @@ class ProcessTest extends TestCase
     }
 
     /**
+     * Generates a State mock
      * @param string $id
      * @param string $name
      * @param string $value
@@ -141,17 +156,19 @@ class ProcessTest extends TestCase
         return $state;
     }
 
+    /**
+     * Tests class gets instantiated correctly
+     */
     public function testProcessInstance()
     {
         $this->assertInstanceOf(Process::class, $this->object);
     }
 
+    /**
+     * Tests that process calls the right things on a standard signup
+     */
     public function testProcess()
     {
-        $this->stateRepositoryInterfaceMock->expects($this->any())
-            ->method('getByNameAndStore')
-            ->willReturn($this->getStateMock());
-
         $this->coreConfigMock->expects($this->exactly(1))
             ->method('setAccessKey');
 
@@ -199,21 +216,24 @@ class ProcessTest extends TestCase
             ->method('clean')
             ->with([Config::TYPE_IDENTIFIER]);
 
-        // test setConfiguredState calls
+        // test setWelcomeState calls
+
+        $this->stateRepositoryInterfaceMock->expects($this->at(0))
+            ->method('getByNameAndStore')
+            ->willReturn($this->getStateMock());
 
         $this->stateRepositoryInterfaceMock->expects($this->at(1))
             ->method('save')
-            ->with($this->getStateMock('1', 'is_configured', '1', '0'));
+            ->with($this->getStateMock('1', 'show_welcome_banner', 'auto', self::STORE_ID));
 
         // test completeSignup calls
-        $this->stateRepositoryInterfaceMock->expects($this->at(3))
-            ->method('save')
-            ->with($this->getStateMock('1', 'signup_request', 'complete', '0'));
+        $this->stateRepositoryInterfaceMock->expects($this->at(2))
+            ->method('getByNameAndStore')
+            ->willReturn($this->getStateMock('1', 'signup_request', 'complete', self::STORE_ID));
 
-        // test setDefaultStore calls
-        $this->stateRepositoryInterfaceMock->expects($this->at(5))
-            ->method('save')
-            ->with($this->getStateMock('1', 'default_store', self::STORE_ID, '0'));
+        $this->stateRepositoryInterfaceMock->expects($this->at(3))
+            ->method('delete')
+            ->with($this->getStateMock('1', 'signup_request', 'complete', self::STORE_ID));
 
         // test triggerFeeds calls
         $this->cronMock->expects($this->at(0))
@@ -223,15 +243,14 @@ class ProcessTest extends TestCase
         $this->object->process($this->getDefaultParams());
     }
 
+    /**
+     * Tests that process calls the right things when a 0 store_id is provided
+     */
     public function testProcessWithDefaultStore()
     {
         $this->stateRepositoryInterfaceMock->expects($this->any())
             ->method('getByNameAndStore')
             ->willReturn($this->getStateMock());
-
-        $this->stateRepositoryInterfaceMock->expects($this->at(5))
-            ->method('save')
-            ->with($this->getStateMock('1', 'default_store', 17, '0'));
 
         // test triggerFeeds calls
         $this->cronMock->expects($this->at(0))
@@ -252,6 +271,9 @@ class ProcessTest extends TestCase
         $this->object->process($params);
     }
 
+    /**
+     * Tests that process handles an error in state saving
+     */
     public function testProcessSaveError()
     {
         $this->stateRepositoryInterfaceMock->expects($this->any())
@@ -266,6 +288,37 @@ class ProcessTest extends TestCase
         $this->assertEquals(['Error processing request: Some save error'], $result['errors']);
     }
 
+    /**
+     * Tests that process handles an error in state deletion
+     */
+    public function testProcessDeleteError()
+    {
+        $this->stateRepositoryInterfaceMock->expects($this->any())
+            ->method('delete')
+            ->willThrowException(new CouldNotDeleteException(new Phrase('Some delete error')));
+
+        $this->stateRepositoryInterfaceMock->expects($this->at(0))
+            ->method('getByNameAndStore')
+            ->willReturn($this->getStateMock());
+
+        $this->stateRepositoryInterfaceMock->expects($this->at(1))
+            ->method('getByNameAndStore')
+            ->willReturn($this->getStateMock());
+
+        $this->stateRepositoryInterfaceMock->expects($this->at(2))
+            ->method('getByNameAndStore')
+            ->willReturn($this->getStateMock('1', 'signup_request', '', self::STORE_ID));
+
+        $this->logger->expects($this->once())
+            ->method('error')
+            ->with('PureClarity: could not clear signup state. Error was: Some delete error');
+
+        $this->object->process($this->getDefaultParams());
+    }
+
+    /**
+     * Tests that process handles a manual configuration with no data provided
+     */
     public function testManualConfigureWithEmptyParams()
     {
         $result = $this->object->processManualConfigure([]);
@@ -280,6 +333,9 @@ class ProcessTest extends TestCase
         $this->assertEquals($expectedErrors, $result['errors']);
     }
 
+    /**
+     * Tests that process handles a manual configuration with invalid data provided
+     */
     public function testManualConfigureWithInvalidParams()
     {
         $params = $this->getDefaultParams();
@@ -301,6 +357,9 @@ class ProcessTest extends TestCase
         $this->assertEquals($expectedErrors, $result['errors']);
     }
 
+    /**
+     * Tests that process handles a manual configuration with valid data provided
+     */
     public function testManualConfigureWithValidParams()
     {
         $this->stateRepositoryInterfaceMock->expects($this->any())
@@ -311,6 +370,9 @@ class ProcessTest extends TestCase
         $this->assertEquals([], $result['errors']);
     }
 
+    /**
+     * Tests that process handles a manual configuration with a save error
+     */
     public function testManualConfigureWithSaveError()
     {
         $this->stateRepositoryInterfaceMock->expects($this->any())
