@@ -11,15 +11,32 @@
             PureClarity
         </title>
         <css src="Pureclarity_Core::css/dashboard.css"/>
-        <css src="https://fonts.googleapis.com/css?family=Roboto:300,400,500,700|Roboto+Slab:400,700" src_type="url"/>
+        <css src="Pureclarity_Core::css/slick.css"/>
+        <css src="Pureclarity_Core::css/slick-theme.css"/>
+        <css src="https://fonts.googleapis.com/css?family=Lato:200,300,400,500,600,700,900" src_type="url"/>
         <link src="Pureclarity_Core::js/dashboard.js"/>
     </head>
     <body>
+        <referenceContainer name="page.main.actions">
+            <block class="Pureclarity\Core\Block\Adminhtml\Toolbar" name="pureclarity_toolbar" template="Pureclarity_Core::toolbar.phtml">
+                <block class="Magento\Backend\Block\Store\Switcher" name="store_switcher">
+                    <action method="setUseConfirm">
+                        <argument name="params" xsi:type="string">0</argument>
+                    </action>
+                    <action method="hasDefaultOption">
+                        <argument name="params" xsi:type="boolean">false</argument>
+                    </action>
+                </block>
+            </block>
+        </referenceContainer>
         <referenceContainer name="content">
             <block class="Pureclarity\Core\Block\Adminhtml\Dashboard" name="pureclarity.dashboard.content" as="pureclarity_dashboard_content" template="Pureclarity_Core::dashboard.phtml">
                 <block class="Pureclarity\Core\Block\Adminhtml\Dashboard\Signup" name="pureclarity.dashboard.content.signup" as="pureclarity_dashboard_content_signup" template="Pureclarity_Core::dashboard/signup.phtml" />
-                <block class="Magento\Framework\View\Element\Template" name="pureclarity.dashboard.content.waiting" as="pureclarity_dashboard_content_waiting" template="Pureclarity_Core::dashboard/waiting.phtml" />
                 <block class="Pureclarity\Core\Block\Adminhtml\Dashboard\Configured" name="pureclarity.dashboard.content.configured" as="pureclarity_dashboard_content_configured" template="Pureclarity_Core::dashboard/configured.phtml">
+                    <block class="Pureclarity\Core\Block\Adminhtml\Dashboard\WelcomeBanner" name="pureclarity.dashboard.content.welcome.banner" as="pureclarity_dashboard_welcome_banner" template="Pureclarity_Core::dashboard/welcome_banner.phtml" />
+                    <block class="Pureclarity\Core\Block\Adminhtml\Dashboard\NextSteps" name="pureclarity.dashboard.content.next.steps" as="pureclarity_dashboard_content_next_steps" template="Pureclarity_Core::dashboard/next_steps.phtml" />
+                    <block class="Pureclarity\Core\Block\Adminhtml\Dashboard\Stats" name="pureclarity.dashboard.content.stats" as="pureclarity_dashboard_content_stats" template="Pureclarity_Core::dashboard/stats.phtml" />
+                    <block class="Pureclarity\Core\Block\Adminhtml\Dashboard\AccountStatus" name="pureclarity.dashboard.content.account.status" as="pureclarity_dashboard_content_account_status" template="Pureclarity_Core::dashboard/account_status.phtml" />
                     <block class="Pureclarity\Core\Block\Adminhtml\Dashboard\InstallZonesModal" name="pureclarity.dashboard.content.install.zones" as="pureclarity_dashboard_content_install_zones" template="Pureclarity_Core::dashboard/install_zones_modal.phtml" />
                     <block class="Pureclarity\Core\Block\Adminhtml\Dashboard\Feeds" name="pureclarity.dashboard.content.feeds" as="pureclarity_dashboard_content_feeds" template="Pureclarity_Core::dashboard/feeds.phtml" />
                 </block>

@@ -93,6 +93,10 @@ class SignupStatusTest extends TestCase
         );
     }
 
+    /**
+     * Sets up Http isGet with the provided flag
+     * @param bool $response
+     */
     private function setupRequestIsGet($response)
     {
         $this->request->expects($this->once())
@@ -100,16 +104,37 @@ class SignupStatusTest extends TestCase
             ->willReturn($response);
     }
 
+    /**
+     * Sets up Http getParams for 'store' param, with the provided store id
+     * @param integer $store
+     */
+    private function setupRequestGetParamStore($store)
+    {
+        $this->request->expects($this->once())
+            ->method('getParam')
+            ->with('store')
+            ->willReturn($store);
+    }
+
+    /**
+     * Tests class gets instantiated correctly
+     */
     public function testInstance()
     {
         $this->assertInstanceOf(SignupStatus::class, $this->object);
     }
 
+    /**
+     * Tests class gets instantiated correctly
+     */
     public function testAction()
     {
         $this->assertInstanceOf(Action::class, $this->object);
     }
 
+    /**
+     * Tests how execute handles a non-GET call
+     */
     public function testExecuteInvalidGet()
     {
         $this->setupRequestIsGet(false);
@@ -125,9 +150,31 @@ class SignupStatusTest extends TestCase
         $this->assertInstanceOf(Json::class, $result);
     }
 
+    /**
+     * Tests how execute handles a missing store ID
+     */
+    public function testExecuteInvalidNoStore()
+    {
+        $this->setupRequestIsGet(true);
+
+        $this->json->expects($this->once())
+            ->method('setData')
+            ->with([
+                'error' => 'Invalid request, please reload the page and try again',
+                'success' => false
+            ]);
+
+        $result = $this->object->execute();
+        $this->assertInstanceOf(Json::class, $result);
+    }
+
+    /**
+     * Tests how execute handles an error returned by the checkStatus call
+     */
     public function testExecuteInvalidSignupStatusErrors()
     {
         $this->setupRequestIsGet(true);
+        $this->setupRequestGetParamStore(1);
 
         $this->requestStatus->expects($this->once())
             ->method('checkStatus')
@@ -147,9 +194,13 @@ class SignupStatusTest extends TestCase
         $this->assertInstanceOf(Json::class, $result);
     }
 
+    /**
+     * Tests how execute handles a successful checkStatus call
+     */
     public function testExecuteSuccess()
     {
         $this->setupRequestIsGet(true);
+        $this->setupRequestGetParamStore(1);
 
         $this->requestStatus->expects($this->once())
             ->method('checkStatus')

@@ -8,29 +8,29 @@ namespace Pureclarity\Core\Test\Unit\Controller\Adminhtml\Dashboard;
 
 use Magento\Framework\App\Request\Http;
 use PHPUnit\Framework\TestCase;
-use Pureclarity\Core\Controller\Adminhtml\Dashboard\Configure;
+use Pureclarity\Core\Controller\Adminhtml\Dashboard\NextStepsClick;
 use Magento\Backend\App\Action\Context;
 use Magento\Backend\App\Action;
 use Magento\Framework\Controller\Result\Json;
 use Magento\Framework\Controller\Result\JsonFactory;
 use Magento\Framework\Data\Form\FormKey\Validator;
-use Pureclarity\Core\Model\Signup\Process;
 use PHPUnit\Framework\MockObject\MockObject;
+use Pureclarity\Core\Model\NextSteps\Complete;
 
 /**
- * Class ConfigureTest
+ * Class NextStepsClickTest
  *
- * Tests the methods in \Pureclarity\Core\Controller\Adminhtml\Dashboard\Configure
+ * Tests the methods in \Pureclarity\Core\Controller\Adminhtml\Dashboard\NextStepsClick
  */
-class ConfigureTest extends TestCase
+class NextStepsClickTest extends TestCase
 {
     /** @var array $defaultParams */
     private $defaultParams = [
-        'param1' => 'param1',
-        'param2' => 'param1',
+        'store' => '1',
+        'next-step-id' => 'next-step-id-one-seven'
     ];
 
-    /** @var Configure $object */
+    /** @var NextStepsClick $object */
     private $object;
 
     /** @var MockObject|Context $context */
@@ -39,11 +39,11 @@ class ConfigureTest extends TestCase
     /** @var MockObject|JsonFactory $jsonFactory */
     private $jsonFactory;
 
+    /** @var MockObject|Complete $complete */
+    private $complete;
+
     /** @var MockObject|Json $json */
     private $json;
-
-    /** @var MockObject|Process $requestProcess */
-    private $requestProcess;
 
     /** @var MockObject|Validator $formKeyValidator */
     private $formKeyValidator;
@@ -61,21 +61,15 @@ class ConfigureTest extends TestCase
             ->disableOriginalConstructor()
             ->getMock();
 
-        $this->context->expects($this->any())
-            ->method('getRequest')
+        $this->context->method('getRequest')
             ->willReturn($this->request);
 
         $this->formKeyValidator = $this->getMockBuilder(Validator::class)
             ->disableOriginalConstructor()
             ->getMock();
 
-        $this->context->expects($this->any())
-            ->method('getFormKeyValidator')
+        $this->context->method('getFormKeyValidator')
             ->willReturn($this->formKeyValidator);
-
-        $this->requestProcess = $this->getMockBuilder(Process::class)
-            ->disableOriginalConstructor()
-            ->getMock();
 
         $this->jsonFactory = $this->getMockBuilder(JsonFactory::class)
             ->disableOriginalConstructor()
@@ -85,53 +79,77 @@ class ConfigureTest extends TestCase
             ->disableOriginalConstructor()
             ->getMock();
 
-        $this->jsonFactory->expects($this->any())
-            ->method('create')
+        $this->jsonFactory->method('create')
             ->willReturn($this->json);
 
-        $this->object = new Configure(
+        $this->complete = $this->getMockBuilder(Complete::class)
+            ->disableOriginalConstructor()
+            ->getMock();
+
+        $this->object = new NextStepsClick(
             $this->context,
-            $this->requestProcess,
-            $this->jsonFactory
+            $this->jsonFactory,
+            $this->complete
         );
     }
 
-    private function setupRequestGetParams()
+    /**
+     * Sets up Http getParams with either the default params or provided ones
+     * @param array $params
+     */
+    private function setupRequestGetParams($params = [])
     {
-        $this->request->expects($this->once())
+        $this->request->expects(self::once())
             ->method('getParams')
-            ->willReturn($this->defaultParams);
+            ->willReturn(empty($params) ? $this->defaultParams : $params);
     }
 
+    /**
+     * Sets up Http isPost with the provided flag
+     * @param bool $response
+     */
     private function setupRequestIsPost($response)
     {
-        $this->request->expects($this->once())
+        $this->request->expects(self::once())
             ->method('isPost')
             ->willReturn($response);
     }
 
+    /**
+     * Sets up Validator validate with the provided flag
+     * @param bool $response
+     */
     private function setupFormKeyValidator($response)
     {
-        $this->formKeyValidator->expects($this->once())
+        $this->formKeyValidator->expects(self::once())
             ->method('validate')
             ->willReturn($response);
     }
 
+    /**
+     * Tests class gets instantiated correctly
+     */
     public function testInstance()
     {
-        $this->assertInstanceOf(Configure::class, $this->object);
+        self::assertInstanceOf(NextStepsClick::class, $this->object);
     }
 
+    /**
+     * Tests class gets instantiated correctly
+     */
     public function testAction()
     {
-        $this->assertInstanceOf(Action::class, $this->object);
+        self::assertInstanceOf(Action::class, $this->object);
     }
 
+    /**
+     * Tests execute response to a non-POST call
+     */
     public function testExecuteInvalidPost()
     {
         $this->setupRequestIsPost(false);
 
-        $this->json->expects($this->once())
+        $this->json->expects(self::once())
             ->method('setData')
             ->with([
                 'error' => 'Invalid request, please reload the page and try again',
@@ -139,15 +157,18 @@ class ConfigureTest extends TestCase
             ]);
 
         $result = $this->object->execute();
-        $this->assertInstanceOf(Json::class, $result);
+        self::assertInstanceOf(Json::class, $result);
     }
 
+    /**
+     * Tests execute response to an invalid form key
+     */
     public function testExecuteInvalidFormKey()
     {
         $this->setupRequestIsPost(true);
         $this->setupFormKeyValidator(false);
 
-        $this->json->expects($this->once())
+        $this->json->expects(self::once())
             ->method('setData')
             ->with([
                 'error' => 'Invalid form key, please reload the page and try again',
@@ -155,48 +176,43 @@ class ConfigureTest extends TestCase
             ]);
 
         $result = $this->object->execute();
-        $this->assertInstanceOf(Json::class, $result);
+        self::assertInstanceOf(Json::class, $result);
     }
 
-    public function testExecuteInvalidConfigureErrors()
+    /**
+     * Tests execute response to a missing store ID
+     */
+    public function testExecuteMissingStore()
     {
-        $this->setupRequestGetParams();
         $this->setupRequestIsPost(true);
         $this->setupFormKeyValidator(true);
+        $this->setupRequestGetParams(['next-step-id' => 'one']);
 
-        $this->requestProcess->expects($this->once())
-            ->method('processManualConfigure')
-            ->with($this->defaultParams)
-            ->willReturn([
-                'errors' => ['error1', 'error2']
-            ]);
-
-        $this->json->expects($this->once())
+        $this->json->expects(self::once())
             ->method('setData')
             ->with([
-                'error' => 'error1,error2',
+                'error' => 'Missing Store ID',
                 'success' => false
             ]);
 
         $result = $this->object->execute();
-        $this->assertInstanceOf(Json::class, $result);
+        self::assertInstanceOf(Json::class, $result);
     }
 
-    public function testExecuteSuccess()
+    /**
+     * Tests that execute handles a successful call to the complete function
+     */
+    public function testExecuteComplete()
     {
-        $this->setupRequestIsPost(true);
         $this->setupRequestGetParams();
+        $this->setupRequestIsPost(true);
         $this->setupFormKeyValidator(true);
 
-        $this->requestProcess->expects($this->once())
-            ->method('processManualConfigure')
-            ->with($this->defaultParams)
-            ->willReturn([
-                'errors' => [],
-                'success' => true
-            ]);
+        $this->complete->expects(self::once())
+            ->method('markNextStepComplete')
+            ->with('1','next-step-id-one-seven');
 
-        $this->json->expects($this->once())
+        $this->json->expects(self::once())
             ->method('setData')
             ->with([
                 'error' => '',
@@ -204,6 +220,6 @@ class ConfigureTest extends TestCase
             ]);
 
         $result = $this->object->execute();
-        $this->assertInstanceOf(Json::class, $result);
+        self::assertInstanceOf(Json::class, $result);
     }
 }

@@ -1,0 +1,47 @@
+<?php
+/**
+ * Copyright © PureClarity. All rights reserved.
+ * See LICENSE.txt for license details.
+ */
+
+/** @var \Pureclarity\Core\Block\Adminhtml\Toolbar $block */
+/** @var \Pureclarity\Core\ViewModel\Adminhtml\Dashboard\State $state */
+$state = $block->getPureclarityStateViewModel();
+/** @var \Pureclarity\Core\ViewModel\Adminhtml\Stores $stores */
+$stores = $block->getPureclarityStoresViewModel();
+
+?>
+<div class="page-actions" id="pureclarity-toolbar">
+    <?php if ($stores->hasMultipleStores()): ?>
+        <?= $block->getChildHtml('store_switcher') ?>
+    <?php endif; ?>
+    <div class="page-actions-inner">
+        <div class="page-actions-buttons">
+            <?php if ($state->isConfigured($stores->getStoreId())): ?>
+                <a id="pureclarity-toolbar-settings"
+                   href="<?= $block->escapeUrl(
+                       $block->getUrl('adminhtml/system_config/edit/section/pureclarity')
+                   ) ?>"
+                   title="<?= $block->escapeQuote($block->escapeHtml(__('Settings'))) ?>"
+                   target="_blank">
+                    <?= $block->escapeHtml(__('Settings')) ?>
+                </a>
+            <?php endif; ?>
+            <?php $link = 'mailto:support@pureclarity.com?subject=Magento%202%20Support%20Issue&'
+                        . 'body=Plugin%20Version:%20' . $state->getPluginVersion()
+                        . '%0D%0AMagento Version:%20' . $state->getMagentoVersion()
+                        . '%0D%0AStore Name: [PLEASE ENTER]%0D%0A'; ?>
+            <a id="pureclarity-toolbar-support" href="<?= $block->escapeQuote($block->escapeHtml($link)) ?>"
+                title="<?= $block->escapeQuote($block->escapeHtml(__('Contact Support'))) ?>"
+                target="_blank">
+                <?= $block->escapeHtml(__('Support')) ?>
+            </a>
+            <a id="pureclarity-toolbar-documentation" href="https://admin.pureclarity.com/"
+                    type="submit"
+                    title="<?= $block->escapeQuote($block->escapeHtml(__('Documentation'))) ?>"
+                    target="_blank">
+                <?= $block->escapeHtml(__('Documentation')) ?>
+            </a>
+        </div>
+    </div>
+</div>

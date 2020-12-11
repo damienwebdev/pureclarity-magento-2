@@ -7,23 +7,20 @@
 /** @var \Pureclarity\Core\Block\Adminhtml\Dashboard $block */
 /** @var \Pureclarity\Core\ViewModel\Adminhtml\Dashboard\State $state */
 $state = $block->getPureclarityStateViewModel();
+/** @var \Pureclarity\Core\ViewModel\Adminhtml\Stores $stores */
+$stores = $block->getPureclarityStoresViewModel();
 
 ?>
 <div id="pc-dashboard">
     <input type="hidden" id="pc-current-state"
-           value="<?= $block->escapeQuote($block->escapeHtml($state->getStateName())) ?>"/>
-    <?php if ($state->isNotConfigured()): ?>
+           value="<?= $block->escapeQuote($block->escapeHtml($state->getStateName($stores->getStoreId()))) ?>"/>
+    <input type="hidden" id="pc-current-store-id"
+           value="<?= $block->escapeQuote($block->escapeHtml($stores->getStoreId())) ?>"/>
+    <?php if ($state->isConfigured($stores->getStoreId()) === false): ?>
         <?= $block->getChildHtml('pureclarity_dashboard_content_signup') ?>
-    <?php endif; ?>
-    <div id="pc-waiting"
-        <?php if ($state->isWaiting() === false): ?>style="display:none"<?php endif; ?>>
-        <?= $block->getChildHtml('pureclarity_dashboard_content_waiting') ?>
-    </div>
-    <div id="pc-content"
-        <?php if ($state->isNotConfigured() || $state->isWaiting()): ?>style="display:none"<?php endif; ?>>
+    <?php else: ?>
         <?= $block->getChildHtml('pureclarity_dashboard_content_configured') ?>
-    </div>
-    <div id="pc-clearfix"></div>
+    <?php endif; ?>
 </div>
 <div id="pc-version">
     <div id="pc-logo"><span><?= $block->escapeHtml(__('PureClarity')) ?></span></div>

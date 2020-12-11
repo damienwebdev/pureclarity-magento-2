@@ -200,9 +200,6 @@ class Cron
      */
     public function doFeed($feedTypes, $storeId, $feedFilePath)
     {
-        //can take a while to run the feed
-        set_time_limit(0);
-
         $hasOrder = in_array(Feed::FEED_TYPE_ORDER, $feedTypes);
         $isOrderOnly = ($hasOrder && count($feedTypes) == 1);
 
@@ -257,10 +254,11 @@ class Cron
                     $this->logFeedQueue($feedsRemaining, $storeId);
                     break;
                 default:
-                    throw new \Exception("PureClarity feed type not recognised: {$feedType}");
+                    throw new \InvalidArgumentException("PureClarity feed type not recognised: {$feedType}");
             }
         }
         $feedModel->checkSuccess();
+        $this->setBannerStatus($storeId);
         $this->removeFeedQueue($storeId);
     }
 
@@ -496,6 +494,37 @@ class Cron
             $this->stateRepository->save($state);
         } catch (CouldNotSaveException $e) {
             $this->logger->error('Could not save last feed error: ' . $e->getMessage());
+        }
+    }
+
+    /**
+     * Sorts out the state for the banner display on the dashboard.
+     * @param integer $storeId
+     */
+    private function setBannerStatus($storeId)
+    {
+        try {
+
+            $showBanner = $this->stateRepository->getByNameAndStore('show_welcome_banner', $storeId);
+
+            if ($showBanner->getId()) {
+                // set one day timer on getting started banner
+                $gettingStarted = $this->stateRepository->getByNameAndStore(
+                    'show_getting_started_banner',
+                    $storeId
+                );
+                $gettingStarted->setName('show_getting_started_banner');
+                $gettingStarted->setValue(time() + 86400);
+                $gettingStarted->setStoreId($storeId);
+                $this->stateRepository->save($gettingStarted);
+                // Delete banner flags, no longer needed
+
+                $this->stateRepository->delete($showBanner);
+            }
+        } catch (CouldNotSaveException $e) {
+            $this->logger->error('Could not save banner status: ' . $e->getMessage());
+        } catch (CouldNotDeleteException $e) {
+            $this->logger->error('Could not delete banner flags: ' . $e->getMessage());
         }
     }
 }

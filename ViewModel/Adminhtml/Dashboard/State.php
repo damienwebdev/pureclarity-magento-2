@@ -7,9 +7,11 @@
 namespace Pureclarity\Core\ViewModel\Adminhtml\Dashboard;
 
 use Magento\Framework\App\ProductMetadataInterface;
+use Magento\Framework\App\RequestInterface;
 use Pureclarity\Core\Api\Data\StateInterface;
 use Pureclarity\Core\Api\StateRepositoryInterface;
 use Pureclarity\Core\Helper\Data;
+use Pureclarity\Core\Model\CoreConfig;
 
 /**
  * Class State
@@ -25,11 +27,11 @@ class State
     /** @var string $newVersion */
     private $newVersion;
 
-    /** @var bool $isNotConfigured */
-    private $isNotConfigured;
+    /** @var bool $waiting */
+    private $waiting;
 
-    /** @var bool $signupStarted */
-    private $signupStarted;
+    /** @var bool $configured */
+    private $configured;
 
     /** @var StateRepositoryInterface $stateRepository */
     private $stateRepository;
@@ -37,42 +39,46 @@ class State
     /** @var ProductMetadataInterface $productMetadata */
     private $productMetadata;
 
+    /** @var RequestInterface $request */
+    private $request;
+
+    /** @var CoreConfig $request */
+    private $coreConfig;
+
     /**
      * @param StateRepositoryInterface $stateRepository
      * @param ProductMetadataInterface $productMetadata
+     * @param RequestInterface $request
+     * @param CoreConfig $coreConfig
      */
     public function __construct(
         StateRepositoryInterface $stateRepository,
-        ProductMetadataInterface $productMetadata
+        ProductMetadataInterface $productMetadata,
+        RequestInterface $request,
+        CoreConfig $coreConfig
     ) {
         $this->stateRepository = $stateRepository;
         $this->productMetadata = $productMetadata;
+        $this->request         = $request;
+        $this->coreConfig      = $coreConfig;
     }
 
     /**
      * Returns whether the dashboard should show the not configured state
      *
-     * @return boolean
+     * @return string
      */
-    public function getStateName()
+    public function getStateName($storeId)
     {
-        if ($this->isNotConfigured()) {
-            return self::STATE_NOT_CONFIGURED;
-        } elseif ($this->isWaiting()) {
-            return self::STATE_WAITING;
-        } else {
+        if ($this->isConfigured($storeId)) {
             return self::STATE_CONFIGURED;
         }
-    }
 
-    /**
-     * Returns whether the dashboard should show the not configured state
-     *
-     * @return boolean
-     */
-    public function isNotConfigured()
-    {
-        return ($this->getIsNotConfigured() === true && $this->getSignupStarted() === false);
+        if ($this->isWaiting($storeId)) {
+            return self::STATE_WAITING;
+        }
+
+        return self::STATE_NOT_CONFIGURED;
     }
 
     /**
@@ -80,9 +86,31 @@ class State
      *
      * @return boolean
      */
-    public function isWaiting()
+    public function isWaiting($storeId)
     {
-        return ($this->getIsNotConfigured() === true && $this->getSignupStarted() === true);
+        if ($this->waiting === null) {
+            /** @var StateInterface $state */
+            $state = $this->stateRepository->getByNameAndStore('signup_request', $storeId);
+            $this->waiting = ($state->getId() !== null);
+        }
+
+        return $this->waiting;
+    }
+
+    /**
+     * Returns whether the dashboard should show the not configured state
+     *
+     * @return boolean
+     */
+    public function isConfigured($storeId)
+    {
+        if ($this->configured === null) {
+            $accessKey = $this->coreConfig->getAccessKey($storeId);
+            $secretKey = $this->coreConfig->getSecretKey($storeId);
+            $this->configured = ($accessKey && $secretKey);
+        }
+
+        return $this->configured;
     }
 
     /**
@@ -109,7 +137,7 @@ class State
     /**
      * Returns the latest version of the plugin available
      *
-     * @return bool
+     * @return string
      */
     public function getNewVersion()
     {
@@ -130,33 +158,5 @@ class State
     public function getMagentoVersion()
     {
         return $this->productMetadata->getVersion() . ' ' . $this->productMetadata->getEdition();
-    }
-
-    /**
-     * @return bool
-     */
-    private function getIsNotConfigured()
-    {
-        if ($this->isNotConfigured === null) {
-            /** @var StateInterface $state */
-            $state = $this->stateRepository->getByNameAndStore('is_configured', 0);
-            $this->isNotConfigured = ($state->getId() === null || $state->getValue() === '0');
-        }
-
-        return $this->isNotConfigured;
-    }
-
-    /**
-     * @return bool
-     */
-    private function getSignupStarted()
-    {
-        if ($this->signupStarted === null) {
-            /** @var StateInterface $state */
-            $state = $this->stateRepository->getByNameAndStore('signup_request', 0);
-            $this->signupStarted = ($state->getId() !== null);
-        }
-
-        return $this->signupStarted;
     }
 }

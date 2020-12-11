@@ -12,13 +12,15 @@ use Magento\Framework\Controller\Result\Json;
 use Magento\Framework\Controller\Result\JsonFactory;
 use Magento\Framework\Data\Form\FormKey\Validator;
 use Pureclarity\Core\Model\Signup\Process;
+use Pureclarity\Core\Model\Account\Validate;
+use Pureclarity\Core\Model\Signup\AddStore;
 
 /**
- * Class Configure
+ * Class LinkAccount
  *
- * controller for pureclarity/dashboard/configure POST request
+ * controller for pureclarity/dashboard/linkAccount POST request
  */
-class Configure extends Action
+class LinkAccount extends Action
 {
     /** @var JsonFactory $jsonFactory */
     private $jsonFactory;
@@ -29,19 +31,31 @@ class Configure extends Action
     /** @var Validator $formKeyValidator */
     private $formKeyValidator;
 
+    /** @var Validate $validate */
+    private $validate;
+
+    /** @var AddStore $addStore */
+    private $addStore;
+
     /**
      * @param Context $context
      * @param Process $requestProcess
      * @param JsonFactory $jsonFactory
+     * @param Validate $validate
+     * @param AddStore $addStore
      */
     public function __construct(
         Context $context,
         Process $requestProcess,
-        JsonFactory $jsonFactory
+        JsonFactory $jsonFactory,
+        Validate $validate,
+        AddStore $addStore
     ) {
         $this->requestProcess   = $requestProcess;
         $this->jsonFactory      = $jsonFactory;
         $this->formKeyValidator = $context->getFormKeyValidator();
+        $this->validate         = $validate;
+        $this->addStore         = $addStore;
         parent::__construct($context);
     }
 
@@ -62,11 +76,28 @@ class Configure extends Action
         } elseif (!$this->formKeyValidator->validate($this->getRequest())) {
             $result['error'] = __('Invalid form key, please reload the page and try again');
         } else {
-            $response = $this->requestProcess->processManualConfigure($this->getRequest()->getParams());
-            if ($response['errors']) {
-                $result['error'] = implode(',', $response['errors']);
+            $params = array_map('trim', $this->getRequest()->getParams());
+
+            if ($params['type'] === 'link') {
+                $response = $this->validate->sendRequest($params);
             } else {
-                $result['success'] = true;
+                $response = $this->addStore->sendRequest($params);
+            }
+
+            if ($response['error']) {
+                $result['error'] = $response['error'];
+            } else {
+                // link existing account
+                if ($params['type'] === 'link') {
+                    $response = $this->requestProcess->processManualConfigure($params);
+                    if ($response['errors']) {
+                        $result['error'] = implode(',', $response['errors']);
+                    } else {
+                        $result['success'] = true;
+                    }
+                } else {
+                    $result['success'] = true;
+                }
             }
         }
 

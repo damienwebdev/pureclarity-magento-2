@@ -108,7 +108,7 @@ class ProductData
      * Takes Zone items and overwrites the data with data from Magento
      *
      * @param mixed[] $zone - Array of data from PureClarity for the Zone
-     * @return string
+     * @return mixed[]
      */
     public function getProductData($zone)
     {
@@ -123,15 +123,20 @@ class ProductData
         $searchCriteria = $this->searchCriteriaBuilder->create();
         $searchResults = $this->productRepository->getList($searchCriteria);
 
+        $newItems = [];
+
         foreach ($searchResults->getItems() as $product) {
             $sku = $product->getSku();
-            $zone['items'][$skuKeys[$sku]] = $this->populateProductData(
+            $newItems[$skuKeys[$sku]] = $this->populateProductData(
                 $product,
                 $zone['items'][$skuKeys[$sku]]
             );
         }
 
-        return $zone['items'];
+        // remove gaps in array keys
+        sort($newItems);
+
+        return $newItems;
     }
 
     /**

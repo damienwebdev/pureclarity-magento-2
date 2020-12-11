@@ -11,14 +11,14 @@ use Magento\Backend\App\Action\Context;
 use Magento\Framework\Controller\Result\Json;
 use Magento\Framework\Controller\Result\JsonFactory;
 use Magento\Framework\Data\Form\FormKey\Validator;
-use Pureclarity\Core\Helper\StoreData;
+use Pureclarity\Core\Model\NextSteps\Complete;
 
 /**
- * Class GetStoreDetails
+ * Class NextStepsClick
  *
- * controller for pureclarity/dashboard/getStoreDetails POST request
+ * controller for pureclarity/dashboard/nextStepsClick POST request
  */
-class GetStoreDetails extends Action
+class NextStepsClick extends Action
 {
     /** @var JsonFactory $jsonFactory */
     private $jsonFactory;
@@ -26,27 +26,27 @@ class GetStoreDetails extends Action
     /** @var Validator $formKeyValidator */
     private $formKeyValidator;
 
-    /** @var Validator $formKeyValidator */
-    private $storeData;
+    /** @var Complete $complete */
+    private $complete;
 
     /**
      * @param Context $context
      * @param JsonFactory $jsonFactory
-     * @param StoreData $storeData
+     * @param Complete $complete
      */
     public function __construct(
         Context $context,
         JsonFactory $jsonFactory,
-        StoreData $storeData
+        Complete $complete
     ) {
         $this->jsonFactory      = $jsonFactory;
         $this->formKeyValidator = $context->getFormKeyValidator();
-        $this->storeData        = $storeData;
+        $this->complete         = $complete;
         parent::__construct($context);
     }
 
     /**
-     * Processes the signup request and return json of result
+     * Sends a notification to PureClarity that a next step is completed
      *
      * @return Json
      */
@@ -54,8 +54,7 @@ class GetStoreDetails extends Action
     {
         $result = [
             'error' => '',
-            'success' => false,
-            'store_data' => []
+            'success' => false
         ];
 
         $params = $this->getRequest()->getParams();
@@ -63,13 +62,10 @@ class GetStoreDetails extends Action
             $result['error'] = __('Invalid request, please reload the page and try again');
         } elseif (!$this->formKeyValidator->validate($this->getRequest())) {
             $result['error'] = __('Invalid form key, please reload the page and try again');
-        } elseif (!isset($params['store_id'])) {
+        } elseif (!isset($params['store'])) {
             $result['error'] = __('Missing Store ID');
         } else {
-            $storeId = (int)$params['store_id'];
-            $result['store_data']['currency'] = $this->storeData->getStoreCurrency($storeId);
-            $result['store_data']['timezone'] = $this->storeData->getStoreTimezone($storeId);
-            $result['store_data']['url'] = $this->storeData->getStoreURL($storeId);
+            $this->complete->markNextStepComplete($params['store'], $params['next-step-id']);
             $result['success'] = true;
         }
 

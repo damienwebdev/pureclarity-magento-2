@@ -58,11 +58,14 @@ class SignupStatus extends Action
             'error' => '',
             'success' => false
         ];
+        $store = $this->getRequest()->getParam('store');
 
         if (!$this->getRequest()->isGet()) {
             $result['error'] = __('Invalid request, please reload the page and try again');
+        } elseif ($store === null) {
+            $result['error'] = __('Invalid request, please reload the page and try again');
         } else {
-            $response = $this->requestStatus->checkStatus();
+            $response = $this->requestStatus->checkStatus($store);
             if ($response['complete'] === true) {
                 $this->requestProcess->process($response['response']);
                 $result['success'] = true;

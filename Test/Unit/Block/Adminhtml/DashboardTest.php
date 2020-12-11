@@ -11,7 +11,7 @@ use PHPUnit\Framework\TestCase;
 use Magento\Framework\View\Element\Template;
 use Pureclarity\Core\Block\Adminhtml\Dashboard;
 use Pureclarity\Core\ViewModel\Adminhtml\Dashboard\State;
-use PHPUnit\Framework\MockObject\MockObject;
+use Pureclarity\Core\ViewModel\Adminhtml\Stores;
 
 /**
  * Class DashboardTest
@@ -23,40 +23,56 @@ class DashboardTest extends TestCase
     /** @var Dashboard $object */
     private $object;
 
-    /** @var MockObject|Context $context */
-    private $context;
-
-    /** @var MockObject|State $stateViewModel */
-    private $stateViewModel;
-
     protected function setUp()
     {
-        $this->context = $this->getMockBuilder(Context::class)
+        $context = $this->getMockBuilder(Context::class)
             ->disableOriginalConstructor()
             ->getMock();
 
-        $this->stateViewModel = $this->getMockBuilder(State::class)
+        $stateViewModel = $this->getMockBuilder(State::class)
+            ->disableOriginalConstructor()
+            ->getMock();
+
+        $storesViewModel = $this->getMockBuilder(Stores::class)
             ->disableOriginalConstructor()
             ->getMock();
 
         $this->object = new Dashboard(
-            $this->context,
-            $this->stateViewModel
+            $context,
+            $stateViewModel,
+            $storesViewModel
         );
     }
 
+    /**
+     * Tests class gets instantiated correctly
+     */
     public function testInstance()
     {
-        $this->assertInstanceOf(Dashboard::class, $this->object);
+        self::assertInstanceOf(Dashboard::class, $this->object);
     }
 
+    /**
+     * Tests class gets instantiated correctly
+     */
     public function testTemplate()
     {
-        $this->assertInstanceOf(Template::class, $this->object);
+        self::assertInstanceOf(Template::class, $this->object);
     }
 
+    /**
+     * Tests that getPureclarityStateViewModel returns the right class
+     */
     public function testGetPureclarityStateViewModel()
     {
-        $this->assertInstanceOf(State::class, $this->object->getPureclarityStateViewModel());
+        self::assertInstanceOf(State::class, $this->object->getPureclarityStateViewModel());
+    }
+
+    /**
+     * Tests that getPureclarityStoresViewModel returns the right class
+     */
+    public function testGetPureclarityStoresViewModel()
+    {
+        self::assertInstanceOf(Stores::class, $this->object->getPureclarityStoresViewModel());
     }
 }
