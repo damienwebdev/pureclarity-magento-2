@@ -12,24 +12,29 @@ $stores = $block->getPureclarityStoresViewModel();
 $themes = $block->getPureclarityThemesViewModel();
 
 ?>
+<div class="pureclarity-info-box pc-col-box">
+    <div class="pureclarity-info-title">
+        <h2><?= $block->escapeHtml(__('Zones')) ?></h2>
+    </div>
+    <div class="pureclarity-info-content">
+        <p><?= $block->escapeHtml(
+            __('Set up the Zones within your Magento 2 site. A number of default Zones will be installed.')
+        ) ?></p>
+        <p class="pureclarity-info-button">
+            <a class="pc-button" id="pc-zonepopupbutton" target="_blank"
+               title="<?= $block->escapeHtml(__('Set up Zones')) ?>">
+                <?= $block->escapeHtml(__('Set up Zones')) ?>
+            </a>
+        </p>
+    </div>
+</div>
 <div id="pc-zone-modal-popup" style="display:none" class="admin__scope-old">
     <div id="pc-zone-modal-content">
-        <p><?= $block->escapeHtml('Please select the Theme that you would like to install the PureClarity Zone widgets on:') ?></p>
-        <?php if ($stores->hasMultipleStores()): ?>
-            <div class="pc-zone-field">
-                <label for="pc-zone-selectStore"><?= $block->escapeHtml('Store') ?></label>
-                <select id="pc-zone-selectStore" class="select admin__controle-select">
-                    <?php foreach ($stores->getStoreList() as $storeId => $name): ?>
-                        <option value="<?= $block->escapeQuote($block->escapeHtml($storeId)) ?>" >
-                            <?= $block->escapeHtml($name) ?>
-                        </option>
-                    <?php endforeach; ?>
-                </select>
-            </div>
-        <?php else: ?>
-            <input id="pc-defaultStore" type="hidden"
-                   value="<?= $block->escapeQuote($block->escapeHtml($stores->getPureClarityDefaultStore())) ?>" />
-        <?php endif ?>
+        <p><?= $block->escapeHtml(
+            'Please select the Theme that you would like to install the PureClarity Zone widgets on:'
+        ) ?></p>
+        <input id="pc-defaultStore" type="hidden"
+               value="<?= $block->escapeQuote($block->escapeHtml($stores->getStoreId())) ?>" />
         <div class="pc-zone-field pc-topbuffer">
             <label for="pc-zone-selectTheme"><?= $block->escapeHtml('Theme') ?></label>
             <select id="pc-zone-selectTheme" class="select admin__controle-select">
@@ -108,12 +113,19 @@ $themes = $block->getPureclarityThemesViewModel();
                         if (response) {
                             messageParts = ['Installation finished.</br />'];
                             if (response.alreadyExists && response.alreadyExists.length > 0) {
-                                messageParts.push('The following Zones are ALREADY installed for the current store/theme selection: ' + response.alreadyExists.join(', '));
+                                messageParts.push(
+                                    'The following Zones are ALREADY installed for the current store/theme selection: '
+                                    + response.alreadyExists.join(', ')
+                                );
                                 messageParts.push(' ');
                             }
                             if (response.installed && response.installed.length > 0) {
-                                messageParts.push('The following Zones were SUCCESSFULLY installed: ' + response.installed.join(', '));
-                                messageParts.push('<br />NOTE: You may need to clear the Magento cache before the Zones display.');
+                                messageParts.push(
+                                    'The following Zones were SUCCESSFULLY installed: ' + response.installed.join(', ')
+                                );
+                                messageParts.push(
+                                    '<br />NOTE: You may need to clear the Magento cache before the Zones display.'
+                                );
                             }
 
                             pureclarityZoneObj.message(messageParts.join('<br />'));
@@ -124,7 +136,9 @@ $themes = $block->getPureclarityThemesViewModel();
                             pcZonesButton.removeClass('pc-disabled');
                             pcZonesButton.attr('title', $.mage.__('Install Zones'));
                             pcZonesButton.html($.mage.__('Install Zones'));
-                            pureclarityZoneObj.message('Error. There has been an error installing Zones. The error has been logged.');
+                            pureclarityZoneObj.message(
+                                'Error. There has been an error installing Zones. The error has been logged.'
+                            );
                         }
                         pureclarityZoneObj.resetState();
                     }).fail(function(jqXHR, status, err) {

@@ -99,7 +99,9 @@ class Cart
             foreach ($allItems as $item) {
                 /** @var Item $item */
                 if ($item->getParentItemId() && isset($items[$item->getParentItemId()])) {
-                    $items[$item->getParentItemId()]['children'][] = ['sku' => $item->getSku(), 'qty' => $item->getQty()];
+                    $items[$item->getParentItemId()]['children'][] = [
+                        'sku' => $item->getSku(), 'qty' => $item->getQty()
+                    ];
                     $cartHash .= $item->getProductId() . $item->getQty() . $item->getPrice();
                 }
             }

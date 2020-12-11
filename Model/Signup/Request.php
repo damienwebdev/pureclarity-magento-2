@@ -139,7 +139,10 @@ class Request
         if (isset($params['password']) &&
             !preg_match('/^(?=.*[a-z])(?=.*[A-Z])(?=.*[0-9])(?=.{8,})/', $params['password'])
         ) {
-            $errors[] = __('Password not strong enough, must contain 1 lowercase letter, 1 uppercase letter, 1 number and be 8 characters or longer');
+            $errors[] = __(
+                'Password not strong enough, must contain 1 lowercase letter, '
+                . '1 uppercase letter, 1 number and be 8 characters or longer'
+            );
         }
 
         return $errors;
@@ -183,7 +186,10 @@ class Request
                     $responseData = $this->serializer->unserialize($response);
                     $result['error'] = __('Signup error: %1', implode('|', $responseData['errors']));
                 } elseif ($status !== 200) {
-                    $result['error'] = __('PureClarity server error occurred. If this persists, please contact PureClarity support. Error code ' . $status);
+                    $result['error'] = __(
+                        'PureClarity server error occurred. If this persists, '
+                        . 'please contact PureClarity support. Error code ' . $status
+                    );
                 } else {
                     $result['success'] = true;
                     $this->saveRequest($result['request_id'], $params);
@@ -246,10 +252,10 @@ class Request
 
         $this->serializer->serialize($signupData);
 
-        $state = $this->stateRepository->getByNameAndStore('signup_request', 0);
+        $state = $this->stateRepository->getByNameAndStore('signup_request', $params['store_id']);
         $state->setName('signup_request');
         $state->setValue($this->serializer->serialize($signupData));
-        $state->setStoreId(0);
+        $state->setStoreId($params['store_id']);
 
         $this->stateRepository->save($state);
     }

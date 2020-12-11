@@ -11,7 +11,8 @@ require(
         'Magento_Ui/js/modal/alert',
         'jquery/ui',
         'jquery/validate',
-        'mage/translate'
+        'mage/translate',
+        'slick'
     ],
     function ($, modal, validation, modalAlert) {
         'use strict';
@@ -26,82 +27,38 @@ require(
 
         let feedRunObject = {};
         let currentState = $('#pc-current-state').val();
-        let signUpButton = $('#pc-sign-up-button');
-        let signupContent = $('#pc-sign-up-form-content');
+        let signUpButton = $('#pc-sign-up-submit-button');
+        let linkAccountContent = $('#pc-link-account-form-content');
         let signupForm = $('#pc-sign-up-form');
-        let saveDetailsForm = $('#pc-save-details-form');
-        let saveDetailsButton = $('#pc-save-details-button');
+        let signupSubmitted = false;
+        let linkSubmitted = false;
 
         function submitSignUp()
         {
             let isValid = signupForm.validation('isValid');
-            if (isValid) {
-                signupContent.modal('closeModal');
-                $.ajax({
-                    showLoader: true,
-                    url: signupForm.attr('action'),
-                    data: signupForm.serialize(),
-                    type: "POST",
-                    dataType: 'json'
-                }).done(function (data) {
-                    if (data.success) {
-                        $('#pc-welcome').fadeOut(200, function () {
-                            $('#pc-waiting').fadeIn(200);
-                        });
-
-                        if (feedRunObject.selectStore.length) {
-                            feedRunObject.selectStore.val($('#pc-sign-up-store-id').val());
+            if (isValid && !signupSubmitted) {
+                signupSubmitted = true;
+                $('#pc-sign-up').fadeOut(200, function () {
+                    $('#pc-waiting').fadeIn(200);
+                    $.ajax({
+                        showLoader: false,
+                        url: signupForm.attr('action'),
+                        data: signupForm.serialize(),
+                        type: "POST",
+                        dataType: 'json'
+                    }).done(function (data) {
+                        if (data.success) {
+                            currentState = 'waiting';
+                            setTimeout(checkStatus, 5000);
                         } else {
-                            feedRunObject.preselectStore.val($('#pc-sign-up-store-id').val());
+                            signupSubmitted = false;
+                            $('#pc-waiting').fadeOut(200, function () {
+                                $('#pc-sign-up').fadeIn(200);
+                                $('#pc-sign-up-response-holder').html(data.error).addClass('error');
+                            });
                         }
-                        feedRunObject.selectedStore = $('#pc-sign-up-store-id').val();
-                        currentState = 'waiting';
-                        setTimeout(checkStatus, 5000);
-                    } else {
-                        signupContent.modal('openModal');
-                        $('#pc-sign-up-response-holder').html(data.error).addClass('error');
-                    }
-                }).fail(function(jqXHR, status, err) {
-                    modalAlert({
-                        title: $.mage.__('Error'),
-                        content: $.mage.__('Please reload the page and try again'),
-                        modalClass: 'alert',
-                        buttons: [{
-                            text: $.mage.__('Ok'),
-                            class: 'action primary accept',
-                            click: function () {
-                                this.closeModal(true);
-                            }
-                        }]
-                    });
-                });
-            }
-        }
-
-        function submitSaveDetails()
-        {
-            let isValid = saveDetailsForm.validation('isValid');
-            if (isValid) {
-                $.ajax({
-                    showLoader: true,
-                    url: saveDetailsForm.attr('action'),
-                    data: saveDetailsForm.serialize(),
-                    type: "POST",
-                    dataType: 'json'
-                }).done(function (data) {
-                    if (data.success) {
-                        $('#pc-welcome').fadeOut(200, function () {
-                            $('#pc-content').fadeIn(200);
-                        });
-                        currentState = 'configured';
-                        if (feedRunObject.selectStore.length) {
-                            feedRunObject.selectStore.val($('#pc-details-store-id').val());
-                        } else {
-                            feedRunObject.preselectStore.val($('#pc-details-store-id').val());
-                        }
-                        feedRunObject.selectedStore = $('#pc-details-store-id').val();
-                        pcFeedProgressCheck();
-                    } else {
+                    }).fail(function(jqXHR, status, err) {
+                        signupSubmitted = false;
                         modalAlert({
                             title: $.mage.__('Error'),
                             content: $.mage.__('Please reload the page and try again'),
@@ -114,65 +71,59 @@ require(
                                 }
                             }]
                         });
-                    }
-                }).fail(function(jqXHR, status, err) {
-                    modalAlert({
-                        title: $.mage.__('Error'),
-                        content: $.mage.__('Please reload the page and try again'),
-                        modalClass: 'alert',
-                        buttons: [{
-                            text: $.mage.__('Ok'),
-                            class: 'action primary accept',
-                            click: function () {
-                                this.closeModal(true);
-                            }
-                        }]
                     });
                 });
             }
         }
 
-        function getStoreDetails()
+        function submitSaveDetails()
         {
-            $.ajax({
-                showLoader: true,
-                url: $('#pc-get-store-details-url').val(),
-                data: { 'form_key': window.FORM_KEY, 'store_id': $('select#pc-sign-up-store-id').val() },
-                type: "POST",
-                dataType: 'json'
-            }).done(function (data) {
-                if (data.success && data.store_data) {
-                    $('#pc-sign-up-store-currency').html(data.store_data.currency);
-                    $('#pc-sign-up-store-timezone').html(data.store_data.timezone);
-                    $('#pc-sign-up-store-url').val(data.store_data.url);
-                } else {
-                    modalAlert({
-                        title: $.mage.__('Error'),
-                        content: data.error,
-                        modalClass: 'alert',
-                        buttons: [{
-                            text: $.mage.__('Ok'),
-                            class: 'action primary accept',
-                            click: function () {
-                                this.closeModal(true);
+            let saveDetailsForm = $('#pc-save-details-form');
+            let isValid = saveDetailsForm.validation('isValid');
+            if (isValid && !linkSubmitted) {
+                linkSubmitted = true;
+                linkAccountContent.modal('closeModal');
+                $('#pc-sign-up').fadeOut(200, function () {
+                    $('#pc-waiting').fadeIn(200);
+                    $.ajax({
+                        showLoader: false,
+                        url: saveDetailsForm.attr('action'),
+                        data: saveDetailsForm.serialize(),
+                        type: "POST",
+                        dataType: 'json'
+                    }).done(function (data) {
+                        if (data.success) {
+                            if($('#pc-save-details-form input:radio[name=type]:checked').val() === 'add') {
+                                currentState = 'waiting';
+                                setTimeout(checkStatus, 5000);
+                            } else {
+                                location.reload();
                             }
-                        }]
-                    });
-                }
-            }).fail(function(jqXHR, status, err) {
-                modalAlert({
-                    title: $.mage.__('Error'),
-                    content: $.mage.__('Please reload the page and try again'),
-                    modalClass: 'alert',
-                    buttons: [{
-                        text: $.mage.__('Ok'),
-                        class: 'action primary accept',
-                        click: function () {
-                            this.closeModal(true);
+                        } else {
+                            linkSubmitted = false;
+                            $('#pc-waiting').fadeOut(200, function () {
+                                $('#pc-sign-up').fadeIn(200);
+                                linkAccountContent.modal('openModal');
+                                $('#pc-link-account-response-holder').html(data.error).addClass('error');
+                            });
                         }
-                    }]
+                    }).fail(function(jqXHR, status, err) {
+                        linkSubmitted = false;
+                        modalAlert({
+                            title: $.mage.__('Error'),
+                            content: $.mage.__('Please reload the page and try again'),
+                            modalClass: 'alert',
+                            buttons: [{
+                                text: $.mage.__('Ok'),
+                                class: 'action primary accept',
+                                click: function () {
+                                    this.closeModal(true);
+                                }
+                            }]
+                        });
+                    });
                 });
-            });
+            }
         }
 
         function checkStatus()
@@ -180,23 +131,12 @@ require(
             $.ajax({
                 showLoader: false,
                 url: $('#pc-sign-up-waiting-call-url').val(),
-                data: '',
+                data: { 'store': $('#pc-sign-up-store-id').val() },
                 type: "GET",
                 dataType: 'json'
             }).done(function (data) {
                 if (data.success) {
-                    $('#pc-waiting').fadeOut(200, function () {
-                        $('#pc-content').fadeIn(200);
-                    });
-                    currentState = 'configured';
-                    feedRunObject.statusLabelProducts.html($.mage.__('Waiting for feed run to start'));
-                    feedRunObject.statusClassProducts.attr('class', 'pc-feed-status-icon pc-feed-waiting');
-                    feedRunObject.statusLabelCategories.html($.mage.__('Waiting for feed run to start'));
-                    feedRunObject.statusClassCategories.attr('class', 'pc-feed-status-icon pc-feed-waiting');
-                    feedRunObject.statusLabelUsers.html($.mage.__('Waiting for feed run to start'));
-                    feedRunObject.statusClassUsers.attr('class', 'pc-feed-status-icon pc-feed-waiting');
-                    feedRunObject.statusLabelOrders.html($.mage.__('Waiting for feed run to start'));
-                    feedRunObject.statusClassOrders.attr('class', 'pc-feed-status-icon pc-feed-waiting');
+                    location.reload();
                     pcFeedProgressCheck();
                 } else if (data.error !== '') {
                     modalAlert({
@@ -230,32 +170,93 @@ require(
             });
         }
 
-        if (signUpButton.length && currentState === 'not_configured') {
+        function initSlick() {
+            $('#pc-features-list').slick({
+                dots: true,
+                infinite: false,
+                arrows: true,
+                autoplay: true,
+                autoplaySpeed: 5000,
+                speed: 300,
+                slidesToShow: 1,
+                slidesToScroll: 1
+            });
+        }
+
+        function initLinkAccountToggle() {
+            $('#pc-save-details-form input:radio[name=type]').change(function () {
+                if($(this).val() === 'link') {
+                    $('#pc-details-store-fields').hide();
+                    $('#pc-details-add-info').hide();
+                    $('#pc-details-link-info').show();
+                    $('#pc-details-store-name').removeClass('required');
+                    $('#pc-details-store-url').removeClass('required');
+                } else {
+                    $('#pc-details-store-fields').show();
+                    $('#pc-details-add-info').show();
+                    $('#pc-details-link-info').hide();
+                    $('#pc-details-store-name').addClass('required');
+                    $('#pc-details-store-url').addClass('required');
+                }
+            });
+        }
+
+        if (currentState === 'not_configured') {
+
+            initSlick();
+
             let options = {
-                'title': $.mage.__('Account Setup'),
-                modalClass: 'pc-sign-up-modal',
+                'title': $.mage.__('Link Existing Account'),
+                modalClass: 'pc-link-account-modal',
                 buttons: [{
-                    text: $.mage.__('Sign up'),
+                    text: $.mage.__('Link Account'),
                     class: 'primary',
-                    click: submitSignUp
+                    click: submitSaveDetails
                 }]
             };
 
-            modal(options, signupContent);
-            signUpButton.on('click', function () {
-                signupContent.modal('openModal');
+            initLinkAccountToggle();
+
+            modal(options, linkAccountContent);
+            $('#pc-link-account-button').on('click', function () {
+                linkAccountContent.modal('openModal');
             });
 
-            saveDetailsButton.on('click', submitSaveDetails);
+            signUpButton.on('click', submitSignUp);
 
-            let selectStoreSignup = $('select#pc-sign-up-store-id');
-            if (selectStoreSignup.length) {
-                selectStoreSignup.on('change', getStoreDetails);
-            }
         }
 
         if (currentState === 'waiting') {
+            initSlick();
             checkStatus();
+        }
+
+        if (currentState === 'configured') {
+            function pcNextStepsAction(action) {
+                if (action.hasClass('pureclarity-clicked') === false) {
+                    var linkId = action.attr('id');
+                    action.addClass('pureclarity-clicked');
+
+                    $.ajax({
+                        showLoader: true,
+                        url: $('#pc-next-steps-track-call-url').val(),
+                        data: { form_key: window.FORM_KEY, 'store': $('#pc-current-store-id').val(), 'next-step-id': linkId },
+                        type: "POST",
+                        dataType: 'json'
+                    }).done(function (data) {
+                        action.click();
+                    }).error(function(jqXHR, status, err) {
+                        action.click();
+                    }).fail(function(jqXHR, status, err) {
+                        action.click();
+                    });
+                    return false;
+                }
+            }
+
+            $('.pc-action').on('click', function () {
+                pcNextStepsAction($(this));
+            });
         }
 
         let feedModalButton = $('#pc-feedpopupbutton');
@@ -285,7 +286,6 @@ require(
             feedRunObject = {
                 runFeedUrl: $("#pc-feed-run-url").val(),
                 progressFeedUrl: $("#pc-feed-progress-url").val(),
-                selectStore: $('select#pc-feed-info-store'),
                 preselectStore: $('input#pc-feed-info-store'),
                 messageContainer: $('#pc-statusMessage'),
                 chkProducts: $('#pc-chkProducts'),
@@ -311,6 +311,18 @@ require(
                 pcFeedSetInfoStore();
             }
 
+            if (currentState === 'configured') {
+                $('.pureclarity-headline-stat-tab').on('click', function () {
+                    $('.pureclarity-headline-stat-tab').each(function(){
+                        $(this).removeClass('pureclarity-headline-stat-active');
+                    })
+                    $(this).addClass('pureclarity-headline-stat-active');
+                    var pcStatContentId = $(this).attr('id');
+                    $('.pureclarity-headline-stat').hide();
+                    $('#' + pcStatContentId + '-content').show();
+                });
+            }
+
             let feedInfoStoreSelect = $('select#pc-feed-info-store');
             if (feedInfoStoreSelect.length) {
                 feedInfoStoreSelect.on('change', pcFeedSetInfoStore);
@@ -334,11 +346,7 @@ require(
                 return;
             }
 
-            if (feedRunObject.selectStore.length) {
-                feedRunObject.selectedStore = feedRunObject.selectStore.val();
-            } else {
-                feedRunObject.selectedStore = feedRunObject.preselectStore.val();
-            }
+            feedRunObject.selectedStore = feedRunObject.preselectStore.val();
             feedRunObject.chkProducts.prop("disabled", true);
             feedRunObject.chkCategories.prop("disabled", true);
 
@@ -415,6 +423,7 @@ require(
 
         function pcFeedProgressCheck() {
             feedRunObject.progressCheckRunning = 1;
+            feedRunObject.selectedStore = feedRunObject.preselectStore.val();
             $.ajax({
                 url: feedRunObject.progressFeedUrl,
                 data: {form_key: window.FORM_KEY, storeid: feedRunObject.selectedStore},
@@ -452,6 +461,12 @@ require(
                         feedModalButton.attr('title', $.mage.__('Feeds Not Enabled'));
                         feedModalButton.html($.mage.__('Feeds Not Enabled'));
                     } else {
+                        var welcomeBanner = $('#pc-banner-welcome');
+                        if (welcomeBanner) {
+                            welcomeBanner.hide(1000, function (){
+                                $('#pc-banner-getting-started').show(1000);
+                            });
+                        }
                         feedRunObject.progressCheckRunning = 0;
                         feedModalButton.attr('title', $.mage.__('Run Feeds Manually'));
                         feedModalButton.html($.mage.__('Run Feeds Manually'));

@@ -35,11 +35,17 @@ class StoreTest extends TestCase
         );
     }
 
+    /**
+     * Tests class gets instantiated correctly
+     */
     public function testInstance()
     {
         $this->assertInstanceOf(Store::class, $this->object);
     }
 
+    /**
+     * Tests getStoreURL returns the value provided by Magento
+     */
     public function testGetStoreURL()
     {
         $this->storeData->expects($this->once())
@@ -50,6 +56,9 @@ class StoreTest extends TestCase
         $this->assertEquals('http://www.google.com/', $this->object->getStoreURL(1));
     }
 
+    /**
+     * Tests getStoreCurrency returns the value provided by Magento
+     */
     public function testGetStoreCurrency()
     {
         $this->storeData->expects($this->once())
@@ -60,6 +69,9 @@ class StoreTest extends TestCase
         $this->assertEquals('GBP', $this->object->getStoreCurrency(1));
     }
 
+    /**
+     * Tests getStoreTimezone returns the value provided by Magento
+     */
     public function testGetStoreTimezone()
     {
         $this->storeData->expects($this->once())

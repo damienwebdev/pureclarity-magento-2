@@ -137,6 +137,10 @@ class RequestTest extends TestCase
         );
     }
 
+    /**
+     * Returns default params for use with calls
+     * @return array
+     */
     private function getDefaultParams()
     {
         return [
@@ -153,6 +157,7 @@ class RequestTest extends TestCase
     }
 
     /**
+     * Generates a State mock
      * @param string $id
      * @param string $name
      * @param string $value
@@ -202,11 +207,17 @@ class RequestTest extends TestCase
         return $state;
     }
 
-    public function testProcessInstance()
+    /**
+     * Tests class gets instantiated correctly
+     */
+    public function testInstance()
     {
         $this->assertInstanceOf(Request::class, $this->object);
     }
 
+    /**
+     * Tests sendRequest handles missing data
+     */
     public function testEmptyParams()
     {
         $result = $this->object->sendRequest([]);
@@ -221,6 +232,9 @@ class RequestTest extends TestCase
         );
     }
 
+    /**
+     * Tests sendRequest handles an invalid email
+     */
     public function testInvalidEmail()
     {
         $this->urlValidator->method('isValid')->with('http://www.google.com/', ['http', 'https'])->willReturn(true);
@@ -236,6 +250,9 @@ class RequestTest extends TestCase
         $this->assertEquals('Invalid Email Address', $result['error']);
     }
 
+    /**
+     * Tests sendRequest handles an invalid url
+     */
     public function testInvalidUrl()
     {
         $this->urlValidator->method('isValid')->with('ABCDE', ['http', 'https'])->willReturn(false);
@@ -251,6 +268,9 @@ class RequestTest extends TestCase
         $this->assertEquals('Invalid URL', $result['error']);
     }
 
+    /**
+     * Tests sendRequest handles an invalid region
+     */
     public function testInvalidRegion()
     {
         $this->urlValidator->method('isValid')->with('http://www.google.com/', ['http', 'https'])->willReturn(true);
@@ -266,6 +286,9 @@ class RequestTest extends TestCase
         $this->assertEquals('Invalid Region selected', $result['error']);
     }
 
+    /**
+     * Tests sendRequest handles an invalid password
+     */
     public function testInvalidPassword()
     {
         $this->urlValidator->method('isValid')->with('http://www.google.com/', ['http', 'https'])->willReturn(true);
@@ -285,6 +308,9 @@ class RequestTest extends TestCase
         );
     }
 
+    /**
+     * Tests sendRequest handles an invalid store
+     */
     public function testInvalidStore()
     {
         $this->urlValidator->method('isValid')->with('http://www.google.com/', ['http', 'https'])->willReturn(true);
@@ -303,6 +329,9 @@ class RequestTest extends TestCase
         $this->assertEquals('Invalid Store selected', $result['error']);
     }
 
+    /**
+     * Tests sendRequest handles a valid request
+     */
     public function testValidRequest()
     {
         $this->urlValidator->method('isValid')->with('http://www.google.com/', ['http', 'https'])->willReturn(true);
@@ -352,7 +381,7 @@ class RequestTest extends TestCase
         $signUpValues = json_decode($this->stateSaveValue, true);
 
         $this->assertEquals('signup_request', $this->stateSaveName);
-        $this->assertEquals(0, $this->stateSaveStoreId);
+        $this->assertEquals(1, $this->stateSaveStoreId);
 
         $this->assertArrayHasKey('id', $signUpValues);
         $this->assertArrayHasKey('store_id', $signUpValues);
@@ -363,6 +392,9 @@ class RequestTest extends TestCase
         $this->assertEquals(1, $signUpValues['region']);
     }
 
+    /**
+     * Tests sendRequest handles a 400 response
+     */
     public function test400Response()
     {
         $this->urlValidator->method('isValid')->with('http://www.google.com/', ['http', 'https'])->willReturn(true);
@@ -384,6 +416,9 @@ class RequestTest extends TestCase
         $this->assertEquals('Signup error: An error', $result['error']);
     }
 
+    /**
+     * Tests sendRequest handles an unexpected response
+     */
     public function testUnexpectedResponse()
     {
         $this->urlValidator->method('isValid')->with('http://www.google.com/', ['http', 'https'])->willReturn(true);
@@ -409,6 +444,9 @@ class RequestTest extends TestCase
         );
     }
 
+    /**
+     * Tests sendRequest handles a timeout
+     */
     public function testTimeoutResponse()
     {
         $this->urlValidator->method('isValid')->with('http://www.google.com/', ['http', 'https'])->willReturn(true);

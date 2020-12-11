@@ -14,7 +14,10 @@ use Pureclarity\Core\Block\Adminhtml\Dashboard\Signup;
 use Pureclarity\Core\ViewModel\Adminhtml\Dashboard\Regions;
 use Pureclarity\Core\ViewModel\Adminhtml\Dashboard\Store;
 use Pureclarity\Core\ViewModel\Adminhtml\Stores;
+use Pureclarity\Core\ViewModel\Adminhtml\Dashboard\State;
 use PHPUnit\Framework\MockObject\MockObject;
+use Magento\Framework\App\RequestInterface;
+use Magento\Framework\View\Asset\Repository;
 
 /**
  * Class SignupTest
@@ -51,9 +54,30 @@ class SignupTest extends TestCase
             ->disableOriginalConstructor()
             ->getMock();
 
-        $this->context->expects($this->any())
+        $this->context->expects(self::any())
             ->method('getFormKey')
             ->willReturn($this->formKey);
+
+        $request = $this->getMockBuilder(RequestInterface::class)
+            ->disableOriginalConstructor()
+            ->getMock();
+
+        $assetRepo = $this->getMockBuilder(Repository::class)
+            ->disableOriginalConstructor()
+            ->getMock();
+
+        $this->context->method('getFormKey')
+            ->willReturn($this->formKey);
+
+        $this->context->method('getRequest')
+            ->willReturn($request);
+
+        $assetRepo->method('getUrlWithParams')->willReturnCallback(function ($param) {
+            return str_replace('Pureclarity_Core::images/', 'https://www.test.com/', $param);
+        });
+
+        $this->context->method('getAssetRepository')
+            ->willReturn($assetRepo);
 
         $this->storesViewModel = $this->getMockBuilder(Stores::class)
             ->disableOriginalConstructor()
@@ -67,46 +91,87 @@ class SignupTest extends TestCase
             ->disableOriginalConstructor()
             ->getMock();
 
+        $stateViewModel = $this->getMockBuilder(State::class)
+            ->disableOriginalConstructor()
+            ->getMock();
+
         $this->object = new Signup(
             $this->context,
             $this->storesViewModel,
             $this->regionsViewModel,
-            $this->storeViewModel
+            $this->storeViewModel,
+            $stateViewModel
         );
     }
 
+    /**
+     * Tests class gets instantiated correctly
+     */
     public function testInstance()
     {
-        $this->assertInstanceOf(Signup::class, $this->object);
+        self::assertInstanceOf(Signup::class, $this->object);
     }
 
+    /**
+     * Tests class gets instantiated correctly
+     */
     public function testTemplate()
     {
-        $this->assertInstanceOf(Template::class, $this->object);
+        self::assertInstanceOf(Template::class, $this->object);
     }
 
+    /**
+     * Tests that getPureclarityStoresViewModel returns the right class
+     */
     public function testGetPureclarityStoresViewModel()
     {
-        $this->assertInstanceOf(Stores::class, $this->object->getPureclarityStoresViewModel());
+        self::assertInstanceOf(Stores::class, $this->object->getPureclarityStoresViewModel());
     }
 
+    /**
+     * Tests that testGetPureclarityRegionsViewModel returns the right class
+     */
     public function testGetPureclarityRegionsViewModel()
     {
-        $this->assertInstanceOf(Regions::class, $this->object->getPureclarityRegionsViewModel());
+        self::assertInstanceOf(Regions::class, $this->object->getPureclarityRegionsViewModel());
     }
 
+    /**
+     * Tests that getPureclarityStoreViewModel returns the right class
+     */
     public function testGetPureclarityStoreViewModel()
     {
-        $this->assertInstanceOf(Store::class, $this->object->getPureclarityStoreViewModel());
+        self::assertInstanceOf(Store::class, $this->object->getPureclarityStoreViewModel());
     }
 
-    public function testGetformKey()
+    /**
+     * Tests that getPureclarityStateViewModel returns the right class
+     */
+    public function testGetPureclarityStateViewModel()
+    {
+        self::assertInstanceOf(State::class, $this->object->getPureclarityStateViewModel());
+    }
+
+    /**
+     * Tests that getFormKey returns the formkey from Magento
+     */
+    public function testGetFormKey()
     {
         $formKey = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
-        $this->formKey->expects($this->once())
+        $this->formKey->expects(self::once())
             ->method('getFormKey')
             ->willReturn($formKey);
 
-        $this->assertEquals($formKey, $this->object->getFormKey());
+        self::assertEquals($formKey, $this->object->getFormKey());
+    }
+
+    /**
+     * Tests that getFormKey returns the image url provided by Magento
+     */
+    public function testGetImageUrl()
+    {
+        $image = $this->object->getImageUrl('image.jpg');
+
+        self::assertEquals('https://www.test.com/image.jpg', $image);
     }
 }
