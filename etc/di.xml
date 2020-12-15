@@ -76,4 +76,7 @@
     <type name="Magento\Sales\Api\OrderManagementInterface">
         <plugin name="PureClarityPlaceOrder" type="Pureclarity\Core\Plugin\Order\AfterPlace" />
     </type>
+    <type name="Magento\Framework\View\Asset\Minification">
+        <plugin name="pureclarity-excludes" type="Pureclarity\Core\Plugin\Minification\Excludes" />
+    </type>
 </config>
