@@ -22,7 +22,7 @@ use Psr\Log\LoggerInterface;
  */
 class Data
 {
-    const CURRENT_VERSION = '5.0.1';
+    const CURRENT_VERSION = '5.0.2';
     const PROGRESS_FILE_BASE_NAME = 'pureclarity-feed-progress-';
 
     /** @var StoreManagerInterface $storeManager */
