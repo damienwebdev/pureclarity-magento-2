@@ -238,7 +238,7 @@ class Data extends \Magento\Framework\App\Helper\AbstractHelper
     // END POINTS
     public function getHost($storeId)
     {
-        $pureclarityHostEnv = getenv('PURECLARITY_MAGENTO_HOST');
+        $pureclarityHostEnv = getenv('PURECLARITY_HOST');
         if ($pureclarityHostEnv != null && $pureclarityHostEnv != '') {
             $parsed = parse_url($pureclarityHostEnv);
             if (empty($parsed['scheme'])) {
@@ -337,7 +337,7 @@ class Data extends \Magento\Framework\App\Helper\AbstractHelper
     {
         $pureclarityScriptUrl = getenv('PURECLARITY_SCRIPT_URL');
         if ($pureclarityScriptUrl != null && $pureclarityScriptUrl != '') {
-            $pureclarityScriptUrl .= $this->getAccessKey($this->getStoreId()) . '/dev.js';
+            $pureclarityScriptUrl .= $this->getAccessKey($this->getStoreId()) . '/cs.js';
             return $pureclarityScriptUrl;
         }
         return $this->getScriptUrl() . '/' . $this->getAccessKey($this->getStoreId()) . '/cs.js';
