@@ -58,5 +58,11 @@
             <argument name="customerSession" xsi:type="object">Magento\Customer\Model\Session\Proxy</argument>
         </arguments>
     </type>
-    
+
+    <type name="Magento\Elasticsearch6\Model\Client\Elasticsearch">
+        <plugin name="pureclarity_es6_search_index" type="Pureclarity\Core\Plugin\Search\ElasticsearchPlugin" />
+    </type>
+    <type name="Magento\Elasticsearch7\Model\Client\Elasticsearch">
+        <plugin name="pureclarity_es7_search_index" type="Pureclarity\Core\Plugin\Search\ElasticsearchPlugin" />
+    </type>
 </config>
