@@ -32,8 +32,6 @@
         <plugin name="pureclarity_customer_session" type="Pureclarity\Core\Plugin\Customer\Session" sortOrder="10"/>
     </type>
     
-    <preference for="Magento\Framework\Search\Adapter\Mysql\Adapter" type="Pureclarity\Core\Adapter\Search" />
-
     <type name="Magento\Framework\HTTP\PhpEnvironment\RemoteAddress">
         <arguments>
             <argument name="alternativeHeaders" xsi:type="array">
@@ -60,5 +58,11 @@
             <argument name="customerSession" xsi:type="object">Magento\Customer\Model\Session\Proxy</argument>
         </arguments>
     </type>
-    
+
+    <type name="Magento\Elasticsearch6\Model\Client\Elasticsearch">
+        <plugin name="pureclarity_es6_search_index" type="Pureclarity\Core\Plugin\Search\ElasticsearchPlugin" />
+    </type>
+    <type name="Magento\Elasticsearch7\Model\Client\Elasticsearch">
+        <plugin name="pureclarity_es7_search_index" type="Pureclarity\Core\Plugin\Search\ElasticsearchPlugin" />
+    </type>
 </config>

@@ -69,7 +69,9 @@ class ListProduct extends \Magento\Catalog\Block\Product\ListProduct
 
     public function createPersonalizedProductList()
     {
-        
+        // need to dispatch here too as elastic won't have kicked in by this point
+        $this->pureClarityService->dispatch();
+
         $searchResult = $this->pureClarityService->getSearchResult();
         if ($searchResult && array_key_exists('personalizedProducts', $searchResult)) {
             $products = $searchResult['personalizedProducts'];

@@ -119,13 +119,14 @@ class Service extends \Magento\Framework\App\Helper\AbstractHelper
     public function processSearch()
     {
         $this->isCategory = $this->isCategoryPage();
+        $categoryId = (int)$this->request->getParam('id', false);
         if (($this->coreHelper->isSearchActive() &&
             ($this->coreHelper->isServerSide() || $this->coreHelper->seoSearchFriendly()) &&
             (
-                ($this->isCategory && !empty($this->category) && $this->category->getId() && $this->coreHelper->isProdListingActive()) ||
+                ($this->isCategory && $categoryId && $this->coreHelper->isProdListingActive()) ||
                 $this->isSearchPage())
             )) {
-                $this->query = $this->isCategoryPage()?$this->category->getId():$this->catalogSearchHelper->getEscapedQueryText();
+                $this->query = $this->isCategoryPage() ? (string)$categoryId : $this->catalogSearchHelper->getEscapedQueryText();
                 $sortOrder = $this->toolBar->getOrder();
                 $sortDirection = $this->toolBar->getDirection();
                 $this->size = $this->coreHelper->isServerSide()?"2000":null;
@@ -353,11 +354,11 @@ class Service extends \Magento\Framework\App\Helper\AbstractHelper
 
     private function isCategoryPage()
     {
-        return ($this->request->getControllerName() == 'category');
+        return ($this->request->getControllerName() === 'category');
     }
 
     private function isSearchPage()
     {
-        return $this->request->getFullActionName() == 'catalogsearch_result_index';
+        return $this->request->getFullActionName() === 'catalogsearch_result_index';
     }
 }
