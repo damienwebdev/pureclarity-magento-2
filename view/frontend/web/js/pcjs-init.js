@@ -330,6 +330,32 @@ require([
                             }
                         }
                     }
+
+                    // loop through zones and scoop up any popups / chat zones to display
+                    var chatZone;
+                    for (var key in data.zones) {
+                        if (data.zones.hasOwnProperty(key) && foundZones[key] === undefined && data.zones[key].type) {
+                            if (data.zones[key].type === 'popup') {
+                                foundZones[key] = true;
+                                _pc('add_popup', data.zones[key]);
+                            }
+
+                            if (data.zones[key].type === 'chat') {
+                                chatZone = data.zones[key];
+                                foundZones[key] = true;
+                            }
+                        }
+                    }
+
+                    // do chat outside the loop, or we get weird chat / popup crossover due to the require statement
+                    if (chatZone) {
+                        require([
+                            'socket.io'
+                        ], function (io) {
+                            window.io = io;
+                            _pc('start_chat', chatZone);
+                        });
+                    }
                 });
             }
         });
