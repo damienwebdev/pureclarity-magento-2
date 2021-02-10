@@ -248,7 +248,8 @@ require([
         }
 
         _pc('callback_event', function (type) {
-            require(['Magento_Swatches/js/swatch-renderer', 'priceBox'], function () {
+            require(['socket.io', 'Magento_Swatches/js/swatch-renderer', 'priceBox'], function (io) {
+                window.io = io;
                 var items = $("[pureclarity-data-item]");
                 processZoneItems(items);
             });
