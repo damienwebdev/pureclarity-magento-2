@@ -129,26 +129,6 @@ class Cron
         $this->appEmulation                 = $appEmulation;
     }
 
-    /**
-     * Runs all feeds, called via cron 3am daily (see /etc/crontab.xml)
-     */
-    public function runAllFeeds(Schedule $schedule)
-    {
-        $this->logger->debug('PureClarity: In Cron->runAllFeeds()');
-        // Loop round each store and create feed
-        foreach ($this->storeManager->getWebsites() as $website) {
-            foreach ($website->getGroups() as $group) {
-                $stores = $group->getStores();
-                foreach ($stores as $store) {
-                    // Only generate feeds when feed notification is active
-                    if ($this->coreConfig->isDailyFeedActive($store->getId())) {
-                        $this->allFeeds($store->getId());
-                    }
-                }
-            }
-        }
-    }
-    
     // Produce all feeds in one file.
     public function allFeeds($storeId)
     {
@@ -297,7 +277,7 @@ class Cron
     /**
      * Reindexes products, called via cron every minute (see /etc/crontab.xml)
      */
-    public function reindexData($schedule)
+    public function reindexData()
     {
         $this->logger->debug('PureClarity: Reindexing');
         // create a unique token until we get a response from PureClarity
