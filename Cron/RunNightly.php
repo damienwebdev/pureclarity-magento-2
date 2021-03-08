@@ -54,17 +54,11 @@ class RunNightly
      */
     public function execute()
     {
-        $this->logger->debug('PureClarity: In Cron->runAllFeeds()');
-        foreach ($this->storeManager->getWebsites() as $website) {
-            foreach ($website->getGroups() as $group) {
-                $stores = $group->getStores();
-                foreach ($stores as $store) {
-                    // Only generate feeds when feed notification is active
-                    if ($this->coreConfig->isDailyFeedActive($store->getId())) {
-                        $this->logger->debug('PureClarity: Nightly Feeds being run for Store View ' . $store->getId());
-                        $this->feedRunner->allFeeds($store->getId());
-                    }
-                }
+        foreach ($this->storeManager->getStores() as $store) {
+            // Only generate feeds when feed notification is active
+            if ($this->coreConfig->isDailyFeedActive($store->getId())) {
+                $this->logger->debug('PureClarity: Nightly Feeds being run for Store View ' . $store->getId());
+                $this->feedRunner->allFeeds($store->getId());
             }
         }
     }
