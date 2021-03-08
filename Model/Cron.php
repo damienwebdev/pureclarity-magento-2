@@ -277,7 +277,7 @@ class Cron
     /**
      * Reindexes products, called via cron every minute (see /etc/crontab.xml)
      */
-    public function reindexData($schedule)
+    public function reindexData()
     {
         $this->logger->debug('PureClarity: Reindexing');
         // create a unique token until we get a response from PureClarity

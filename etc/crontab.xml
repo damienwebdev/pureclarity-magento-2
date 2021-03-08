@@ -7,7 +7,7 @@
 -->
 <config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="urn:magento:module:Magento_Cron:etc/crontab.xsd">
     <group id="default">
-        <job name="pureclarity_core_reindex" instance="Pureclarity\Core\Model\Cron" method="reindexData">
+        <job name="pureclarity_core_reindex" instance="Pureclarity\Core\Cron\RunDeltas" method="execute">
             <!-- Every minute -->
             <schedule>*/1 * * * *</schedule>
         </job>
