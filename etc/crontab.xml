@@ -11,7 +11,7 @@
             <!-- Every minute -->
             <schedule>*/1 * * * *</schedule>
         </job>
-        <job name="pureclarity_core_full_feed" instance="Pureclarity\Core\Model\Cron" method="runAllFeeds">
+        <job name="pureclarity_core_full_feed" instance="Pureclarity\Core\Cron\RunNightly" method="execute">
             <!-- 3am each day -->
             <schedule>0 3 * * *</schedule>
         </job>
