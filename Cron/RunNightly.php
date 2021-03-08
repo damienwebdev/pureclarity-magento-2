@@ -1,4 +1,6 @@
 <?php
+declare(strict_types=1);
+
 /**
  * Copyright © PureClarity. All rights reserved.
  * See LICENSE.txt for license details.
@@ -42,10 +44,10 @@ class RunNightly
         CoreConfig $coreConfig,
         Cron $feedRunner
     ) {
-        $this->storeManager                 = $storeManager;
-        $this->logger                       = $logger;
-        $this->coreConfig                   = $coreConfig;
-        $this->feedRunner                   = $feedRunner;
+        $this->storeManager = $storeManager;
+        $this->logger       = $logger;
+        $this->coreConfig   = $coreConfig;
+        $this->feedRunner   = $feedRunner;
     }
 
     /**
