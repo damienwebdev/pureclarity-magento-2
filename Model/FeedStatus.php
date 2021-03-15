@@ -15,6 +15,7 @@ use Psr\Log\LoggerInterface;
 use Pureclarity\Core\Api\StateRepositoryInterface;
 use Pureclarity\Core\Helper\Data;
 use Pureclarity\Core\Helper\Serializer;
+use Pureclarity\Core\Model\Feed\Request;
 
 /**
  * Class FeedStatus
@@ -32,8 +33,8 @@ class FeedStatus
     /** @var mixed[] $progressData */
     private $progressData;
 
-    /** @var mixed[] $requestedFeedData */
-    private $requestedFeedData;
+    /** @var array[] $requestedFeedData */
+    private $requestedFeedData = [];
 
     /** @var StateRepositoryInterface $stateRepository */
     private $stateRepository;
@@ -56,6 +57,9 @@ class FeedStatus
     /** @var LoggerInterface $logger */
     private $logger;
 
+    /** @var Request $feedRequest */
+    private $feedRequest;
+
     /**
      * @param StateRepositoryInterface $stateRepository
      * @param Filesystem $fileSystem
@@ -64,6 +68,7 @@ class FeedStatus
      * @param Serializer $serializer
      * @param TimezoneInterface $timezone
      * @param LoggerInterface $logger
+     * @param Request $feedRequest
      */
     public function __construct(
         StateRepositoryInterface $stateRepository,
@@ -72,7 +77,8 @@ class FeedStatus
         CoreConfig $coreConfig,
         Serializer $serializer,
         TimezoneInterface $timezone,
-        LoggerInterface $logger
+        LoggerInterface $logger,
+        Request $feedRequest
     ) {
         $this->stateRepository = $stateRepository;
         $this->fileSystem      = $fileSystem;
@@ -81,6 +87,7 @@ class FeedStatus
         $this->serializer      = $serializer;
         $this->timezone        = $timezone;
         $this->logger          = $logger;
+        $this->feedRequest     = $feedRequest;
     }
 
     /**
@@ -224,22 +231,16 @@ class FeedStatus
     }
 
     /**
-     * Checks for the scheduled feed file and returns whether the given feed type is in it's data
+     * Checks for the requested feeds for the store and returns whether the given feed type is in it's data
      *
      * @param string $feedType
-     * @param integer $storeId
+     * @param int $storeId
      * @return bool
      */
-    private function hasFeedBeenRequested($feedType, $storeId)
+    private function hasFeedBeenRequested(string $feedType, int $storeId) : bool
     {
-        $requested = false;
-        $scheduleData = $this->getScheduledFeedData();
-
-        if (!empty($scheduleData) && (int)$scheduleData['store'] === (int)$storeId) {
-            $requested = in_array($feedType, $scheduleData['feeds']);
-        }
-
-        return $requested;
+        $feedRequest = $this->getRequestFeedData($storeId);
+        return in_array($feedType, $feedRequest, true);
     }
 
     /**
@@ -331,27 +332,16 @@ class FeedStatus
     }
 
     /**
-     * Gets schedule file data from the filesystem
-     *
-     * @return bool
+     * Gets requested feeds data for the given store
+     * @param int $storeId
+     * @return string[]
      */
-    private function getScheduledFeedData()
+    private function getRequestFeedData(int $storeId) : array
     {
-        if ($this->requestedFeedData === null) {
-            $this->requestedFeedData = [];
-            $scheduleFile = $this->coreHelper->getPureClarityBaseDir() . DIRECTORY_SEPARATOR . 'scheduled_feed';
-            /** @var ReadInterface $fileReader */
-            $fileReader = $this->fileSystem->getDirectoryRead(DirectoryList::VAR_DIR);
-            if ($fileReader->isExist($scheduleFile)) {
-                try {
-                    $scheduledData = $fileReader->readFile($scheduleFile);
-                    $this->requestedFeedData = $this->serializer->unserialize($scheduledData);
-                } catch (FileSystemException $e) {
-                    $this->logger->error('Could not get PureClarity schedule data: ' . $e->getMessage());
-                }
-            }
+        if (!isset($this->requestedFeedData[$storeId])) {
+            $this->requestedFeedData[$storeId] = $this->feedRequest->getStoreRequestedFeeds($storeId);
         }
 
-        return $this->requestedFeedData;
+        return $this->requestedFeedData[$storeId];
     }
 }
