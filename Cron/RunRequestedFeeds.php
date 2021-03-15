@@ -18,7 +18,7 @@ use Pureclarity\Core\Model\Feed\Request;
  *
  * Controls the execution of scheduled feeds to be sent to PureClarity.
  */
-class RunScheduled
+class RunRequestedFeeds
 {
     /** @var LoggerInterface $logger */
     private $logger;

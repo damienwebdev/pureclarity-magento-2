@@ -9,7 +9,7 @@ namespace Pureclarity\Core\Test\Unit\Cron;
 
 use PHPUnit\Framework\TestCase;
 use PHPUnit\Framework\MockObject\MockObject;
-use Pureclarity\Core\Cron\RunScheduled;
+use Pureclarity\Core\Cron\RunRequestedFeeds;
 use Magento\Store\Api\Data\StoreInterface;
 use Pureclarity\Core\Model\CoreConfig;
 use Pureclarity\Core\Model\Cron;
@@ -21,9 +21,9 @@ use Pureclarity\Core\Model\Feed\Request;
  *
  * Tests the methods in \Pureclarity\Core\Cron\RunScheduled
  */
-class RunScheduledTest extends TestCase
+class RunRequestedFeedsTest extends TestCase
 {
-    /** @var MockObject|RunScheduled $object */
+    /** @var MockObject|RunRequestedFeeds $object */
     private $object;
 
     /** @var MockObject|LoggerInterface $logger */
@@ -59,7 +59,7 @@ class RunScheduledTest extends TestCase
             ->disableOriginalConstructor()
             ->getMock();
 
-        $this->object = new RunScheduled(
+        $this->object = new RunRequestedFeeds(
             $this->logger,
             $this->coreConfig,
             $this->feedRunner,
@@ -90,7 +90,7 @@ class RunScheduledTest extends TestCase
      */
     public function testInstance()
     {
-        self::assertInstanceOf(RunScheduled::class, $this->object);
+        self::assertInstanceOf(RunRequestedFeeds::class, $this->object);
     }
 
     /**
