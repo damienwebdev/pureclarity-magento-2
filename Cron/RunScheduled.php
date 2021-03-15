@@ -1,4 +1,6 @@
 <?php
+declare(strict_types=1);
+
 /**
  * Copyright © PureClarity. All rights reserved.
  * See LICENSE.txt for license details.
@@ -6,10 +8,10 @@
 
 namespace Pureclarity\Core\Cron;
 
-use Pureclarity\Core\Helper\Data;
+use Psr\Log\LoggerInterface;
+use Pureclarity\Core\Model\CoreConfig;
 use Pureclarity\Core\Model\Cron;
-use Magento\Framework\Filesystem;
-use Magento\Framework\App\Filesystem\DirectoryList;
+use Pureclarity\Core\Model\Feed\Request;
 
 /**
  * Class RunScheduled
@@ -18,42 +20,50 @@ use Magento\Framework\App\Filesystem\DirectoryList;
  */
 class RunScheduled
 {
-    /** @var Data $coreHelper */
-    private $coreHelper;
-    
+    /** @var LoggerInterface $logger */
+    private $logger;
+
+    /** @var CoreConfig $coreConfig */
+    private $coreConfig;
+
     /** @var Cron $feedRunner */
     private $feedRunner;
-    
-    /** @var Filesystem $fileSystem */
-    private $fileSystem;
 
+    /** @var Request $feedRequest */
+    private $feedRequest;
+
+    /**
+     * @param LoggerInterface $logger
+     * @param CoreConfig $coreConfig
+     * @param Cron $feedRunner
+     * @param Request $feedRequest
+     */
+    
     public function __construct(
-        Data $coreHelper,
+        LoggerInterface $logger,
+        CoreConfig $coreConfig,
         Cron $feedRunner,
-        Filesystem $fileSystem
+        Request $feedRequest
     ) {
-        $this->coreHelper = $coreHelper;
-        $this->feedRunner = $feedRunner;
-        $this->fileSystem = $fileSystem;
+        $this->logger      = $logger;
+        $this->coreConfig  = $coreConfig;
+        $this->feedRunner  = $feedRunner;
+        $this->feedRequest = $feedRequest;
     }
 
     /**
-     * Runs feeds that have been scheduled by a button press in admin
+     * Runs feeds that have been requested by a button press in admin
      * called via cron every minute (see /etc/crontab.xml)
      */
     public function execute()
     {
-        $scheduleFile = $this->coreHelper->getPureClarityBaseDir() . DIRECTORY_SEPARATOR . 'scheduled_feed';
-        
-        $fileReader = $this->fileSystem->getDirectoryRead(DirectoryList::VAR_DIR);
-        
-        if ($fileReader->isExist($scheduleFile)) {
-            $scheduleData = $fileReader->readFile($scheduleFile);
-            $schedule = (array)json_decode($scheduleData);
-            $fileWriter = $this->fileSystem->getDirectoryWrite(DirectoryList::VAR_DIR);
-            $fileWriter->delete($scheduleFile);
-            if (!empty($schedule) && isset($schedule['store']) && isset($schedule['feeds'])) {
-                $this->feedRunner->selectedFeeds($schedule['store'], $schedule['feeds']);
+        $requests = $this->feedRequest->getAllRequestedFeeds();
+
+        foreach ($requests as $storeId => $feeds) {
+            if ($this->coreConfig->isActive($storeId)) {
+                $this->logger->debug('PureClarity: Requested Feeds being run for Store View ' . $storeId);
+                $this->feedRequest->deleteRequestedFeeds($storeId);
+                $this->feedRunner->selectedFeeds($storeId, $feeds);
             }
         }
     }
