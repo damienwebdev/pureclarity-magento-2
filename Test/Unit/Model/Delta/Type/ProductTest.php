@@ -174,7 +174,7 @@ class ProductTest extends TestCase
             $x = 0;
             foreach ($productData as $id => $product) {
                 $model = $this->getProductModel($id, $product);
-                $products[] = $model;
+                $products[$id] = $model;
                 if (isset($product['export'])) {
                     if ($product['export'] === true) {
                         $this->productExport->expects(self::at($x+1))
@@ -214,18 +214,32 @@ class ProductTest extends TestCase
      */
     public function testRunDeltaNoData(): void
     {
-        $products = [
-            1 => [
-                'status' => Status::STATUS_DISABLED,
-                'visibility' => Visibility::VISIBILITY_NOT_VISIBLE
-            ]
-        ];
+        $products = [];
 
         $this->setUpProductData($products, true);
         $this->deltaHandler->expects(self::never())->method('addDelete');
         $this->deltaHandler->expects(self::never())->method('addData');
         $this->deltaHandler->expects(self::never())->method('send');
-        $this->object->runDelta(1, array_keys($products));
+        $this->object->runDelta(1, []);
+    }
+
+    /**
+     * Tests runDelta with no enabled products available.
+     */
+    public function testRunDeltaOneDeletedProduct(): void
+    {
+        $products = [
+            1 => [
+                'status' => Status::STATUS_ENABLED,
+                'visibility' => Visibility::VISIBILITY_NOT_VISIBLE
+            ]
+        ];
+        $this->productCollection->expects(self::at(8))->method('getItems')->willReturn([]);
+        $this->setUpProductData($products, true);
+        $this->deltaHandler->expects(self::once())->method('addDelete');
+        $this->deltaHandler->expects(self::never())->method('addData');
+        $this->deltaHandler->expects(self::once())->method('send');
+        $this->object->runDelta(1, [1]);
     }
 
     /**
