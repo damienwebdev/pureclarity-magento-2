@@ -10,7 +10,7 @@ namespace Pureclarity\Core\Cron;
 
 use Magento\Store\Model\StoreManagerInterface;
 use Pureclarity\Core\Model\CoreConfig;
-use Pureclarity\Core\Model\Cron;
+use Pureclarity\Core\Model\Feed\Runner;
 use Psr\Log\LoggerInterface;
 
 /**
@@ -29,20 +29,20 @@ class RunNightly
     /** @var CoreConfig $coreConfig */
     private $coreConfig;
 
-    /** @var Cron $feedRunner */
+    /** @var Runner $feedRunner */
     private $feedRunner;
 
     /**
      * @param StoreManagerInterface $storeManager
      * @param LoggerInterface $logger
      * @param CoreConfig $coreConfig
-     * @param Cron $feedRunner
+     * @param Runner $feedRunner
      */
     public function __construct(
         StoreManagerInterface $storeManager,
         LoggerInterface $logger,
         CoreConfig $coreConfig,
-        Cron $feedRunner
+        Runner $feedRunner
     ) {
         $this->storeManager = $storeManager;
         $this->logger       = $logger;

@@ -8,7 +8,7 @@ declare(strict_types=1);
 namespace Pureclarity\Core\Model\Delta;
 
 use Psr\Log\LoggerInterface;
-use Pureclarity\Core\Model\Cron;
+use Pureclarity\Core\Model\Feed\Runner as FeedRunner;
 use Pureclarity\Core\Model\ProductFeed;
 use Pureclarity\Core\Model\ResourceModel\ProductFeed\CollectionFactory;
 use Pureclarity\Core\Model\Delta\Type\Product;
@@ -44,7 +44,7 @@ class Runner
     /** @var LoggerInterface $logger */
     private $logger;
 
-    /** @var Cron $feedRunner */
+    /** @var FeedRunner $feedRunner */
     private $feedRunner;
 
     /** @var ProductFeedResourceModel */
@@ -56,14 +56,14 @@ class Runner
     /**
      * @param CollectionFactory $deltaIndexCollectionFactory
      * @param LoggerInterface $logger
-     * @param Cron $feedRunner
+     * @param FeedRunner $feedRunner
      * @param Product $productDeltaRunner
      * @param ProductFeedResourceModel $deltaResourceModel
      */
     public function __construct(
         CollectionFactory $deltaIndexCollectionFactory,
         LoggerInterface $logger,
-        Cron $feedRunner,
+        FeedRunner $feedRunner,
         ProductFeedResourceModel $deltaResourceModel,
         Product $productDeltaRunner
     ) {

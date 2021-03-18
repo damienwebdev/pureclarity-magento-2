@@ -1,34 +1,34 @@
 <?php
+declare(strict_types=1);
 /**
  * Copyright © PureClarity. All rights reserved.
  * See LICENSE.txt for license details.
  */
 
-namespace Pureclarity\Core\Model;
+namespace Pureclarity\Core\Model\Feed;
 
 use Magento\Framework\Exception\CouldNotDeleteException;
 use Magento\Framework\Exception\CouldNotSaveException;
 use Pureclarity\Core\Helper\Serializer;
-use Magento\Store\Model\StoreFactory;
 use Psr\Log\LoggerInterface;
 use Pureclarity\Core\Api\StateRepositoryInterface;
 use Pureclarity\Core\Helper\Data;
+use Pureclarity\Core\Model\CoreConfig;
+use Pureclarity\Core\Model\Feed;
+use Pureclarity\Core\Model\FeedFactory;
 
 /**
  * Class Cron
  *
  * Controls the execution of feeds sent to PureClarity.
  */
-class Cron
+class Runner
 {
     /** @var Data $coreHelper */
     private $coreHelper;
 
     /** @var FeedFactory $coreFeedFactory */
     private $coreFeedFactory;
-
-    /** @var StoreFactory $storeStoreFactory */
-    private $storeStoreFactory;
 
     /** @var StateRepositoryInterface $stateRepository */
     private $stateRepository;
@@ -45,7 +45,6 @@ class Cron
     /**
      * @param Data $coreHelper
      * @param FeedFactory $coreFeedFactory
-     * @param StoreFactory $storeStoreFactory
      * @param StateRepositoryInterface $stateRepository
      * @param Serializer $serializer
      * @param LoggerInterface $logger
@@ -54,7 +53,6 @@ class Cron
     public function __construct(
         Data $coreHelper,
         FeedFactory $coreFeedFactory,
-        StoreFactory $storeStoreFactory,
         StateRepositoryInterface $stateRepository,
         Serializer $serializer,
         LoggerInterface $logger,
@@ -62,46 +60,51 @@ class Cron
     ) {
         $this->coreHelper                   = $coreHelper;
         $this->coreFeedFactory              = $coreFeedFactory;
-        $this->storeStoreFactory            = $storeStoreFactory;
         $this->stateRepository              = $stateRepository;
         $this->serializer                   = $serializer;
         $this->logger                       = $logger;
         $this->coreConfig                   = $coreConfig;
     }
 
-    // Produce all feeds in one file.
-    public function allFeeds($storeId)
+    /**
+     * Runs all feed types for the given store
+     * @param int $storeId
+     */
+    public function allFeeds(int $storeId): void
     {
         $this->doFeed([
             Feed::FEED_TYPE_PRODUCT,
             Feed::FEED_TYPE_CATEGORY,
             Feed::FEED_TYPE_BRAND,
             Feed::FEED_TYPE_USER
-        ], $storeId, $this->getFeedFilePath('all', $storeId));
+        ], $storeId);
     }
-    
-    public function selectedFeeds($storeId, $feeds)
+
+    /**
+     * Runs the selected feeds array for th egiven store.
+     *
+     * @param int $storeId
+     * @param array $feeds
+     */
+    public function selectedFeeds(int $storeId, array $feeds): void
     {
-        $this->doFeed($feeds, $storeId, $this->getFeedFilePath('all', $storeId));
+        $this->doFeed($feeds, $storeId);
     }
 
     /**
      * Produce a feed and POST to PureClarity.
+     *
      * @param $feedTypes array
      * @param $storeId integer
-     * @param $feedFilePath
      */
-    public function doFeed($feedTypes, $storeId, $feedFilePath)
+    public function doFeed(array $feedTypes, int $storeId): void
     {
-        $hasOrder = in_array(Feed::FEED_TYPE_ORDER, $feedTypes);
-        $isOrderOnly = ($hasOrder && count($feedTypes) == 1);
-
         $progressFileName = $this->coreHelper->getProgressFileName();
         $feedModel = $this->coreFeedFactory
             ->create()
             ->initialise($storeId, $progressFileName);
         if (! $feedModel) {
-            return false;
+            return;
         }
 
         $this->logFeedQueue($feedTypes, $storeId);
@@ -155,21 +158,13 @@ class Cron
         $this->removeFeedQueue($storeId);
     }
 
-    private function getFeedFilePath($feedType, $storeId)
-    {
-        $store = $this->storeStoreFactory->create()->load($storeId);
-        return $this->coreHelper->getPureClarityBaseDir()
-                . DIRECTORY_SEPARATOR
-                . $this->coreHelper->getFileNameForFeed($feedType, $store->getCode());
-    }
-
     /**
      * Saves the running_feeds state data for remaining feeds to be run (so dashboard shows correct feed status)
      * @param string[] $feeds
      * @param integer $storeId
      * @return void
      */
-    private function logFeedQueue($feeds, $storeId)
+    private function logFeedQueue(array $feeds, int $storeId): void
     {
         $state = $this->stateRepository->getByNameAndStore('running_feeds', $storeId);
         $state->setName('running_feeds');
@@ -188,7 +183,7 @@ class Cron
      * @param integer $storeId
      * @return void
      */
-    private function removeFeedQueue($storeId)
+    private function removeFeedQueue(int $storeId): void
     {
         $state = $this->stateRepository->getByNameAndStore('running_feeds', $storeId);
 
@@ -203,7 +198,7 @@ class Cron
      * Sorts out the state for the banner display on the dashboard.
      * @param integer $storeId
      */
-    private function setBannerStatus($storeId)
+    private function setBannerStatus(int $storeId): void
     {
         try {
 
