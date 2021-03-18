@@ -7,7 +7,9 @@ declare(strict_types=1);
 
 namespace Pureclarity\Core\Cron;
 
-use Pureclarity\Core\Model\Cron;
+use Magento\Store\Model\StoreManagerInterface;
+use Pureclarity\Core\Model\CoreConfig;
+use Pureclarity\Core\Model\Delta\Runner;
 
 /**
  * Class RunDeltas
@@ -16,24 +18,40 @@ use Pureclarity\Core\Model\Cron;
  */
 class RunDeltas
 {
-    /** @var Cron $feedRunner */
-    private $feedRunner;
+    /** @var StoreManagerInterface */
+    private $storeManager;
+
+    /** @var CoreConfig */
+    private $coreConfig;
+
+    /** @var Runner $deltaRunner */
+    private $deltaRunner;
 
     /**
-     * @param Cron $feedRunner
+     * @param StoreManagerInterface $storeManager
+     * @param CoreConfig $coreConfig
+     * @param Runner $deltaRunner
      */
     public function __construct(
-        Cron $feedRunner
+        StoreManagerInterface $storeManager,
+        CoreConfig $coreConfig,
+        Runner $deltaRunner
     ) {
-        $this->feedRunner = $feedRunner;
+        $this->storeManager = $storeManager;
+        $this->coreConfig   = $coreConfig;
+        $this->deltaRunner  = $deltaRunner;
     }
 
     /**
      * Runs deltas for every enabled store view.
      * called via cron every minute (see /etc/crontab.xml)
      */
-    public function execute()
+    public function execute(): void
     {
-        $this->feedRunner->reindexData();
+        foreach ($this->storeManager->getStores() as $store) {
+            if ($this->coreConfig->areDeltasEnabled((int)$store->getId())) {
+                $this->deltaRunner->runDeltas((int)$store->getId());
+            }
+        }
     }
 }
