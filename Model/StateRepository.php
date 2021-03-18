@@ -1,4 +1,6 @@
 <?php
+declare(strict_types=1);
+
 /**
  * Copyright © PureClarity. All rights reserved.
  * See LICENSE.txt for license details.
@@ -37,6 +39,22 @@ class StateRepository implements StateRepositoryInterface
     ) {
         $this->collectionFactory         = $collectionFactory;
         $this->stateFactory              = $stateFactory;
+    }
+
+    /**
+     * @inheritdoc
+     */
+    public function getListByName(string $name) : array
+    {
+        $collection = $this->collectionFactory->create();
+
+        $collection->addFieldToSelect(StateInterface::ID);
+        $collection->addFieldToSelect(StateInterface::NAME);
+        $collection->addFieldToSelect(StateInterface::VALUE);
+        $collection->addFieldToSelect(StateInterface::STORE_ID);
+        $collection->addFieldToFilter(StateInterface::NAME, $name);
+
+        return $collection->getItems();
     }
 
     /**

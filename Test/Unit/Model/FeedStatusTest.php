@@ -18,6 +18,7 @@ use Psr\Log\LoggerInterface;
 use Pureclarity\Core\Api\StateRepositoryInterface;
 use Pureclarity\Core\Helper\Data;
 use Pureclarity\Core\Model\CoreConfig;
+use Pureclarity\Core\Model\Feed\Request;
 use Pureclarity\Core\Model\FeedStatus;
 use Pureclarity\Core\Model\State;
 
@@ -55,6 +56,9 @@ class FeedStatusTest extends TestCase
     /** @var MockObject|LoggerInterface */
     private $logger;
 
+    /** @var MockObject|Request */
+    private $feedRequest;
+
     protected function setUp()
     {
         $this->stateRepository = $this->getMockBuilder(StateRepositoryInterface::class)
@@ -89,6 +93,10 @@ class FeedStatusTest extends TestCase
             ->disableOriginalConstructor()
             ->getMock();
 
+        $this->feedRequest = $this->getMockBuilder(Request::class)
+            ->disableOriginalConstructor()
+            ->getMock();
+
         $this->object = new FeedStatus(
             $this->stateRepository,
             $this->fileSystem,
@@ -96,7 +104,8 @@ class FeedStatusTest extends TestCase
             $this->coreConfig,
             $this->serializer,
             $this->timezone,
-            $this->logger
+            $this->logger,
+            $this->feedRequest
         );
 
         $this->setDefaultMockBehaviour();
@@ -200,19 +209,16 @@ class FeedStatusTest extends TestCase
     }
 
     /**
-     * Sets up the file contents returned by reading the readFile call for the scheduled feed file
+     * Sets up a default state object to return for "running_feeds" state row
+     *
+     * @param array $feeds
      */
-    private function initScheduleFileRead()
+    private function initRequestedFeed($feeds = [])
     {
-        $schedule = [
-            'store' => 0,
-            'feeds' => ['product']
-        ];
-
-        $this->readInterface->expects($this->at(1))
-            ->method('readFile')
-            ->with('path' . DIRECTORY_SEPARATOR . 'scheduled_feed', null, null)
-            ->willReturn(json_encode($schedule));
+        $this->feedRequest->expects(self::once())
+            ->method('getStoreRequestedFeeds')
+            ->with(0)
+            ->willReturn($feeds);
     }
 
     public function testFeedStatusInstance()
@@ -261,7 +267,7 @@ class FeedStatusTest extends TestCase
     {
         $this->initFeedErrorStateObject();
         $this->initRunningFeedsStateObject();
-        $this->initScheduleFileRead();
+        $this->initRequestedFeed(['product']);
 
         $status = $this->object->getFeedStatus('product');
 
@@ -281,11 +287,11 @@ class FeedStatusTest extends TestCase
     {
         $this->initFeedErrorStateObject();
         $this->initRunningFeedsStateObject(1, ['product']);
-        $this->initScheduleFileRead();
+        $this->initRequestedFeed(['product']);
 
         $status = $this->object->getFeedStatus('product');
 
-        $this->assertEquals(
+        self::assertEquals(
             [
                 'enabled' => true,
                 'error' => false,
@@ -301,6 +307,7 @@ class FeedStatusTest extends TestCase
     {
         $this->initFeedErrorStateObject();
         $this->initRunningFeedsStateObject(1, ['product']);
+        $this->initRequestedFeed(['product']);
 
         $progress = [
             'name' => 'product',
@@ -311,7 +318,7 @@ class FeedStatusTest extends TestCase
             'error' => ''
         ];
 
-        $this->readInterface->expects($this->at(3))
+        $this->readInterface->expects($this->at(1))
             ->method('readFile')
             ->with('progress_filename', null, null)
             ->willReturn(json_encode($progress));
@@ -416,7 +423,7 @@ class FeedStatusTest extends TestCase
             'error' => ''
         ];
 
-        $this->readInterface->expects($this->at(3))
+        $this->readInterface->expects($this->at(1))
             ->method('readFile')
             ->with('progress_filename', null, null)
             ->willReturn(json_encode($progress));
@@ -456,41 +463,12 @@ class FeedStatusTest extends TestCase
         $this->assertEquals(false, $status);
     }
 
-    public function testGetScheduledDataException()
-    {
-        $this->initFeedErrorStateObject();
-        $this->initRunningFeedsStateObject();
-        $this->initDateStateObject();
-
-        $this->readInterface->expects($this->at(1))
-            ->method('readFile')
-            ->with('path' . DIRECTORY_SEPARATOR . 'scheduled_feed', null, null)
-            ->willThrowException(new FileSystemException(new Phrase('An error')));
-
-        $this->logger->expects($this->once())
-            ->method('error')
-            ->with('Could not get PureClarity schedule data: An error');
-
-        $status = $this->object->getFeedStatus('product', 1);
-
-        $this->assertEquals(
-            [
-                'enabled' => true,
-                'error' => false,
-                'running' => false,
-                'class' => 'pc-feed-not-sent',
-                'label' => 'Not Sent',
-            ],
-            $status
-        );
-    }
-
     public function testGetProgressDataException()
     {
         $this->initFeedErrorStateObject();
         $this->initRunningFeedsStateObject(1, ['product']);
 
-        $this->readInterface->expects($this->at(3))
+        $this->readInterface->expects($this->at(1))
             ->method('readFile')
             ->with('progress_filename', null, null)
             ->willThrowException(new FileSystemException(new Phrase('An error')));

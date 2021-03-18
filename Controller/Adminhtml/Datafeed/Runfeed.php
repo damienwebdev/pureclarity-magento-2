@@ -1,4 +1,6 @@
 <?php
+declare(strict_types=1);
+
 /**
  * Copyright © PureClarity. All rights reserved.
  * See LICENSE.txt for license details.
@@ -9,8 +11,10 @@ namespace Pureclarity\Core\Controller\Adminhtml\Datafeed;
 use Magento\Backend\App\Action;
 use Magento\Backend\App\Action\Context;
 use Magento\Framework\App\Response\Http;
+use Magento\Framework\App\ResponseInterface;
+use Magento\Framework\Controller\ResultInterface;
 use Magento\Store\Model\StoreManagerInterface;
-use Pureclarity\Core\Model\CronFactory;
+use Pureclarity\Core\Model\Feed\Request;
 
 /**
  * Class Runfeed
@@ -19,29 +23,34 @@ use Pureclarity\Core\Model\CronFactory;
  */
 class Runfeed extends Action
 {
-    /** @var CronFactory $coreCronFactory */
-    private $coreCronFactory;
-
     /** @var StoreManagerInterface $storeManager */
     private $storeManager;
 
+    /** @var Request $feedRequest */
+    private $feedRequest;
+
     /**
      * @param Context $context
-     * @param CronFactory $coreCronFactory
      * @param StoreManagerInterface $storeManager
+     * @param Request $feedRequest
      */
     public function __construct(
         Context $context,
-        CronFactory $coreCronFactory,
-        StoreManagerInterface $storeManager
+        StoreManagerInterface $storeManager,
+        Request $feedRequest
     ) {
-        $this->coreCronFactory = $coreCronFactory;
         $this->storeManager    = $storeManager;
+        $this->feedRequest     = $feedRequest;
+
         parent::__construct(
             $context
         );
     }
-    
+
+    /**
+     * Requests that the selected feeds are run
+     * @return ResponseInterface|ResultInterface|void
+     */
     public function execute()
     {
         try {
@@ -50,11 +59,10 @@ class Runfeed extends Action
             if ($storeId === 0) {
                 $store = $this->storeManager->getDefaultStoreView();
                 if ($store) {
-                    $storeId = $store->getId();
+                    $storeId = (int)$store->getId();
                 }
             }
 
-            $model = $this->coreCronFactory->create();
             $feeds = [];
             if ($this->getRequest()->getParam('product') == 'true') {
                 $feeds[] = 'product';
@@ -71,7 +79,8 @@ class Runfeed extends Action
             if ($this->getRequest()->getParam('orders') == 'true') {
                 $feeds[] = 'orders';
             }
-            $model->scheduleSelectedFeeds($storeId, $feeds);
+
+            $this->feedRequest->requestFeeds($storeId, $feeds);
         } catch (\Exception $e) {
             $this->getResponse()
                 ->clearHeaders()

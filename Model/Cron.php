@@ -7,7 +7,6 @@
 namespace Pureclarity\Core\Model;
 
 use Magento\Catalog\Model\ProductFactory;
-use Magento\Cron\Model\Schedule;
 use Magento\Framework\Exception\CouldNotDeleteException;
 use Magento\Framework\Exception\CouldNotSaveException;
 use Magento\Framework\Filesystem;
@@ -16,7 +15,6 @@ use Magento\Store\Model\StoreFactory;
 use Magento\Store\Model\StoreManagerInterface;
 use Psr\Log\LoggerInterface;
 use Pureclarity\Core\Api\StateRepositoryInterface;
-use Magento\Framework\App\Filesystem\DirectoryList;
 use Magento\Catalog\Model\Product\Attribute\Source\Status;
 use Magento\Catalog\Model\Product\Visibility;
 use Pureclarity\Core\Helper\Data;
@@ -138,33 +136,6 @@ class Cron
             Feed::FEED_TYPE_BRAND,
             Feed::FEED_TYPE_USER
         ], $storeId, $this->getFeedFilePath('all', $storeId));
-    }
-
-    /**
-     * Sets selected feeds to be run by cron asap
-     *
-     * @param integer $storeId
-     * @param string[] $feeds
-     */
-    public function scheduleSelectedFeeds($storeId, $feeds)
-    {
-        $scheduleFilePath = $this->coreHelper->getPureClarityBaseDir() . DIRECTORY_SEPARATOR .  'scheduled_feed';
-        
-        $schedule = [
-            'store' => $storeId,
-            'feeds' => $feeds
-        ];
-        
-        $fileReader = $this->fileSystem->getDirectoryRead(DirectoryList::VAR_DIR);
-        $fileWriter = $this->fileSystem->getDirectoryWrite(DirectoryList::VAR_DIR);
-        
-        if ($fileReader->isExist($this->coreHelper->getProgressFileName())) {
-            $fileWriter->delete($this->coreHelper->getProgressFileName());
-        }
-        
-        $fileWriter->writeFile($scheduleFilePath, json_encode($schedule), 'w');
-        $this->resetFeedError($storeId);
-        $this->removeFeedQueue($storeId);
     }
     
     public function selectedFeeds($storeId, $feeds)
@@ -455,25 +426,6 @@ class Cron
             $this->stateRepository->delete($state);
         } catch (CouldNotDeleteException $e) {
             $this->logger->error('Could not save queued feeds: ' . $e->getMessage());
-        }
-    }
-
-    /**
-     * Resets the feed error status for the given store
-     * @param integer $storeId
-     * @return void
-     */
-    private function resetFeedError($storeId)
-    {
-        $state = $this->stateRepository->getByNameAndStore('last_feed_error', $storeId);
-        $state->setName('last_feed_error');
-        $state->setValue('');
-        $state->setStoreId($storeId);
-
-        try {
-            $this->stateRepository->save($state);
-        } catch (CouldNotSaveException $e) {
-            $this->logger->error('Could not save last feed error: ' . $e->getMessage());
         }
     }
 
