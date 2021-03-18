@@ -9,7 +9,7 @@ namespace Pureclarity\Core\Test\Unit\Model\Delta;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 use Psr\Log\LoggerInterface;
-use Pureclarity\Core\Model\Cron;
+use Pureclarity\Core\Model\Feed\Runner as FeedRunner;
 use Pureclarity\Core\Model\Delta\Runner;
 use Pureclarity\Core\Model\Delta\Type\Product;
 use Pureclarity\Core\Model\ProductFeed;
@@ -36,7 +36,7 @@ class RunnerTest extends TestCase
     /** @var MockObject|Collection */
     private $deltaIndexCollection;
 
-    /** @var MockObject|Cron */
+    /** @var MockObject|FeedRunner */
     private $feedRunner;
 
     /** @var MockObject|ProductFeedResourceModel */
@@ -61,7 +61,7 @@ class RunnerTest extends TestCase
             ->disableOriginalConstructor()
             ->getMock();
 
-        $this->feedRunner = $this->getMockBuilder(Cron::class)
+        $this->feedRunner = $this->getMockBuilder(FeedRunner::class)
             ->disableOriginalConstructor()
             ->getMock();
 

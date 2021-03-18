@@ -10,9 +10,8 @@ namespace Pureclarity\Core\Test\Unit\Cron;
 use PHPUnit\Framework\TestCase;
 use PHPUnit\Framework\MockObject\MockObject;
 use Pureclarity\Core\Cron\RunRequestedFeeds;
-use Magento\Store\Api\Data\StoreInterface;
 use Pureclarity\Core\Model\CoreConfig;
-use Pureclarity\Core\Model\Cron;
+use Pureclarity\Core\Model\Feed\Runner;
 use Psr\Log\LoggerInterface;
 use Pureclarity\Core\Model\Feed\Request;
 
@@ -32,7 +31,7 @@ class RunRequestedFeedsTest extends TestCase
     /** @var MockObject|CoreConfig $coreConfig */
     private $coreConfig;
 
-    /** @var MockObject|Cron $feedRunner */
+    /** @var MockObject|Runner $feedRunner */
     private $feedRunner;
 
     /** @var MockObject|Request $feedRequest */
@@ -51,7 +50,7 @@ class RunRequestedFeedsTest extends TestCase
             ->disableOriginalConstructor()
             ->getMock();
 
-        $this->feedRunner = $this->getMockBuilder(Cron::class)
+        $this->feedRunner = $this->getMockBuilder(Runner::class)
             ->disableOriginalConstructor()
             ->getMock();
 

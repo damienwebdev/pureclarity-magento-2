@@ -10,7 +10,6 @@ namespace Pureclarity\Core\Model\Feed;
 
 use Magento\Framework\App\Filesystem\DirectoryList;
 use Magento\Framework\Exception\CouldNotDeleteException;
-use Magento\Framework\Exception\CouldNotSaveException;
 use Magento\Framework\Exception\FileSystemException;
 use Magento\Framework\Filesystem;
 use Psr\Log\LoggerInterface;

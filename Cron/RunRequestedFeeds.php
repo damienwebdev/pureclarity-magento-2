@@ -10,7 +10,7 @@ namespace Pureclarity\Core\Cron;
 
 use Psr\Log\LoggerInterface;
 use Pureclarity\Core\Model\CoreConfig;
-use Pureclarity\Core\Model\Cron;
+use Pureclarity\Core\Model\Feed\Runner;
 use Pureclarity\Core\Model\Feed\Request;
 
 /**
@@ -26,7 +26,7 @@ class RunRequestedFeeds
     /** @var CoreConfig $coreConfig */
     private $coreConfig;
 
-    /** @var Cron $feedRunner */
+    /** @var Runner $feedRunner */
     private $feedRunner;
 
     /** @var Request $feedRequest */
@@ -35,14 +35,14 @@ class RunRequestedFeeds
     /**
      * @param LoggerInterface $logger
      * @param CoreConfig $coreConfig
-     * @param Cron $feedRunner
+     * @param Runner $feedRunner
      * @param Request $feedRequest
      */
     
     public function __construct(
         LoggerInterface $logger,
         CoreConfig $coreConfig,
-        Cron $feedRunner,
+        Runner $feedRunner,
         Request $feedRequest
     ) {
         $this->logger      = $logger;

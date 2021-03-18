@@ -14,7 +14,7 @@ use Pureclarity\Core\Cron\RunNightly;
 use Magento\Store\Model\StoreManagerInterface;
 use Magento\Store\Api\Data\StoreInterface;
 use Pureclarity\Core\Model\CoreConfig;
-use Pureclarity\Core\Model\Cron;
+use Pureclarity\Core\Model\Feed\Runner;
 use Psr\Log\LoggerInterface;
 
 /**
@@ -36,7 +36,7 @@ class RunNightlyTest extends TestCase
     /** @var MockObject|CoreConfig $coreConfig */
     private $coreConfig;
 
-    /** @var MockObject|Cron $cron */
+    /** @var MockObject|Runner $cron */
     private $cron;
 
     /**
@@ -56,7 +56,7 @@ class RunNightlyTest extends TestCase
             ->disableOriginalConstructor()
             ->getMock();
 
-        $this->cron = $this->getMockBuilder(Cron::class)
+        $this->cron = $this->getMockBuilder(Runner::class)
             ->disableOriginalConstructor()
             ->getMock();
 
