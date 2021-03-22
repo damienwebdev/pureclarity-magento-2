@@ -152,6 +152,7 @@ class UserTest extends TestCase
     }
 
     /**
+     * Sets up a StoreInterface and store manager getStore
      * @param bool $error
      */
     public function setupStore(bool $error = false): void
@@ -181,6 +182,11 @@ class UserTest extends TestCase
         }
     }
 
+    /**
+     * Builds dummy data for user feed
+     * @param int $customerId
+     * @return array
+     */
     public function mockCustomerData(int $customerId): array
     {
         $data = [
@@ -209,6 +215,12 @@ class UserTest extends TestCase
         return $data;
     }
 
+    /**
+     * Sets up a customer MockObject
+     * @param int $customerId
+     * @param array $data
+     * @return MockObject
+     */
     public function setupCustomer(int $customerId, array $data): MockObject
     {
         $customer = $this->getMockBuilder(Customer::class)
@@ -250,17 +262,17 @@ class UserTest extends TestCase
         $customer->method('getGender')
             ->willReturn($data['GroupId']);
 
-        $customer->expects(self::at($customerId === 1 ? 14 : 12))
+        $customer->expects(self::at(8))
             ->method('getData')
             ->with('city')
             ->willReturn($data['City']);
 
-        $customer->expects(self::at($customerId === 1 ? 15 : 13))
+        $customer->expects(self::at(9))
             ->method('getData')
             ->with('region')
             ->willReturn($data['State']);
 
-        $customer->expects(self::at($customerId === 1 ? 16 : 14))
+        $customer->expects(self::at(10))
             ->method('getData')
             ->with('country_id')
             ->willReturn($data['Country']);
@@ -268,6 +280,12 @@ class UserTest extends TestCase
         return $customer;
     }
 
+    /**
+     * Sets up customer array
+     * @param array $customerIds
+     * @param bool $error
+     * @param bool $feedError
+     */
     public function setupCustomers(array $customerIds, bool $error = false, bool $feedError = false): void
     {
         if ($error) {
@@ -321,6 +339,9 @@ class UserTest extends TestCase
         }
     }
 
+    /**
+     * Sets up customer group data
+     */
     public function setupCustomerGroups(): void
     {
         $this->customerGroupCollection->expects(self::once())
@@ -331,6 +352,9 @@ class UserTest extends TestCase
             ]);
     }
 
+    /**
+     * Sets up config value mocks
+     */
     public function setupConfig(): void
     {
         $this->coreConfig->expects(self::once())
@@ -354,6 +378,9 @@ class UserTest extends TestCase
         self::assertInstanceOf(User::class, $this->object);
     }
 
+    /**
+     * Tests that the user feed doesnt send when no users present
+     */
     public function testSendNoUsers(): void
     {
         $this->setupStore();
@@ -365,6 +392,9 @@ class UserTest extends TestCase
         $this->object->send(1);
     }
 
+    /**
+     * Tests that the user feed gets sent with users present
+     */
     public function testSendWithUsers(): void
     {
         $this->setupStore();
@@ -401,6 +431,9 @@ class UserTest extends TestCase
         $this->object->send(1);
     }
 
+    /**
+     * Tests with 75 customers so that we can validate progress gets updated at 50 customers
+     */
     public function testSendWithUsersValidateProgress(): void
     {
         $this->setupStore();
@@ -447,7 +480,10 @@ class UserTest extends TestCase
         $this->object->send(1);
     }
 
-    public function testSendStoreError(): void
+    /**
+     * Tests that a store load exception is handled
+     */
+    public function testSendStoreException(): void
     {
         $this->setupStore(true);
 
@@ -465,6 +501,9 @@ class UserTest extends TestCase
         $this->object->send(1);
     }
 
+    /**
+     * Tests that a customer collection exception is handled
+     */
     public function testSendCollectionException(): void
     {
         $this->setupStore();
@@ -484,6 +523,9 @@ class UserTest extends TestCase
         $this->object->send(1);
     }
 
+    /**
+     * Tests that a user feed exception is handled
+     */
     public function testSendFeedException(): void
     {
         $this->setupStore();

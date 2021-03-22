@@ -202,25 +202,33 @@ class User
             'FirstName' => $customer->getFirstname(),
             'LastName' => $customer->getLastname()
         ];
-        if ($customer->getPrefix()) {
-            $data['Salutation'] = $customer->getPrefix();
+
+        $prefix = $customer->getPrefix();
+        if ($prefix) {
+            $data['Salutation'] = $prefix;
         }
-        if ($customer->getDob()) {
-            $data['DOB'] = $customer->getDob();
+
+        $dob = $customer->getDob();
+        if ($dob) {
+            $data['DOB'] = $dob;
         }
-        if ($customer->getGroupId() && $customerGroups[$customer->getGroupId()]) {
-            $data['Group'] = $customerGroups[$customer->getGroupId()]['label'];
-            $data['GroupId'] = $customer->getGroupId();
+
+        $groupId = $customer->getGroupId();
+        if ($groupId && isset($customerGroups[$groupId])) {
+            $data['Group'] = $customerGroups[$groupId]['label'];
+            $data['GroupId'] = $groupId;
         }
-        if ($customer->getGender()) {
-            switch ($customer->getGender()) {
-                case 1: // Male
-                    $data['Gender'] = 'M';
-                    break;
-                case 2: // Female
-                    $data['Gender'] = 'F';
-                    break;
-            }
+
+        $gender = $customer->getGender();
+        switch ($gender) {
+            case 1: // Male
+                $data['Gender'] = 'M';
+                break;
+            case 2: // Female
+                $data['Gender'] = 'F';
+                break;
+            default:
+                break;
         }
 
         $data['City'] = $customer->getData('city');
