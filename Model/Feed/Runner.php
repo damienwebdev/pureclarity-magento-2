@@ -15,6 +15,7 @@ use Pureclarity\Core\Helper\Data;
 use Pureclarity\Core\Model\CoreConfig;
 use Pureclarity\Core\Model\Feed;
 use Pureclarity\Core\Model\FeedFactory;
+use Pureclarity\Core\Model\Feed\Type\User;
 
 /**
  * Class Runner
@@ -41,6 +42,9 @@ class Runner
     /** @var Running */
     private $runningFeeds;
 
+    /** @var User */
+    private $userFeed;
+
     /**
      * @param Data $coreHelper
      * @param FeedFactory $coreFeedFactory
@@ -48,6 +52,7 @@ class Runner
      * @param LoggerInterface $logger
      * @param CoreConfig $coreConfig
      * @param Running $runningFeeds
+     * @param User $userFeed
      */
     public function __construct(
         Data $coreHelper,
@@ -55,7 +60,8 @@ class Runner
         StateRepositoryInterface $stateRepository,
         LoggerInterface $logger,
         CoreConfig $coreConfig,
-        Running $runningFeeds
+        Running $runningFeeds,
+        User $userFeed
     ) {
         $this->coreHelper      = $coreHelper;
         $this->coreFeedFactory = $coreFeedFactory;
@@ -63,6 +69,7 @@ class Runner
         $this->logger          = $logger;
         $this->coreConfig      = $coreConfig;
         $this->runningFeeds    = $runningFeeds;
+        $this->userFeed        = $userFeed;
     }
 
     /**
@@ -125,7 +132,7 @@ class Runner
                     }
                     break;
                 case Feed::FEED_TYPE_USER:
-                    $feedModel->sendUsers();
+                    $this->userFeed->send($storeId);
                     $this->runningFeeds->removeRunningFeed($storeId, Feed::FEED_TYPE_USER);
                     break;
                 case Feed::FEED_TYPE_ORDER:
