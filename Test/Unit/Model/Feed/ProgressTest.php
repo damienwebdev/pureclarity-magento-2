@@ -7,6 +7,7 @@
 namespace Pureclarity\Core\Test\Unit\Model\Feed;
 
 use Magento\Framework\Exception\CouldNotDeleteException;
+use Magento\Framework\Exception\CouldNotSaveException;
 use Magento\Framework\Phrase;
 use PHPUnit\Framework\TestCase;
 use PHPUnit\Framework\MockObject\MockObject;
@@ -95,13 +96,13 @@ class ProgressTest extends TestCase
     }
 
     /**
-     * @param string $id
-     * @param string $name
-     * @param string $value
-     * @param string $storeId
+     * @param int|null $id
+     * @param string|null $name
+     * @param string|null $value
+     * @param int|null $storeId
      * @return MockObject
      */
-    private function getStateMock($id = null, $name = null, $value = null, $storeId = null)
+    private function getStateMock(int $id, string $name, string $value, int $storeId): MockObject
     {
         $state = $this->getMockBuilder(State::class)
             ->disableOriginalConstructor()
@@ -118,18 +119,66 @@ class ProgressTest extends TestCase
     /**
      * Sets up a default state object to return for "last_feed_error" state row
      *
+     * @param int $id
+     * @param string $name
+     * @param string $value
+     * @param int $storeId
+     * @param int $index
+     * @return MockObject
+     */
+    private function initStateObjectNoSave(int $id, string $name, string $value, int $storeId, int $index): MockObject
+    {
+        $state = $this->getStateMock($id, $name, $value, $storeId);
+        $this->stateRepository->expects(self::at($index))
+            ->method('getByNameAndStore')
+            ->with($name, $storeId)
+            ->willReturn($state);
+        return $state;
+    }
+
+    /**
+     * Sets up a default state object to return for "last_feed_error" state row
+     *
+     * @param int $id
+     * @param string $name
+     * @param string $value
+     * @param int $storeId
+     * @param int $index
+     * @param bool $saveError
+     */
+    private function initStateObjectWithSave(
+        int $id,
+        string $name,
+        string $value,
+        int $storeId,
+        int $index,
+        bool $saveError = false
+    ): void {
+        $state = $this->initStateObjectNoSave($id, $name, $value, $storeId, $index);
+        if ($saveError) {
+            $this->stateRepository->expects(self::at($index + 1))
+                ->method('save')
+                ->with($state)
+                ->willThrowException(new CouldNotSaveException(new Phrase('An error')));
+        } elseif ($id) {
+            $this->stateRepository->expects(self::at($index + 1))
+                ->method('save')
+                ->with($state);
+        }
+    }
+
+    /**
+     * Sets up a default state object to return for "last_feed_error" state row
+     *
      * @param string $name
      * @param int $index
+     * @param int $storeId
      * @param int $id
      * @param bool $deleteError
      */
-    private function initStateObject(string $name, int $index, $id = 0, $deleteError = false)
+    private function initStateObject(string $name, int $index, int $storeId, $id = 0, $deleteError = false): void
     {
-        $state = $this->getStateMock($id, $name, '', '0');
-        $this->stateRepository->expects(self::at($index))
-            ->method('getByNameAndStore')
-            ->with($name, 1)
-            ->willReturn($state);
+        $state = $this->initStateObjectNoSave($id, $name, '', $storeId, $index);
 
         if ($deleteError) {
             $this->stateRepository->expects(self::at($index + 1))
@@ -143,33 +192,64 @@ class ProgressTest extends TestCase
         }
     }
 
-    public function testInstance()
+    public function testInstance(): void
     {
         self::assertInstanceOf(Progress::class, $this->object);
     }
 
-    public function testResetProgressWithData()
+    public function testGetProgressNoData(): void
     {
-        $this->initStateObject('last_feed_error', 0, 1);
-        $this->initStateObject('running_feeds', 2, 1);
+        $this->initStateObjectNoSave(1, 'feed_product_progress', '', 1, 0);
+        $error = $this->object->getProgress(1, 'product');
+        self::assertEquals('', $error);
+    }
+
+    public function testGetProgressWithData(): void
+    {
+        $this->initStateObjectNoSave(1, 'feed_product_progress', '42', 1, 0);
+        $error = $this->object->getProgress(1, 'product');
+        self::assertEquals('42', $error);
+    }
+
+    public function testUpdateProgress(): void
+    {
+        $this->initStateObjectWithSave(1, 'feed_product_progress', '42', 1, 0);
+        $this->object->updateProgress(1, 'product', '42');
+    }
+
+    public function testUpdateProgressError(): void
+    {
+        $this->initStateObjectWithSave(1, 'feed_product_progress', '42', 1, 0, true);
+
+        $this->logger->expects(self::once())
+            ->method('error')
+            ->with('PureClarity: Could not save product feed progress: An error');
+
+        $this->object->updateProgress(1, 'product', '17');
+    }
+
+    public function testResetProgressWithData(): void
+    {
+        $this->initStateObject('last_feed_error', 0, 1, 1);
+        $this->initStateObject('running_feeds', 2, 1, 1);
         $this->readInterface->method('isExist')->willReturn(true);
         $this->writeInterface->expects(self::once())->method('delete')->with('progress_filename');
         $this->object->resetProgress(1);
     }
 
-    public function testResetProgressWithoutData()
+    public function testResetProgressWithoutData(): void
     {
-        $this->initStateObject('last_feed_error', 0);
-        $this->initStateObject('running_feeds', 1);
+        $this->initStateObject('last_feed_error', 0, 1);
+        $this->initStateObject('running_feeds', 1, 1);
         $this->readInterface->method('isExist')->willReturn(false);
         $this->writeInterface->expects(self::never())->method('delete');
         $this->object->resetProgress(1);
     }
 
-    public function testResetProgressWithFeedErrorException()
+    public function testResetProgressWithFeedErrorException(): void
     {
-        $this->initStateObject('last_feed_error', 0, 1, true);
-        $this->initStateObject('running_feeds', 2, 1);
+        $this->initStateObject('last_feed_error', 0, 1, 1, true);
+        $this->initStateObject('running_feeds', 2, 1, 1);
         $this->readInterface->method('isExist')->willReturn(true);
         $this->writeInterface->expects(self::once())->method('delete')->with('progress_filename');
 
@@ -180,10 +260,10 @@ class ProgressTest extends TestCase
         $this->object->resetProgress(1);
     }
 
-    public function testResetProgressWithRunningFeedsException()
+    public function testResetProgressWithRunningFeedsException(): void
     {
-        $this->initStateObject('last_feed_error', 0, 1);
-        $this->initStateObject('running_feeds', 2, 1, true);
+        $this->initStateObject('last_feed_error', 0, 1, 1);
+        $this->initStateObject('running_feeds', 2, 1, 1, true);
         $this->readInterface->method('isExist')->willReturn(true);
         $this->writeInterface->expects(self::once())->method('delete')->with('progress_filename');
 
@@ -194,10 +274,10 @@ class ProgressTest extends TestCase
         $this->object->resetProgress(1);
     }
 
-    public function testResetProgressWithFileException()
+    public function testResetProgressWithFileException(): void
     {
-        $this->initStateObject('last_feed_error', 0, 1);
-        $this->initStateObject('running_feeds', 2, 1);
+        $this->initStateObject('last_feed_error', 0, 1, 1);
+        $this->initStateObject('running_feeds', 2, 1, 1);
 
         $this->readInterface->method('isExist')->willReturn(true);
         $this->writeInterface->expects(self::once())
