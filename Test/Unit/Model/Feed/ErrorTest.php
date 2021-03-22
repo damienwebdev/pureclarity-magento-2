@@ -66,16 +66,23 @@ class ErrorTest extends TestCase
             ->disableOriginalConstructor()
             ->getMock();
 
-        $state->method('getId')->willReturn($id);
-        $state->method('getStoreId')->willReturn($storeId);
-        $state->method('getName')->willReturn($name);
-        $state->method('getValue')->willReturn($value);
+        $state->method('getId')
+            ->willReturn($id);
+
+        $state->method('getStoreId')
+            ->willReturn($storeId);
+
+        $state->method('getName')
+            ->willReturn($name);
+
+        $state->method('getValue')
+            ->willReturn($value);
 
         return $state;
     }
 
     /**
-     *  Sets up interaction with the state repository, for a state row save
+     * Sets up interaction with the state repository, for a state row load
      *
      * @param int $id
      * @param string $name
@@ -110,9 +117,18 @@ class ErrorTest extends TestCase
         string $saveError = ''
     ): void {
         $state = $this->initStateRepositoryLoad(1, $name, $storeId, $value);
-        $state->expects(self::once())->method('setStoreId')->with($storeId);
-        $state->expects(self::once())->method('setName')->with($name);
-        $state->expects(self::once())->method('setValue')->with($value);
+
+        $state->expects(self::once())
+            ->method('setStoreId')
+            ->with($storeId);
+
+        $state->expects(self::once())
+            ->method('setName')
+            ->with($name);
+
+        $state->expects(self::once())
+            ->method('setValue')
+            ->with($value);
 
         if ($saveError) {
             $this->stateRepository->expects(self::once())
