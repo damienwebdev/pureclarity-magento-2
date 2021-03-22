@@ -9,7 +9,6 @@ namespace Pureclarity\Core\Model\Feed;
 
 use Magento\Framework\Exception\CouldNotDeleteException;
 use Magento\Framework\Exception\CouldNotSaveException;
-use Pureclarity\Core\Helper\Serializer;
 use Psr\Log\LoggerInterface;
 use Pureclarity\Core\Api\StateRepositoryInterface;
 use Pureclarity\Core\Helper\Data;
@@ -18,7 +17,7 @@ use Pureclarity\Core\Model\Feed;
 use Pureclarity\Core\Model\FeedFactory;
 
 /**
- * Class Cron
+ * Class Runner
  *
  * Controls the execution of feeds sent to PureClarity.
  */
@@ -33,37 +32,37 @@ class Runner
     /** @var StateRepositoryInterface $stateRepository */
     private $stateRepository;
 
-    /** @var Serializer $serializer */
-    private $serializer;
-
     /** @var LoggerInterface $logger */
     private $logger;
 
     /** @var CoreConfig $coreConfig */
     private $coreConfig;
 
+    /** @var Running */
+    private $runningFeeds;
+
     /**
      * @param Data $coreHelper
      * @param FeedFactory $coreFeedFactory
      * @param StateRepositoryInterface $stateRepository
-     * @param Serializer $serializer
      * @param LoggerInterface $logger
      * @param CoreConfig $coreConfig
+     * @param Running $runningFeeds
      */
     public function __construct(
         Data $coreHelper,
         FeedFactory $coreFeedFactory,
         StateRepositoryInterface $stateRepository,
-        Serializer $serializer,
         LoggerInterface $logger,
-        CoreConfig $coreConfig
+        CoreConfig $coreConfig,
+        Running $runningFeeds
     ) {
-        $this->coreHelper                   = $coreHelper;
-        $this->coreFeedFactory              = $coreFeedFactory;
-        $this->stateRepository              = $stateRepository;
-        $this->serializer                   = $serializer;
-        $this->logger                       = $logger;
-        $this->coreConfig                   = $coreConfig;
+        $this->coreHelper      = $coreHelper;
+        $this->coreFeedFactory = $coreFeedFactory;
+        $this->stateRepository = $stateRepository;
+        $this->logger          = $logger;
+        $this->coreConfig      = $coreConfig;
+        $this->runningFeeds    = $runningFeeds;
     }
 
     /**
@@ -81,7 +80,7 @@ class Runner
     }
 
     /**
-     * Runs the selected feeds array for th egiven store.
+     * Runs the selected feeds array for the given store.
      *
      * @param int $storeId
      * @param array $feeds
@@ -107,47 +106,31 @@ class Runner
             return;
         }
 
-        $this->logFeedQueue($feedTypes, $storeId);
-        $feedsRemaining = $feedTypes;
+        $this->runningFeeds->setRunningFeeds($storeId, $feedTypes);
         // Post the feed data for the specified feed type
         foreach ($feedTypes as $key => $feedType) {
             switch ($feedType) {
                 case Feed::FEED_TYPE_PRODUCT:
                     $feedModel->sendProducts();
-                    if (($key = array_search(Feed::FEED_TYPE_PRODUCT, $feedsRemaining)) !== false) {
-                        unset($feedsRemaining[$key]);
-                    }
-                    $this->logFeedQueue($feedsRemaining, $storeId);
+                    $this->runningFeeds->removeRunningFeed($storeId, Feed::FEED_TYPE_PRODUCT);
                     break;
                 case Feed::FEED_TYPE_CATEGORY:
                     $feedModel->sendCategories();
-                    if (($key = array_search(Feed::FEED_TYPE_CATEGORY, $feedsRemaining)) !== false) {
-                        unset($feedsRemaining[$key]);
-                    }
-                    $this->logFeedQueue($feedsRemaining, $storeId);
+                    $this->runningFeeds->removeRunningFeed($storeId, Feed::FEED_TYPE_CATEGORY);
                     break;
                 case Feed::FEED_TYPE_BRAND:
                     if ($this->coreConfig->isBrandFeedEnabled($storeId)) {
                         $feedModel->sendBrands();
-                        if (($key = array_search(Feed::FEED_TYPE_BRAND, $feedsRemaining)) !== false) {
-                            unset($feedsRemaining[$key]);
-                        }
-                        $this->logFeedQueue($feedsRemaining, $storeId);
+                        $this->runningFeeds->removeRunningFeed($storeId, Feed::FEED_TYPE_BRAND);
                     }
                     break;
                 case Feed::FEED_TYPE_USER:
                     $feedModel->sendUsers();
-                    if (($key = array_search(Feed::FEED_TYPE_USER, $feedsRemaining)) !== false) {
-                        unset($feedsRemaining[$key]);
-                    }
-                    $this->logFeedQueue($feedsRemaining, $storeId);
+                    $this->runningFeeds->removeRunningFeed($storeId, Feed::FEED_TYPE_USER);
                     break;
                 case Feed::FEED_TYPE_ORDER:
                     $feedModel->sendOrders();
-                    if (($key = array_search(Feed::FEED_TYPE_ORDER, $feedsRemaining)) !== false) {
-                        unset($feedsRemaining[$key]);
-                    }
-                    $this->logFeedQueue($feedsRemaining, $storeId);
+                    $this->runningFeeds->removeRunningFeed($storeId, Feed::FEED_TYPE_ORDER);
                     break;
                 default:
                     throw new \InvalidArgumentException("PureClarity feed type not recognised: {$feedType}");
@@ -155,43 +138,7 @@ class Runner
         }
         $feedModel->checkSuccess();
         $this->setBannerStatus($storeId);
-        $this->removeFeedQueue($storeId);
-    }
-
-    /**
-     * Saves the running_feeds state data for remaining feeds to be run (so dashboard shows correct feed status)
-     * @param string[] $feeds
-     * @param integer $storeId
-     * @return void
-     */
-    private function logFeedQueue(array $feeds, int $storeId): void
-    {
-        $state = $this->stateRepository->getByNameAndStore('running_feeds', $storeId);
-        $state->setName('running_feeds');
-        $state->setValue($this->serializer->serialize($feeds));
-        $state->setStoreId($storeId);
-
-        try {
-            $this->stateRepository->save($state);
-        } catch (CouldNotSaveException $e) {
-            $this->logger->error('Could not save queued feeds: ' . $e->getMessage());
-        }
-    }
-
-    /**
-     * Removes the running_feeds state data (so dashboard shows correct feed status)
-     * @param integer $storeId
-     * @return void
-     */
-    private function removeFeedQueue(int $storeId): void
-    {
-        $state = $this->stateRepository->getByNameAndStore('running_feeds', $storeId);
-
-        try {
-            $this->stateRepository->delete($state);
-        } catch (CouldNotDeleteException $e) {
-            $this->logger->error('Could not save queued feeds: ' . $e->getMessage());
-        }
+        $this->runningFeeds->deleteRunningFeeds($storeId);
     }
 
     /**
