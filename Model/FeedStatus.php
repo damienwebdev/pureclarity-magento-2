@@ -15,7 +15,7 @@ use Psr\Log\LoggerInterface;
 use Pureclarity\Core\Api\StateRepositoryInterface;
 use Pureclarity\Core\Helper\Data;
 use Pureclarity\Core\Helper\Serializer;
-use Pureclarity\Core\Model\Feed\Request;
+use Pureclarity\Core\Model\Feed\State\Request;
 
 /**
  * Class FeedStatus

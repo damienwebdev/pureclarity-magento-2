@@ -11,7 +11,7 @@ use Pureclarity\Core\Api\UserFeedDataManagementInterface;
 use Magento\Store\Api\Data\StoreInterface;
 use Magento\Customer\Model\ResourceModel\Customer\Collection;
 use Psr\Log\LoggerInterface;
-use Pureclarity\Core\Model\Feed\Error;
+use Pureclarity\Core\Model\Feed\State\Error;
 use Magento\Store\Model\StoreManagerInterface;
 use Magento\Customer\Model\ResourceModel\Customer\CollectionFactory as CustomerCollectionFactory;
 use PureClarity\Api\Feed\Feed;

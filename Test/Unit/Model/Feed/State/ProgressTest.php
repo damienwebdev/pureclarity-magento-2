@@ -4,14 +4,14 @@
  * See LICENSE.txt for license details.
  */
 
-namespace Pureclarity\Core\Test\Unit\Model\Feed;
+namespace Pureclarity\Core\Test\Unit\Model\State\Feed;
 
 use Magento\Framework\Exception\CouldNotDeleteException;
 use Magento\Framework\Exception\CouldNotSaveException;
 use Magento\Framework\Phrase;
 use PHPUnit\Framework\TestCase;
 use PHPUnit\Framework\MockObject\MockObject;
-use Pureclarity\Core\Model\Feed\Progress;
+use Pureclarity\Core\Model\Feed\State\Progress;
 use Pureclarity\Core\Api\StateRepositoryInterface;
 use Psr\Log\LoggerInterface;
 use Magento\Framework\Filesystem;

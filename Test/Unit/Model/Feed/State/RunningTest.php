@@ -5,10 +5,10 @@ declare(strict_types=1);
  * See LICENSE.txt for license details.
  */
 
-namespace Pureclarity\Core\Test\Unit\Model\Feed;
+namespace Pureclarity\Core\Test\Unit\Model\State\Feed;
 
 use PHPUnit\Framework\TestCase;
-use Pureclarity\Core\Model\Feed\Running;
+use Pureclarity\Core\Model\Feed\State\Running;
 use PHPUnit\Framework\MockObject\MockObject;
 use Pureclarity\Core\Api\StateRepositoryInterface;
 use Psr\Log\LoggerInterface;

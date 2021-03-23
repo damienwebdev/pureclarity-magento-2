@@ -6,7 +6,7 @@ declare(strict_types=1);
  * See LICENSE.txt for license details.
  */
 
-namespace Pureclarity\Core\Model\Feed;
+namespace Pureclarity\Core\Model\Feed\State;
 
 use Magento\Framework\Exception\CouldNotDeleteException;
 use Magento\Framework\Exception\CouldNotSaveException;

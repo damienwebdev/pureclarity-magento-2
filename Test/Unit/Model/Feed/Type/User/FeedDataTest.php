@@ -14,7 +14,7 @@ use PHPUnit\Framework\TestCase;
 use Pureclarity\Core\Model\Feed\Type\User\FeedData;
 use PHPUnit\Framework\MockObject\MockObject;
 use Psr\Log\LoggerInterface;
-use Pureclarity\Core\Model\Feed\Error;
+use Pureclarity\Core\Model\Feed\State\Error;
 use Magento\Store\Model\StoreManagerInterface;
 use Magento\Customer\Model\ResourceModel\Customer\Collection as CustomerCollection;
 use Magento\Customer\Model\ResourceModel\Customer\CollectionFactory as CustomerCollectionFactory;

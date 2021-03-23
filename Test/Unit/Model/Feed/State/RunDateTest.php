@@ -5,10 +5,10 @@ declare(strict_types=1);
  * See LICENSE.txt for license details.
  */
 
-namespace Pureclarity\Core\Test\Unit\Model\Feed;
+namespace Pureclarity\Core\Test\Unit\Model\State\Feed;
 
 use PHPUnit\Framework\TestCase;
-use Pureclarity\Core\Model\Feed\Error;
+use Pureclarity\Core\Model\Feed\State\RunDate;
 use PHPUnit\Framework\MockObject\MockObject;
 use Pureclarity\Core\Api\StateRepositoryInterface;
 use Psr\Log\LoggerInterface;
@@ -17,13 +17,13 @@ use Magento\Framework\Phrase;
 use Pureclarity\Core\Model\State;
 
 /**
- * Class ErrorTest
+ * Class RunDateTest
  *
- * Tests the methods in \Pureclarity\Core\Model\Feed\Error
+ * Tests the methods in \Pureclarity\Core\Model\Feed\RunDate
  */
-class ErrorTest extends TestCase
+class RunDateTest extends TestCase
 {
-    /** @var Error $object */
+    /** @var RunDate $object */
     private $object;
 
     /** @var MockObject|StateRepositoryInterface */
@@ -42,7 +42,7 @@ class ErrorTest extends TestCase
             ->disableOriginalConstructor()
             ->getMock();
 
-        $this->object = new Error(
+        $this->object = new RunDate(
             $this->stateRepository,
             $this->logger
         );
@@ -82,7 +82,7 @@ class ErrorTest extends TestCase
     }
 
     /**
-     * Sets up interaction with the state repository, for a state row load
+     * Sets up a default state object to return for given state row
      *
      * @param int $id
      * @param string $name
@@ -103,14 +103,14 @@ class ErrorTest extends TestCase
     }
 
     /**
-     * Sets up interaction with the state repository, for a state row save
+     * Sets up a default state object to return for given state row
      *
      * @param string $name
      * @param int $storeId
      * @param string $value
      * @param string $saveError
      */
-    private function initStateRepositorySave(
+    private function initStateObjectWithSave(
         string $name,
         int $storeId,
         string $value,
@@ -143,53 +143,55 @@ class ErrorTest extends TestCase
     }
 
     /**
-     * Tests class gets set up correctly
+     * Test that class is set up correctly
      */
     public function testInstance(): void
     {
-        self::assertInstanceOf(Error::class, $this->object);
+        self::assertInstanceOf(RunDate::class, $this->object);
     }
 
     /**
-     * Tests getFeedError returns no error correctly
+     * Test that getLastRunDate with no data is handled correctly
      */
-    public function testGetFeedErrorNoData(): void
+    public function testGetLastRunDateNoData(): void
     {
-        $this->initStateRepositoryLoad(1, 'last_product_feed_error', 1, '');
-        $error = $this->object->getFeedError(1, 'product');
-        self::assertEquals('', $error);
+        $this->initStateRepositoryLoad(1, 'last_product_feed_date', 1, '');
+        $runningFeeds = $this->object->getLastRunDate(1, 'product');
+        self::assertEquals('', $runningFeeds);
     }
 
     /**
-     * Tests getFeedError returns an error correctly
+     * Test that getLastRunDate with data is returned as expected
      */
-    public function testGetFeedErrorWithData(): void
+    public function testGetLastRunDateWithData(): void
     {
-        $this->initStateRepositoryLoad(1, 'last_product_feed_error', 1, 'something');
-        $error = $this->object->getFeedError(1, 'product');
-        self::assertEquals('something', $error);
+        $this->initStateRepositoryLoad(1, 'last_product_feed_date', 1, 'something');
+        $runDate = $this->object->getLastRunDate(1, 'product');
+        self::assertEquals('something', $runDate);
     }
 
     /**
-     * Tests saveFeedError saves correctly
+     * Test that setLastRunDate saves data given to it
      */
-    public function testSaveFeedError(): void
+    public function testSetLastRunDate(): void
     {
-        $this->initStateRepositorySave('last_product_feed_error', 1, 'A feed Error');
-        $this->object->saveFeedError(1, 'product', 'A feed Error');
+        $date = date('Y-m-d H:i:s');
+        $this->initStateObjectWithSave('last_product_feed_date', 1, $date);
+        $this->object->setLastRunDate(1, 'product', $date);
     }
 
     /**
-     * Tests saveFeedError handles exceptions correctly
+     * Test that setLastRunDate handles exceptions by logging an error
      */
-    public function testSaveFeedErrorException(): void
+    public function testSetLastRunDateException(): void
     {
-        $this->initStateRepositorySave('last_product_feed_error', 1, 'A feed Error', 'An error');
+        $date = date('Y-m-d H:i:s');
+        $this->initStateObjectWithSave('last_product_feed_date', 1, $date, 'An error');
 
         $this->logger->expects(self::once())
             ->method('error')
-            ->with('PureClarity: Could not save feed error: An error');
+            ->with('PureClarity: Could not save last updated date: An error');
 
-        $this->object->saveFeedError(1, 'product', 'A feed Error');
+        $this->object->setLastRunDate(1, 'product', $date);
     }
 }
