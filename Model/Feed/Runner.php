@@ -7,15 +7,14 @@ declare(strict_types=1);
 
 namespace Pureclarity\Core\Model\Feed;
 
+use Pureclarity\Core\Helper\Data;
+use Pureclarity\Core\Model\FeedFactory;
+use Pureclarity\Core\Api\StateRepositoryInterface;
+use Psr\Log\LoggerInterface;
+use Pureclarity\Core\Model\CoreConfig;
+use PureClarity\Api\Feed\Feed;
 use Magento\Framework\Exception\CouldNotDeleteException;
 use Magento\Framework\Exception\CouldNotSaveException;
-use Psr\Log\LoggerInterface;
-use Pureclarity\Core\Api\StateRepositoryInterface;
-use Pureclarity\Core\Helper\Data;
-use Pureclarity\Core\Model\CoreConfig;
-use Pureclarity\Core\Model\Feed;
-use Pureclarity\Core\Model\FeedFactory;
-use Pureclarity\Core\Model\Feed\Type\User;
 
 /**
  * Class Runner
@@ -24,13 +23,13 @@ use Pureclarity\Core\Model\Feed\Type\User;
  */
 class Runner
 {
-    /** @var Data $coreHelper */
+    /** @var Data */
     private $coreHelper;
 
-    /** @var FeedFactory $coreFeedFactory */
+    /** @var FeedFactory */
     private $coreFeedFactory;
 
-    /** @var StateRepositoryInterface $stateRepository */
+    /** @var StateRepositoryInterface */
     private $stateRepository;
 
     /** @var LoggerInterface $logger */
@@ -42,8 +41,17 @@ class Runner
     /** @var Running */
     private $runningFeeds;
 
-    /** @var User */
-    private $userFeed;
+    /** @var RunDate */
+    private $feedRunDate;
+
+    /** @var Progress */
+    private $feedProgress;
+
+    /** @var Error */
+    private $feedError;
+
+    /** @var TypeHandler */
+    private $feedTypeHandler;
 
     /**
      * @param Data $coreHelper
@@ -52,7 +60,10 @@ class Runner
      * @param LoggerInterface $logger
      * @param CoreConfig $coreConfig
      * @param Running $runningFeeds
-     * @param User $userFeed
+     * @param RunDate $feedRunDate
+     * @param Progress $feedProgress
+     * @param Error $feedError
+     * @param TypeHandler $feedTypeHandler
      */
     public function __construct(
         Data $coreHelper,
@@ -61,7 +72,10 @@ class Runner
         LoggerInterface $logger,
         CoreConfig $coreConfig,
         Running $runningFeeds,
-        User $userFeed
+        RunDate $feedRunDate,
+        Progress $feedProgress,
+        Error $feedError,
+        TypeHandler $feedTypeHandler
     ) {
         $this->coreHelper      = $coreHelper;
         $this->coreFeedFactory = $coreFeedFactory;
@@ -69,7 +83,10 @@ class Runner
         $this->logger          = $logger;
         $this->coreConfig      = $coreConfig;
         $this->runningFeeds    = $runningFeeds;
-        $this->userFeed        = $userFeed;
+        $this->feedRunDate     = $feedRunDate;
+        $this->feedProgress    = $feedProgress;
+        $this->feedError       = $feedError;
+        $this->feedTypeHandler = $feedTypeHandler;
     }
 
     /**
@@ -120,24 +137,29 @@ class Runner
                 case Feed::FEED_TYPE_PRODUCT:
                     $feedModel->sendProducts();
                     $this->runningFeeds->removeRunningFeed($storeId, Feed::FEED_TYPE_PRODUCT);
+                    $this->feedRunDate->setLastRunDate($storeId, Feed::FEED_TYPE_PRODUCT, date('Y-m-d H:i:s'));
                     break;
                 case Feed::FEED_TYPE_CATEGORY:
                     $feedModel->sendCategories();
                     $this->runningFeeds->removeRunningFeed($storeId, Feed::FEED_TYPE_CATEGORY);
+                    $this->feedRunDate->setLastRunDate($storeId, Feed::FEED_TYPE_CATEGORY, date('Y-m-d H:i:s'));
                     break;
                 case Feed::FEED_TYPE_BRAND:
                     if ($this->coreConfig->isBrandFeedEnabled($storeId)) {
                         $feedModel->sendBrands();
                         $this->runningFeeds->removeRunningFeed($storeId, Feed::FEED_TYPE_BRAND);
+                        $this->feedRunDate->setLastRunDate($storeId, Feed::FEED_TYPE_BRAND, date('Y-m-d H:i:s'));
                     }
                     break;
                 case Feed::FEED_TYPE_USER:
-                    $this->userFeed->send($storeId);
+                    $this->sendFeed($storeId, Feed::FEED_TYPE_USER);
                     $this->runningFeeds->removeRunningFeed($storeId, Feed::FEED_TYPE_USER);
+                    $this->feedRunDate->setLastRunDate($storeId, Feed::FEED_TYPE_USER, date('Y-m-d H:i:s'));
                     break;
                 case Feed::FEED_TYPE_ORDER:
                     $feedModel->sendOrders();
                     $this->runningFeeds->removeRunningFeed($storeId, Feed::FEED_TYPE_ORDER);
+                    $this->feedRunDate->setLastRunDate($storeId, Feed::FEED_TYPE_ORDER, date('Y-m-d H:i:s'));
                     break;
                 default:
                     throw new \InvalidArgumentException("PureClarity feed type not recognised: {$feedType}");
@@ -146,6 +168,50 @@ class Runner
         $feedModel->checkSuccess();
         $this->setBannerStatus($storeId);
         $this->runningFeeds->deleteRunningFeeds($storeId);
+    }
+
+    /**
+     * Builds & sends the a feed
+     * @param int $storeId
+     * @param string $type
+     * @return void
+     */
+    public function sendFeed(int $storeId, string $type) : void
+    {
+        try {
+            $feedHandler = $this->feedTypeHandler->getFeedHandler($type);
+            $feedDataHandler = $feedHandler->getFeedDataHandler();
+            $pageCount = $feedDataHandler->getTotalPages($storeId);
+
+            if ($pageCount > 0) {
+                $this->feedProgress->updateProgress($storeId, $type, '0');
+                $feedBuilder = $feedHandler->getFeedBuilder(
+                    $this->coreConfig->getAccessKey($storeId),
+                    $this->coreConfig->getSecretKey($storeId),
+                    $this->coreConfig->getRegion($storeId)
+                );
+
+                $feedBuilder->start();
+
+                $rowDataHandler = $feedHandler->getRowDataHandler();
+                for ($page = 1; $page <= $pageCount; $page++) {
+                    $data = $feedDataHandler->getPageData($storeId, $page);
+                    foreach ($data as $row) {
+                        $feedBuilder->append($rowDataHandler->getRowData($row));
+                    }
+                    $this->feedProgress->updateProgress(
+                        $storeId,
+                        $type,
+                        (string)round(($page / $pageCount) * 100)
+                    );
+                }
+
+                $feedBuilder->end();
+            }
+        } catch (\Exception $e) {
+            $this->logger->error('PureClarity: Error with ' . $type . ' feed: ' . $e->getMessage());
+            $this->feedError->saveFeedError($storeId, $type, $e->getMessage());
+        }
     }
 
     /**
