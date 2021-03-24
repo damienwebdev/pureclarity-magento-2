@@ -17,7 +17,7 @@ use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 use Pureclarity\Core\Api\StateRepositoryInterface;
 use Pureclarity\Core\Model\CoreConfig;
-use Pureclarity\Core\Model\Feed\Request;
+use Pureclarity\Core\Model\Feed\State\Request;
 use Pureclarity\Core\Model\Signup\Process;
 use Pureclarity\Core\Model\State;
 use Psr\Log\LoggerInterface;

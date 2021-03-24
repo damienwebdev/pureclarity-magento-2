@@ -13,7 +13,7 @@ use Pureclarity\Core\Cron\RunRequestedFeeds;
 use Pureclarity\Core\Model\CoreConfig;
 use Pureclarity\Core\Model\Feed\Runner;
 use Psr\Log\LoggerInterface;
-use Pureclarity\Core\Model\Feed\Request;
+use Pureclarity\Core\Model\Feed\State\Request;
 
 /**
  * Class RunScheduledTest

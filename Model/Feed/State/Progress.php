@@ -6,10 +6,11 @@ declare(strict_types=1);
  * See LICENSE.txt for license details.
  */
 
-namespace Pureclarity\Core\Model\Feed;
+namespace Pureclarity\Core\Model\Feed\State;
 
 use Magento\Framework\App\Filesystem\DirectoryList;
 use Magento\Framework\Exception\CouldNotDeleteException;
+use Magento\Framework\Exception\CouldNotSaveException;
 use Magento\Framework\Exception\FileSystemException;
 use Magento\Framework\Filesystem;
 use Psr\Log\LoggerInterface;
@@ -52,6 +53,43 @@ class Progress
         $this->fileSystem      = $fileSystem;
         $this->coreHelper      = $coreHelper;
     }
+
+    /**
+     * Retrieves the progress value for the provided feed / store
+     * @param int $storeId
+     * @param string $feedType
+     * @return string
+     */
+    public function getProgress(int $storeId, string $feedType): string
+    {
+        $state = $this->stateRepository->getByNameAndStore('feed_' . $feedType . '_progress', $storeId);
+        return $state->getValue() ?: '';
+    }
+
+    /**
+     * Saves the progress value for the provided feed / store
+     * @param int $storeId
+     * @param string $feedType
+     * @param string $progressValue
+     * @return void
+     */
+    public function updateProgress(int $storeId, string $feedType, string $progressValue): void
+    {
+        $state = $this->stateRepository->getByNameAndStore('feed_' . $feedType . '_progress', $storeId);
+        $state->setName('feed_' . $feedType . '_progress');
+        $state->setValue($progressValue);
+        $state->setStoreId($storeId);
+
+        try {
+            $this->stateRepository->save($state);
+        } catch (CouldNotSaveException $e) {
+            $this->logger->error('PureClarity: Could not save ' . $feedType . ' feed progress: ' . $e->getMessage());
+        }
+    }
+
+    /**
+     * TODO: remove the stuff below this line, when all feeds are reworked
+     */
 
     /**
      * Resets the progress of feeds on a given store

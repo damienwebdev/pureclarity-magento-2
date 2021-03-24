@@ -79,4 +79,8 @@
     <type name="Magento\Framework\View\Asset\Minification">
         <plugin name="pureclarity-excludes" type="Pureclarity\Core\Plugin\Minification\Excludes" />
     </type>
+
+    <preference for="Pureclarity\Core\Api\UserFeedDataManagementInterface" type="Pureclarity\Core\Model\Feed\Type\User\FeedData" />
+    <preference for="Pureclarity\Core\Api\UserFeedRowDataManagementInterface" type="Pureclarity\Core\Model\Feed\Type\User\RowData" />
+
 </config>

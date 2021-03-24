@@ -9,7 +9,6 @@ namespace Pureclarity\Core\Model;
 use Magento\Catalog\Model\CategoryRepository;
 use Magento\Catalog\Model\ResourceModel\Category\CollectionFactory as CategoryCollectionFactory;
 use Magento\Framework\Exception\CouldNotSaveException;
-use Magento\Framework\Exception\LocalizedException;
 use Magento\Sales\Model\Order;
 use Magento\Store\Model\Store;
 use Magento\Store\Model\StoreFactory;
@@ -71,12 +70,6 @@ class Feed
     /** @var ProductExportFactory $productExportFactory */
     private $productExportFactory;
 
-    /** @var CustomerCollectionFactory $customerCollectionFactory */
-    private $customerCollectionFactory;
-
-    /** @var CustomerGroupCollection $customerGroupCollection */
-    private $customerGroupCollection;
-
     /** @var StateRepositoryInterface $stateRepository */
     private $stateRepository;
 
@@ -112,8 +105,6 @@ class Feed
         Data $coreHelper,
         StoreFactory $storeFactory,
         ProductExportFactory $productExportFactory,
-        CustomerCollectionFactory $customerCollectionFactory,
-        CustomerGroupCollection $customerGroupCollection,
         StateRepositoryInterface $stateRepository,
         LoggerInterface $logger,
         CoreConfig $coreConfig,
@@ -126,8 +117,6 @@ class Feed
         $this->storeFactory              = $storeFactory;
         $this->productExportFactory      = $productExportFactory;
         $this->logger                    = $logger;
-        $this->customerCollectionFactory = $customerCollectionFactory;
-        $this->customerGroupCollection   = $customerGroupCollection;
         $this->stateRepository           = $stateRepository;
         $this->coreConfig                = $coreConfig;
         $this->serviceUrl                = $serviceUrl;
@@ -572,131 +561,6 @@ class Feed
             return $feedBrands;
         }
         return [];
-    }
-
-    /**
-     * Sends users feed
-     * @return boolean
-     */
-    public function sendUsers()
-    {
-        if (!$this->isInitialised()) {
-            return false;
-        }
-
-        $this->logger->debug("PureClarity: In Feed->sendUsers()");
-        $customerGroups = $this->customerGroupCollection->toOptionArray();
-
-        $customerCollection = $this->getCustomerCollection();
-
-        if (!$customerCollection) {
-            return false;
-        }
-
-        $maxProgress = $customerCollection->getSize();
-
-        $currentProgress = 0;
-        $writtenCustomers = false;
-        $this->logger->debug("PureClarity: {$maxProgress} users");
-        if ($maxProgress > 0) {
-            $this->start(self::FEED_TYPE_USER);
-
-            $parameters = $this->getParameters(',"Users":[', self::FEED_TYPE_USER);
-            $this->send("feed-append", $parameters);
-            $users = '';
-
-            /** @var \Magento\Customer\Model\Customer $customer */
-            foreach ($customerCollection as $customer) {
-                $data = [
-                    'UserId' => $customer->getId(),
-                    'Email' => $customer->getEmail(),
-                    'FirstName' => $customer->getFirstname(),
-                    'LastName' => $customer->getLastname()
-                ];
-                if ($customer->getPrefix()) {
-                    $data['Salutation'] = $customer->getPrefix();
-                }
-                if ($customer->getDob()) {
-                    $data['DOB'] = $customer->getDob();
-                }
-                if ($customer->getGroupId() && $customerGroups[$customer->getGroupId()]) {
-                    $data['Group'] = $customerGroups[$customer->getGroupId()]['label'];
-                    $data['GroupId'] = $customer->getGroupId();
-                }
-                if ($customer->getGender()) {
-                    switch ($customer->getGender()) {
-                        case 1: // Male
-                            $data['Gender'] = 'M';
-                            break;
-                        case 2: // Female
-                            $data['Gender'] = 'F';
-                            break;
-                    }
-                }
-
-                $data['City'] = $customer->getData('city');
-                $data['State'] = $customer->getData('region');
-                $data['Country'] = $customer->getData('country_id');
-
-                if ($writtenCustomers) {
-                    $users .= ',';
-                }
-                $writtenCustomers = true;
-
-                $users .= $this->coreHelper->formatFeed($data, 'json');
-                
-                $currentProgress++;
-
-                if ($currentProgress %100 === 0 || $currentProgress === $maxProgress) {
-                    $parameters = $this->getParameters($users, self::FEED_TYPE_USER);
-                    $this->send("feed-append", $parameters);
-                    $users = '';
-                }
-
-                $this->coreHelper->setProgressFile(
-                    $this->progressFileName,
-                    self::FEED_TYPE_USER,
-                    $currentProgress,
-                    $maxProgress
-                );
-            }
-            
-            $this->endFeedAppend(self::FEED_TYPE_USER, $writtenCustomers);
-            $this->end(self::FEED_TYPE_USER);
-            $this->saveRunDate(self::FEED_TYPE_USER, $this->storeId);
-        }
-
-        return true;
-    }
-
-    /**
-     * Builds the customer collection for user feed, includes default shipping / first address found
-     * @return bool|\Magento\Customer\Model\ResourceModel\Customer\Collection
-     */
-    private function getCustomerCollection()
-    {
-        try {
-            $customerCollection = $this->customerCollectionFactory->create();
-            $customerCollection->addAttributeToFilter(
-                'website_id',
-                [ "eq" => $this->getCurrentStore()->getWebsiteId()]
-            );
-
-            $table = $customerCollection->getTable('customer_address_entity');
-            $customerCollection->joinTable(
-                ['cad' => $table],
-                'parent_id = entity_id',
-                ['city', 'region', 'country_id'],
-                '`cad`.entity_id=`e`.default_shipping OR cad.parent_id = e.entity_id',
-                'left'
-            );
-            $customerCollection->groupByAttribute('entity_id');
-            return $customerCollection;
-        } catch (LocalizedException $e) {
-            $this->logger->error('PureClarity, could not load users: ' . $e->getMessage());
-        }
-
-        return false;
     }
 
     /**

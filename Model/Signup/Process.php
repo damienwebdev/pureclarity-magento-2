@@ -14,7 +14,7 @@ use Magento\Store\Model\StoreManagerInterface;
 use Pureclarity\Core\Api\StateRepositoryInterface;
 use Pureclarity\Core\Model\CoreConfig;
 use Psr\Log\LoggerInterface;
-use Pureclarity\Core\Model\Feed\Request;
+use Pureclarity\Core\Model\Feed\State\Request;
 
 /**
  * Class Process

@@ -7,34 +7,36 @@ declare(strict_types=1);
 
 namespace Pureclarity\Core\Model\Feed;
 
+use Exception;
+use Pureclarity\Core\Api\FeedManagementInterface;
+use Pureclarity\Core\Helper\Data;
+use Pureclarity\Core\Model\FeedFactory;
+use Pureclarity\Core\Api\StateRepositoryInterface;
+use Psr\Log\LoggerInterface;
+use Pureclarity\Core\Model\CoreConfig;
+use Pureclarity\Core\Model\Feed\State\Running;
+use Pureclarity\Core\Model\Feed\State\RunDate;
+use Pureclarity\Core\Model\Feed\State\Progress;
+use Pureclarity\Core\Model\Feed\State\Error;
+use PureClarity\Api\Feed\Feed;
 use Magento\Framework\Exception\CouldNotDeleteException;
 use Magento\Framework\Exception\CouldNotSaveException;
-use Pureclarity\Core\Helper\Serializer;
-use Psr\Log\LoggerInterface;
-use Pureclarity\Core\Api\StateRepositoryInterface;
-use Pureclarity\Core\Helper\Data;
-use Pureclarity\Core\Model\CoreConfig;
-use Pureclarity\Core\Model\Feed;
-use Pureclarity\Core\Model\FeedFactory;
 
 /**
- * Class Cron
+ * Class Runner
  *
  * Controls the execution of feeds sent to PureClarity.
  */
 class Runner
 {
-    /** @var Data $coreHelper */
+    /** @var Data */
     private $coreHelper;
 
-    /** @var FeedFactory $coreFeedFactory */
+    /** @var FeedFactory */
     private $coreFeedFactory;
 
-    /** @var StateRepositoryInterface $stateRepository */
+    /** @var StateRepositoryInterface */
     private $stateRepository;
-
-    /** @var Serializer $serializer */
-    private $serializer;
 
     /** @var LoggerInterface $logger */
     private $logger;
@@ -42,28 +44,55 @@ class Runner
     /** @var CoreConfig $coreConfig */
     private $coreConfig;
 
+    /** @var Running */
+    private $runningFeeds;
+
+    /** @var RunDate */
+    private $feedRunDate;
+
+    /** @var Progress */
+    private $feedProgress;
+
+    /** @var Error */
+    private $feedError;
+
+    /** @var TypeHandler */
+    private $feedTypeHandler;
+
     /**
      * @param Data $coreHelper
      * @param FeedFactory $coreFeedFactory
      * @param StateRepositoryInterface $stateRepository
-     * @param Serializer $serializer
      * @param LoggerInterface $logger
      * @param CoreConfig $coreConfig
+     * @param Running $runningFeeds
+     * @param RunDate $feedRunDate
+     * @param Progress $feedProgress
+     * @param Error $feedError
+     * @param TypeHandler $feedTypeHandler
      */
     public function __construct(
         Data $coreHelper,
         FeedFactory $coreFeedFactory,
         StateRepositoryInterface $stateRepository,
-        Serializer $serializer,
         LoggerInterface $logger,
-        CoreConfig $coreConfig
+        CoreConfig $coreConfig,
+        Running $runningFeeds,
+        RunDate $feedRunDate,
+        Progress $feedProgress,
+        Error $feedError,
+        TypeHandler $feedTypeHandler
     ) {
-        $this->coreHelper                   = $coreHelper;
-        $this->coreFeedFactory              = $coreFeedFactory;
-        $this->stateRepository              = $stateRepository;
-        $this->serializer                   = $serializer;
-        $this->logger                       = $logger;
-        $this->coreConfig                   = $coreConfig;
+        $this->coreHelper      = $coreHelper;
+        $this->coreFeedFactory = $coreFeedFactory;
+        $this->stateRepository = $stateRepository;
+        $this->logger          = $logger;
+        $this->coreConfig      = $coreConfig;
+        $this->runningFeeds    = $runningFeeds;
+        $this->feedRunDate     = $feedRunDate;
+        $this->feedProgress    = $feedProgress;
+        $this->feedError       = $feedError;
+        $this->feedTypeHandler = $feedTypeHandler;
     }
 
     /**
@@ -81,7 +110,7 @@ class Runner
     }
 
     /**
-     * Runs the selected feeds array for th egiven store.
+     * Runs the selected feeds array for the given store.
      *
      * @param int $storeId
      * @param array $feeds
@@ -107,47 +136,36 @@ class Runner
             return;
         }
 
-        $this->logFeedQueue($feedTypes, $storeId);
-        $feedsRemaining = $feedTypes;
+        $this->runningFeeds->setRunningFeeds($storeId, $feedTypes);
         // Post the feed data for the specified feed type
         foreach ($feedTypes as $key => $feedType) {
             switch ($feedType) {
                 case Feed::FEED_TYPE_PRODUCT:
                     $feedModel->sendProducts();
-                    if (($key = array_search(Feed::FEED_TYPE_PRODUCT, $feedsRemaining)) !== false) {
-                        unset($feedsRemaining[$key]);
-                    }
-                    $this->logFeedQueue($feedsRemaining, $storeId);
+                    $this->runningFeeds->removeRunningFeed($storeId, Feed::FEED_TYPE_PRODUCT);
+                    $this->feedRunDate->setLastRunDate($storeId, Feed::FEED_TYPE_PRODUCT, date('Y-m-d H:i:s'));
                     break;
                 case Feed::FEED_TYPE_CATEGORY:
                     $feedModel->sendCategories();
-                    if (($key = array_search(Feed::FEED_TYPE_CATEGORY, $feedsRemaining)) !== false) {
-                        unset($feedsRemaining[$key]);
-                    }
-                    $this->logFeedQueue($feedsRemaining, $storeId);
+                    $this->runningFeeds->removeRunningFeed($storeId, Feed::FEED_TYPE_CATEGORY);
+                    $this->feedRunDate->setLastRunDate($storeId, Feed::FEED_TYPE_CATEGORY, date('Y-m-d H:i:s'));
                     break;
                 case Feed::FEED_TYPE_BRAND:
                     if ($this->coreConfig->isBrandFeedEnabled($storeId)) {
                         $feedModel->sendBrands();
-                        if (($key = array_search(Feed::FEED_TYPE_BRAND, $feedsRemaining)) !== false) {
-                            unset($feedsRemaining[$key]);
-                        }
-                        $this->logFeedQueue($feedsRemaining, $storeId);
+                        $this->runningFeeds->removeRunningFeed($storeId, Feed::FEED_TYPE_BRAND);
+                        $this->feedRunDate->setLastRunDate($storeId, Feed::FEED_TYPE_BRAND, date('Y-m-d H:i:s'));
                     }
                     break;
                 case Feed::FEED_TYPE_USER:
-                    $feedModel->sendUsers();
-                    if (($key = array_search(Feed::FEED_TYPE_USER, $feedsRemaining)) !== false) {
-                        unset($feedsRemaining[$key]);
-                    }
-                    $this->logFeedQueue($feedsRemaining, $storeId);
+                    $this->sendFeed($storeId, Feed::FEED_TYPE_USER);
+                    $this->runningFeeds->removeRunningFeed($storeId, Feed::FEED_TYPE_USER);
+                    $this->feedRunDate->setLastRunDate($storeId, Feed::FEED_TYPE_USER, date('Y-m-d H:i:s'));
                     break;
                 case Feed::FEED_TYPE_ORDER:
                     $feedModel->sendOrders();
-                    if (($key = array_search(Feed::FEED_TYPE_ORDER, $feedsRemaining)) !== false) {
-                        unset($feedsRemaining[$key]);
-                    }
-                    $this->logFeedQueue($feedsRemaining, $storeId);
+                    $this->runningFeeds->removeRunningFeed($storeId, Feed::FEED_TYPE_ORDER);
+                    $this->feedRunDate->setLastRunDate($storeId, Feed::FEED_TYPE_ORDER, date('Y-m-d H:i:s'));
                     break;
                 default:
                     throw new \InvalidArgumentException("PureClarity feed type not recognised: {$feedType}");
@@ -155,42 +173,65 @@ class Runner
         }
         $feedModel->checkSuccess();
         $this->setBannerStatus($storeId);
-        $this->removeFeedQueue($storeId);
+        $this->runningFeeds->deleteRunningFeeds($storeId);
     }
 
     /**
-     * Saves the running_feeds state data for remaining feeds to be run (so dashboard shows correct feed status)
-     * @param string[] $feeds
-     * @param integer $storeId
+     * Builds & sends a feed
+     * @param int $storeId
+     * @param string $type
      * @return void
      */
-    private function logFeedQueue(array $feeds, int $storeId): void
+    public function sendFeed(int $storeId, string $type) : void
     {
-        $state = $this->stateRepository->getByNameAndStore('running_feeds', $storeId);
-        $state->setName('running_feeds');
-        $state->setValue($this->serializer->serialize($feeds));
-        $state->setStoreId($storeId);
-
         try {
-            $this->stateRepository->save($state);
-        } catch (CouldNotSaveException $e) {
-            $this->logger->error('Could not save queued feeds: ' . $e->getMessage());
+            $feedHandler = $this->feedTypeHandler->getFeedHandler($type);
+            if ($feedHandler->isEnabled($storeId)) {
+                $this->handleFeed($feedHandler, $storeId, $type);
+            }
+        } catch (Exception $e) {
+            $this->logger->error('PureClarity: Error with ' . $type . ' feed: ' . $e->getMessage());
+            $this->feedError->saveFeedError($storeId, $type, $e->getMessage());
         }
     }
 
     /**
-     * Removes the running_feeds state data (so dashboard shows correct feed status)
-     * @param integer $storeId
-     * @return void
+     * Uses the provided feed handler to run a feed.
+     *
+     * @param FeedManagementInterface $feedHandler
+     * @param int $storeId
+     * @param string $type
+     * @throws Exception
      */
-    private function removeFeedQueue(int $storeId): void
+    private function handleFeed(FeedManagementInterface $feedHandler, int $storeId, string $type) : void
     {
-        $state = $this->stateRepository->getByNameAndStore('running_feeds', $storeId);
+        $feedDataHandler = $feedHandler->getFeedDataHandler();
+        $pageCount = $feedDataHandler->getTotalPages($storeId);
 
-        try {
-            $this->stateRepository->delete($state);
-        } catch (CouldNotDeleteException $e) {
-            $this->logger->error('Could not save queued feeds: ' . $e->getMessage());
+        if ($pageCount > 0) {
+
+            $this->feedProgress->updateProgress($storeId, $type, '0');
+            $feedBuilder = $feedHandler->getFeedBuilder(
+                $this->coreConfig->getAccessKey($storeId),
+                $this->coreConfig->getSecretKey($storeId),
+                $this->coreConfig->getRegion($storeId)
+            );
+
+            $feedBuilder->start();
+
+            $rowDataHandler = $feedHandler->getRowDataHandler();
+            for ($page = 1; $page <= $pageCount; $page++) {
+                $data = $feedDataHandler->getPageData($storeId, $page);
+                foreach ($data as $row) {
+                    $rowData = $rowDataHandler->getRowData($storeId, $row);
+                    if ($rowData) {
+                        $feedBuilder->append($rowData);
+                    }
+                }
+                $this->feedProgress->updateProgress($storeId, $type, (string)round(($page / $pageCount) * 100));
+            }
+
+            $feedBuilder->end();
         }
     }
 

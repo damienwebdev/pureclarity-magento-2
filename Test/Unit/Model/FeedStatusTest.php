@@ -18,7 +18,7 @@ use Psr\Log\LoggerInterface;
 use Pureclarity\Core\Api\StateRepositoryInterface;
 use Pureclarity\Core\Helper\Data;
 use Pureclarity\Core\Model\CoreConfig;
-use Pureclarity\Core\Model\Feed\Request;
+use Pureclarity\Core\Model\Feed\State\Request;
 use Pureclarity\Core\Model\FeedStatus;
 use Pureclarity\Core\Model\State;
 
