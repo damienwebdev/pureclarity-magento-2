@@ -335,18 +335,6 @@ class Feed
     }
 
     /**
-     * Removes protocol from the start of $url
-     * @param $url string
-     */
-    protected function removeUrlProtocol($url)
-    {
-        return str_replace([
-                "https:",
-                "http:"
-            ], "", $url);
-    }
-
-    /**
      * Starts the feed by sending first bit of data to feed-create end point. For orders,
      * sends first row of CSV data, otherwise sends opening string of json.
      * @param $feedType string One of the Feed::FEED_TYPE_... constants
