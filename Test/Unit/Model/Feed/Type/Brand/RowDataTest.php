@@ -52,6 +52,35 @@ class RowDataTest extends TestCase
     }
 
     /**
+     * Sets up config value loading
+     * @param bool $configured
+     */
+    public function setupConfig(bool $configured = false): void
+    {
+        if ($configured) {
+            $this->coreConfig->expects(self::once())
+                ->method('getCategoryPlaceholderUrl')
+                ->with(self::STORE_ID)
+                ->willReturn('http://www.example.com/placeholder-image-url.jpg');
+
+            $this->coreConfig->expects(self::once())
+                ->method('getSecondaryCategoryPlaceholderUrl')
+                ->with(self::STORE_ID)
+                ->willReturn('https://www.example.com/secondary-placeholder-image-url.jpg');
+        } else {
+            $this->coreConfig->expects(self::once())
+                ->method('getCategoryPlaceholderUrl')
+                ->with(self::STORE_ID)
+                ->willReturn('');
+
+            $this->coreConfig->expects(self::once())
+                ->method('getSecondaryCategoryPlaceholderUrl')
+                ->with(self::STORE_ID)
+                ->willReturn('');
+        }
+    }
+
+    /**
      * Builds dummy data for brand feed
      * @param int $brandId
      * @return array
@@ -61,42 +90,40 @@ class RowDataTest extends TestCase
         $brandData = [
             'Id' => $brandId,
             'DisplayName' =>  'Brand ' . $brandId,
-            'Description' => $brandId === 1 ? 'A Description' : '',
-            'Image' => $brandId === 1 ? '//www.example.com/image-url.jpg' : '',
+            'Description' => '',
+            'Image' => '',
         ];
 
+        // Brand 1 only hase bare minimum data set
         if ($brandId === 1) {
+            $brandData['Link'] = '//www.example.com/brand-' . $brandId;
+        }
+
+        // Brand 2 has all optional fields set
+        if ($brandId === 2) {
+            $brandData['Description'] = 'A Description of 2';
             $brandData['Image'] = '//www.example.com/image-url.jpg';
-        } elseif ($brandId === 2) {
-            $brandData['Image'] = '//www.example.com/placeholder-image-url.jpg';
-        } else {
-            $brandData['Image'] = '';
-        }
-
-        if ($brandId === 1) {
-            $brandData['OverrideImage'] = '//www.example.com/override-image-url.jpg';
-        } elseif ($brandId === 2) {
-            $brandData['OverrideImage'] = '//www.example.com/secondary-placeholder-image-url.jpg';
-        } else {
-            $brandData['OverrideImage'] = '';
-        }
-
-        $brandData['Link'] = '//www.example.com/brand-' . $brandId;
-
-        if ($brandId > 1) {
+            $brandData['OverrideImage'] = '//www.example.com/catalog/pureclarity_category_image/override-image-url.jpg';
+            $brandData['Link'] = '//www.example.com/brand-' . $brandId;
             $brandData['ExcludeFromRecommenders'] = true;
+        }
+
+        // Brand 2 has bare minimum, but placeholders are configured
+        if ($brandId === 3) {
+            $brandData['Image'] = '//www.example.com/placeholder-image-url.jpg';
+            $brandData['Link'] = '//www.example.com/brand-' . $brandId;
+            $brandData['OverrideImage'] = '//www.example.com/secondary-placeholder-image-url.jpg';
         }
 
         return $brandData;
     }
 
     /**
-     * Sets up a customer MockObject
+     * Sets up a brand MockObject
      * @param int $brandId
-     * @param array $data
      * @return MockObject|Category
      */
-    public function setupBrand(int $brandId, array $data): MockObject
+    public function setupBaseBrand(int $brandId): MockObject
     {
         $brand = $this->getMockBuilder(Category::class)
             ->disableOriginalConstructor()
@@ -113,47 +140,112 @@ class RowDataTest extends TestCase
             ->willReturn($brandId);
 
         $brand->method('getName')
-            ->willReturn($data['DisplayName']);
+            ->willReturn('Brand ' . $brandId);
+
+        $brand->method('getUrl')
+            ->willReturn('http://www.example.com/brand-' . $brandId);
+
+        return $brand;
+    }
+
+    /**
+     * Sets up a brand MockObject with the following requirements:
+     *
+     * default, only has bare minimum data
+     *
+     * @return MockObject|Category
+     */
+    public function setupBrand1(): MockObject
+    {
+        $brandId = 1;
+        $brand = $this->setupBaseBrand($brandId);
 
         $brand->expects(self::at(2))
             ->method('getData')
             ->with('description')
-            ->willReturn($data['Description']);
+            ->willReturn('');
 
-        if ($brandId === 1) {
-            $brand->method('getImageUrl')
-                ->willReturn($data['Image']);
-        } else {
-            $brand->method('getImageUrl')
-                ->willReturn(null);
-        }
+        $brand->method('getImageUrl')
+            ->willReturn();
 
-        if ($brandId === 1) {
-            $brand->expects(self::at(4))
-                ->method('getData')
-                ->with('pureclarity_category_image')
-                ->willReturn('override-image-url.jpg');
-        } else {
-            $brand->expects(self::at(4))
-                ->method('getData')
-                ->with('pureclarity_category_image')
-                ->willReturn(null);
-        }
+        $brand->expects(self::at(4))
+            ->method('getData')
+            ->with('pureclarity_category_image')
+            ->willReturn(null);
 
-        $brand->method('getUrl')
-            ->willReturn($data['Link']);
+        $brand->expects(self::at(6))
+            ->method('getData')
+            ->with('pureclarity_hide_from_feed')
+            ->willReturn('0');
 
-        if ($brandId === 1) {
-            $brand->expects(self::at(6))
-                ->method('getData')
-                ->with('pureclarity_hide_from_feed')
-                ->willReturn('0');
-        } else {
-            $brand->expects(self::at(6))
-                ->method('getData')
-                ->with('pureclarity_hide_from_feed')
-                ->willReturn('1');
-        }
+        return $brand;
+    }
+
+    /**
+     * Sets up a brand MockObject with the following requirements:
+     *
+     * has an image set
+     * has a description
+     * is excluded from recommenders
+     * has an override image set
+     *
+     * @return MockObject|Category
+     */
+    public function setupBrand2(): MockObject
+    {
+        $brandId = 2;
+        $brand = $this->setupBaseBrand($brandId);
+
+        $brand->expects(self::at(2))
+            ->method('getData')
+            ->with('description')
+            ->willReturn('A Description of 2');
+
+        $brand->method('getImageUrl')
+            ->willReturn('http://www.example.com/image-url.jpg');
+
+        $brand->expects(self::at(4))
+            ->method('getData')
+            ->with('pureclarity_category_image')
+            ->willReturn('override-image-url.jpg');
+
+        $brand->expects(self::at(6))
+            ->method('getData')
+            ->with('pureclarity_hide_from_feed')
+            ->willReturn('1');
+
+        return $brand;
+    }
+
+    /**
+     * Sets up a brand MockObject with the following requirements:
+     *
+     * Same as default, but with config will use placeholder images
+     *
+     * @return MockObject|Category
+     */
+    public function setupBrand3(): MockObject
+    {
+        $brandId = 3;
+        $brand = $this->setupBaseBrand($brandId);
+
+        $brand->expects(self::at(2))
+            ->method('getData')
+            ->with('description')
+            ->willReturn('');
+
+        $brand->method('getImageUrl')
+            ->willReturn(null);
+
+        $brand->expects(self::at(4))
+            ->method('getData')
+            ->with('pureclarity_category_image')
+            ->willReturn(null);
+
+        $brand->expects(self::at(6))
+            ->method('getData')
+            ->with('pureclarity_hide_from_feed')
+            ->willReturn('0');
 
         return $brand;
     }
@@ -208,26 +300,35 @@ class RowDataTest extends TestCase
      */
     public function testGetRowData(): void
     {
+        $this->setupConfig();
+        $data = $this->mockBrandData(1);
+        $brand = $this->setupBrand1();
+        $rowData = $this->object->getRowData(self::STORE_ID, $brand);
+        self::assertEquals($data, $rowData);
+    }
+
+    /**
+     * Tests that a row of data is processed correctly when data has all optional fields
+     */
+    public function testGetRowDataWithOptional(): void
+    {
         $this->setupStore();
-        $brand = $this->setupBrand(1, $this->mockBrandData(3));
-        $this->object->getRowData(self::STORE_ID, $brand);
+        $data = $this->mockBrandData(2);
+        $brand = $this->setupBrand2();
+        $rowData = $this->object->getRowData(self::STORE_ID, $brand);
+        self::assertEquals($data, $rowData);
     }
 
     /**
      * Tests that a row of data is processed correctly when data is missing some optional fields
+     *
      */
-    public function testGetRowDataWithoutOptional(): void
+    public function testGetRowDataWithPlaceholder(): void
     {
-        $brand = $this->setupBrand(2, $this->mockBrandData(1));
-        $this->object->getRowData(self::STORE_ID, $brand);
-    }
-
-    /**
-     * Tests that a row of data is processed correctly when data is missing some optional fields
-     */
-    public function testGetRowDataWithoutOptional2(): void
-    {
-        $brand = $this->setupBrand(3, $this->mockBrandData(3));
-        $this->object->getRowData(self::STORE_ID, $brand);
+        $this->setupConfig(true);
+        $data = $this->mockBrandData(3);
+        $brand = $this->setupBrand3();
+        $rowData = $this->object->getRowData(self::STORE_ID, $brand);
+        self::assertEquals($data, $rowData);
     }
 }
