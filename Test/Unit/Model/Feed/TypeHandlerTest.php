@@ -1,4 +1,5 @@
 <?php
+declare(strict_types=1);
 /**
  * Copyright © PureClarity. All rights reserved.
  * See LICENSE.txt for license details.
@@ -9,8 +10,10 @@ namespace Pureclarity\Core\Test\Unit\Model\Feed;
 use PHPUnit\Framework\TestCase;
 use Pureclarity\Core\Model\Feed\TypeHandler;
 use PHPUnit\Framework\MockObject\MockObject;
+use Pureclarity\Core\Model\Feed\Type\CategoryFactory;
 use Pureclarity\Core\Model\Feed\Type\BrandFactory;
 use Pureclarity\Core\Model\Feed\Type\UserFactory;
+use Pureclarity\Core\Model\Feed\Type\Category;
 use Pureclarity\Core\Model\Feed\Type\Brand;
 use Pureclarity\Core\Model\Feed\Type\User;
 use PureClarity\Api\Feed\Feed;
@@ -25,6 +28,9 @@ class TypeHandlerTest extends TestCase
     /** @var TypeHandler */
     private $object;
 
+    /** @var MockObject|CategoryFactory */
+    private $categoryFeed;
+
     /** @var MockObject|BrandFactory */
     private $brandFeed;
 
@@ -33,6 +39,10 @@ class TypeHandlerTest extends TestCase
 
     protected function setUp(): void
     {
+        $this->categoryFeed = $this->getMockBuilder(CategoryFactory::class)
+            ->disableOriginalConstructor()
+            ->getMock();
+
         $this->brandFeed = $this->getMockBuilder(BrandFactory::class)
             ->disableOriginalConstructor()
             ->getMock();
@@ -42,6 +52,7 @@ class TypeHandlerTest extends TestCase
             ->getMock();
 
         $this->object = new TypeHandler(
+            $this->categoryFeed,
             $this->brandFeed,
             $this->userFeed
         );
@@ -68,6 +79,23 @@ class TypeHandlerTest extends TestCase
         } catch (\Exception $e) {
             self::assertEquals('PureClarity feed type not recognised: fish', $e->getMessage());
         }
+    }
+
+    /**
+     * Tests that a brand feed class is returned correctly
+     */
+    public function testGetFeedHandlerCategory(): void
+    {
+        $feed = $this->getMockBuilder(Category::class)
+            ->disableOriginalConstructor()
+            ->getMock();
+
+        $this->categoryFeed->expects(self::once())
+            ->method('create')
+            ->willReturn($feed);
+
+        $handler = $this->object->getFeedHandler(Feed::FEED_TYPE_CATEGORY);
+        self::assertInstanceOf(Category::class, $handler);
     }
 
     /**

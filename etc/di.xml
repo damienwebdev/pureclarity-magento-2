@@ -86,4 +86,7 @@
     <preference for="Pureclarity\Core\Api\BrandFeedDataManagementInterface" type="Pureclarity\Core\Model\Feed\Type\Brand\FeedData" />
     <preference for="Pureclarity\Core\Api\BrandFeedRowDataManagementInterface" type="Pureclarity\Core\Model\Feed\Type\Brand\RowData" />
 
+    <preference for="Pureclarity\Core\Api\CategoryFeedDataManagementInterface" type="Pureclarity\Core\Model\Feed\Type\Category\FeedData" />
+    <preference for="Pureclarity\Core\Api\CategoryFeedRowDataManagementInterface" type="Pureclarity\Core\Model\Feed\Type\Category\RowData" />
+
 </config>
