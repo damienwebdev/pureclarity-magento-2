@@ -166,7 +166,7 @@ class RowDataTest extends TestCase
             ->willReturn('');
 
         $brand->method('getImageUrl')
-            ->willReturn();
+            ->willReturn('');
 
         $brand->expects(self::at(4))
             ->method('getData')
