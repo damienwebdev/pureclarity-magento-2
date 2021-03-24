@@ -47,6 +47,17 @@ class User implements FeedManagementInterface
     }
 
     /**
+     * Returns whether this feed is enabled
+     *
+     * @param int $storeId
+     * @return bool
+     */
+    public function isEnabled(int $storeId): bool
+    {
+        return true;
+    }
+
+    /**
      * Gets the feed builder class from the PureClarity API
      *
      * @param string $accessKey

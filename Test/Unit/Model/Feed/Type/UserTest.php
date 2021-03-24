@@ -74,6 +74,14 @@ class UserTest extends TestCase
     }
 
     /**
+     * Tests that isEnabled always returns true
+     */
+    public function testIsEnabled(): void
+    {
+        self::assertEquals(true, $this->object->isEnabled(1));
+    }
+
+    /**
      * Tests that getFeedBuilder passes the right info to the feed builder factory class
      */
     public function testGetFeedBuilder(): void

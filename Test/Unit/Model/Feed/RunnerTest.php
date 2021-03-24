@@ -169,6 +169,11 @@ class RunnerTest extends TestCase
             ->getMock();
 
         $feedHandler->expects(self::once())
+            ->method('isEnabled')
+            ->with(self::STORE_ID)
+            ->willReturn(true);
+
+        $feedHandler->expects(self::once())
             ->method('getFeedDataHandler')
             ->willReturn($feedDataHandler);
 
@@ -225,7 +230,7 @@ class RunnerTest extends TestCase
 
                         $feedRowDataHandler->expects(self::at($x))
                             ->method('getRowData')
-                            ->with($item)
+                            ->with(self::STORE_ID, $item)
                             ->willReturn($item);
                     }
                 }
@@ -235,6 +240,35 @@ class RunnerTest extends TestCase
                     ->willReturn($feedDataHandler);
             }
         }
+    }
+
+    /**
+     * Sets up feed handler mock for a disabled feed
+     * @param string $type
+     */
+    public function setupFeedHandlerDisabled(string $type): void
+    {
+        $feedHandler = $this->getMockBuilder(FeedManagementInterface::class)
+            ->disableOriginalConstructor()
+            ->getMock();
+
+        $feedHandler->expects(self::once())
+            ->method('isEnabled')
+            ->with(self::STORE_ID)
+            ->willReturn(false);
+
+        $feedHandler->expects(self::never())
+            ->method('getFeedDataHandler');
+
+        $feedHandler->expects(self::never())
+            ->method('getRowDataHandler');
+
+        $feedHandler->expects(self::never())
+            ->method('getFeedBuilder');
+
+        $this->feedTypeHandler->method('getFeedHandler')
+            ->with($type)
+            ->willReturn($feedHandler);
     }
 
     /**
@@ -261,7 +295,16 @@ class RunnerTest extends TestCase
     }
 
     /**
-     * Tests that the user feed doesnt send when no users present
+     * Tests that a disabled feed doesnt gets sent
+     */
+    public function testSendDisabledFeed(): void
+    {
+        $this->setupFeedHandlerDisabled(Feed::FEED_TYPE_BRAND);
+        $this->object->sendFeed(self::STORE_ID, Feed::FEED_TYPE_BRAND);
+    }
+
+    /**
+     * Tests that the user feed gets sent
      */
     public function testSendUserFeed(): void
     {
@@ -274,7 +317,7 @@ class RunnerTest extends TestCase
     /**
      * Tests that the user feed doesnt send when no users present
      */
-    public function testSendUserFeedException(): void
+    public function testSendFeedException(): void
     {
         $this->setupConfig();
         $this->setupFeedHandler(Feed::FEED_TYPE_USER, 2, 2, 'An Error');

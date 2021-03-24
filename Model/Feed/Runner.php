@@ -7,6 +7,8 @@ declare(strict_types=1);
 
 namespace Pureclarity\Core\Model\Feed;
 
+use Exception;
+use Pureclarity\Core\Api\FeedManagementInterface;
 use Pureclarity\Core\Helper\Data;
 use Pureclarity\Core\Model\FeedFactory;
 use Pureclarity\Core\Api\StateRepositoryInterface;
@@ -175,7 +177,7 @@ class Runner
     }
 
     /**
-     * Builds & sends the a feed
+     * Builds & sends a feed
      * @param int $storeId
      * @param string $type
      * @return void
@@ -184,37 +186,52 @@ class Runner
     {
         try {
             $feedHandler = $this->feedTypeHandler->getFeedHandler($type);
-            $feedDataHandler = $feedHandler->getFeedDataHandler();
-            $pageCount = $feedDataHandler->getTotalPages($storeId);
-
-            if ($pageCount > 0) {
-                $this->feedProgress->updateProgress($storeId, $type, '0');
-                $feedBuilder = $feedHandler->getFeedBuilder(
-                    $this->coreConfig->getAccessKey($storeId),
-                    $this->coreConfig->getSecretKey($storeId),
-                    $this->coreConfig->getRegion($storeId)
-                );
-
-                $feedBuilder->start();
-
-                $rowDataHandler = $feedHandler->getRowDataHandler();
-                for ($page = 1; $page <= $pageCount; $page++) {
-                    $data = $feedDataHandler->getPageData($storeId, $page);
-                    foreach ($data as $row) {
-                        $feedBuilder->append($rowDataHandler->getRowData($row));
-                    }
-                    $this->feedProgress->updateProgress(
-                        $storeId,
-                        $type,
-                        (string)round(($page / $pageCount) * 100)
-                    );
-                }
-
-                $feedBuilder->end();
+            if ($feedHandler->isEnabled($storeId)) {
+                $this->handleFeed($feedHandler, $storeId, $type);
             }
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             $this->logger->error('PureClarity: Error with ' . $type . ' feed: ' . $e->getMessage());
             $this->feedError->saveFeedError($storeId, $type, $e->getMessage());
+        }
+    }
+
+    /**
+     * Uses the provided feed handler to run a feed.
+     *
+     * @param FeedManagementInterface $feedHandler
+     * @param int $storeId
+     * @param string $type
+     * @throws Exception
+     */
+    private function handleFeed(FeedManagementInterface $feedHandler, int $storeId, string $type) : void
+    {
+        $feedDataHandler = $feedHandler->getFeedDataHandler();
+        $pageCount = $feedDataHandler->getTotalPages($storeId);
+
+        if ($pageCount > 0) {
+
+            $this->feedProgress->updateProgress($storeId, $type, '0');
+            $feedBuilder = $feedHandler->getFeedBuilder(
+                $this->coreConfig->getAccessKey($storeId),
+                $this->coreConfig->getSecretKey($storeId),
+                $this->coreConfig->getRegion($storeId)
+            );
+
+            $feedBuilder->start();
+
+            $rowDataHandler = $feedHandler->getRowDataHandler();
+            for ($page = 1; $page <= $pageCount; $page++) {
+                $data = $feedDataHandler->getPageData($storeId, $page);
+                foreach ($data as $row) {
+                    $rowData = $rowDataHandler->getRowData($storeId, $row);
+                    if ($rowData) {
+                        $feedBuilder->append($rowData);
+                    }
+                }
+                $this->feedProgress->updateProgress($storeId, $type, (string)round(($page / $pageCount) * 100));
+            }
+
+            $feedBuilder->end();
         }
     }
 

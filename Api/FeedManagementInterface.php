@@ -12,6 +12,14 @@ use PureClarity\Api\Feed\Feed;
 interface FeedManagementInterface
 {
     /**
+     * Returns whether this feed is enabled
+     *
+     * @param int $storeId
+     * @return bool
+     */
+    public function isEnabled(int $storeId): bool;
+
+    /**
      * Gets the feed builder class for this type of feed
      *
      * @param string $accessKey
