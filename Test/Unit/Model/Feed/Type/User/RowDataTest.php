@@ -174,7 +174,7 @@ class RowDataTest extends TestCase
         $this->setupCustomerGroups();
         $data = $this->mockCustomerData(1);
         $customer = $this->setupCustomer(1, $data);
-        $this->object->getRowData($customer);
+        $this->object->getRowData(1, $customer);
     }
 
     /**
@@ -185,6 +185,6 @@ class RowDataTest extends TestCase
         $this->setupCustomerGroups();
         $data = $this->mockCustomerData(2);
         $customer = $this->setupCustomer(2, $data);
-        $this->object->getRowData($customer);
+        $this->object->getRowData(1, $customer);
     }
 }

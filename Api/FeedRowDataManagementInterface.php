@@ -12,7 +12,8 @@ interface FeedRowDataManagementInterface
     /**
      * Returns a formatted row of data for this feed
      * @param mixed $row
+     * @param int $storeId
      * @return array
      */
-    public function getRowData($row): array;
+    public function getRowData(int $storeId, $row): array;
 }

@@ -35,10 +35,11 @@ class RowData implements UserFeedRowDataManagementInterface
 
     /**
      * Builds the customer data for the user feed.
+     * @param int $storeId
      * @param Customer $customer
      * @return array
      */
-    public function getRowData($customer): array
+    public function getRowData(int $storeId, $customer): array
     {
         $customerGroups = $this->getCustomerGroups();
         $data = [
