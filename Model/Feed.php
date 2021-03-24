@@ -7,7 +7,6 @@
 namespace Pureclarity\Core\Model;
 
 use Magento\Catalog\Model\CategoryRepository;
-use Magento\Catalog\Model\ResourceModel\Category\CollectionFactory as CategoryCollectionFactory;
 use Magento\Framework\Exception\CouldNotSaveException;
 use Magento\Sales\Model\Order;
 use Magento\Store\Model\Store;
@@ -15,8 +14,6 @@ use Magento\Store\Model\StoreFactory;
 use Psr\Log\LoggerInterface;
 use Pureclarity\Core\Api\StateRepositoryInterface;
 use Pureclarity\Core\Helper\Data;
-use Magento\Customer\Model\ResourceModel\Customer\CollectionFactory as CustomerCollectionFactory;
-use Magento\Customer\Model\ResourceModel\Group\Collection as CustomerGroupCollection;
 use Pureclarity\Core\Helper\Service\Url;
 use Magento\Store\Model\App\Emulation;
 use Magento\Framework\App\Area;
@@ -55,9 +52,6 @@ class Feed
     /** @var Store $currentStore */
     private $currentStore;
 
-    /** @var CategoryCollectionFactory $categoryCollectionFactory */
-    private $categoryCollectionFactory;
-
     /** @var CategoryRepository $categoryRepository */
     private $categoryRepository;
 
@@ -86,13 +80,10 @@ class Feed
     private $appEmulation;
 
     /**
-     * @param CategoryCollectionFactory $categoryCollectionFactory
      * @param CategoryRepository $categoryRepository
      * @param Data $coreHelper
      * @param StoreFactory $storeFactory
      * @param ProductExportFactory $productExportFactory
-     * @param CustomerCollectionFactory $customerCollectionFactory
-     * @param CustomerGroupCollection $customerGroupCollection
      * @param StateRepositoryInterface $stateRepository
      * @param LoggerInterface $logger
      * @param CoreConfig $coreConfig
@@ -100,7 +91,6 @@ class Feed
      * @param Emulation $appEmulation
      */
     public function __construct(
-        CategoryCollectionFactory $categoryCollectionFactory,
         CategoryRepository $categoryRepository,
         Data $coreHelper,
         StoreFactory $storeFactory,
@@ -111,7 +101,6 @@ class Feed
         Url $serviceUrl,
         Emulation $appEmulation
     ) {
-        $this->categoryCollectionFactory = $categoryCollectionFactory;
         $this->categoryRepository        = $categoryRepository;
         $this->coreHelper                = $coreHelper;
         $this->storeFactory              = $storeFactory;
@@ -322,125 +311,6 @@ class Feed
             $this->end(self::FEED_TYPE_ORDER, true);
             $this->logger->debug("PureClarity: Finished sending order data");
             $this->saveRunDate(self::FEED_TYPE_ORDER, $this->storeId);
-        }
-    }
-
-    /**
-     * Sends categories feed.
-     */
-    public function sendCategories()
-    {
-        if (! $this->isInitialised()) {
-            return false;
-        }
-
-        $categoryCollection = $this->categoryCollectionFactory->create()
-            ->setStore($this->getCurrentStore())
-            ->addAttributeToSelect('name')
-            ->addAttributeToSelect('is_active')
-            ->addAttributeToSelect('image')
-            ->addAttributeToSelect('pureclarity_category_image')
-            ->addAttributeToSelect('pureclarity_hide_from_feed')
-            ->addUrlRewriteToResult();
-        $this->coreHelper->setProgressFile($this->progressFileName, self::FEED_TYPE_CATEGORY, 0, 1);
-
-        $maxProgress = count($categoryCollection);
-        $currentProgress = 0;
-        $writtenCategories = false;
-        
-        if ($maxProgress > 0) {
-            foreach ($categoryCollection as $category) {
-                if (! $category->getName()) {
-                    continue;
-                }
-
-                $feedCategories = (!$writtenCategories ? ',"Categories":[' : "");
-
-                // Get category image
-                $categoryImage = $category->getImageUrl();
-                if ($categoryImage != "") {
-                    $categoryImageUrl = $categoryImage;
-                } else {
-                    $categoryImageUrl = $this->coreConfig->getCategoryPlaceholderUrl($this->storeId);
-                }
-                $categoryImageUrl = $this->removeUrlProtocol($categoryImageUrl);
-                
-                // Get override image
-                $overrideImageUrl = null;
-                $overrideImage = $category->getData('pureclarity_category_image');
-                if ($overrideImage != "") {
-                    $overrideImageUrl = sprintf(
-                        "%scatalog/pureclarity_category_image/%s",
-                        $this->getCurrentStore()->getBaseUrl(\Magento\Framework\UrlInterface::URL_TYPE_MEDIA),
-                        $overrideImage
-                    );
-                } else {
-                    $overrideImageUrl = $this->coreConfig->getSecondaryCategoryPlaceholderUrl($this->storeId);
-                }
-                $overrideImageUrl = $this->removeUrlProtocol($overrideImageUrl);
-
-                // Build data
-                $categoryData = [
-                    "Id" => $category->getId(),
-                    "DisplayName" => $category->getName(),
-                    "Image" => $categoryImageUrl,
-                    "Link" => "/"
-                ];
-
-                // Set URL and Parent ID
-                if ($category->getLevel() > 1) {
-                    $categoryData["Link"] = $this->removeUrlProtocol($category->getUrl($category));
-                    $categoryData["ParentIds"] = [
-                            $category->getParentCategory()->getId()
-                        ];
-                }
-                
-                // Check whether to ignore this category in recommenders
-                if ($category->getData('pureclarity_hide_from_feed') == '1') {
-                    $categoryData["ExcludeFromRecommenders"] = true;
-                }
-
-                //Check if category is active
-                if (!$category->getIsActive()) {
-                    $categoryData["IsActive"] = false;
-                }
-
-                if ($overrideImageUrl != null) {
-                    $categoryData["OverrideImage"] = $overrideImageUrl;
-                }
-                
-                if ($writtenCategories) {
-                    $feedCategories .= ',';
-                }
-                
-                $feedCategories .= $this->coreHelper->formatFeed($categoryData, 'json');
-                
-                $currentProgress++;
-
-                $parameters = $this->getParameters($feedCategories, self::FEED_TYPE_CATEGORY);
-                
-                if (!$writtenCategories) {
-                    $this->start(self::FEED_TYPE_CATEGORY);
-                }
-                
-                $this->send("feed-append", $parameters);
-
-                $this->coreHelper->setProgressFile(
-                    $this->progressFileName,
-                    self::FEED_TYPE_CATEGORY,
-                    $currentProgress,
-                    $maxProgress
-                );
-                
-                $writtenCategories = true;
-            }
-            
-            $this->endFeedAppend(self::FEED_TYPE_CATEGORY, $writtenCategories);
-
-            if ($writtenCategories) {
-                $this->end(self::FEED_TYPE_CATEGORY);
-                $this->saveRunDate(self::FEED_TYPE_CATEGORY, $this->storeId);
-            }
         }
     }
 
