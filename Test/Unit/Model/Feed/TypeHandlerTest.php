@@ -71,7 +71,7 @@ class TypeHandlerTest extends TestCase
     }
 
     /**
-     * Tests that a user feed class is returned correctly
+     * Tests that a brand feed class is returned correctly
      */
     public function testGetFeedHandlerBrand(): void
     {

@@ -94,7 +94,6 @@ class RowData implements BrandFeedRowDataManagementInterface
         if ($brand->getData('pureclarity_hide_from_feed') === '1') {
             $brandData['ExcludeFromRecommenders'] = true;
         }
-        var_dump($brandData);
 
         return $brandData;
     }
