@@ -146,7 +146,7 @@ class Runner
                     $this->feedRunDate->setLastRunDate($storeId, Feed::FEED_TYPE_PRODUCT, date('Y-m-d H:i:s'));
                     break;
                 case Feed::FEED_TYPE_CATEGORY:
-                    $feedModel->sendCategories();
+                    $this->sendFeed($storeId, Feed::FEED_TYPE_CATEGORY);
                     $this->runningFeeds->removeRunningFeed($storeId, Feed::FEED_TYPE_CATEGORY);
                     $this->feedRunDate->setLastRunDate($storeId, Feed::FEED_TYPE_CATEGORY, date('Y-m-d H:i:s'));
                     break;
