@@ -151,11 +151,9 @@ class Runner
                     $this->feedRunDate->setLastRunDate($storeId, Feed::FEED_TYPE_CATEGORY, date('Y-m-d H:i:s'));
                     break;
                 case Feed::FEED_TYPE_BRAND:
-                    if ($this->coreConfig->isBrandFeedEnabled($storeId)) {
-                        $feedModel->sendBrands();
-                        $this->runningFeeds->removeRunningFeed($storeId, Feed::FEED_TYPE_BRAND);
-                        $this->feedRunDate->setLastRunDate($storeId, Feed::FEED_TYPE_BRAND, date('Y-m-d H:i:s'));
-                    }
+                    $this->sendFeed($storeId, Feed::FEED_TYPE_BRAND);
+                    $this->runningFeeds->removeRunningFeed($storeId, Feed::FEED_TYPE_BRAND);
+                    $this->feedRunDate->setLastRunDate($storeId, Feed::FEED_TYPE_BRAND, date('Y-m-d H:i:s'));
                     break;
                 case Feed::FEED_TYPE_USER:
                     $this->sendFeed($storeId, Feed::FEED_TYPE_USER);

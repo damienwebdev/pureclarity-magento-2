@@ -9,7 +9,9 @@ namespace Pureclarity\Core\Test\Unit\Model\Feed;
 use PHPUnit\Framework\TestCase;
 use Pureclarity\Core\Model\Feed\TypeHandler;
 use PHPUnit\Framework\MockObject\MockObject;
+use Pureclarity\Core\Model\Feed\Type\BrandFactory;
 use Pureclarity\Core\Model\Feed\Type\UserFactory;
+use Pureclarity\Core\Model\Feed\Type\Brand;
 use Pureclarity\Core\Model\Feed\Type\User;
 use PureClarity\Api\Feed\Feed;
 
@@ -23,16 +25,24 @@ class TypeHandlerTest extends TestCase
     /** @var TypeHandler */
     private $object;
 
+    /** @var MockObject|BrandFactory */
+    private $brandFeed;
+
     /** @var MockObject|UserFactory */
     private $userFeed;
 
     protected function setUp(): void
     {
+        $this->brandFeed = $this->getMockBuilder(BrandFactory::class)
+            ->disableOriginalConstructor()
+            ->getMock();
+
         $this->userFeed = $this->getMockBuilder(UserFactory::class)
             ->disableOriginalConstructor()
             ->getMock();
 
         $this->object = new TypeHandler(
+            $this->brandFeed,
             $this->userFeed
         );
     }
@@ -58,6 +68,23 @@ class TypeHandlerTest extends TestCase
         } catch (\Exception $e) {
             self::assertEquals('PureClarity feed type not recognised: fish', $e->getMessage());
         }
+    }
+
+    /**
+     * Tests that a brand feed class is returned correctly
+     */
+    public function testGetFeedHandlerBrand(): void
+    {
+        $feed = $this->getMockBuilder(Brand::class)
+            ->disableOriginalConstructor()
+            ->getMock();
+
+        $this->brandFeed->expects(self::once())
+            ->method('create')
+            ->willReturn($feed);
+
+        $handler = $this->object->getFeedHandler(Feed::FEED_TYPE_BRAND);
+        self::assertInstanceOf(Brand::class, $handler);
     }
 
     /**

@@ -304,6 +304,17 @@ class RunnerTest extends TestCase
     }
 
     /**
+     * Tests that the brand feed gets sent
+     */
+    public function testSendBrandFeed(): void
+    {
+        $this->setupConfig();
+        $this->setupFeedHandler(Feed::FEED_TYPE_BRAND, 2, 2);
+        $this->setupFeedProgress(Feed::FEED_TYPE_BRAND, [0,50,100]);
+        $this->object->sendFeed(self::STORE_ID, Feed::FEED_TYPE_BRAND);
+    }
+
+    /**
      * Tests that the user feed gets sent
      */
     public function testSendUserFeed(): void
