@@ -89,4 +89,7 @@
     <preference for="Pureclarity\Core\Api\CategoryFeedDataManagementInterface" type="Pureclarity\Core\Model\Feed\Type\Category\FeedData" />
     <preference for="Pureclarity\Core\Api\CategoryFeedRowDataManagementInterface" type="Pureclarity\Core\Model\Feed\Type\Category\RowData" />
 
+    <preference for="Pureclarity\Core\Api\OrderFeedDataManagementInterface" type="Pureclarity\Core\Model\Feed\Type\Order\FeedData" />
+    <preference for="Pureclarity\Core\Api\OrderFeedRowDataManagementInterface" type="Pureclarity\Core\Model\Feed\Type\Order\RowData" />
+
 </config>

@@ -10,6 +10,7 @@ namespace Pureclarity\Core\Model\Feed;
 use Pureclarity\Core\Model\Feed\Type\CategoryFactory;
 use Pureclarity\Core\Model\Feed\Type\BrandFactory;
 use Pureclarity\Core\Model\Feed\Type\UserFactory;
+use Pureclarity\Core\Model\Feed\Type\OrderFactory;
 use Pureclarity\Core\Api\FeedManagementInterface;
 use PureClarity\Api\Feed\Feed;
 use InvalidArgumentException;
@@ -30,19 +31,25 @@ class TypeHandler
     /** @var UserFactory */
     private $userFeed;
 
+    /** @var OrderFactory */
+    private $orderFeed;
+
     /**
      * @param CategoryFactory $categoryFeed
      * @param BrandFactory $brandFeed
      * @param UserFactory $userFeed
+     * @param OrderFactory $userFeed
      */
     public function __construct(
         CategoryFactory $categoryFeed,
         BrandFactory $brandFeed,
-        UserFactory $userFeed
+        UserFactory $userFeed,
+        OrderFactory $orderFeed
     ) {
         $this->categoryFeed = $categoryFeed;
         $this->brandFeed    = $brandFeed;
         $this->userFeed     = $userFeed;
+        $this->orderFeed    = $orderFeed;
     }
 
     /**
@@ -62,6 +69,9 @@ class TypeHandler
                 break;
             case Feed::FEED_TYPE_USER:
                 $feedHandler = $this->userFeed->create();
+                break;
+            case Feed::FEED_TYPE_ORDER:
+                $feedHandler = $this->orderFeed->create();
                 break;
             default:
                 throw new InvalidArgumentException('PureClarity feed type not recognised: ' . $type);

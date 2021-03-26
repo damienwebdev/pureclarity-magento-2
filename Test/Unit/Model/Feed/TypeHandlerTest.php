@@ -13,9 +13,11 @@ use PHPUnit\Framework\MockObject\MockObject;
 use Pureclarity\Core\Model\Feed\Type\CategoryFactory;
 use Pureclarity\Core\Model\Feed\Type\BrandFactory;
 use Pureclarity\Core\Model\Feed\Type\UserFactory;
+use Pureclarity\Core\Model\Feed\Type\OrderFactory;
 use Pureclarity\Core\Model\Feed\Type\Category;
 use Pureclarity\Core\Model\Feed\Type\Brand;
 use Pureclarity\Core\Model\Feed\Type\User;
+use Pureclarity\Core\Model\Feed\Type\Order;
 use PureClarity\Api\Feed\Feed;
 
 /**
@@ -37,6 +39,9 @@ class TypeHandlerTest extends TestCase
     /** @var MockObject|UserFactory */
     private $userFeed;
 
+    /** @var MockObject|OrderFactory */
+    private $orderFeed;
+
     protected function setUp(): void
     {
         $this->categoryFeed = $this->getMockBuilder(CategoryFactory::class)
@@ -51,10 +56,15 @@ class TypeHandlerTest extends TestCase
             ->disableOriginalConstructor()
             ->getMock();
 
+        $this->orderFeed = $this->getMockBuilder(OrderFactory::class)
+            ->disableOriginalConstructor()
+            ->getMock();
+
         $this->object = new TypeHandler(
             $this->categoryFeed,
             $this->brandFeed,
-            $this->userFeed
+            $this->userFeed,
+            $this->orderFeed
         );
     }
 
@@ -130,5 +140,22 @@ class TypeHandlerTest extends TestCase
 
         $handler = $this->object->getFeedHandler(Feed::FEED_TYPE_USER);
         self::assertInstanceOf(User::class, $handler);
+    }
+
+    /**
+     * Tests that a order feed class is returned correctly
+     */
+    public function testGetFeedHandlerOrder(): void
+    {
+        $orderFeed = $this->getMockBuilder(Order::class)
+            ->disableOriginalConstructor()
+            ->getMock();
+
+        $this->orderFeed->expects(self::once())
+            ->method('create')
+            ->willReturn($orderFeed);
+
+        $handler = $this->object->getFeedHandler(Feed::FEED_TYPE_ORDER);
+        self::assertInstanceOf(Order::class, $handler);
     }
 }
