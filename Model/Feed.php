@@ -8,7 +8,6 @@ namespace Pureclarity\Core\Model;
 
 use Magento\Catalog\Model\CategoryRepository;
 use Magento\Framework\Exception\CouldNotSaveException;
-use Magento\Sales\Model\Order;
 use Magento\Store\Model\Store;
 use Magento\Store\Model\StoreFactory;
 use Psr\Log\LoggerInterface;
@@ -199,119 +198,6 @@ class Feed
         }
 
         $this->appEmulation->stopEnvironmentEmulation();
-    }
-
-    /**
-     * Sends orders feed.
-     */
-    public function sendOrders()
-    {
-        if (! $this->isInitialised()) {
-            return false;
-        }
-
-        $this->logger->debug("PureClarity: In Feed->sendOrders()");
-        
-        // Get the collection
-        $fromDate = date('Y-m-d H:i:s', strtotime("-12 month"));
-        $toDate = date('Y-m-d H:i:s', strtotime("now"));
-        $objectManager =  \Magento\Framework\App\ObjectManager::getInstance();
-        $this->logger->debug("PureClarity: About to initialise orderCollection");
-        $orderCollection = $objectManager->get(Order::class)
-            ->getCollection()
-            ->addAttributeToFilter('store_id', $this->storeId)
-            ->addAttributeToFilter('created_at', ['from'=>$fromDate, 'to'=>$toDate]);
-        $this->logger->debug("PureClarity: Initialised orderCollection");
-
-        // Set size and initiate vars
-        $maxProgress = count($orderCollection);
-        $currentProgress = 0;
-        $counter = 0;
-        $data = "";
-
-        $this->logger->debug($maxProgress . " items");
-        
-        /**
-         * \Magento\Framework\AppInterface::VERSION version constant was removed in 2.1+ so using
-        * this to check if version 2.0
-         */
-        $isMagento20 = defined("\\Magento\\Framework\\AppInterface::VERSION");
-
-        if ($maxProgress > 0) {
-            $this->start(self::FEED_TYPE_ORDER, true);
-            // Reset Progress file
-            $this->coreHelper->setProgressFile($this->progressFileName, self::FEED_TYPE_ORDER, 0, 1);
-            
-            // Build Data
-            foreach ($orderCollection as $orderData) {
-                $order = $objectManager->create(Order::class)
-                    ->loadByIncrementId($orderData->getIncrementId());
-                if ($order) {
-                    $id = $order->getIncrementId();
-                    $this->logger->debug("Order id {$id}");
-                    $customerId = $order->getCustomerId();
-                    $email = $order->getCustomerEmail();
-                    $date = $order->getCreatedAt();
-                    
-                    $orderItems = $orderData->getAllVisibleItems();
-                    foreach ($orderItems as $item) {
-                        $productId = $item->getProductId();
-                        $quantity = $item->getQtyOrdered();
-                        $price = ($isMagento20 ? 0.00 : $item->getPriceInclTax());
-                        $this->logger->debug("Price {$price}");
-                        $linePrice = ($isMagento20 ? 0.00 : $item->getRowTotalInclTax());
-                        $this->logger->debug("Line price {$linePrice}");
-
-                        /**
-                         * On Magento 2.0, $price and $linePrice are null, functions exist but don't appear to work.
-                         * Therefore for 2.0, add data anyway without pricing check; otherwise do pricing check.
-                         * Need to set to 0.00 above for 2.0, otherwise invalid pricing format and not accepted
-                         * into PureClarity.
-                         */
-                        if ($isMagento20
-                            || ($price > 0 && $linePrice > 0)) {
-                            $data .= "{$id},{$customerId},{$email},{$date},"
-                                  .  "{$productId},{$quantity},{$price},{$linePrice}" . PHP_EOL;
-                        }
-                    }
-                    $counter++;
-                }
-
-                // Increment counters
-                $currentProgress++;
-
-                // latter to ensure something comes through, if historic orders less than 10 we'll still get a feed
-                if ($counter >= 10 || $maxProgress < 10) {
-                    // Every 10, send the data
-                    $parameters = $this->getParameters($data, self::FEED_TYPE_ORDER);
-                    $this->send("feed-append", $parameters);
-                    $data = "";
-                    $counter = 0;
-                    $this->coreHelper->setProgressFile(
-                        $this->progressFileName,
-                        self::FEED_TYPE_ORDER,
-                        $currentProgress,
-                        $maxProgress
-                    );
-                }
-            }
-            
-            // send any left-over data
-            if ($counter > 0) {
-                $parameters = $this->getParameters($data, self::FEED_TYPE_ORDER);
-                $this->send("feed-append", $parameters);
-                $this->coreHelper->setProgressFile(
-                    $this->progressFileName,
-                    self::FEED_TYPE_ORDER,
-                    $currentProgress,
-                    $maxProgress
-                );
-            }
-            
-            $this->end(self::FEED_TYPE_ORDER, true);
-            $this->logger->debug("PureClarity: Finished sending order data");
-            $this->saveRunDate(self::FEED_TYPE_ORDER, $this->storeId);
-        }
     }
 
     public function BrandFeedArray($storeId)
@@ -560,14 +446,6 @@ class Feed
                           . "Please increase to the recommended level of 768Mb and try again.";
             file_put_contents(BP . '/var/log/debug.log', $errorMessage, FILE_APPEND);
         }
-    }
-
-    private function getCurrentStore()
-    {
-        if (empty($this->currentStore)) {
-            $this->currentStore = $this->storeFactory->create()->load($this->storeId);
-        }
-        return $this->currentStore;
     }
 
     /**
