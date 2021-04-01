@@ -7,6 +7,8 @@ declare(strict_types=1);
 
 namespace Pureclarity\Core\Api;
 
+use Magento\Store\Api\Data\StoreInterface;
+
 interface FeedDataManagementInterface
 {
     /**
@@ -18,17 +20,17 @@ interface FeedDataManagementInterface
 
     /**
      * Returns the total number of pages in this feed
-     * @param int $storeId
+     * @param StoreInterface $store
      * @return int
      */
-    public function getTotalPages(int $storeId): int;
+    public function getTotalPages(StoreInterface $store): int;
 
     /**
      * Returns a page of feed data
      *
-     * @param int $storeId
+     * @param StoreInterface $store
      * @param int $pageNum
      * @return mixed[]
      */
-    public function getPageData(int $storeId, int $pageNum): array;
+    public function getPageData(StoreInterface $store, int $pageNum): array;
 }

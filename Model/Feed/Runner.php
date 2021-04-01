@@ -235,7 +235,7 @@ class Runner
     private function handleFeed(FeedManagementInterface $feedHandler, StoreInterface $store, string $type) : void
     {
         $feedDataHandler = $feedHandler->getFeedDataHandler();
-        $pageCount = $feedDataHandler->getTotalPages((int)$store->getId());
+        $pageCount = $feedDataHandler->getTotalPages($store);
 
         if ($pageCount > 0) {
 
@@ -250,7 +250,7 @@ class Runner
 
             $rowDataHandler = $feedHandler->getRowDataHandler();
             for ($page = 1; $page <= $pageCount; $page++) {
-                $data = $feedDataHandler->getPageData((int)$store->getId(), $page);
+                $data = $feedDataHandler->getPageData($store, $page);
                 foreach ($data as $row) {
                     $rowData = $rowDataHandler->getRowData($store, $row);
                     if ($rowData) {
