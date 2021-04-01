@@ -7,6 +7,7 @@ declare(strict_types=1);
 
 namespace Pureclarity\Core\Model\Feed;
 
+use Pureclarity\Core\Model\Feed\Type\ProductFactory;
 use Pureclarity\Core\Model\Feed\Type\CategoryFactory;
 use Pureclarity\Core\Model\Feed\Type\BrandFactory;
 use Pureclarity\Core\Model\Feed\Type\UserFactory;
@@ -22,6 +23,9 @@ use InvalidArgumentException;
  */
 class TypeHandler
 {
+    /** @var ProductFactory */
+    private $productFeed;
+
     /** @var CategoryFactory */
     private $categoryFeed;
 
@@ -35,17 +39,20 @@ class TypeHandler
     private $orderFeed;
 
     /**
+     * @param ProductFactory $productFeed
      * @param CategoryFactory $categoryFeed
      * @param BrandFactory $brandFeed
      * @param UserFactory $userFeed
-     * @param OrderFactory $userFeed
+     * @param OrderFactory $orderFeed
      */
     public function __construct(
+        ProductFactory $productFeed,
         CategoryFactory $categoryFeed,
         BrandFactory $brandFeed,
         UserFactory $userFeed,
         OrderFactory $orderFeed
     ) {
+        $this->productFeed  = $productFeed;
         $this->categoryFeed = $categoryFeed;
         $this->brandFeed    = $brandFeed;
         $this->userFeed     = $userFeed;
@@ -61,6 +68,9 @@ class TypeHandler
     public function getFeedHandler(string $type): FeedManagementInterface
     {
         switch ($type) {
+            case Feed::FEED_TYPE_PRODUCT:
+                $feedHandler = $this->productFeed->create();
+                break;
             case Feed::FEED_TYPE_CATEGORY:
                 $feedHandler = $this->categoryFeed->create();
                 break;

@@ -162,7 +162,7 @@ class Runner
         foreach ($feedTypes as $key => $feedType) {
             switch ($feedType) {
                 case Feed::FEED_TYPE_PRODUCT:
-                    $feedModel->sendProducts();
+                    $this->sendFeed($storeId, Feed::FEED_TYPE_PRODUCT);
                     $this->runningFeeds->removeRunningFeed($storeId, Feed::FEED_TYPE_PRODUCT);
                     $this->feedRunDate->setLastRunDate($storeId, Feed::FEED_TYPE_PRODUCT, date('Y-m-d H:i:s'));
                     break;

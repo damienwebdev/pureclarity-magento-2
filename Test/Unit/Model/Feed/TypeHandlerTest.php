@@ -10,10 +10,12 @@ namespace Pureclarity\Core\Test\Unit\Model\Feed;
 use PHPUnit\Framework\TestCase;
 use Pureclarity\Core\Model\Feed\TypeHandler;
 use PHPUnit\Framework\MockObject\MockObject;
+use Pureclarity\Core\Model\Feed\Type\ProductFactory;
 use Pureclarity\Core\Model\Feed\Type\CategoryFactory;
 use Pureclarity\Core\Model\Feed\Type\BrandFactory;
 use Pureclarity\Core\Model\Feed\Type\UserFactory;
 use Pureclarity\Core\Model\Feed\Type\OrderFactory;
+use Pureclarity\Core\Model\Feed\Type\Product;
 use Pureclarity\Core\Model\Feed\Type\Category;
 use Pureclarity\Core\Model\Feed\Type\Brand;
 use Pureclarity\Core\Model\Feed\Type\User;
@@ -24,11 +26,15 @@ use PureClarity\Api\Feed\Feed;
  * Class TypeHandlerTest
  *
  * Tests the methods in \Pureclarity\Core\Model\Feed\TypeHandler
+ * @SuppressWarnings(PHPMD.CouplingBetweenObjects)
  */
 class TypeHandlerTest extends TestCase
 {
     /** @var TypeHandler */
     private $object;
+
+    /** @var MockObject|ProductFactory */
+    private $productFeed;
 
     /** @var MockObject|CategoryFactory */
     private $categoryFeed;
@@ -44,6 +50,10 @@ class TypeHandlerTest extends TestCase
 
     protected function setUp(): void
     {
+        $this->productFeed = $this->getMockBuilder(ProductFactory::class)
+            ->disableOriginalConstructor()
+            ->getMock();
+
         $this->categoryFeed = $this->getMockBuilder(CategoryFactory::class)
             ->disableOriginalConstructor()
             ->getMock();
@@ -61,6 +71,7 @@ class TypeHandlerTest extends TestCase
             ->getMock();
 
         $this->object = new TypeHandler(
+            $this->productFeed,
             $this->categoryFeed,
             $this->brandFeed,
             $this->userFeed,
@@ -92,7 +103,24 @@ class TypeHandlerTest extends TestCase
     }
 
     /**
-     * Tests that a brand feed class is returned correctly
+     * Tests that a product feed class is returned correctly
+     */
+    public function testGetFeedHandlerProduct(): void
+    {
+        $feed = $this->getMockBuilder(Product::class)
+            ->disableOriginalConstructor()
+            ->getMock();
+
+        $this->productFeed->expects(self::once())
+            ->method('create')
+            ->willReturn($feed);
+
+        $handler = $this->object->getFeedHandler(Feed::FEED_TYPE_PRODUCT);
+        self::assertInstanceOf(Product::class, $handler);
+    }
+
+    /**
+     * Tests that a category feed class is returned correctly
      */
     public function testGetFeedHandlerCategory(): void
     {
