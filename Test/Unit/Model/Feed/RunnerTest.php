@@ -13,8 +13,6 @@ use Magento\Store\Api\Data\StoreInterface;
 use PHPUnit\Framework\TestCase;
 use Pureclarity\Core\Model\Feed\Runner;
 use PHPUnit\Framework\MockObject\MockObject;
-use Pureclarity\Core\Helper\Data;
-use Pureclarity\Core\Model\FeedFactory;
 use Pureclarity\Core\Api\StateRepositoryInterface;
 use Psr\Log\LoggerInterface;
 use Pureclarity\Core\Model\CoreConfig;
@@ -35,6 +33,7 @@ use ReflectionException;
  * Class RunnerTest
  *
  * Tests the methods in \Pureclarity\Core\Model\Feed\Runner
+ * @SuppressWarnings(PHPMD.CouplingBetweenObjects)
  */
 class RunnerTest extends TestCase
 {
@@ -49,12 +48,6 @@ class RunnerTest extends TestCase
 
     /** @var Runner */
     private $object;
-
-    /** @var MockObject|Data */
-    private $coreHelper;
-
-    /** @var MockObject|FeedFactory */
-    private $coreFeedFactory;
 
     /** @var MockObject|StateRepositoryInterface */
     private $stateRepository;
@@ -88,14 +81,6 @@ class RunnerTest extends TestCase
 
     protected function setUp(): void
     {
-        $this->coreHelper = $this->getMockBuilder(Data::class)
-            ->disableOriginalConstructor()
-            ->getMock();
-
-        $this->coreFeedFactory = $this->getMockBuilder(FeedFactory::class)
-            ->disableOriginalConstructor()
-            ->getMock();
-
         $this->stateRepository = $this->getMockBuilder(StateRepositoryInterface::class)
             ->disableOriginalConstructor()
             ->getMock();
@@ -137,8 +122,6 @@ class RunnerTest extends TestCase
             ->getMock();
 
         $this->object = new Runner(
-            $this->coreHelper,
-            $this->coreFeedFactory,
             $this->stateRepository,
             $this->logger,
             $this->coreConfig,
@@ -200,6 +183,7 @@ class RunnerTest extends TestCase
 
     /**
      * Sets up feed handler mock
+     * @param $store
      * @param string $type
      * @param int $numPages
      * @param int $pageSize
@@ -360,6 +344,7 @@ class RunnerTest extends TestCase
 
     /**
      * Tests that the brand feed gets sent
+     * @throws ReflectionException
      */
     public function testSendBrandFeed(): void
     {
@@ -372,6 +357,7 @@ class RunnerTest extends TestCase
 
     /**
      * Tests that the user feed gets sent
+     * @throws ReflectionException
      */
     public function testSendUserFeed(): void
     {
@@ -384,6 +370,7 @@ class RunnerTest extends TestCase
 
     /**
      * Tests that the product feed gets sent
+     * @throws ReflectionException
      */
     public function testSendProductFeed(): void
     {
@@ -404,6 +391,7 @@ class RunnerTest extends TestCase
 
     /**
      * Tests that the user feed gets sent - and that app emulation stops if an exception happens
+     * @throws ReflectionException
      */
     public function testSendProductFeedException(): void
     {
@@ -424,6 +412,7 @@ class RunnerTest extends TestCase
 
     /**
      * Tests that the user feed doesnt send when no users present
+     * @throws ReflectionException
      */
     public function testSendFeedException(): void
     {

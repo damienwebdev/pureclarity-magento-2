@@ -14,8 +14,6 @@ use Magento\Store\Api\Data\StoreInterface;
 use Magento\Store\Model\Store;
 use Magento\Store\Model\StoreManagerInterface;
 use Pureclarity\Core\Api\FeedManagementInterface;
-use Pureclarity\Core\Helper\Data;
-use Pureclarity\Core\Model\FeedFactory;
 use Pureclarity\Core\Api\StateRepositoryInterface;
 use Psr\Log\LoggerInterface;
 use Pureclarity\Core\Model\CoreConfig;
@@ -32,17 +30,21 @@ use Magento\Framework\Exception\CouldNotSaveException;
  * Class Runner
  *
  * Controls the execution of feeds sent to PureClarity.
+ * @SuppressWarnings(PHPMD.CouplingBetweenObjects)
  */
 class Runner
 {
+    /** @var string[] */
+    private $validFeedTypes = [
+        Feed::FEED_TYPE_PRODUCT,
+        Feed::FEED_TYPE_CATEGORY,
+        Feed::FEED_TYPE_BRAND,
+        Feed::FEED_TYPE_USER,
+        Feed::FEED_TYPE_ORDER
+    ];
+
     /** @var StoreInterface */
     private $store;
-
-    /** @var Data */
-    private $coreHelper;
-
-    /** @var FeedFactory */
-    private $coreFeedFactory;
 
     /** @var StateRepositoryInterface */
     private $stateRepository;
@@ -75,8 +77,6 @@ class Runner
     private $appEmulation;
 
     /**
-     * @param Data $coreHelper
-     * @param FeedFactory $coreFeedFactory
      * @param StateRepositoryInterface $stateRepository
      * @param LoggerInterface $logger
      * @param CoreConfig $coreConfig
@@ -87,10 +87,10 @@ class Runner
      * @param TypeHandler $feedTypeHandler
      * @param StoreManagerInterface $storeManager
      * @param Emulation $appEmulation
+     *
+     * @SuppressWarnings(PHPMD.ExcessiveParameterList)
      */
     public function __construct(
-        Data $coreHelper,
-        FeedFactory $coreFeedFactory,
         StateRepositoryInterface $stateRepository,
         LoggerInterface $logger,
         CoreConfig $coreConfig,
@@ -102,8 +102,6 @@ class Runner
         StoreManagerInterface $storeManager,
         Emulation $appEmulation
     ) {
-        $this->coreHelper      = $coreHelper;
-        $this->coreFeedFactory = $coreFeedFactory;
         $this->stateRepository = $stateRepository;
         $this->logger          = $logger;
         $this->coreConfig      = $coreConfig;
@@ -122,12 +120,14 @@ class Runner
      */
     public function allFeeds(int $storeId): void
     {
-        $this->doFeed([
-            Feed::FEED_TYPE_PRODUCT,
-            Feed::FEED_TYPE_CATEGORY,
-            Feed::FEED_TYPE_BRAND,
-            Feed::FEED_TYPE_USER
-        ], $storeId);
+        if ($this->coreConfig->isActive($storeId)) {
+            $this->doFeeds([
+                Feed::FEED_TYPE_PRODUCT,
+                Feed::FEED_TYPE_CATEGORY,
+                Feed::FEED_TYPE_BRAND,
+                Feed::FEED_TYPE_USER
+            ], $storeId);
+        }
     }
 
     /**
@@ -138,7 +138,9 @@ class Runner
      */
     public function selectedFeeds(int $storeId, array $feeds): void
     {
-        $this->doFeed($feeds, $storeId);
+        if ($this->coreConfig->isActive($storeId)) {
+            $this->doFeeds($feeds, $storeId);
+        }
     }
 
     /**
@@ -147,50 +149,18 @@ class Runner
      * @param $feedTypes array
      * @param $storeId integer
      */
-    public function doFeed(array $feedTypes, int $storeId): void
+    public function doFeeds(array $feedTypes, int $storeId): void
     {
-        $progressFileName = $this->coreHelper->getProgressFileName();
-        $feedModel = $this->coreFeedFactory
-            ->create()
-            ->initialise($storeId, $progressFileName);
-        if (! $feedModel) {
-            return;
-        }
-
         $this->runningFeeds->setRunningFeeds($storeId, $feedTypes);
-        // Post the feed data for the specified feed type
-        foreach ($feedTypes as $key => $feedType) {
-            switch ($feedType) {
-                case Feed::FEED_TYPE_PRODUCT:
-                    $this->sendFeed($storeId, Feed::FEED_TYPE_PRODUCT);
-                    $this->runningFeeds->removeRunningFeed($storeId, Feed::FEED_TYPE_PRODUCT);
-                    $this->feedRunDate->setLastRunDate($storeId, Feed::FEED_TYPE_PRODUCT, date('Y-m-d H:i:s'));
-                    break;
-                case Feed::FEED_TYPE_CATEGORY:
-                    $this->sendFeed($storeId, Feed::FEED_TYPE_CATEGORY);
-                    $this->runningFeeds->removeRunningFeed($storeId, Feed::FEED_TYPE_CATEGORY);
-                    $this->feedRunDate->setLastRunDate($storeId, Feed::FEED_TYPE_CATEGORY, date('Y-m-d H:i:s'));
-                    break;
-                case Feed::FEED_TYPE_BRAND:
-                    $this->sendFeed($storeId, Feed::FEED_TYPE_BRAND);
-                    $this->runningFeeds->removeRunningFeed($storeId, Feed::FEED_TYPE_BRAND);
-                    $this->feedRunDate->setLastRunDate($storeId, Feed::FEED_TYPE_BRAND, date('Y-m-d H:i:s'));
-                    break;
-                case Feed::FEED_TYPE_USER:
-                    $this->sendFeed($storeId, Feed::FEED_TYPE_USER);
-                    $this->runningFeeds->removeRunningFeed($storeId, Feed::FEED_TYPE_USER);
-                    $this->feedRunDate->setLastRunDate($storeId, Feed::FEED_TYPE_USER, date('Y-m-d H:i:s'));
-                    break;
-                case Feed::FEED_TYPE_ORDER:
-                    $this->sendFeed($storeId, Feed::FEED_TYPE_ORDER);
-                    $this->runningFeeds->removeRunningFeed($storeId, Feed::FEED_TYPE_ORDER);
-                    $this->feedRunDate->setLastRunDate($storeId, Feed::FEED_TYPE_ORDER, date('Y-m-d H:i:s'));
-                    break;
-                default:
-                    throw new \InvalidArgumentException("PureClarity feed type not recognised: {$feedType}");
+        foreach ($feedTypes as $feedType) {
+            if (in_array($feedType, $this->validFeedTypes, true)) {
+                $this->sendFeed($storeId, $feedType);
+                $this->feedRunDate->setLastRunDate($storeId, $feedType, date('Y-m-d H:i:s'));
+            } else {
+                $this->logger->error('PureClarity: Invalid feed type requested: ' . $feedType);
             }
+            $this->runningFeeds->removeRunningFeed($storeId, $feedType);
         }
-        $feedModel->checkSuccess();
         $this->setBannerStatus($storeId);
         $this->runningFeeds->deleteRunningFeeds($storeId);
     }
