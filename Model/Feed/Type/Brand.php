@@ -102,4 +102,13 @@ class Brand implements FeedManagementInterface
     {
         return $this->rowDataHandler;
     }
+
+    /**
+     * Returns whether this feed requires emulation
+     * @return bool
+     */
+    public function requiresEmulation(): bool
+    {
+        return false;
+    }
 }

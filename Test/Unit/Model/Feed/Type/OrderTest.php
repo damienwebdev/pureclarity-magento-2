@@ -118,4 +118,12 @@ class OrderTest extends TestCase
     {
         self::assertInstanceOf(FeedRowDataManagementInterface::class, $this->object->getRowDataHandler());
     }
+
+    /**
+     * Tests that isEnabled always returns false
+     */
+    public function testRequiresEmulation(): void
+    {
+        self::assertEquals(false, $this->object->requiresEmulation());
+    }
 }

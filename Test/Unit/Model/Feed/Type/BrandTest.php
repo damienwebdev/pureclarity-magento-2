@@ -15,6 +15,7 @@ use Pureclarity\Core\Api\BrandFeedDataManagementInterface;
 use Pureclarity\Core\Api\BrandFeedRowDataManagementInterface;
 use Pureclarity\Core\Api\FeedManagementInterface;
 use PureClarity\Api\Feed\Feed;
+use PureClarity\Api\Feed\Type\Brand as BrandFeed;
 use Pureclarity\Core\Api\FeedDataManagementInterface;
 use Pureclarity\Core\Api\FeedRowDataManagementInterface;
 
@@ -159,7 +160,7 @@ class BrandTest extends TestCase
      */
     public function testGetFeedBuilder(): void
     {
-        $feed = $this->getMockBuilder(Feed::class)
+        $feed = $this->getMockBuilder(BrandFeed::class)
             ->disableOriginalConstructor()
             ->getMock();
 
@@ -173,7 +174,7 @@ class BrandTest extends TestCase
             ->willReturn($feed);
 
         $feedBuilder = $this->object->getFeedBuilder('A', 'B', 1);
-        self::assertInstanceOf(Feed::class, $feedBuilder);
+        self::assertInstanceOf(BrandFeed::class, $feedBuilder);
     }
 
     /**
@@ -190,5 +191,13 @@ class BrandTest extends TestCase
     public function testGetRowDataHandler(): void
     {
         self::assertInstanceOf(FeedRowDataManagementInterface::class, $this->object->getRowDataHandler());
+    }
+
+    /**
+     * Tests that isEnabled always returns false
+     */
+    public function testRequiresEmulation(): void
+    {
+        self::assertEquals(false, $this->object->requiresEmulation());
     }
 }

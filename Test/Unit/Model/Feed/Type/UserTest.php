@@ -14,6 +14,7 @@ use Pureclarity\Core\Api\UserFeedDataManagementInterface;
 use Pureclarity\Core\Api\UserFeedRowDataManagementInterface;
 use Pureclarity\Core\Api\FeedManagementInterface;
 use PureClarity\Api\Feed\Feed;
+use PureClarity\Api\Feed\Type\User as UserFeed;
 use Pureclarity\Core\Api\FeedDataManagementInterface;
 use Pureclarity\Core\Api\FeedRowDataManagementInterface;
 
@@ -86,7 +87,7 @@ class UserTest extends TestCase
      */
     public function testGetFeedBuilder(): void
     {
-        $feed = $this->getMockBuilder(Feed::class)
+        $feed = $this->getMockBuilder(UserFeed::class)
             ->disableOriginalConstructor()
             ->getMock();
 
@@ -100,7 +101,7 @@ class UserTest extends TestCase
             ->willReturn($feed);
 
         $feedBuilder = $this->object->getFeedBuilder('A', 'B', 1);
-        self::assertInstanceOf(Feed::class, $feedBuilder);
+        self::assertInstanceOf(UserFeed::class, $feedBuilder);
     }
 
     /**
@@ -117,5 +118,13 @@ class UserTest extends TestCase
     public function testGetRowDataHandler(): void
     {
         self::assertInstanceOf(FeedRowDataManagementInterface::class, $this->object->getRowDataHandler());
+    }
+
+    /**
+     * Tests that isEnabled always returns false
+     */
+    public function testRequiresEmulation(): void
+    {
+        self::assertEquals(false, $this->object->requiresEmulation());
     }
 }
