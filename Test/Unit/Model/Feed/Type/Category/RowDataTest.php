@@ -9,12 +9,12 @@ namespace Pureclarity\Core\Test\Unit\Model\Feed\Type\Category;
 use PHPUnit\Framework\TestCase;
 use Pureclarity\Core\Model\Feed\Type\Category\RowData;
 use PHPUnit\Framework\MockObject\MockObject;
-use Magento\Store\Model\StoreManagerInterface;
 use Pureclarity\Core\Model\CoreConfig;
 use Magento\Catalog\Model\Category;
 use Magento\Store\Api\Data\StoreInterface;
 use Magento\Framework\Exception\NoSuchEntityException;
 use Magento\Framework\Phrase;
+use Zend\Log\Filter\Mock;
 
 /**
  * Class RowDataTest
@@ -29,24 +29,16 @@ class RowDataTest extends TestCase
     /** @var RowData */
     private $object;
 
-    /** @var MockObject|StoreManagerInterface */
-    private $storeManager;
-
     /** @var MockObject|CoreConfig */
     private $coreConfig;
 
     protected function setUp(): void
     {
-        $this->storeManager = $this->getMockBuilder(StoreManagerInterface::class)
-            ->disableOriginalConstructor()
-            ->getMock();
-
         $this->coreConfig = $this->getMockBuilder(CoreConfig::class)
             ->disableOriginalConstructor()
             ->getMock();
 
         $this->object = new RowData(
-            $this->storeManager,
             $this->coreConfig
         );
     }
@@ -313,11 +305,11 @@ class RowDataTest extends TestCase
     }
 
     /**
-     * Sets up a StoreInterface and store manager getStore
+     * Sets up a StoreInterface
      *
-     * @param bool $error
+     * @return StoreInterface|MockObject
      */
-    public function setupStore(bool $error = false): void
+    public function setupStore()
     {
         $store = $this->getMockForAbstractClass(
             StoreInterface::class,
@@ -330,24 +322,12 @@ class RowDataTest extends TestCase
         );
 
         $store->method('getId')
-            ->willReturn('1');
+            ->willReturn(1);
 
         $store->method('getBaseUrl')
             ->willReturn('http://www.example.com/');
 
-        if ($error) {
-            $this->storeManager->expects(self::once())
-                ->method('getStore')
-                ->with(self::STORE_ID)
-                ->willThrowException(
-                    new NoSuchEntityException(new Phrase('An Error'))
-                );
-        } else {
-            $this->storeManager->expects(self::once())
-                ->method('getStore')
-                ->with(self::STORE_ID)
-                ->willReturn($store);
-        }
+        return $store;
     }
 
     /**
@@ -363,10 +343,11 @@ class RowDataTest extends TestCase
      */
     public function testGetRowData(): void
     {
+        $store = $this->setupStore();
         $this->setupConfig();
         $data = $this->mockCategoryData(1);
         $category = $this->setupCategory1();
-        $rowData = $this->object->getRowData(self::STORE_ID, $category);
+        $rowData = $this->object->getRowData($store, $category);
         self::assertEquals($data, $rowData);
     }
 
@@ -375,10 +356,10 @@ class RowDataTest extends TestCase
      */
     public function testGetRowDataWithOptional(): void
     {
-        $this->setupStore();
+        $store = $this->setupStore();
         $data = $this->mockCategoryData(2);
         $category = $this->setupCategory2();
-        $rowData = $this->object->getRowData(self::STORE_ID, $category);
+        $rowData = $this->object->getRowData($store, $category);
         self::assertEquals($data, $rowData);
     }
 
@@ -387,10 +368,11 @@ class RowDataTest extends TestCase
      */
     public function testGetRowDataWithPlaceholders(): void
     {
+        $store = $this->setupStore();
         $this->setupConfig(true);
         $data = $this->mockCategoryData(3);
         $category = $this->setupCategory3();
-        $rowData = $this->object->getRowData(self::STORE_ID, $category);
+        $rowData = $this->object->getRowData($store, $category);
         self::assertEquals($data, $rowData);
     }
 }
