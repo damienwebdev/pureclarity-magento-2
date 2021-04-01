@@ -9,6 +9,10 @@ namespace Pureclarity\Core\Model\Feed;
 
 use Exception;
 use Magento\Framework\App\Area;
+use Magento\Framework\Exception\NoSuchEntityException;
+use Magento\Store\Api\Data\StoreInterface;
+use Magento\Store\Model\Store;
+use Magento\Store\Model\StoreManagerInterface;
 use Pureclarity\Core\Api\FeedManagementInterface;
 use Pureclarity\Core\Helper\Data;
 use Pureclarity\Core\Model\FeedFactory;
@@ -31,6 +35,9 @@ use Magento\Framework\Exception\CouldNotSaveException;
  */
 class Runner
 {
+    /** @var StoreInterface */
+    private $store;
+
     /** @var Data */
     private $coreHelper;
 
@@ -61,6 +68,9 @@ class Runner
     /** @var TypeHandler */
     private $feedTypeHandler;
 
+    /** @var StoreManagerInterface */
+    private $storeManager;
+
     /** @var Emulation */
     private $appEmulation;
 
@@ -75,6 +85,7 @@ class Runner
      * @param Progress $feedProgress
      * @param Error $feedError
      * @param TypeHandler $feedTypeHandler
+     * @param StoreManagerInterface $storeManager
      * @param Emulation $appEmulation
      */
     public function __construct(
@@ -88,6 +99,7 @@ class Runner
         Progress $feedProgress,
         Error $feedError,
         TypeHandler $feedTypeHandler,
+        StoreManagerInterface $storeManager,
         Emulation $appEmulation
     ) {
         $this->coreHelper      = $coreHelper;
@@ -100,6 +112,7 @@ class Runner
         $this->feedProgress    = $feedProgress;
         $this->feedError       = $feedError;
         $this->feedTypeHandler = $feedTypeHandler;
+        $this->storeManager    = $storeManager;
         $this->appEmulation    = $appEmulation;
     }
 
@@ -197,7 +210,7 @@ class Runner
                 if ($feedHandler->requiresEmulation()) {
                     $this->appEmulation->startEnvironmentEmulation($storeId, Area::AREA_FRONTEND, true);
                 }
-                $this->handleFeed($feedHandler, $storeId, $type);
+                $this->handleFeed($feedHandler, $store, $type);
                 if ($feedHandler->requiresEmulation()) {
                     $this->appEmulation->stopEnvironmentEmulation();
                 }
@@ -215,40 +228,58 @@ class Runner
      * Uses the provided feed handler to run a feed.
      *
      * @param FeedManagementInterface $feedHandler
-     * @param int $storeId
+     * @param StoreInterface $store
      * @param string $type
      * @throws Exception
      */
-    private function handleFeed(FeedManagementInterface $feedHandler, int $storeId, string $type) : void
+    private function handleFeed(FeedManagementInterface $feedHandler, StoreInterface $store, string $type) : void
     {
         $feedDataHandler = $feedHandler->getFeedDataHandler();
-        $pageCount = $feedDataHandler->getTotalPages($storeId);
+        $pageCount = $feedDataHandler->getTotalPages((int)$store->getId());
 
         if ($pageCount > 0) {
 
-            $this->feedProgress->updateProgress($storeId, $type, '0');
+            $this->feedProgress->updateProgress((int)$store->getId(), $type, '0');
             $feedBuilder = $feedHandler->getFeedBuilder(
-                $this->coreConfig->getAccessKey($storeId),
-                $this->coreConfig->getSecretKey($storeId),
-                $this->coreConfig->getRegion($storeId)
+                $this->coreConfig->getAccessKey((int)$store->getId()),
+                $this->coreConfig->getSecretKey((int)$store->getId()),
+                $this->coreConfig->getRegion((int)$store->getId())
             );
 
             $feedBuilder->start();
 
             $rowDataHandler = $feedHandler->getRowDataHandler();
             for ($page = 1; $page <= $pageCount; $page++) {
-                $data = $feedDataHandler->getPageData($storeId, $page);
+                $data = $feedDataHandler->getPageData((int)$store->getId(), $page);
                 foreach ($data as $row) {
-                    $rowData = $rowDataHandler->getRowData($storeId, $row);
+                    $rowData = $rowDataHandler->getRowData($store, $row);
                     if ($rowData) {
                         $feedBuilder->append($rowData);
                     }
                 }
-                $this->feedProgress->updateProgress($storeId, $type, (string)round(($page / $pageCount) * 100));
+                $this->feedProgress->updateProgress(
+                    (int)$store->getId(),
+                    $type,
+                    (string)round(($page / $pageCount) * 100)
+                );
             }
 
             $feedBuilder->end();
         }
+    }
+
+    /**
+     * Gets a Store object for the given Store
+     * @param int $storeId
+     * @return StoreInterface|Store
+     * @throws NoSuchEntityException
+     */
+    private function getStore(int $storeId): StoreInterface
+    {
+        if ($this->store === null) {
+            $this->store = $this->storeManager->getStore($storeId);
+        }
+        return $this->store;
     }
 
     /**

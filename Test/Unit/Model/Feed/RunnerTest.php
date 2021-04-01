@@ -6,6 +6,10 @@
 
 namespace Pureclarity\Core\Test\Unit\Model\Feed;
 
+use Magento\Framework\App\Area;
+use Magento\Framework\Exception\NoSuchEntityException;
+use Magento\Framework\Phrase;
+use Magento\Store\Api\Data\StoreInterface;
 use PHPUnit\Framework\TestCase;
 use Pureclarity\Core\Model\Feed\Runner;
 use PHPUnit\Framework\MockObject\MockObject;
@@ -19,6 +23,8 @@ use Pureclarity\Core\Model\Feed\State\RunDate;
 use Pureclarity\Core\Model\Feed\State\Progress;
 use Pureclarity\Core\Model\Feed\State\Error;
 use Pureclarity\Core\Model\Feed\TypeHandler;
+use Magento\Store\Model\App\Emulation;
+use Magento\Store\Model\StoreManagerInterface;
 use Pureclarity\Core\Api\FeedDataManagementInterface;
 use Pureclarity\Core\Api\FeedManagementInterface;
 use PureClarity\Api\Feed\Feed;
@@ -73,6 +79,12 @@ class RunnerTest extends TestCase
     /** @var MockObject|TypeHandler */
     private $feedTypeHandler;
 
+    /** @var MockObject|StoreManagerInterface */
+    private $storeManager;
+
+    /** @var MockObject|Emulation */
+    private $appEmulation;
+
     protected function setUp(): void
     {
         $this->coreHelper = $this->getMockBuilder(Data::class)
@@ -115,6 +127,14 @@ class RunnerTest extends TestCase
             ->disableOriginalConstructor()
             ->getMock();
 
+        $this->appEmulation = $this->getMockBuilder(Emulation::class)
+            ->disableOriginalConstructor()
+            ->getMock();
+
+        $this->storeManager = $this->getMockBuilder(StoreManagerInterface::class)
+            ->disableOriginalConstructor()
+            ->getMock();
+
         $this->object = new Runner(
             $this->coreHelper,
             $this->coreFeedFactory,
@@ -125,7 +145,9 @@ class RunnerTest extends TestCase
             $this->feedRunDate,
             $this->feedProgress,
             $this->feedError,
-            $this->feedTypeHandler
+            $this->feedTypeHandler,
+            $this->storeManager,
+            $this->appEmulation
         );
     }
 
@@ -148,13 +170,40 @@ class RunnerTest extends TestCase
     }
 
     /**
+     * Sets up a StoreInterface and store manager getStore
+     * @param bool $error
+     * @return StoreInterface|MockObject
+     */
+    public function setupStore(bool $error = false)
+    {
+        $store = $this->createMock(StoreInterface::class);
+
+        $store->method('getId')
+            ->willReturn(self::STORE_ID);
+
+        $getStore = $this->storeManager->expects(self::once())
+            ->method('getStore')
+            ->with(self::STORE_ID);
+
+        if ($error) {
+            $getStore->willThrowException(
+                new NoSuchEntityException(new Phrase('A Store Error'))
+            );
+        } else {
+            $getStore->willReturn($store);
+        }
+
+        return $store;
+    }
+
+    /**
      * Sets up feed handler mock
      * @param string $type
      * @param int $numPages
      * @param int $pageSize
      * @param string $error
      */
-    public function setupFeedHandler(string $type, int $numPages, int $pageSize, string $error = ''): void
+    public function setupFeedHandler($store, string $type, int $numPages, int $pageSize, string $error = ''): void
     {
         $feedDataHandler = $this->getMockBuilder(FeedDataManagementInterface::class)
             ->disableOriginalConstructor()
@@ -172,6 +221,10 @@ class RunnerTest extends TestCase
             ->method('isEnabled')
             ->with(self::STORE_ID)
             ->willReturn(true);
+
+        $feedHandler->expects(self::exactly(2))
+            ->method('requiresEmulation')
+            ->willReturn($type === Feed::FEED_TYPE_PRODUCT);
 
         $feedHandler->expects(self::once())
             ->method('getFeedDataHandler')
@@ -230,7 +283,7 @@ class RunnerTest extends TestCase
 
                         $feedRowDataHandler->expects(self::at($x))
                             ->method('getRowData')
-                            ->with(self::STORE_ID, $item)
+                            ->with($store, $item)
                             ->willReturn($item);
                     }
                 }
@@ -308,8 +361,9 @@ class RunnerTest extends TestCase
      */
     public function testSendBrandFeed(): void
     {
+        $store = $this->setupStore();
         $this->setupConfig();
-        $this->setupFeedHandler(Feed::FEED_TYPE_BRAND, 2, 2);
+        $this->setupFeedHandler($store, Feed::FEED_TYPE_BRAND, 2, 2);
         $this->setupFeedProgress(Feed::FEED_TYPE_BRAND, [0,50,100]);
         $this->object->sendFeed(self::STORE_ID, Feed::FEED_TYPE_BRAND);
     }
@@ -319,10 +373,51 @@ class RunnerTest extends TestCase
      */
     public function testSendUserFeed(): void
     {
+        $store = $this->setupStore();
         $this->setupConfig();
-        $this->setupFeedHandler(Feed::FEED_TYPE_USER, 2, 2);
+        $this->setupFeedHandler($store, Feed::FEED_TYPE_USER, 2, 2);
         $this->setupFeedProgress(Feed::FEED_TYPE_USER, [0,50,100]);
         $this->object->sendFeed(self::STORE_ID, Feed::FEED_TYPE_USER);
+    }
+
+    /**
+     * Tests that the product feed gets sent
+     */
+    public function testSendProductFeed(): void
+    {
+        $store = $this->setupStore();
+        $this->setupConfig();
+        $this->setupFeedHandler($store, Feed::FEED_TYPE_PRODUCT, 2, 2);
+        $this->setupFeedProgress(Feed::FEED_TYPE_PRODUCT, [0,50,100]);
+
+        $this->appEmulation->expects(self::once())
+            ->method('startEnvironmentEmulation')
+            ->with(self::STORE_ID, Area::AREA_FRONTEND, true);
+
+        $this->appEmulation->expects(self::once())
+            ->method('stopEnvironmentEmulation');
+
+        $this->object->sendFeed(self::STORE_ID, Feed::FEED_TYPE_PRODUCT);
+    }
+
+    /**
+     * Tests that the user feed gets sent - and that app emulation stops if an exception happens
+     */
+    public function testSendProductFeedException(): void
+    {
+        $store = $this->setupStore();
+        $this->setupConfig();
+        $this->setupFeedHandler($store, Feed::FEED_TYPE_PRODUCT, 2, 2, 'An error');
+        $this->setupFeedProgress(Feed::FEED_TYPE_PRODUCT, [0]);
+
+        $this->appEmulation->expects(self::once())
+            ->method('startEnvironmentEmulation')
+            ->with(self::STORE_ID, Area::AREA_FRONTEND, true);
+
+        $this->appEmulation->expects(self::once())
+            ->method('stopEnvironmentEmulation');
+
+        $this->object->sendFeed(self::STORE_ID, Feed::FEED_TYPE_PRODUCT);
     }
 
     /**
@@ -330,8 +425,9 @@ class RunnerTest extends TestCase
      */
     public function testSendFeedException(): void
     {
+        $store = $this->setupStore();
         $this->setupConfig();
-        $this->setupFeedHandler(Feed::FEED_TYPE_USER, 2, 2, 'An Error');
+        $this->setupFeedHandler($store, Feed::FEED_TYPE_USER, 2, 2, 'An Error');
         $this->setupFeedProgress(Feed::FEED_TYPE_USER, [0]);
 
         $this->logger->expects(self::once())
@@ -341,6 +437,38 @@ class RunnerTest extends TestCase
         $this->feedError->expects(self::once())
             ->method('saveFeedError')
             ->with(self::STORE_ID, Feed::FEED_TYPE_USER, 'An Error');
+
+        $this->object->sendFeed(self::STORE_ID, Feed::FEED_TYPE_USER);
+    }
+
+    /**
+     * Tests that the user feed doesnt when a store exception happens
+     */
+    public function testSendFeedStoreException(): void
+    {
+        $this->logger->expects(self::once())
+            ->method('error')
+            ->with('PureClarity: Error with ' . Feed::FEED_TYPE_USER . ' feed: A Store Error');
+
+        $this->feedError->expects(self::once())
+            ->method('saveFeedError')
+            ->with(self::STORE_ID, Feed::FEED_TYPE_USER, 'A Store Error');
+
+        $feedHandler = $this->createMock(FeedManagementInterface::class);
+
+        $feedHandler->expects(self::once())
+            ->method('isEnabled')
+            ->with(self::STORE_ID)
+            ->willReturn(true);
+
+        $this->feedTypeHandler->method('getFeedHandler')
+            ->with(Feed::FEED_TYPE_USER)
+            ->willReturn($feedHandler);
+
+        $feedHandler->expects(self::never())
+            ->method('getFeedDataHandler');
+
+        $this->setupStore(true);
 
         $this->object->sendFeed(self::STORE_ID, Feed::FEED_TYPE_USER);
     }
