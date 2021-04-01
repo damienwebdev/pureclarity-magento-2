@@ -29,6 +29,7 @@ use Pureclarity\Core\Api\FeedDataManagementInterface;
 use Pureclarity\Core\Api\FeedManagementInterface;
 use PureClarity\Api\Feed\Feed;
 use Pureclarity\Core\Api\FeedRowDataManagementInterface;
+use ReflectionException;
 
 /**
  * Class RunnerTest
@@ -173,6 +174,7 @@ class RunnerTest extends TestCase
      * Sets up a StoreInterface and store manager getStore
      * @param bool $error
      * @return StoreInterface|MockObject
+     * @throws ReflectionException
      */
     public function setupStore(bool $error = false)
     {
@@ -273,7 +275,7 @@ class RunnerTest extends TestCase
 
                     $feedDataHandler->expects(self::at($page))
                         ->method('getPageData')
-                        ->with(self::STORE_ID, $page)
+                        ->with($store, $page)
                         ->willReturn($itemData);
 
                     foreach ($itemData as $x => $item) {
