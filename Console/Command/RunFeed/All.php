@@ -9,7 +9,7 @@ namespace Pureclarity\Core\Console\Command\RunFeed;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
-use Pureclarity\Core\Model\Feed;
+use PureClarity\Api\Feed\Feed;
 use Pureclarity\Core\Model\Feed\Runner;
 use Magento\Store\Model\StoreManagerInterface;
 use Magento\Framework\App\State;

@@ -8,8 +8,11 @@ namespace Pureclarity\Core\Test\Unit\Model\Delta\Type;
 
 use Magento\Catalog\Model\ResourceModel\Product\CollectionFactory as ProductCollectionFactory;
 use Magento\Catalog\Model\ResourceModel\Product\Collection;
+use Magento\Framework\Exception\NoSuchEntityException;
+use Magento\Framework\Phrase;
+use Magento\Store\Api\Data\StoreInterface;
 use Magento\Store\Model\App\Emulation;
-use phpDocumentor\Reflection\DocBlock\Serializer;
+use Magento\Store\Model\StoreManagerInterface;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 use Psr\Log\LoggerInterface;
@@ -17,28 +20,20 @@ use PureClarity\Api\Delta\Type\ProductFactory;
 use PureClarity\Api\Delta\Type\Product as DeltaHandler;
 use Pureclarity\Core\Model\CoreConfig;
 use Pureclarity\Core\Model\Delta\Type\Product;
-use Pureclarity\Core\Model\ProductExport;
-use Pureclarity\Core\Model\ProductExportFactory;
+use Pureclarity\Core\Api\ProductFeedRowDataManagementInterface;
 use Magento\Catalog\Model\Product as ProductModel;
 use Magento\Catalog\Model\Product\Attribute\Source\Status;
 use Magento\Catalog\Model\Product\Visibility;
+use ReflectionException;
 
 /**
  * Class ProductTest
  *
  * Tests the methods in \Pureclarity\Core\Model\Delta\Type\Product
+ * @SuppressWarnings(PHPMD.CouplingBetweenObjects)
  */
 class ProductTest extends TestCase
 {
-    /** @var mixed[] $dummyProductData */
-    private const PRODUCT_DATA = [
-        [
-            'id' => 1,
-            'status' => Status::STATUS_DISABLED,
-            'visibility' => Visibility::VISIBILITY_NOT_VISIBLE
-        ]
-    ];
-
     /** @var Product $object */
     private $object;
 
@@ -46,7 +41,7 @@ class ProductTest extends TestCase
     private $appEmulation;
 
     /** @var ProductCollectionFactory|MockObject */
-    private $productCollectionFactory;
+    private $collectionFactory;
 
     /** @var Collection|MockObject */
     private $productCollection;
@@ -60,28 +55,25 @@ class ProductTest extends TestCase
     /** @var MockObject|CoreConfig */
     private $coreConfig;
 
-    /** @var MockObject|ProductExportFactory */
-    private $productExportFactory;
-
-    /** @var MockObject|ProductExport */
-    private $productExport;
+    /** @var MockObject|ProductFeedRowDataManagementInterface */
+    private $productDataHandler;
 
     /** @var MockObject|LoggerInterface */
     private $logger;
 
+    /** @var StoreManagerInterface|MockObject */
+    private $storeManager;
+
+    /**
+     * @throws ReflectionException
+     */
     protected function setUp() : void
     {
-        $this->appEmulation = $this->getMockBuilder(Emulation::class)
-            ->disableOriginalConstructor()
-            ->getMock();
-
-        $this->productCollectionFactory = $this->getMockBuilder(ProductCollectionFactory::class)
-            ->disableOriginalConstructor()
-            ->getMock();
-
-        $this->productCollection = $this->getMockBuilder(Collection::class)
-            ->disableOriginalConstructor()
-            ->setMethods([
+        $this->appEmulation = $this->createMock(Emulation::class);
+        $this->collectionFactory = $this->createMock(ProductCollectionFactory::class);
+        $this->productCollection = $this->createPartialMock(
+            Collection::class,
+            [
                 'addAttributeToFilter',
                 'setStoreId',
                 'count',
@@ -91,57 +83,63 @@ class ProductTest extends TestCase
                 'addAttributeToSelect',
                 'addMinimalPrice',
                 'addTaxPercents'
-            ])
-            ->getMock();
+            ]
+        );
+        $this->deltaFactory = $this->createMock(ProductFactory::class);
+        $this->deltaHandler = $this->createMock(DeltaHandler::class);
+        $this->coreConfig = $this->createMock(CoreConfig::class);
+        $this->productDataHandler = $this->createMock(ProductFeedRowDataManagementInterface::class);
+        $this->logger = $this->createMock(LoggerInterface::class);
+        $this->storeManager = $this->createMock(StoreManagerInterface::class);
 
-        $this->productCollectionFactory->method('create')->willReturn($this->productCollection);
-
-        $this->deltaFactory = $this->getMockBuilder(ProductFactory::class)
-            ->disableOriginalConstructor()
-            ->getMock();
-
-        $this->deltaHandler = $this->getMockBuilder(DeltaHandler::class)
-            ->disableOriginalConstructor()
-            ->getMock();
-
+        $this->collectionFactory->method('create')->willReturn($this->productCollection);
         $this->deltaFactory->method('create')->willReturn($this->deltaHandler);
-
-        $this->coreConfig = $this->getMockBuilder(CoreConfig::class)
-            ->disableOriginalConstructor()
-            ->getMock();
-
-        $this->productExportFactory = $this->getMockBuilder(ProductExportFactory::class)
-            ->disableOriginalConstructor()
-            ->getMock();
-
-        $this->productExport = $this->getMockBuilder(ProductExport::class)
-            ->disableOriginalConstructor()
-            ->getMock();
-
-        $this->productExportFactory->method('create')->willReturn($this->productExport);
-
-        $this->logger = $this->getMockBuilder(LoggerInterface::class)
-            ->disableOriginalConstructor()
-            ->getMock();
 
         $this->object = new Product(
             $this->appEmulation,
-            $this->productCollectionFactory,
+            $this->collectionFactory,
             $this->deltaFactory,
             $this->coreConfig,
-            $this->productExportFactory,
-            $this->logger
+            $this->logger,
+            $this->storeManager,
+            $this->productDataHandler
         );
+    }
+
+    /**
+     * Sets up a StoreInterface mock
+     * @param bool $error
+     * @return StoreInterface|MockObject
+     * @throws ReflectionException
+     */
+    public function setupStore(bool $error = false)
+    {
+        $store = $this->createMock(StoreInterface::class);
+
+        $store->method('getId')
+            ->willReturn('1');
+
+        if ($error) {
+            $this->storeManager->expects(self::once())
+                ->method('getStore')
+                ->willThrowException(new NoSuchEntityException(new Phrase('An error')));
+        } else {
+            $this->storeManager->expects(self::once())
+                ->method('getStore')
+                ->willReturn($store);
+        }
+
+        return $store;
     }
 
     /**
      * Generates a mock product model.
      *
-     * @param int $id
+     * @param int $productId
      * @param array $prodInfo
      * @return MockObject|ProductModel
      */
-    private function getProductModel(int $id, array $prodInfo)
+    private function getProductModel(int $productId, array $prodInfo)
     {
         $model = $this->getMockBuilder(ProductModel::class)
             ->disableOriginalConstructor()
@@ -149,7 +147,7 @@ class ProductTest extends TestCase
             ->getMock();
 
         $model->method('getId')
-            ->willReturn($id);
+            ->willReturn($productId);
 
         $model->method('getVisibility')
             ->willReturn($prodInfo['visibility']);
@@ -164,40 +162,53 @@ class ProductTest extends TestCase
     /**
      * Build product data expectations.
      *
+     * @param StoreInterface|MockObject $store
      * @param array $productData
      * @param bool $returnEmpty
      */
-    public function setUpProductData(array $productData, $returnEmpty = false): void
+    public function setUpProductData($store, array $productData, $returnEmpty = false): void
     {
         $products = [];
         if ($returnEmpty === false) {
-            $x = 0;
+            $index = 0;
             foreach ($productData as $id => $product) {
                 $model = $this->getProductModel($id, $product);
                 $products[$id] = $model;
                 if (isset($product['export'])) {
                     if ($product['export'] === true) {
-                        $this->productExport->expects(self::at($x+1))
-                            ->method('processProduct')
-                            ->with($model, $x)
+                        $this->productDataHandler->expects(self::at($index))
+                            ->method('getRowData')
+                            ->with($store, $model)
                             ->willReturn(['somedata']);
                     } else {
-                        $this->productExport->expects(self::at($x+1))
-                            ->method('processProduct')
-                            ->with($model, $x)
-                            ->willReturn(null);
+                        $this->productDataHandler->expects(self::at($index))
+                            ->method('getRowData')
+                            ->with($store, $model)
+                            ->willReturn([]);
                     }
-                    $x++;
+                    $index++;
                 }
             }
         }
 
         $this->productCollection->expects(self::at(0))->method('setStoreId')->with(1);
+        $this->productCollection->expects(self::at(1))->method('addStoreFilter')->with($store);
+        $this->productCollection->expects(self::at(2))->method('addUrlRewrite');
+        $this->productCollection->expects(self::at(3))->method('addAttributeToSelect')->with('*');
+
         $this->productCollection->expects(self::at(4))
-            ->method('addAttributeToFilter')->with('entity_id', array_keys($productData));
-        $this->productCollection->expects(self::at(7))->method('count')->willReturn(count($products));
+            ->method('addAttributeToFilter')
+            ->with('entity_id', array_keys($productData));
+
+        $this->productCollection->expects(self::at(5))->method('addMinimalPrice');
+        $this->productCollection->expects(self::at(6))->method('addTaxPercents');
+
         if ($returnEmpty === false) {
+            $this->productCollection->expects(self::at(7))->method('count')->willReturn(count($products));
             $this->productCollection->expects(self::at(8))->method('getItems')->willReturn($products);
+        } else {
+            $this->productCollection->expects(self::at(7))->method('count')->willReturn(count($productData));
+            $this->productCollection->expects(self::at(8))->method('getItems')->willReturn([]);
         }
     }
 
@@ -210,13 +221,32 @@ class ProductTest extends TestCase
     }
 
     /**
+     * Tests runDelta with a store exception
+     * @throws ReflectionException
+     */
+    public function testRunDeltaStoreException(): void
+    {
+        $this->setupStore(true);
+
+        $this->logger->expects(self::once())
+            ->method('error')
+            ->with('PureClarity: Error running product Deltas: An error');
+
+        $this->appEmulation->expects(self::never())->method('startEnvironmentEmulation');
+        $this->deltaHandler->expects(self::never())->method('addDelete');
+        $this->deltaHandler->expects(self::never())->method('addData');
+        $this->deltaHandler->expects(self::never())->method('send');
+
+        $this->object->runDelta(1, [1]);
+    }
+
+    /**
      * Tests runDelta with no products loaded
      */
     public function testRunDeltaNoData(): void
     {
-        $products = [];
-
-        $this->setUpProductData($products, true);
+        $this->appEmulation->expects(self::never())->method('startEnvironmentEmulation');
+        $this->storeManager->expects(self::never())->method('getStore');
         $this->deltaHandler->expects(self::never())->method('addDelete');
         $this->deltaHandler->expects(self::never())->method('addData');
         $this->deltaHandler->expects(self::never())->method('send');
@@ -225,17 +255,18 @@ class ProductTest extends TestCase
 
     /**
      * Tests runDelta with no enabled products available.
+     * @throws ReflectionException
      */
     public function testRunDeltaOneDeletedProduct(): void
     {
+        $store = $this->setupStore();
         $products = [
             1 => [
                 'status' => Status::STATUS_ENABLED,
                 'visibility' => Visibility::VISIBILITY_NOT_VISIBLE
             ]
         ];
-        $this->productCollection->expects(self::at(8))->method('getItems')->willReturn([]);
-        $this->setUpProductData($products, true);
+        $this->setUpProductData($store, $products, true);
         $this->deltaHandler->expects(self::once())->method('addDelete');
         $this->deltaHandler->expects(self::never())->method('addData');
         $this->deltaHandler->expects(self::once())->method('send');
@@ -244,45 +275,51 @@ class ProductTest extends TestCase
 
     /**
      * Tests runDelta with no visible products available.
+     * @throws ReflectionException
      */
     public function testRunDeltaNoVisibleProducts(): void
     {
+        $store = $this->setupStore();
         $products = [
             1 => [
                 'status' => Status::STATUS_ENABLED,
                 'visibility' => Visibility::VISIBILITY_NOT_VISIBLE
             ]
         ];
-        $this->setUpProductData($products);
+        $this->setUpProductData($store, $products);
         $this->deltaHandler->expects(self::once())->method('addDelete');
         $this->deltaHandler->expects(self::never())->method('addData');
         $this->deltaHandler->expects(self::once())->method('send');
-        $this->object->runDelta(1, array_keys($products));
+        $this->object->runDelta(1, [1]);
     }
 
     /**
      * Tests runDelta with no enabled products available.
+     * @throws ReflectionException
      */
     public function testRunDeltaNoEnabledProducts(): void
     {
+        $store = $this->setupStore();
         $products = [
             1 => [
                 'status' => Status::STATUS_DISABLED,
                 'visibility' => Visibility::VISIBILITY_BOTH
             ]
         ];
-        $this->setUpProductData($products);
+        $this->setUpProductData($store, $products);
         $this->deltaHandler->expects(self::once())->method('addDelete');
         $this->deltaHandler->expects(self::never())->method('addData');
         $this->deltaHandler->expects(self::once())->method('send');
-        $this->object->runDelta(1, array_keys($products));
+        $this->object->runDelta(1, [1]);
     }
 
     /**
      * Tests runDelta with a product that does not get returned from the product export class.
+     * @throws ReflectionException
      */
     public function testRunDeltaOneExcludedProduct(): void
     {
+        $store = $this->setupStore();
         $products = [
             1 => [
                 'status' => Status::STATUS_ENABLED,
@@ -290,19 +327,21 @@ class ProductTest extends TestCase
                 'export' => false
             ]
         ];
-        $this->setUpProductData($products);
+        $this->setUpProductData($store, $products);
 
         $this->deltaHandler->expects(self::once())->method('addDelete');
         $this->deltaHandler->expects(self::never())->method('addData');
         $this->deltaHandler->expects(self::once())->method('send');
-        $this->object->runDelta(1, array_keys($products));
+        $this->object->runDelta(1, [1]);
     }
 
     /**
      * Tests runDelta with a product that gets returned from the product export class correctly.
+     * @throws ReflectionException
      */
     public function testRunDeltaOneProduct(): void
     {
+        $store = $this->setupStore();
         $products = [
             1 => [
                 'status' => Status::STATUS_ENABLED,
@@ -310,7 +349,7 @@ class ProductTest extends TestCase
                 'export' => true
             ]
         ];
-        $this->setUpProductData($products);
+        $this->setUpProductData($store, $products);
 
         $this->deltaHandler->expects(self::never())->method('addDelete');
         $this->deltaHandler->expects(self::once())->method('addData');
@@ -320,9 +359,11 @@ class ProductTest extends TestCase
 
     /**
      * Tests runDelta with a mix of valid / deleted products.
+     * @throws ReflectionException
      */
     public function testRunDeltaMixed(): void
     {
+        $store = $this->setupStore();
         $products = [
             1 => [
                 'status' => Status::STATUS_ENABLED,
@@ -339,7 +380,7 @@ class ProductTest extends TestCase
                 'export' => false
             ]
         ];
-        $this->setUpProductData($products);
+        $this->setUpProductData($store, $products);
 
         $this->deltaHandler->expects(self::exactly(2))->method('addDelete');
         $this->deltaHandler->expects(self::once())->method('addData');
@@ -350,9 +391,11 @@ class ProductTest extends TestCase
 
     /**
      * Tests runDelta with an exception
+     * @throws ReflectionException
      */
     public function testRunDeltaError(): void
     {
+        $store = $this->setupStore();
         $products = [
             1 => [
                 'status' => Status::STATUS_ENABLED,
@@ -369,7 +412,7 @@ class ProductTest extends TestCase
                 'export' => false
             ]
         ];
-        $this->setUpProductData($products);
+        $this->setUpProductData($store, $products);
 
         $this->deltaHandler->expects(self::exactly(2))->method('addDelete');
         $this->deltaHandler->expects(self::once())->method('addData');
