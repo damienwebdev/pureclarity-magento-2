@@ -12,11 +12,9 @@ use Magento\Store\Api\Data\StoreInterface;
 use Magento\Customer\Model\ResourceModel\Customer\Collection;
 use Psr\Log\LoggerInterface;
 use Pureclarity\Core\Model\Feed\State\Error;
-use Magento\Store\Model\StoreManagerInterface;
 use Magento\Customer\Model\ResourceModel\Customer\CollectionFactory as CustomerCollectionFactory;
 use PureClarity\Api\Feed\Feed;
 use Magento\Framework\Exception\LocalizedException;
-use Magento\Framework\Exception\NoSuchEntityException;
 use Magento\Customer\Model\Customer;
 
 /**
@@ -29,9 +27,6 @@ class FeedData implements UserFeedDataManagementInterface
     /** @var int */
     private const PAGE_SIZE = 50;
 
-    /** @var StoreInterface */
-    private $currentStore;
-
     /** @var Collection */
     private $collection;
 
@@ -41,27 +36,21 @@ class FeedData implements UserFeedDataManagementInterface
     /** @var Error */
     private $feedError;
 
-    /** @var StoreManagerInterface */
-    private $storeManager;
-
     /** @var CustomerCollectionFactory */
     private $customerCollectionFactory;
 
     /**
      * @param LoggerInterface $logger
      * @param Error $feedError
-     * @param StoreManagerInterface $storeManager
      * @param CustomerCollectionFactory $customerCollectionFactory
      */
     public function __construct(
         LoggerInterface $logger,
         Error $feedError,
-        StoreManagerInterface $storeManager,
         CustomerCollectionFactory $customerCollectionFactory
     ) {
         $this->logger                         = $logger;
         $this->feedError                      = $feedError;
-        $this->storeManager                   = $storeManager;
         $this->customerCollectionFactory      = $customerCollectionFactory;
     }
 
@@ -76,18 +65,18 @@ class FeedData implements UserFeedDataManagementInterface
 
     /**
      * Returns the total number of pages for the user feed
-     * @param int $storeId
+     * @param StoreInterface $store
      * @return int
      */
-    public function getTotalPages(int $storeId): int
+    public function getTotalPages(StoreInterface $store): int
     {
         $totalPages = 0;
         try {
-            $totalPages = $this->getCustomerCollection($storeId)->getLastPageNumber();
-        } catch (NoSuchEntityException | LocalizedException $e) {
+            $totalPages = $this->getCustomerCollection($store)->getLastPageNumber();
+        } catch (LocalizedException $e) {
             $error = 'Could not load users: ' . $e->getMessage();
             $this->logger->error('PureClarity: ' . $error);
-            $this->feedError->saveFeedError($storeId, Feed::FEED_TYPE_USER, $error);
+            $this->feedError->saveFeedError((int)$store->getId(), Feed::FEED_TYPE_USER, $error);
         }
 
         return $totalPages;
@@ -95,22 +84,22 @@ class FeedData implements UserFeedDataManagementInterface
 
     /**
      * Loads a page of customer data for the feed
-     * @param int $storeId
+     * @param StoreInterface $store
      * @param int $pageNum
      * @return Customer[]
      */
-    public function getPageData(int $storeId, int $pageNum): array
+    public function getPageData(StoreInterface $store, int $pageNum): array
     {
         $customers = [];
         try {
-            $collection = $this->getCustomerCollection($storeId);
+            $collection = $this->getCustomerCollection($store);
             $collection->clear();
             $collection->setCurPage($pageNum);
             $customers = $collection->getItems();
-        } catch (NoSuchEntityException | LocalizedException $e) {
+        } catch (LocalizedException $e) {
             $error = 'Could not load users: ' . $e->getMessage();
             $this->logger->error('PureClarity: ' . $error);
-            $this->feedError->saveFeedError($storeId, Feed::FEED_TYPE_USER, $error);
+            $this->feedError->saveFeedError((int)$store->getId(), Feed::FEED_TYPE_USER, $error);
         }
 
         return $customers;
@@ -118,32 +107,30 @@ class FeedData implements UserFeedDataManagementInterface
 
     /**
      * Returns the build customer collection
-     * @param int $storeId
+     * @param StoreInterface $store
      * @return Collection
      * @throws LocalizedException
-     * @throws NoSuchEntityException
      */
-    public function getCustomerCollection(int $storeId): Collection
+    public function getCustomerCollection(StoreInterface $store): Collection
     {
         if ($this->collection === null) {
-            $this->collection = $this->buildCustomerCollection($storeId);
+            $this->collection = $this->buildCustomerCollection($store);
         }
         return $this->collection;
     }
 
     /**
      * Builds the customer collection for user feed, includes default shipping / first address found
-     * @param int $storeId
+     * @param StoreInterface $store
      * @return Collection
      * @throws LocalizedException
-     * @throws NoSuchEntityException
      */
-    public function buildCustomerCollection(int $storeId): Collection
+    public function buildCustomerCollection(StoreInterface $store): Collection
     {
         $collection = $this->customerCollectionFactory->create();
         $collection->addAttributeToFilter(
             'website_id',
-            [ "eq" => $this->getCurrentStore($storeId)->getWebsiteId()]
+            [ "eq" => $store->getWebsiteId()]
         );
 
         $table = $collection->getTable('customer_address_entity');
@@ -157,19 +144,5 @@ class FeedData implements UserFeedDataManagementInterface
         $collection->groupByAttribute('entity_id');
         $collection->setPageSize($this->getPageSize());
         return $collection;
-    }
-
-    /**
-     * Gets a Store object for the given Store
-     * @param int $storeId
-     * @return StoreInterface
-     * @throws NoSuchEntityException
-     */
-    private function getCurrentStore(int $storeId): StoreInterface
-    {
-        if (empty($this->currentStore)) {
-            $this->currentStore = $this->storeManager->getStore($storeId);
-        }
-        return $this->currentStore;
     }
 }
