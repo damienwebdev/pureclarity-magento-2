@@ -6,7 +6,6 @@
 
 namespace Pureclarity\Core\Test\Unit\Model\Feed\Type\Category;
 
-use Magento\Framework\Exception\NoSuchEntityException;
 use Magento\Store\Api\Data\StoreInterface;
 use PHPUnit\Framework\TestCase;
 use Pureclarity\Core\Model\Feed\Type\Category\FeedData;
@@ -15,10 +14,9 @@ use Psr\Log\LoggerInterface;
 use Pureclarity\Core\Model\Feed\State\Error;
 use Magento\Catalog\Model\ResourceModel\Category\Collection;
 use Magento\Catalog\Model\ResourceModel\Category\CollectionFactory as CategoryCollectionFactory;
-use Magento\Store\Model\StoreManagerInterface;
 use Magento\Framework\Phrase;
 use Magento\Framework\Exception\LocalizedException;
-use PureClarity\Api\Feed\Feed;
+use ReflectionException;
 
 /**
  * Class FeedDataTest
@@ -44,9 +42,6 @@ class FeedDataTest extends TestCase
 
     /** @var MockObject|CategoryCollectionFactory */
     private $collectionFactory;
-
-    /** @var MockObject|StoreManagerInterface */
-    private $storeManager;
 
     protected function setUp(): void
     {
@@ -79,48 +74,27 @@ class FeedDataTest extends TestCase
         $this->collectionFactory->method('create')
             ->willReturn($this->collection);
 
-        $this->storeManager = $this->getMockBuilder(StoreManagerInterface::class)
-            ->disableOriginalConstructor()
-            ->getMock();
-
         $this->object = new FeedData(
             $this->logger,
             $this->feedError,
-            $this->collectionFactory,
-            $this->storeManager
+            $this->collectionFactory
         );
     }
 
     /**
      * Sets up a StoreInterface and store manager getStore
-     * @param bool $error
-     * @return MockObject
+     * @return StoreInterface|MockObject
+     * @throws ReflectionException
      */
-    public function setupStore(bool $error = false): MockObject
+    public function setupStore()
     {
-        $store = $this->getMockBuilder(StoreInterface::class)
-            ->disableOriginalConstructor()
-            ->getMock();
+        $store = $this->createMock(StoreInterface::class);
 
         $store->method('getId')
             ->willReturn('1');
 
         $store->method('getWebsiteId')
             ->willReturn('12');
-
-        if ($error) {
-            $this->storeManager->expects(self::once())
-                ->method('getStore')
-                ->with(self::STORE_ID)
-                ->willThrowException(
-                    new NoSuchEntityException(new Phrase('An Error'))
-                );
-        } else {
-            $this->storeManager->expects(self::once())
-                ->method('getStore')
-                ->with(self::STORE_ID)
-                ->willReturn($store);
-        }
 
         return $store;
     }
@@ -194,6 +168,7 @@ class FeedDataTest extends TestCase
 
     /**
      * Tests that the total number of pages is returned correctly when no pages present
+     * @throws ReflectionException
      */
     public function testGetTotalPagesNoData(): void
     {
@@ -204,12 +179,13 @@ class FeedDataTest extends TestCase
             ->method('getLastPageNumber')
             ->willReturn(0);
 
-        $pages = $this->object->getTotalPages(self::STORE_ID);
+        $pages = $this->object->getTotalPages($store);
         self::assertEquals(0, $pages);
     }
 
     /**
      * Tests that the total number of pages is returned correctly when there are some pages
+     * @throws ReflectionException
      */
     public function testGetTotalPagesWithData(): void
     {
@@ -220,12 +196,13 @@ class FeedDataTest extends TestCase
             ->method('getLastPageNumber')
             ->willReturn(5);
 
-        $pages = $this->object->getTotalPages(self::STORE_ID);
+        $pages = $this->object->getTotalPages($store);
         self::assertEquals(5, $pages);
     }
 
     /**
      * Tests that a collection exception is handled
+     * @throws ReflectionException
      */
     public function testGetTotalPagesCollectionException(): void
     {
@@ -243,32 +220,12 @@ class FeedDataTest extends TestCase
         $this->collection->expects(self::never())
             ->method('getLastPageNumber');
 
-        $this->object->getTotalPages(self::STORE_ID);
-    }
-
-    /**
-     * Tests that a store exception is handled
-     */
-    public function testGetTotalPagesStoreException(): void
-    {
-        $store = $this->setupStore(true);
-
-        $this->logger->expects(self::once())
-            ->method('error')
-            ->with('PureClarity: Could not load categories: An Error');
-
-        $this->feedError->expects(self::once())
-            ->method('saveFeedError')
-            ->with(self::STORE_ID, Feed::FEED_TYPE_CATEGORY, 'Could not load categories: An Error');
-
-        $this->collection->expects(self::never())
-            ->method('getLastPageNumber');
-
-        $this->object->getTotalPages(self::STORE_ID);
+        $this->object->getTotalPages($store);
     }
 
     /**
      * Tests that getPageData returns a page of data
+     * @throws ReflectionException
      */
     public function testGetPageDataWithData(): void
     {
@@ -286,12 +243,13 @@ class FeedDataTest extends TestCase
             ->method('getItems')
             ->willReturn([1,2]);
 
-        $data = $this->object->getPageData(self::STORE_ID, 1);
+        $data = $this->object->getPageData($store, 1);
         self::assertEquals([1,2], $data);
     }
 
     /**
      * Tests that getPageData returns a different page of data
+     * @throws ReflectionException
      */
     public function testGetPageDataWithDataPageTwo(): void
     {
@@ -309,12 +267,13 @@ class FeedDataTest extends TestCase
             ->method('getItems')
             ->willReturn([3,4]);
 
-        $data = $this->object->getPageData(self::STORE_ID, 2);
+        $data = $this->object->getPageData($store, 2);
         self::assertEquals([3,4], $data);
     }
 
     /**
      * Tests that a collection exception is handled
+     * @throws ReflectionException
      */
     public function testGetPageDataCollectionException(): void
     {
@@ -332,27 +291,6 @@ class FeedDataTest extends TestCase
         $this->collection->expects(self::never())
             ->method('getLastPageNumber');
 
-        $this->object->getPageData(self::STORE_ID, 1);
-    }
-
-    /**
-     * Tests that a store exception is handled
-     */
-    public function testGetPageDataStoreException(): void
-    {
-        $store = $this->setupStore(true);
-
-        $this->logger->expects(self::once())
-            ->method('error')
-            ->with('PureClarity: Could not load categories: An Error');
-
-        $this->feedError->expects(self::once())
-            ->method('saveFeedError')
-            ->with(self::STORE_ID, Feed::FEED_TYPE_CATEGORY, 'Could not load categories: An Error');
-
-        $this->collection->expects(self::never())
-            ->method('getLastPageNumber');
-
-        $this->object->getPageData(self::STORE_ID, 1);
+        $this->object->getPageData($store, 1);
     }
 }
