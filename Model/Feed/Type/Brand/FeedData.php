@@ -8,6 +8,7 @@ declare(strict_types=1);
 namespace Pureclarity\Core\Model\Feed\Type\Brand;
 
 use Magento\Framework\Exception\NoSuchEntityException;
+use Magento\Store\Api\Data\StoreInterface;
 use Pureclarity\Core\Api\BrandFeedDataManagementInterface;
 use Magento\Catalog\Model\ResourceModel\Category\Collection;
 use Psr\Log\LoggerInterface;
@@ -79,18 +80,18 @@ class FeedData implements BrandFeedDataManagementInterface
 
     /**
      * Returns the total number of pages for the brand feed
-     * @param int $storeId
+     * @param StoreInterface $store
      * @return int
      */
-    public function getTotalPages(int $storeId): int
+    public function getTotalPages(StoreInterface $store): int
     {
         $totalPages = 0;
         try {
-            $totalPages = $this->getBrandCollection($storeId)->getLastPageNumber();
-        } catch (NoSuchEntityException | LocalizedException $e) {
+            $totalPages = $this->getBrandCollection($store)->getLastPageNumber();
+        } catch (LocalizedException $e) {
             $error = 'Could not load brands: ' . $e->getMessage();
             $this->logger->error('PureClarity: ' . $error);
-            $this->feedError->saveFeedError($storeId, Feed::FEED_TYPE_BRAND, $error);
+            $this->feedError->saveFeedError((int)$store->getId(), Feed::FEED_TYPE_BRAND, $error);
         }
 
         return $totalPages;
@@ -98,22 +99,22 @@ class FeedData implements BrandFeedDataManagementInterface
 
     /**
      * Loads a page of brand data for the feed
-     * @param int $storeId
+     * @param StoreInterface $store
      * @param int $pageNum
      * @return Category[]
      */
-    public function getPageData(int $storeId, int $pageNum): array
+    public function getPageData(StoreInterface $store, int $pageNum): array
     {
         $customers = [];
         try {
-            $collection = $this->getBrandCollection($storeId);
+            $collection = $this->getBrandCollection($store);
             $collection->clear();
             $collection->setCurPage($pageNum);
             $customers = $collection->getItems();
-        } catch (NoSuchEntityException | LocalizedException $e) {
+        } catch (LocalizedException $e) {
             $error = 'Could not load brands: ' . $e->getMessage();
             $this->logger->error('PureClarity: ' . $error);
-            $this->feedError->saveFeedError($storeId, Feed::FEED_TYPE_BRAND, $error);
+            $this->feedError->saveFeedError((int)$store->getId(), Feed::FEED_TYPE_BRAND, $error);
         }
 
         return $customers;
@@ -121,29 +122,27 @@ class FeedData implements BrandFeedDataManagementInterface
 
     /**
      * Returns the built brand collection
-     * @param int $storeId
+     * @param StoreInterface $store
      * @return Collection
-     * @throws NoSuchEntityException
      * @throws LocalizedException
      */
-    public function getBrandCollection(int $storeId): Collection
+    public function getBrandCollection(StoreInterface $store): Collection
     {
         if ($this->collection === null) {
-            $this->collection = $this->buildBrandCollection($storeId);
+            $this->collection = $this->buildBrandCollection($store);
         }
         return $this->collection;
     }
 
     /**
      * Builds the collection for brand feed
-     * @param int $storeId
+     * @param StoreInterface $store
      * @return Collection
-     * @throws NoSuchEntityException
      * @throws LocalizedException
      */
-    public function buildBrandCollection(int $storeId): Collection
+    public function buildBrandCollection(StoreInterface $store): Collection
     {
-        $brandCategoryId = $this->coreConfig->getBrandParentCategory($storeId);
+        $brandCategoryId = $this->coreConfig->getBrandParentCategory((int)$store->getId());
         $brandParentCategory = $this->categoryRepository->get($brandCategoryId);
         $collection = $this->collectionFactory->create();
         $collection->addAttributeToSelect('name');

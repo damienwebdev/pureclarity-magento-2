@@ -6,6 +6,7 @@
 
 namespace Pureclarity\Core\Test\Unit\Model\Feed\Type\Brand;
 
+use Magento\Store\Api\Data\StoreInterface;
 use PHPUnit\Framework\TestCase;
 use Pureclarity\Core\Model\Feed\Type\Brand\FeedData;
 use PHPUnit\Framework\MockObject\MockObject;
@@ -20,6 +21,7 @@ use Magento\Framework\Phrase;
 use Magento\Catalog\Model\Category;
 use Magento\Framework\Exception\LocalizedException;
 use PureClarity\Api\Feed\Feed;
+use ReflectionException;
 
 /**
  * Class FeedDataTest
@@ -97,6 +99,22 @@ class FeedDataTest extends TestCase
             $this->categoryRepository,
             $this->coreConfig
         );
+    }
+
+    /**
+     * Sets up a StoreInterface
+     *
+     * @return StoreInterface|MockObject
+     * @throws ReflectionException
+     */
+    public function setupStore()
+    {
+        $store = $this->createMock(StoreInterface::class);
+
+        $store->method('getId')
+            ->willReturn('1');
+
+        return $store;
     }
 
     /**
@@ -198,9 +216,11 @@ class FeedDataTest extends TestCase
 
     /**
      * Tests that the total number of pages is returned correctly when no pages present
+     * @throws ReflectionException
      */
     public function testGetTotalPagesNoData(): void
     {
+        $store = $this->setupStore();
         $this->setupConfig();
         $this->setupParentCategory();
         $this->setupCollection();
@@ -209,7 +229,7 @@ class FeedDataTest extends TestCase
             ->method('getLastPageNumber')
             ->willReturn(0);
 
-        $pages = $this->object->getTotalPages(self::STORE_ID);
+        $pages = $this->object->getTotalPages($store);
         self::assertEquals(0, $pages);
     }
 
@@ -218,6 +238,7 @@ class FeedDataTest extends TestCase
      */
     public function testGetTotalPagesWithData(): void
     {
+        $store = $this->setupStore();
         $this->setupConfig();
         $this->setupParentCategory();
         $this->setupCollection();
@@ -226,15 +247,17 @@ class FeedDataTest extends TestCase
             ->method('getLastPageNumber')
             ->willReturn(5);
 
-        $pages = $this->object->getTotalPages(self::STORE_ID);
+        $pages = $this->object->getTotalPages($store);
         self::assertEquals(5, $pages);
     }
 
     /**
      * Tests that a collection exception is handled
+     * @throws ReflectionException
      */
     public function testGetTotalPagesCollectionException(): void
     {
+        $store = $this->setupStore();
         $this->setupConfig();
         $this->setupParentCategory();
         $this->setupCollection(true);
@@ -250,14 +273,16 @@ class FeedDataTest extends TestCase
         $this->collection->expects(self::never())
             ->method('getLastPageNumber');
 
-        $this->object->getTotalPages(self::STORE_ID);
+        $this->object->getTotalPages($store);
     }
 
     /**
      * Tests that a category exception is handled
+     * @throws ReflectionException
      */
     public function testGetTotalPagesCategoryException(): void
     {
+        $store = $this->setupStore();
         $this->setupConfig();
         $this->setupParentCategory(true);
 
@@ -272,14 +297,16 @@ class FeedDataTest extends TestCase
         $this->collection->expects(self::never())
             ->method('getLastPageNumber');
 
-        $this->object->getTotalPages(self::STORE_ID);
+        $this->object->getTotalPages($store);
     }
 
     /**
      * Tests that getPageData returns a page of data
+     * @throws ReflectionException
      */
     public function testGetPageDataWithData(): void
     {
+        $store = $this->setupStore();
         $this->setupConfig();
         $this->setupParentCategory();
         $this->setupCollection();
@@ -295,15 +322,17 @@ class FeedDataTest extends TestCase
             ->method('getItems')
             ->willReturn([1,2]);
 
-        $data = $this->object->getPageData(self::STORE_ID, 1);
+        $data = $this->object->getPageData($store, 1);
         self::assertEquals([1,2], $data);
     }
 
     /**
      * Tests that getPageData returns a different page of data
+     * @throws ReflectionException
      */
     public function testGetPageDataWithDataPageTwo(): void
     {
+        $store = $this->setupStore();
         $this->setupConfig();
         $this->setupParentCategory();
         $this->setupCollection();
@@ -319,15 +348,17 @@ class FeedDataTest extends TestCase
             ->method('getItems')
             ->willReturn([3,4]);
 
-        $data = $this->object->getPageData(self::STORE_ID, 2);
+        $data = $this->object->getPageData($store, 2);
         self::assertEquals([3,4], $data);
     }
 
     /**
      * Tests that a collection exception is handled
+     * @throws ReflectionException
      */
     public function testGetPageDataCollectionException(): void
     {
+        $store = $this->setupStore();
         $this->setupConfig();
         $this->setupParentCategory();
         $this->setupCollection(true);
@@ -343,14 +374,16 @@ class FeedDataTest extends TestCase
         $this->collection->expects(self::never())
             ->method('getLastPageNumber');
 
-        $this->object->getPageData(self::STORE_ID, 1);
+        $this->object->getPageData($store, 1);
     }
 
     /**
      * Tests that a category exception is handled
+     * @throws ReflectionException
      */
     public function testGetPageDataCategoryException(): void
     {
+        $store = $this->setupStore();
         $this->setupConfig();
         $this->setupParentCategory(true);
 
@@ -365,6 +398,6 @@ class FeedDataTest extends TestCase
         $this->collection->expects(self::never())
             ->method('getLastPageNumber');
 
-        $this->object->getPageData(self::STORE_ID, 1);
+        $this->object->getPageData($store, 1);
     }
 }
