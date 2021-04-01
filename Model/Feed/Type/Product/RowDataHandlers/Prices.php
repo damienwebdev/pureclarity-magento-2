@@ -474,7 +474,7 @@ class Prices
     }
 
     /**
-     * Converts a float from the base currency tot he given currency code.
+     * Converts a float from the base currency to the given currency code.
      * @param float $price
      * @param string $baseCurrencyCode
      * @param string $toCode
