@@ -8,6 +8,7 @@ declare(strict_types=1);
 namespace Pureclarity\Core\Model\Feed;
 
 use Exception;
+use Magento\Framework\App\Area;
 use Pureclarity\Core\Api\FeedManagementInterface;
 use Pureclarity\Core\Helper\Data;
 use Pureclarity\Core\Model\FeedFactory;
@@ -18,6 +19,7 @@ use Pureclarity\Core\Model\Feed\State\Running;
 use Pureclarity\Core\Model\Feed\State\RunDate;
 use Pureclarity\Core\Model\Feed\State\Progress;
 use Pureclarity\Core\Model\Feed\State\Error;
+use Magento\Store\Model\App\Emulation;
 use PureClarity\Api\Feed\Feed;
 use Magento\Framework\Exception\CouldNotDeleteException;
 use Magento\Framework\Exception\CouldNotSaveException;
@@ -59,6 +61,9 @@ class Runner
     /** @var TypeHandler */
     private $feedTypeHandler;
 
+    /** @var Emulation */
+    private $appEmulation;
+
     /**
      * @param Data $coreHelper
      * @param FeedFactory $coreFeedFactory
@@ -70,6 +75,7 @@ class Runner
      * @param Progress $feedProgress
      * @param Error $feedError
      * @param TypeHandler $feedTypeHandler
+     * @param Emulation $appEmulation
      */
     public function __construct(
         Data $coreHelper,
@@ -81,7 +87,8 @@ class Runner
         RunDate $feedRunDate,
         Progress $feedProgress,
         Error $feedError,
-        TypeHandler $feedTypeHandler
+        TypeHandler $feedTypeHandler,
+        Emulation $appEmulation
     ) {
         $this->coreHelper      = $coreHelper;
         $this->coreFeedFactory = $coreFeedFactory;
@@ -93,6 +100,7 @@ class Runner
         $this->feedProgress    = $feedProgress;
         $this->feedError       = $feedError;
         $this->feedTypeHandler = $feedTypeHandler;
+        $this->appEmulation    = $appEmulation;
     }
 
     /**
@@ -182,12 +190,22 @@ class Runner
      */
     public function sendFeed(int $storeId, string $type) : void
     {
+        $feedHandler = $this->feedTypeHandler->getFeedHandler($type);
         try {
-            $feedHandler = $this->feedTypeHandler->getFeedHandler($type);
             if ($feedHandler->isEnabled($storeId)) {
+                $store = $this->getStore($storeId);
+                if ($feedHandler->requiresEmulation()) {
+                    $this->appEmulation->startEnvironmentEmulation($storeId, Area::AREA_FRONTEND, true);
+                }
                 $this->handleFeed($feedHandler, $storeId, $type);
+                if ($feedHandler->requiresEmulation()) {
+                    $this->appEmulation->stopEnvironmentEmulation();
+                }
             }
         } catch (Exception $e) {
+            if ($feedHandler->requiresEmulation()) {
+                $this->appEmulation->stopEnvironmentEmulation();
+            }
             $this->logger->error('PureClarity: Error with ' . $type . ' feed: ' . $e->getMessage());
             $this->feedError->saveFeedError($storeId, $type, $e->getMessage());
         }
