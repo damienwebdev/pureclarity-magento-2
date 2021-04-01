@@ -7,6 +7,7 @@ declare(strict_types=1);
 
 namespace Pureclarity\Core\Model\Feed\Type\Order;
 
+use Magento\Store\Api\Data\StoreInterface;
 use Pureclarity\Core\Api\OrderFeedDataManagementInterface;
 use Magento\Sales\Model\ResourceModel\Order\Collection;
 use Psr\Log\LoggerInterface;
@@ -64,18 +65,18 @@ class FeedData implements OrderFeedDataManagementInterface
 
     /**
      * Returns the total number of pages for the order feed
-     * @param int $storeId
+     * @param StoreInterface $store
      * @return int
      */
-    public function getTotalPages(int $storeId): int
+    public function getTotalPages(StoreInterface $store): int
     {
         $totalPages = 0;
         try {
-            $totalPages = $this->getOrderCollection($storeId)->getLastPageNumber();
+            $totalPages = $this->getOrderCollection($store)->getLastPageNumber();
         } catch (LocalizedException $e) {
             $error = 'Could not load orders: ' . $e->getMessage();
             $this->logger->error('PureClarity: ' . $error);
-            $this->feedError->saveFeedError($storeId, Feed::FEED_TYPE_ORDER, $error);
+            $this->feedError->saveFeedError((int)$store->getId(), Feed::FEED_TYPE_ORDER, $error);
         }
 
         return $totalPages;
@@ -83,22 +84,22 @@ class FeedData implements OrderFeedDataManagementInterface
 
     /**
      * Loads a page of customer data for the feed
-     * @param int $storeId
+     * @param StoreInterface $store
      * @param int $pageNum
      * @return Order[]
      */
-    public function getPageData(int $storeId, int $pageNum): array
+    public function getPageData(StoreInterface $store, int $pageNum): array
     {
         $customers = [];
         try {
-            $collection = $this->getOrderCollection($storeId);
+            $collection = $this->getOrderCollection($store);
             $collection->clear();
             $collection->setCurPage($pageNum);
             $customers = $collection->getItems();
         } catch (LocalizedException $e) {
             $error = 'Could not load orders: ' . $e->getMessage();
             $this->logger->error('PureClarity: ' . $error);
-            $this->feedError->saveFeedError($storeId, Feed::FEED_TYPE_ORDER, $error);
+            $this->feedError->saveFeedError((int)$store->getId(), Feed::FEED_TYPE_ORDER, $error);
         }
 
         return $customers;
@@ -106,31 +107,31 @@ class FeedData implements OrderFeedDataManagementInterface
 
     /**
      * Returns the built order collection
-     * @param int $storeId
+     * @param StoreInterface $store
      * @return Collection
      * @throws LocalizedException
      */
-    public function getOrderCollection(int $storeId): Collection
+    public function getOrderCollection(StoreInterface $store): Collection
     {
         if ($this->collection === null) {
-            $this->collection = $this->buildOrderCollection($storeId);
+            $this->collection = $this->buildOrderCollection($store);
         }
         return $this->collection;
     }
 
     /**
      * Builds the order collection for order feed
-     * @param int $storeId
+     * @param StoreInterface $store
      * @return Collection
      * @throws LocalizedException
      */
-    public function buildOrderCollection(int $storeId): Collection
+    public function buildOrderCollection(StoreInterface $store): Collection
     {
         $fromDate = date('Y-m-d H:i:s', strtotime("-12 month"));
         $toDate = date('Y-m-d H:i:s');
 
         $collection = $this->collectionFactory->create();
-        $collection->addAttributeToFilter('store_id', $storeId);
+        $collection->addAttributeToFilter('store_id', (int)$store->getId());
         $collection->addAttributeToFilter('created_at', ['from'=> $fromDate, 'to'=> $toDate]);
         $collection->setPageSize($this->getPageSize());
 

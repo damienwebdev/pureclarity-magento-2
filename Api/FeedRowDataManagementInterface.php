@@ -7,13 +7,15 @@ declare(strict_types=1);
 
 namespace Pureclarity\Core\Api;
 
+use Magento\Store\Api\Data\StoreInterface;
+
 interface FeedRowDataManagementInterface
 {
     /**
      * Returns a formatted row of data for this feed
+     * @param StoreInterface $store
      * @param mixed $row
-     * @param int $storeId
      * @return array
      */
-    public function getRowData(int $storeId, $row): array;
+    public function getRowData(StoreInterface $store, $row): array;
 }

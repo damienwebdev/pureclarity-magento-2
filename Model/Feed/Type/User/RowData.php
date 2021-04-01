@@ -7,6 +7,7 @@ declare(strict_types=1);
 
 namespace Pureclarity\Core\Model\Feed\Type\User;
 
+use Magento\Store\Api\Data\StoreInterface;
 use Pureclarity\Core\Api\UserFeedRowDataManagementInterface;
 use Magento\Customer\Model\ResourceModel\Group\CollectionFactory as CustomerGroupCollectionFactory;
 use Magento\Customer\Model\Customer;
@@ -35,37 +36,37 @@ class RowData implements UserFeedRowDataManagementInterface
 
     /**
      * Builds the customer data for the user feed.
-     * @param int $storeId
-     * @param Customer $customer
+     * @param StoreInterface $store
+     * @param Customer $row
      * @return array
      */
-    public function getRowData(int $storeId, $customer): array
+    public function getRowData(StoreInterface $store, $row): array
     {
         $customerGroups = $this->getCustomerGroups();
         $data = [
-            'UserId' => $customer->getId(),
-            'Email' => $customer->getEmail(),
-            'FirstName' => $customer->getFirstname(),
-            'LastName' => $customer->getLastname()
+            'UserId' => $row->getId(),
+            'Email' => $row->getEmail(),
+            'FirstName' => $row->getFirstname(),
+            'LastName' => $row->getLastname()
         ];
 
-        $prefix = $customer->getPrefix();
+        $prefix = $row->getPrefix();
         if ($prefix) {
             $data['Salutation'] = $prefix;
         }
 
-        $dob = $customer->getDob();
+        $dob = $row->getDob();
         if ($dob) {
             $data['DOB'] = $dob;
         }
 
-        $groupId = $customer->getGroupId();
+        $groupId = $row->getGroupId();
         if ($groupId && isset($customerGroups[$groupId])) {
             $data['Group'] = $customerGroups[$groupId]['label'];
             $data['GroupId'] = $groupId;
         }
 
-        $gender = $customer->getGender();
+        $gender = $row->getGender();
         switch ($gender) {
             case 1: // Male
                 $data['Gender'] = 'M';
@@ -75,9 +76,9 @@ class RowData implements UserFeedRowDataManagementInterface
                 break;
         }
 
-        $data['City'] = $customer->getData('city');
-        $data['State'] = $customer->getData('region');
-        $data['Country'] = $customer->getData('country_id');
+        $data['City'] = $row->getData('city');
+        $data['State'] = $row->getData('region');
+        $data['Country'] = $row->getData('country_id');
         return $data;
     }
 

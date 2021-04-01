@@ -12,7 +12,6 @@ use Magento\Framework\Exception\LocalizedException;
 use Magento\Framework\Exception\NoSuchEntityException;
 use Magento\Framework\UrlInterface;
 use Magento\Store\Api\Data\StoreInterface;
-use Magento\Store\Model\StoreManagerInterface;
 use Pureclarity\Core\Api\CategoryFeedRowDataManagementInterface;
 use Pureclarity\Core\Model\CoreConfig;
 
@@ -29,63 +28,55 @@ class RowData implements CategoryFeedRowDataManagementInterface
     /** @var string */
     private $secondaryPlaceholderUrl;
 
-    /** @var StoreInterface */
-    private $currentStore;
-
-    /** @var StoreManagerInterface */
-    private $storeManager;
-
     /** @var CoreConfig */
     private $coreConfig;
 
     /**
-     * @param StoreManagerInterface $storeManager
      * @param CoreConfig $coreConfig
      */
     public function __construct(
-        StoreManagerInterface $storeManager,
         CoreConfig $coreConfig
     ) {
-        $this->storeManager = $storeManager;
         $this->coreConfig   = $coreConfig;
     }
 
     /**
      * Builds the customer data for the category feed.
-     * @param int $storeId
-     * @param Category $category
+     * @param StoreInterface $store
+     * @param Category $row
      * @return array
-     * @throws NoSuchEntityException|LocalizedException
+     * @throws LocalizedException
+     * @throws NoSuchEntityException
      */
-    public function getRowData(int $storeId, $category): array
+    public function getRowData(StoreInterface $store, $row): array
     {
         // Build data
         $categoryData = [
-            'Id' => $category->getId(),
-            'DisplayName' => $category->getName(),
-            'Image' => $this->getImageUrl($storeId, $category),
-            'Description' => $category->getData('description') ?: '',
+            'Id' => $row->getId(),
+            'DisplayName' => $row->getName(),
+            'Image' => $this->getImageUrl($store, $row),
+            'Description' => $row->getData('description') ?: '',
             'Link' => '/',
             'ParentIds' => []
         ];
 
         // Set URL and Parent ID
-        if ($category->getLevel() > 1) {
-            $categoryData['Link'] = $this->removeUrlProtocol($category->getUrl() ?: '');
-            $categoryData['ParentIds'] = [$category->getParentCategory()->getId()];
+        if ($row->getLevel() > 1) {
+            $categoryData['Link'] = $this->removeUrlProtocol($row->getUrl() ?: '');
+            $categoryData['ParentIds'] = [$row->getParentCategory()->getId()];
         }
 
         // Check whether to ignore this category in recommenders
-        if ($category->getData('pureclarity_hide_from_feed') === '1') {
+        if ($row->getData('pureclarity_hide_from_feed') === '1') {
             $categoryData['ExcludeFromRecommenders'] = true;
         }
 
         //Check if category is active
-        if (!$category->getIsActive()) {
+        if (!$row->getIsActive()) {
             $categoryData['IsActive'] = false;
         }
 
-        $overrideImageUrl = $this->getOverrideImageUrl($storeId, $category);
+        $overrideImageUrl = $this->getOverrideImageUrl($store, $row);
         if ($overrideImageUrl !== '') {
             $categoryData['OverrideImage'] = $overrideImageUrl;
         }
@@ -95,18 +86,18 @@ class RowData implements CategoryFeedRowDataManagementInterface
 
     /**
      * Get category image URL
-     * @param int $storeId
+     * @param StoreInterface $store
      * @param Category $category
      * @return string
      * @throws LocalizedException
      */
-    public function getImageUrl(int $storeId, $category): string
+    public function getImageUrl(StoreInterface $store, $category): string
     {
         $categoryImage = $category->getImageUrl() ?: '';
         if ($categoryImage !== '') {
             $categoryImageUrl = $categoryImage;
         } else {
-            $categoryImageUrl = $this->getCategoryPlaceholderUrl($storeId);
+            $categoryImageUrl = $this->getCategoryPlaceholderUrl($store);
         }
 
         return $this->removeUrlProtocol($categoryImageUrl);
@@ -114,23 +105,23 @@ class RowData implements CategoryFeedRowDataManagementInterface
 
     /**
      * Gets the image override URL for the category
-     * @param int $storeId
+     * @param StoreInterface $store
      * @param Category $category
      * @return string
      * @throws NoSuchEntityException
      */
-    public function getOverrideImageUrl(int $storeId, $category): string
+    public function getOverrideImageUrl(StoreInterface $store, $category): string
     {
         // Get override image
         $overrideImage = $category->getData('pureclarity_category_image') ?: '';
         if ($overrideImage !== '') {
             $overrideImageUrl = sprintf(
                 '%scatalog/pureclarity_category_image/%s',
-                $this->getCurrentStore($storeId)->getBaseUrl(UrlInterface::URL_TYPE_MEDIA),
+                $store->getBaseUrl(UrlInterface::URL_TYPE_MEDIA),
                 $overrideImage
             );
         } else {
-            $overrideImageUrl = $this->getSecondaryCategoryPlaceholderUrl($storeId);
+            $overrideImageUrl = $this->getSecondaryCategoryPlaceholderUrl($store);
         }
 
         return $this->removeUrlProtocol($overrideImageUrl);
@@ -148,41 +139,27 @@ class RowData implements CategoryFeedRowDataManagementInterface
 
     /**
      * Gets the placeholder url from the config
-     * @param int $storeId
+     * @param StoreInterface $store
      * @return string
      */
-    private function getCategoryPlaceholderUrl(int $storeId): string
+    private function getCategoryPlaceholderUrl(StoreInterface $store): string
     {
         if ($this->placeholderUrl === null) {
-            $this->placeholderUrl = $this->coreConfig->getCategoryPlaceholderUrl($storeId) ?: '';
+            $this->placeholderUrl = $this->coreConfig->getCategoryPlaceholderUrl($store->getId()) ?: '';
         }
         return $this->placeholderUrl;
     }
 
     /**
      * Gets the secondary placeholder url from the config
-     * @param int $storeId
+     * @param StoreInterface $store
      * @return string
      */
-    private function getSecondaryCategoryPlaceholderUrl(int $storeId): string
+    private function getSecondaryCategoryPlaceholderUrl(StoreInterface $store): string
     {
         if ($this->secondaryPlaceholderUrl === null) {
-            $this->secondaryPlaceholderUrl = $this->coreConfig->getSecondaryCategoryPlaceholderUrl($storeId) ?: '';
+            $this->secondaryPlaceholderUrl = $this->coreConfig->getSecondaryCategoryPlaceholderUrl($store->getId()) ?: '';
         }
         return $this->secondaryPlaceholderUrl;
-    }
-
-    /**
-     * Gets a Store object for the given Store
-     * @param int $storeId
-     * @return StoreInterface
-     * @throws NoSuchEntityException
-     */
-    private function getCurrentStore(int $storeId): StoreInterface
-    {
-        if ($this->currentStore === null) {
-            $this->currentStore = $this->storeManager->getStore($storeId);
-        }
-        return $this->currentStore;
     }
 }

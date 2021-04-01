@@ -8,6 +8,11 @@ declare(strict_types=1);
 namespace Pureclarity\Core\Model\Feed;
 
 use Exception;
+use Magento\Framework\App\Area;
+use Magento\Framework\Exception\NoSuchEntityException;
+use Magento\Store\Api\Data\StoreInterface;
+use Magento\Store\Model\Store;
+use Magento\Store\Model\StoreManagerInterface;
 use Pureclarity\Core\Api\FeedManagementInterface;
 use Pureclarity\Core\Helper\Data;
 use Pureclarity\Core\Model\FeedFactory;
@@ -18,6 +23,7 @@ use Pureclarity\Core\Model\Feed\State\Running;
 use Pureclarity\Core\Model\Feed\State\RunDate;
 use Pureclarity\Core\Model\Feed\State\Progress;
 use Pureclarity\Core\Model\Feed\State\Error;
+use Magento\Store\Model\App\Emulation;
 use PureClarity\Api\Feed\Feed;
 use Magento\Framework\Exception\CouldNotDeleteException;
 use Magento\Framework\Exception\CouldNotSaveException;
@@ -29,6 +35,9 @@ use Magento\Framework\Exception\CouldNotSaveException;
  */
 class Runner
 {
+    /** @var StoreInterface */
+    private $store;
+
     /** @var Data */
     private $coreHelper;
 
@@ -59,6 +68,12 @@ class Runner
     /** @var TypeHandler */
     private $feedTypeHandler;
 
+    /** @var StoreManagerInterface */
+    private $storeManager;
+
+    /** @var Emulation */
+    private $appEmulation;
+
     /**
      * @param Data $coreHelper
      * @param FeedFactory $coreFeedFactory
@@ -70,6 +85,8 @@ class Runner
      * @param Progress $feedProgress
      * @param Error $feedError
      * @param TypeHandler $feedTypeHandler
+     * @param StoreManagerInterface $storeManager
+     * @param Emulation $appEmulation
      */
     public function __construct(
         Data $coreHelper,
@@ -81,7 +98,9 @@ class Runner
         RunDate $feedRunDate,
         Progress $feedProgress,
         Error $feedError,
-        TypeHandler $feedTypeHandler
+        TypeHandler $feedTypeHandler,
+        StoreManagerInterface $storeManager,
+        Emulation $appEmulation
     ) {
         $this->coreHelper      = $coreHelper;
         $this->coreFeedFactory = $coreFeedFactory;
@@ -93,6 +112,8 @@ class Runner
         $this->feedProgress    = $feedProgress;
         $this->feedError       = $feedError;
         $this->feedTypeHandler = $feedTypeHandler;
+        $this->storeManager    = $storeManager;
+        $this->appEmulation    = $appEmulation;
     }
 
     /**
@@ -182,12 +203,22 @@ class Runner
      */
     public function sendFeed(int $storeId, string $type) : void
     {
+        $feedHandler = $this->feedTypeHandler->getFeedHandler($type);
         try {
-            $feedHandler = $this->feedTypeHandler->getFeedHandler($type);
             if ($feedHandler->isEnabled($storeId)) {
-                $this->handleFeed($feedHandler, $storeId, $type);
+                $store = $this->getStore($storeId);
+                if ($feedHandler->requiresEmulation()) {
+                    $this->appEmulation->startEnvironmentEmulation($storeId, Area::AREA_FRONTEND, true);
+                }
+                $this->handleFeed($feedHandler, $store, $type);
+                if ($feedHandler->requiresEmulation()) {
+                    $this->appEmulation->stopEnvironmentEmulation();
+                }
             }
         } catch (Exception $e) {
+            if ($feedHandler->requiresEmulation()) {
+                $this->appEmulation->stopEnvironmentEmulation();
+            }
             $this->logger->error('PureClarity: Error with ' . $type . ' feed: ' . $e->getMessage());
             $this->feedError->saveFeedError($storeId, $type, $e->getMessage());
         }
@@ -197,40 +228,58 @@ class Runner
      * Uses the provided feed handler to run a feed.
      *
      * @param FeedManagementInterface $feedHandler
-     * @param int $storeId
+     * @param StoreInterface $store
      * @param string $type
      * @throws Exception
      */
-    private function handleFeed(FeedManagementInterface $feedHandler, int $storeId, string $type) : void
+    private function handleFeed(FeedManagementInterface $feedHandler, StoreInterface $store, string $type) : void
     {
         $feedDataHandler = $feedHandler->getFeedDataHandler();
-        $pageCount = $feedDataHandler->getTotalPages($storeId);
+        $pageCount = $feedDataHandler->getTotalPages($store);
 
         if ($pageCount > 0) {
 
-            $this->feedProgress->updateProgress($storeId, $type, '0');
+            $this->feedProgress->updateProgress((int)$store->getId(), $type, '0');
             $feedBuilder = $feedHandler->getFeedBuilder(
-                $this->coreConfig->getAccessKey($storeId),
-                $this->coreConfig->getSecretKey($storeId),
-                $this->coreConfig->getRegion($storeId)
+                $this->coreConfig->getAccessKey((int)$store->getId()),
+                $this->coreConfig->getSecretKey((int)$store->getId()),
+                $this->coreConfig->getRegion((int)$store->getId())
             );
 
             $feedBuilder->start();
 
             $rowDataHandler = $feedHandler->getRowDataHandler();
             for ($page = 1; $page <= $pageCount; $page++) {
-                $data = $feedDataHandler->getPageData($storeId, $page);
+                $data = $feedDataHandler->getPageData($store, $page);
                 foreach ($data as $row) {
-                    $rowData = $rowDataHandler->getRowData($storeId, $row);
+                    $rowData = $rowDataHandler->getRowData($store, $row);
                     if ($rowData) {
                         $feedBuilder->append($rowData);
                     }
                 }
-                $this->feedProgress->updateProgress($storeId, $type, (string)round(($page / $pageCount) * 100));
+                $this->feedProgress->updateProgress(
+                    (int)$store->getId(),
+                    $type,
+                    (string)round(($page / $pageCount) * 100)
+                );
             }
 
             $feedBuilder->end();
         }
+    }
+
+    /**
+     * Gets a Store object for the given Store
+     * @param int $storeId
+     * @return StoreInterface|Store
+     * @throws NoSuchEntityException
+     */
+    private function getStore(int $storeId): StoreInterface
+    {
+        if ($this->store === null) {
+            $this->store = $this->storeManager->getStore($storeId);
+        }
+        return $this->store;
     }
 
     /**

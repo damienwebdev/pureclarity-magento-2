@@ -41,4 +41,9 @@ interface FeedManagementInterface
      * @return FeedRowDataManagementInterface
      */
     public function getRowDataHandler(): FeedRowDataManagementInterface;
+
+    /**
+     * Returns whether this feed requires app emulation
+     */
+    public function requiresEmulation(): bool;
 }

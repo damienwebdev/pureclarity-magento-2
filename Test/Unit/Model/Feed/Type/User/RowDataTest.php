@@ -7,6 +7,7 @@
 namespace Pureclarity\Core\Test\Unit\Model\Feed\Type\User;
 
 use Magento\Customer\Model\Customer;
+use Magento\Store\Api\Data\StoreInterface;
 use PHPUnit\Framework\TestCase;
 use Pureclarity\Core\Model\Feed\Type\User;
 use Pureclarity\Core\Model\Feed\Type\User\RowData;
@@ -171,10 +172,12 @@ class RowDataTest extends TestCase
      */
     public function testGetRowData(): void
     {
+        $store = $this->createMock(StoreInterface::class);
+        $store->method('getId')->willReturn(1);
         $this->setupCustomerGroups();
         $data = $this->mockCustomerData(1);
         $customer = $this->setupCustomer(1, $data);
-        $this->object->getRowData(1, $customer);
+        $this->object->getRowData($store, $customer);
     }
 
     /**
@@ -182,9 +185,11 @@ class RowDataTest extends TestCase
      */
     public function testGetRowDataWithoutOptional(): void
     {
+        $store = $this->createMock(StoreInterface::class);
+        $store->method('getId')->willReturn(1);
         $this->setupCustomerGroups();
         $data = $this->mockCustomerData(2);
         $customer = $this->setupCustomer(2, $data);
-        $this->object->getRowData(1, $customer);
+        $this->object->getRowData($store, $customer);
     }
 }

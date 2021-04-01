@@ -6,6 +6,7 @@
 
 namespace Pureclarity\Core\Test\Unit\Model\Feed\Type\Order;
 
+use Magento\Store\Api\Data\StoreInterface;
 use PHPUnit\Framework\TestCase;
 use PureClarity\Api\Feed\Feed;
 use Pureclarity\Core\Model\Feed\Type\Order\FeedData;
@@ -16,6 +17,7 @@ use Magento\Sales\Model\ResourceModel\Order\Collection;
 use Magento\Sales\Model\ResourceModel\Order\CollectionFactory;
 use Magento\Framework\Exception\LocalizedException;
 use Magento\Framework\Phrase;
+use ReflectionException;
 
 /**
  * Class FeedDataTest
@@ -70,6 +72,22 @@ class FeedDataTest extends TestCase
     }
 
     /**
+     * Sets up a StoreInterface
+     *
+     * @return StoreInterface|MockObject
+     * @throws ReflectionException
+     */
+    public function setupStore()
+    {
+        $store = $this->createMock(StoreInterface::class);
+
+        $store->method('getId')
+            ->willReturn('1');
+
+        return $store;
+    }
+
+    /**
      * Sets up the order collection
      * @param bool $error
      */
@@ -117,13 +135,14 @@ class FeedDataTest extends TestCase
      */
     public function testGetTotalPagesNoData(): void
     {
+        $store = $this->setupStore();
         $this->setupCollection();
 
         $this->collection->expects(self::once())
             ->method('getLastPageNumber')
             ->willReturn(0);
 
-        $pages = $this->object->getTotalPages(self::STORE_ID);
+        $pages = $this->object->getTotalPages($store);
         self::assertEquals(0, $pages);
     }
 
@@ -132,13 +151,14 @@ class FeedDataTest extends TestCase
      */
     public function testGetTotalPagesWithData(): void
     {
+        $store = $this->setupStore();
         $this->setupCollection();
 
         $this->collection->expects(self::once())
             ->method('getLastPageNumber')
             ->willReturn(5);
 
-        $pages = $this->object->getTotalPages(self::STORE_ID);
+        $pages = $this->object->getTotalPages($store);
         self::assertEquals(5, $pages);
     }
 
@@ -147,6 +167,7 @@ class FeedDataTest extends TestCase
      */
     public function testGetTotalPagesCollectionException(): void
     {
+        $store = $this->setupStore();
         $this->setupCollection(true);
 
         $this->logger->expects(self::once())
@@ -160,7 +181,7 @@ class FeedDataTest extends TestCase
         $this->collection->expects(self::never())
             ->method('getLastPageNumber');
 
-        $this->object->getTotalPages(self::STORE_ID);
+        $this->object->getTotalPages($store);
     }
 
     /**
@@ -168,6 +189,7 @@ class FeedDataTest extends TestCase
      */
     public function testGetPageDataWithData(): void
     {
+        $store = $this->setupStore();
         $this->setupCollection();
 
         $this->collection->expects(self::once())
@@ -181,7 +203,7 @@ class FeedDataTest extends TestCase
             ->method('getItems')
             ->willReturn([1,2]);
 
-        $data = $this->object->getPageData(self::STORE_ID, 1);
+        $data = $this->object->getPageData($store, 1);
         self::assertEquals([1,2], $data);
     }
 
@@ -190,6 +212,7 @@ class FeedDataTest extends TestCase
      */
     public function testGetPageDataWithDataPageTwo(): void
     {
+        $store = $this->setupStore();
         $this->setupCollection();
 
         $this->collection->expects(self::once())
@@ -203,7 +226,7 @@ class FeedDataTest extends TestCase
             ->method('getItems')
             ->willReturn([3,4]);
 
-        $data = $this->object->getPageData(self::STORE_ID, 2);
+        $data = $this->object->getPageData($store, 2);
         self::assertEquals([3,4], $data);
     }
 
@@ -212,6 +235,7 @@ class FeedDataTest extends TestCase
      */
     public function testGetPageDataCollectionException(): void
     {
+        $store = $this->setupStore();
         $this->setupCollection(true);
 
         $this->logger->expects(self::once())
@@ -225,6 +249,6 @@ class FeedDataTest extends TestCase
         $this->collection->expects(self::never())
             ->method('getLastPageNumber');
 
-        $this->object->getPageData(self::STORE_ID, 1);
+        $this->object->getPageData($store, 1);
     }
 }

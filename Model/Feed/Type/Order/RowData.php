@@ -8,6 +8,7 @@ declare(strict_types=1);
 namespace Pureclarity\Core\Model\Feed\Type\Order;
 
 use Magento\Sales\Model\Order;
+use Magento\Store\Api\Data\StoreInterface;
 use Pureclarity\Core\Api\OrderFeedRowDataManagementInterface;
 
 /**
@@ -19,20 +20,20 @@ class RowData implements OrderFeedRowDataManagementInterface
 {
     /**
      * Builds the order data for the order feed.
-     * @param int $storeId
-     * @param Order $order
+     * @param StoreInterface $store
+     * @param Order $row
      * @return array
      */
-    public function getRowData(int $storeId, $order): array
+    public function getRowData(StoreInterface $store, $row): array
     {
         $orderData = [];
 
-        $id = $order->getIncrementId();
-        $customerId = $order->getCustomerId();
-        $email = $order->getCustomerEmail();
-        $date = $order->getCreatedAt();
+        $id = $row->getIncrementId();
+        $customerId = $row->getCustomerId();
+        $email = $row->getCustomerEmail();
+        $date = $row->getCreatedAt();
 
-        foreach ($order->getAllVisibleItems() as $item) {
+        foreach ($row->getAllVisibleItems() as $item) {
             $orderData[] = [
                 'OrderID' => $id,
                 'UserId' => $customerId ?: '',

@@ -6,6 +6,7 @@
 
 namespace Pureclarity\Core\Test\Unit\Model\Feed\Type\Order;
 
+use Magento\Store\Api\Data\StoreInterface;
 use PHPUnit\Framework\TestCase;
 use Pureclarity\Core\Model\Feed\Type\Order\RowData;
 use PHPUnit\Framework\MockObject\MockObject;
@@ -184,6 +185,8 @@ class RowDataTest extends TestCase
      */
     public function testSingleLineOrder(): void
     {
+        $store = $this->createMock(StoreInterface::class);
+        $store->method('getId')->willReturn(1);
         $items = [[
             'id' => '1',
             'qty' => '2',
@@ -192,7 +195,7 @@ class RowDataTest extends TestCase
         ]];
         $data = $this->mockSingleLineOrder();
         $order = $this->setupOrder('000000009', '1', $items);
-        $rowData = $this->object->getRowData(1, $order);
+        $rowData = $this->object->getRowData($store, $order);
         self::assertEquals($data, $rowData);
     }
 
@@ -201,6 +204,8 @@ class RowDataTest extends TestCase
      */
     public function testGuestOrder(): void
     {
+        $store = $this->createMock(StoreInterface::class);
+        $store->method('getId')->willReturn(1);
         $items = [[
             'id' => '1',
             'qty' => '2',
@@ -209,7 +214,7 @@ class RowDataTest extends TestCase
         ]];
         $data = $this->mockGuestOrder();
         $order = $this->setupOrder('000000010', '', $items);
-        $rowData = $this->object->getRowData(1, $order);
+        $rowData = $this->object->getRowData($store, $order);
         self::assertEquals($data, $rowData);
     }
 
@@ -218,6 +223,8 @@ class RowDataTest extends TestCase
      */
     public function testMultiLineOrder(): void
     {
+        $store = $this->createMock(StoreInterface::class);
+        $store->method('getId')->willReturn(1);
         $items = [
             [
                 'id' => '12',
@@ -234,7 +241,7 @@ class RowDataTest extends TestCase
         ];
         $data = $this->mockMultiLineOrder();
         $order = $this->setupOrder('000000011', '2', $items);
-        $rowData = $this->object->getRowData(1, $order);
+        $rowData = $this->object->getRowData($store, $order);
         self::assertEquals($data, $rowData);
     }
 }
