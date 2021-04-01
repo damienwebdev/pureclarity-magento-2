@@ -10,11 +10,15 @@ namespace Pureclarity\Core\Model\Delta\Type;
 use Magento\Catalog\Model\ResourceModel\Product\Collection;
 use Magento\Catalog\Model\ResourceModel\Product\CollectionFactory as ProductCollectionFactory;
 use Magento\Framework\DataObject;
+use Magento\Framework\Exception\NoSuchEntityException;
+use Magento\Store\Api\Data\StoreInterface;
+use Magento\Store\Model\Store;
+use Magento\Store\Model\StoreManagerInterface;
 use Psr\Log\LoggerInterface;
 use Magento\Catalog\Model\Product\Attribute\Source\Status;
 use Magento\Catalog\Model\Product\Visibility;
+use Pureclarity\Core\Api\ProductFeedRowDataManagementInterface;
 use Pureclarity\Core\Model\CoreConfig;
-use Pureclarity\Core\Model\ProductExportFactory;
 use Magento\Store\Model\App\Emulation;
 use Magento\Framework\App\Area;
 use PureClarity\Api\Delta\Type\ProductFactory as ProductDeltaFactory;
@@ -24,14 +28,18 @@ use Magento\Catalog\Model\Product as ProductModel;
  * Class Product
  *
  * Handles sending Product Deltas
+ * @SuppressWarnings(PHPMD.CouplingBetweenObjects)
  */
 class Product
 {
+    /** @var StoreInterface */
+    private $store;
+
     /** @var Emulation $appEmulation */
     private $appEmulation;
 
-    /** @var ProductCollectionFactory $productCollectionFactory */
-    private $productCollectionFactory;
+    /** @var ProductCollectionFactory $collectionFactory */
+    private $collectionFactory;
 
     /** @var ProductDeltaFactory $deltaFactory */
     private $deltaFactory;
@@ -39,34 +47,40 @@ class Product
     /** @var CoreConfig $coreConfig */
     private $coreConfig;
 
-    /** @var ProductExportFactory $productExportFactory */
-    private $productExportFactory;
+    /** @var ProductFeedRowDataManagementInterface $productDataHandler */
+    private $productDataHandler;
 
     /** @var LoggerInterface $logger */
     private $logger;
 
+    /** @var StoreManagerInterface */
+    private $storeManager;
+
     /**
      * @param Emulation $appEmulation
-     * @param ProductCollectionFactory $productCollectionFactory
+     * @param ProductCollectionFactory $collectionFactory
      * @param ProductDeltaFactory $deltaFactory
      * @param CoreConfig $coreConfig
-     * @param ProductExportFactory $productExportFactory
+     * @param ProductFeedRowDataManagementInterface $productDataHandler
      * @param LoggerInterface $logger
+     * @param StoreManagerInterface $storeManager
      */
     public function __construct(
         Emulation $appEmulation,
-        ProductCollectionFactory $productCollectionFactory,
+        ProductCollectionFactory $collectionFactory,
         ProductDeltaFactory $deltaFactory,
         CoreConfig $coreConfig,
-        ProductExportFactory $productExportFactory,
-        LoggerInterface $logger
+        LoggerInterface $logger,
+        StoreManagerInterface $storeManager,
+        ProductFeedRowDataManagementInterface $productDataHandler
     ) {
-        $this->appEmulation             = $appEmulation;
-        $this->productCollectionFactory = $productCollectionFactory;
-        $this->deltaFactory             = $deltaFactory;
-        $this->coreConfig               = $coreConfig;
-        $this->productExportFactory     = $productExportFactory;
-        $this->logger                   = $logger;
+        $this->appEmulation       = $appEmulation;
+        $this->collectionFactory  = $collectionFactory;
+        $this->deltaFactory       = $deltaFactory;
+        $this->coreConfig         = $coreConfig;
+        $this->productDataHandler = $productDataHandler;
+        $this->logger             = $logger;
+        $this->storeManager       = $storeManager;
     }
 
     /**
@@ -77,51 +91,54 @@ class Product
      */
     public function runDelta(int $storeId, array $productIds): void
     {
-        $this->appEmulation->startEnvironmentEmulation($storeId, Area::AREA_FRONTEND, true);
+        if (count($productIds) > 0) {
+            try {
+                $store = $this->getStore($storeId);
+                $this->appEmulation->startEnvironmentEmulation((int)$store->getId(), Area::AREA_FRONTEND, true);
 
-        $products = $this->loadDeltaProducts($storeId, $productIds);
+                $collection = $this->getProductCollection($store, $productIds);
 
-        if ($products->count() > 0 || count($productIds) > 0) {
-            $this->processDelta($storeId, $products->getItems(), $productIds);
+                if ($collection->count() > 0) {
+                    $this->processDelta($store, $collection->getItems(), $productIds);
+                }
+
+                $this->appEmulation->stopEnvironmentEmulation();
+            } catch (\Exception $e) {
+                $this->appEmulation->stopEnvironmentEmulation();
+                $this->logger->error(
+                    'PureClarity: Error running product Deltas: '.
+                    $e->getMessage()
+                );
+            }
         }
-
-        $this->appEmulation->stopEnvironmentEmulation();
     }
 
     /**
      * Uses the PureClarity PHP SDK to build & send deltas for the provided valid products
      *
-     * @param int $storeId
+     * @param StoreInterface $store
      * @param ProductModel[]|DataObject[] $products
      * @param array $productIds
      */
-    public function processDelta(int $storeId, array $products, array $productIds): void
+    public function processDelta(StoreInterface $store, array $products, array $productIds): void
     {
         try {
             $deltaHandler = $this->deltaFactory->create([
-                'accessKey' => $this->coreConfig->getAccessKey($storeId),
-                'secretKey' => $this->coreConfig->getSecretKey($storeId),
-                'region' => $this->coreConfig->getRegion($storeId)
+                'accessKey' => $this->coreConfig->getAccessKey((int)$store->getId()),
+                'secretKey' => $this->coreConfig->getSecretKey((int)$store->getId()),
+                'region' => $this->coreConfig->getRegion((int)$store->getId())
             ]);
 
-            $productExportModel = $this->productExportFactory->create();
-            $productExportModel->init($storeId);
-
-            $index = 0;
             foreach ($productIds as $productId) {
                 $product = $products[$productId] ?? null;
                 if ($product === null || $this->isProductHidden($product)) {
                     $deltaHandler->addDelete((int)$productId);
                 } else {
-                    $data = $productExportModel->processProduct(
-                        $product,
-                        $index
-                    );
-                    if ($data !== null) {
-                        $deltaHandler->addData($data);
-                        $index++;
-                    } else {
+                    $data = $this->productDataHandler->getRowData($store, $product);
+                    if (empty($data)) {
                         $deltaHandler->addDelete((int)$productId);
+                    } else {
+                        $deltaHandler->addData($data);
                     }
                 }
             }
@@ -150,20 +167,34 @@ class Product
     /**
      * Loads product information for the provided product IDs
      *
-     * @param int $storeId
+     * @param StoreInterface $store
      * @param array $productIds
      * @return Collection
      */
-    public function loadDeltaProducts(int $storeId, array $productIds): Collection
+    public function getProductCollection(StoreInterface $store, array $productIds): Collection
     {
-        $collection = $this->productCollectionFactory->create();
-        $collection->setStoreId($storeId);
-        $collection->addStoreFilter($storeId);
+        $collection = $this->collectionFactory->create();
+        $collection->setStoreId((int)$store->getId());
+        $collection->addStoreFilter($store);
         $collection->addUrlRewrite();
         $collection->addAttributeToSelect('*');
         $collection->addAttributeToFilter('entity_id', $productIds);
         $collection->addMinimalPrice();
         $collection->addTaxPercents();
         return $collection;
+    }
+
+    /**
+     * Gets a Store object for the given store ID
+     * @param int $storeId
+     * @return StoreInterface|Store
+     * @throws NoSuchEntityException
+     */
+    private function getStore(int $storeId): StoreInterface
+    {
+        if ($this->store === null) {
+            $this->store = $this->storeManager->getStore($storeId);
+        }
+        return $this->store;
     }
 }
