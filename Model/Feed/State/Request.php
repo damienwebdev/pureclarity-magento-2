@@ -27,27 +27,21 @@ class Request
     /** @var LoggerInterface $logger */
     private $logger;
 
-    /** @var Progress $progress */
-    private $progress;
-
     /** @var SerializerInterface $serializer */
     private $serializer;
 
     /**
      * @param StateRepositoryInterface $stateRepository
      * @param LoggerInterface $logger
-     * @param Progress $progress
      * @param SerializerInterface $serializer
      */
     public function __construct(
         StateRepositoryInterface $stateRepository,
         LoggerInterface $logger,
-        Progress $progress,
         SerializerInterface $serializer
     ) {
         $this->stateRepository = $stateRepository;
         $this->logger          = $logger;
-        $this->progress        = $progress;
         $this->serializer      = $serializer;
     }
 
@@ -65,9 +59,6 @@ class Request
             $state->setValue($this->serializer->serialize($feeds));
             $state->setStoreId($storeId);
             $this->stateRepository->save($state);
-
-            // reset progress on this store so status displays correctly
-            $this->progress->resetProgress($storeId);
         } catch (CouldNotSaveException $e) {
             $this->logger->error('PureClarity: Could not request feeds: ' . $e->getMessage());
         }
