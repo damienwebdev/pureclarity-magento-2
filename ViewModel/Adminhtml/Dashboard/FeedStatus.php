@@ -6,7 +6,7 @@
 
 namespace Pureclarity\Core\ViewModel\Adminhtml\Dashboard;
 
-use Pureclarity\Core\Model\FeedStatus as FeedStatusModel;
+use Pureclarity\Core\Model\Feed\Status;
 
 /**
  * Class Feeds
@@ -15,14 +15,14 @@ use Pureclarity\Core\Model\FeedStatus as FeedStatusModel;
  */
 class FeedStatus
 {
-    /** @var FeedStatusModel $feedStatus */
+    /** @var Status $feedStatus */
     private $feedStatus;
 
     /**
-     * @param FeedStatusModel $feedStatus
+     * @param Status $feedStatus
      */
     public function __construct(
-        FeedStatusModel $feedStatus
+        Status $feedStatus
     ) {
         $this->feedStatus = $feedStatus;
     }
@@ -34,9 +34,9 @@ class FeedStatus
      *
      * @return bool
      */
-    public function getAreFeedsInProgress($storeId)
+    public function areFeedsInProgress(int $storeId): bool
     {
-        return $this->feedStatus->getAreFeedsInProgress(
+        return $this->feedStatus->areFeedsInProgress(
             ['product', 'category', 'user', 'brand', 'orders'],
             $storeId
         );
@@ -49,9 +49,9 @@ class FeedStatus
      *
      * @return bool
      */
-    public function getAreFeedsDisabled($storeId)
+    public function areFeedsDisabled(int $storeId): bool
     {
-        return $this->feedStatus->getAreFeedsDisabled(
+        return $this->feedStatus->areFeedsDisabled(
             ['product', 'category', 'user', 'brand', 'orders'],
             $storeId
         );
@@ -65,7 +65,7 @@ class FeedStatus
      *
      * @return bool
      */
-    public function isFeedEnabled($feedType, $storeId)
+    public function isFeedEnabled(string $feedType, int $storeId): bool
     {
         $status = $this->feedStatus->getFeedStatus($feedType, $storeId);
         return $status['enabled'];
@@ -78,7 +78,7 @@ class FeedStatus
      *
      * @return string
      */
-    public function getProductFeedStatusLabel($storeId)
+    public function getProductFeedStatusLabel(int $storeId): string
     {
         $status = $this->feedStatus->getFeedStatus('product', $storeId);
         return $status['label'];
@@ -91,7 +91,7 @@ class FeedStatus
      *
      * @return string
      */
-    public function getCategoryFeedStatusLabel($storeId)
+    public function getCategoryFeedStatusLabel(int $storeId): string
     {
         $status = $this->feedStatus->getFeedStatus('category', $storeId);
         return $status['label'];
@@ -104,7 +104,7 @@ class FeedStatus
      *
      * @return string
      */
-    public function getUserFeedStatusLabel($storeId)
+    public function getUserFeedStatusLabel(int $storeId): string
     {
         $status = $this->feedStatus->getFeedStatus('user', $storeId);
         return $status['label'];
@@ -117,7 +117,7 @@ class FeedStatus
      *
      * @return string
      */
-    public function getBrandFeedStatusLabel($storeId)
+    public function getBrandFeedStatusLabel(int $storeId): string
     {
         $status = $this->feedStatus->getFeedStatus('brand', $storeId);
         return $status['label'];
@@ -130,7 +130,7 @@ class FeedStatus
      *
      * @return string
      */
-    public function getOrdersFeedStatusLabel($storeId)
+    public function getOrdersFeedStatusLabel(int $storeId): string
     {
         $status = $this->feedStatus->getFeedStatus('orders', $storeId);
         return $status['label'];
@@ -143,7 +143,7 @@ class FeedStatus
      *
      * @return string
      */
-    public function getProductFeedStatusClass($storeId)
+    public function getProductFeedStatusClass(int $storeId): string
     {
         $status = $this->feedStatus->getFeedStatus('product', $storeId);
         return $status['class'];
@@ -156,7 +156,7 @@ class FeedStatus
      *
      * @return string
      */
-    public function getCategoryFeedStatusClass($storeId)
+    public function getCategoryFeedStatusClass(int $storeId): string
     {
         $status = $this->feedStatus->getFeedStatus('category', $storeId);
         return $status['class'];
@@ -169,7 +169,7 @@ class FeedStatus
      *
      * @return string
      */
-    public function getUserFeedStatusClass($storeId)
+    public function getUserFeedStatusClass(int $storeId): string
     {
         $status = $this->feedStatus->getFeedStatus('user', $storeId);
         return $status['class'];
@@ -182,7 +182,7 @@ class FeedStatus
      *
      * @return string
      */
-    public function getBrandFeedStatusClass($storeId)
+    public function getBrandFeedStatusClass(int $storeId): string
     {
         $status = $this->feedStatus->getFeedStatus('brand', $storeId);
         return $status['class'];
@@ -195,7 +195,7 @@ class FeedStatus
      *
      * @return string
      */
-    public function getOrdersFeedStatusClass($storeId)
+    public function getOrdersFeedStatusClass(int $storeId): string
     {
         $status = $this->feedStatus->getFeedStatus('orders', $storeId);
         return $status['class'];

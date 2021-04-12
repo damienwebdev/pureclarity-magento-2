@@ -57,7 +57,7 @@ class Request
      * @param integer $storeId
      * @param string[] $feeds
      */
-    public function requestFeeds(int $storeId, array $feeds)
+    public function requestFeeds(int $storeId, array $feeds): void
     {
         try {
             $state = $this->stateRepository->getByNameAndStore('requested_feeds', $storeId);
@@ -123,7 +123,7 @@ class Request
      *
      * @param integer $storeId
      */
-    public function deleteRequestedFeeds(int $storeId)
+    public function deleteRequestedFeeds(int $storeId): void
     {
         try {
             $state = $this->stateRepository->getByNameAndStore('requested_feeds', $storeId);

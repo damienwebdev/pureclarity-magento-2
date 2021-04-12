@@ -81,7 +81,7 @@ $storeId = $stores->getStoreId();
             </span>
         </p>
         <p class="pureclarity-info-button">
-            <?php if ($feeds->getAreFeedsDisabled($storeId)): ?>
+            <?php if ($feeds->areFeedsDisabled($storeId)): ?>
                 <a class="pc-button pc-disabled" id="pc-feedpopupbutton" target="_blank"
                    title="<?= $block->escapeHtml(__('Feeds Not Enabled')) ?>">
                     <?= $block->escapeHtml(__('Feeds Not Enabled')) ?>
@@ -147,4 +147,4 @@ $storeId = $stores->getStoreId();
 <input id="pc-feed-progress-url" type="hidden"
        value="<?= $block->escapeUrl($block->getUrl('pureclarity/datafeed/progress')) ?>" />
 <input id="pc-feeds-in-progress" type="hidden"
-       value="<?= $block->escapeQuote($block->escapeHtml($feeds->getAreFeedsInProgress($storeId))) ?>" />
+       value="<?= $block->escapeQuote($block->escapeHtml($feeds->areFeedsInProgress($storeId))) ?>" />
