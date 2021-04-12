@@ -14,7 +14,7 @@ use Magento\Framework\App\Response\Http;
 use Magento\Framework\App\ResponseInterface;
 use Magento\Framework\Controller\ResultInterface;
 use Magento\Store\Model\StoreManagerInterface;
-use Pureclarity\Core\Model\Feed\State\Request;
+use Pureclarity\Core\Model\Feed\Requester;
 
 /**
  * Class Runfeed
@@ -26,21 +26,21 @@ class Runfeed extends Action
     /** @var StoreManagerInterface $storeManager */
     private $storeManager;
 
-    /** @var Request $feedRequest */
+    /** @var Requester $feedRequest */
     private $feedRequest;
 
     /**
      * @param Context $context
      * @param StoreManagerInterface $storeManager
-     * @param Request $feedRequest
+     * @param Requester $feedRequest
      */
     public function __construct(
         Context $context,
         StoreManagerInterface $storeManager,
-        Request $feedRequest
+        Requester $feedRequest
     ) {
-        $this->storeManager    = $storeManager;
-        $this->feedRequest     = $feedRequest;
+        $this->storeManager = $storeManager;
+        $this->feedRequest  = $feedRequest;
 
         parent::__construct(
             $context

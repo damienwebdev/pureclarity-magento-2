@@ -4,7 +4,7 @@
  * See LICENSE.txt for license details.
  */
 
-namespace Pureclarity\Core\Test\Unit\Model\State\Feed;
+namespace Pureclarity\Core\Test\Unit\Model\Feed\State;
 
 use Magento\Framework\Exception\CouldNotDeleteException;
 use Magento\Framework\Exception\CouldNotSaveException;
@@ -12,12 +12,10 @@ use Magento\Framework\Phrase;
 use Magento\Framework\Serialize\SerializerInterface;
 use PHPUnit\Framework\TestCase;
 use PHPUnit\Framework\MockObject\MockObject;
-use Pureclarity\Core\Model\Feed\State\Progress;
 use Pureclarity\Core\Model\Feed\State\Request;
 use Pureclarity\Core\Api\StateRepositoryInterface;
 use Psr\Log\LoggerInterface;
 use Pureclarity\Core\Model\State;
-use Magento\Framework\Exception\FileSystemException;
 
 /**
  * Class RequestTest
@@ -35,9 +33,6 @@ class RequestTest extends TestCase
     /** @var MockObject|LoggerInterface */
     private $logger;
 
-    /** @var MockObject|Progress */
-    private $progress;
-
     /** @var MockObject|SerializerInterface */
     private $serializer;
 
@@ -48,10 +43,6 @@ class RequestTest extends TestCase
             ->getMock();
 
         $this->logger = $this->getMockBuilder(LoggerInterface::class)
-            ->disableOriginalConstructor()
-            ->getMock();
-
-        $this->progress = $this->getMockBuilder(Progress::class)
             ->disableOriginalConstructor()
             ->getMock();
 
@@ -74,7 +65,6 @@ class RequestTest extends TestCase
         $this->object = new Request(
             $this->stateRepository,
             $this->logger,
-            $this->progress,
             $this->serializer
         );
     }
@@ -154,19 +144,12 @@ class RequestTest extends TestCase
     public function testRequestFeeds()
     {
         $this->initStateObject('requested_feeds', 1, 0);
-
-        $this->progress->expects(self::once())
-            ->method('resetProgress')
-            ->with(1);
-
         $this->object->requestFeeds(1, ['product']);
     }
 
     public function testRequestFeedsWithSaveError()
     {
         $this->initStateObject('requested_feeds', 1, 1);
-
-        $this->progress->expects(self::never())->method('resetProgress');
 
         $this->logger->expects(self::once())
             ->method('error')

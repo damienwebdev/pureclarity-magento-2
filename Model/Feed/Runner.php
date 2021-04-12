@@ -35,7 +35,7 @@ use Magento\Framework\Exception\CouldNotSaveException;
 class Runner
 {
     /** @var string[] */
-    private $validFeedTypes = [
+    public const VALID_FEED_TYPES = [
         Feed::FEED_TYPE_PRODUCT,
         Feed::FEED_TYPE_CATEGORY,
         Feed::FEED_TYPE_BRAND,
@@ -153,7 +153,7 @@ class Runner
     {
         $this->runningFeeds->setRunningFeeds($storeId, $feedTypes);
         foreach ($feedTypes as $feedType) {
-            if (in_array($feedType, $this->validFeedTypes, true)) {
+            if (in_array($feedType, self::VALID_FEED_TYPES, true)) {
                 $this->sendFeed($storeId, $feedType);
                 $this->feedRunDate->setLastRunDate($storeId, $feedType, date('Y-m-d H:i:s'));
             } else {

@@ -14,7 +14,7 @@ use Magento\Store\Model\StoreManagerInterface;
 use Pureclarity\Core\Api\StateRepositoryInterface;
 use Pureclarity\Core\Model\CoreConfig;
 use Psr\Log\LoggerInterface;
-use Pureclarity\Core\Model\Feed\State\Request;
+use Pureclarity\Core\Model\Feed\Requester;
 
 /**
  * Class Process
@@ -38,7 +38,7 @@ class Process
     /** @var LoggerInterface $logger */
     private $logger;
 
-    /** @var Request $feedRequest */
+    /** @var Requester $feedRequest */
     private $feedRequest;
 
     /**
@@ -47,7 +47,7 @@ class Process
      * @param StoreManagerInterface $storeManager
      * @param Manager $cacheManager
      * @param LoggerInterface $logger
-     * @param Request $feedRequest
+     * @param Requester $feedRequest
      */
     public function __construct(
         StateRepositoryInterface $stateRepository,
@@ -55,7 +55,7 @@ class Process
         StoreManagerInterface $storeManager,
         Manager $cacheManager,
         LoggerInterface $logger,
-        Request $feedRequest
+        Requester $feedRequest
     ) {
         $this->stateRepository = $stateRepository;
         $this->coreConfig      = $coreConfig;
@@ -205,7 +205,7 @@ class Process
      *
      * @param int $storeId
      */
-    private function triggerFeeds(int $storeId)
+    private function triggerFeeds(int $storeId): void
     {
         $feeds = [
             'product',
