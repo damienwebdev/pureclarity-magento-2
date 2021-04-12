@@ -52,9 +52,9 @@ class Requester
      * Runs all feed types for the given store
      * @param int $storeId
      */
-    public function requestFeeds(int $storeId, array $feeds): void
+    public function requestFeeds(int $storeId, array $feeds, $force = false): void
     {
-        if ($this->coreConfig->isActive($storeId)) {
+        if ($force || $this->coreConfig->isActive($storeId)) {
             $this->request->requestFeeds($storeId, $feeds);
 
             foreach (Runner::VALID_FEED_TYPES as $feed) {
