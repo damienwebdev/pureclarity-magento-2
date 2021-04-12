@@ -14,17 +14,15 @@ use Magento\Store\Api\Data\StoreInterface;
 use Magento\Store\Model\Store;
 use Magento\Store\Model\StoreManagerInterface;
 use Pureclarity\Core\Api\FeedManagementInterface;
-use Pureclarity\Core\Api\StateRepositoryInterface;
 use Psr\Log\LoggerInterface;
 use Pureclarity\Core\Model\CoreConfig;
+use Pureclarity\Core\Model\Dashboard\Banner;
 use Pureclarity\Core\Model\Feed\State\Running;
 use Pureclarity\Core\Model\Feed\State\RunDate;
 use Pureclarity\Core\Model\Feed\State\Progress;
 use Pureclarity\Core\Model\Feed\State\Error;
 use Magento\Store\Model\App\Emulation;
 use PureClarity\Api\Feed\Feed;
-use Magento\Framework\Exception\CouldNotDeleteException;
-use Magento\Framework\Exception\CouldNotSaveException;
 
 /**
  * Class Runner
@@ -45,9 +43,6 @@ class Runner
 
     /** @var StoreInterface */
     private $store;
-
-    /** @var StateRepositoryInterface */
-    private $stateRepository;
 
     /** @var LoggerInterface $logger */
     private $logger;
@@ -76,8 +71,10 @@ class Runner
     /** @var Emulation */
     private $appEmulation;
 
+    /** @var Banner */
+    private $banner;
+
     /**
-     * @param StateRepositoryInterface $stateRepository
      * @param LoggerInterface $logger
      * @param CoreConfig $coreConfig
      * @param Running $runningFeeds
@@ -91,7 +88,6 @@ class Runner
      * @SuppressWarnings(PHPMD.ExcessiveParameterList)
      */
     public function __construct(
-        StateRepositoryInterface $stateRepository,
         LoggerInterface $logger,
         CoreConfig $coreConfig,
         Running $runningFeeds,
@@ -100,9 +96,9 @@ class Runner
         Error $feedError,
         TypeHandler $feedTypeHandler,
         StoreManagerInterface $storeManager,
-        Emulation $appEmulation
+        Emulation $appEmulation,
+        Banner $banner
     ) {
-        $this->stateRepository = $stateRepository;
         $this->logger          = $logger;
         $this->coreConfig      = $coreConfig;
         $this->runningFeeds    = $runningFeeds;
@@ -112,6 +108,7 @@ class Runner
         $this->feedTypeHandler = $feedTypeHandler;
         $this->storeManager    = $storeManager;
         $this->appEmulation    = $appEmulation;
+        $this->banner          = $banner;
     }
 
     /**
@@ -161,7 +158,7 @@ class Runner
             }
             $this->runningFeeds->removeRunningFeed($storeId, $feedType);
         }
-        $this->setBannerStatus($storeId);
+        $this->banner->removeWelcomeBanner($storeId);
         $this->runningFeeds->deleteRunningFeeds($storeId);
     }
 
@@ -250,36 +247,5 @@ class Runner
             $this->store = $this->storeManager->getStore($storeId);
         }
         return $this->store;
-    }
-
-    /**
-     * Sorts out the state for the banner display on the dashboard.
-     * @param integer $storeId
-     */
-    private function setBannerStatus(int $storeId): void
-    {
-        try {
-
-            $showBanner = $this->stateRepository->getByNameAndStore('show_welcome_banner', $storeId);
-
-            if ($showBanner->getId()) {
-                // set one day timer on getting started banner
-                $gettingStarted = $this->stateRepository->getByNameAndStore(
-                    'show_getting_started_banner',
-                    $storeId
-                );
-                $gettingStarted->setName('show_getting_started_banner');
-                $gettingStarted->setValue(time() + 86400);
-                $gettingStarted->setStoreId($storeId);
-                $this->stateRepository->save($gettingStarted);
-                // Delete banner flags, no longer needed
-
-                $this->stateRepository->delete($showBanner);
-            }
-        } catch (CouldNotSaveException $e) {
-            $this->logger->error('Could not save banner status: ' . $e->getMessage());
-        } catch (CouldNotDeleteException $e) {
-            $this->logger->error('Could not delete banner flags: ' . $e->getMessage());
-        }
     }
 }
