@@ -17,7 +17,7 @@ use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 use Pureclarity\Core\Api\StateRepositoryInterface;
 use Pureclarity\Core\Model\CoreConfig;
-use Pureclarity\Core\Model\Feed\State\Request;
+use Pureclarity\Core\Model\Feed\Requester;
 use Pureclarity\Core\Model\Signup\Process;
 use Pureclarity\Core\Model\State;
 use Psr\Log\LoggerInterface;
@@ -55,7 +55,7 @@ class ProcessTest extends TestCase
     /** @var MockObject|LoggerInterface $logger */
     private $logger;
 
-    /** @var MockObject|Request $feedRequest */
+    /** @var MockObject|Requester $feedRequest */
     private $feedRequest;
 
     protected function setUp()
@@ -84,7 +84,7 @@ class ProcessTest extends TestCase
             ->disableOriginalConstructor()
             ->getMock();
 
-        $this->feedRequest = $this->getMockBuilder(Request::class)
+        $this->feedRequest = $this->getMockBuilder(Requester::class)
             ->disableOriginalConstructor()
             ->getMock();
 
