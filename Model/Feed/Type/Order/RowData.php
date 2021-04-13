@@ -23,19 +23,20 @@ class RowData implements OrderFeedRowDataManagementInterface
      * @param StoreInterface $store
      * @param Order $row
      * @return array
+     * @SuppressWarnings(PHPMD.UnusedFormalParameter)
      */
     public function getRowData(StoreInterface $store, $row): array
     {
         $orderData = [];
 
-        $id = $row->getIncrementId();
+        $orderId = $row->getIncrementId();
         $customerId = $row->getCustomerId();
         $email = $row->getCustomerEmail();
         $date = $row->getCreatedAt();
 
         foreach ($row->getAllVisibleItems() as $item) {
             $orderData[] = [
-                'OrderID' => $id,
+                'OrderID' => $orderId,
                 'UserId' => $customerId ?: '',
                 'Email' => $email,
                 'DateTime' => $date,

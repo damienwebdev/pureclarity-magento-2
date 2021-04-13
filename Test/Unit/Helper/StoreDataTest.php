@@ -4,7 +4,7 @@
  * See LICENSE.txt for license details.
  */
 
-namespace Pureclarity\Core\Test\Unit\Model;
+namespace Pureclarity\Core\Test\Unit\Helper;
 
 use Magento\Framework\App\Config\ScopeConfigInterface;
 use Magento\Store\Model\ScopeInterface;

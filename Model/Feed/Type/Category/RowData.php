@@ -26,7 +26,7 @@ class RowData implements CategoryFeedRowDataManagementInterface
     private $placeholderUrl;
 
     /** @var string */
-    private $secondaryPlaceholderUrl;
+    private $secondaryUrl;
 
     /** @var CoreConfig */
     private $coreConfig;
@@ -157,9 +157,9 @@ class RowData implements CategoryFeedRowDataManagementInterface
      */
     private function getSecondaryCategoryPlaceholderUrl(StoreInterface $store): string
     {
-        if ($this->secondaryPlaceholderUrl === null) {
-            $this->secondaryPlaceholderUrl = $this->coreConfig->getSecondaryCategoryPlaceholderUrl($store->getId()) ?: '';
+        if ($this->secondaryUrl === null) {
+            $this->secondaryUrl = $this->coreConfig->getSecondaryCategoryPlaceholderUrl($store->getId()) ?: '';
         }
-        return $this->secondaryPlaceholderUrl;
+        return $this->secondaryUrl;
     }
 }

@@ -25,7 +25,7 @@ class RowData implements BrandFeedRowDataManagementInterface
     private $placeholderUrl;
 
     /** @var string */
-    private $secondaryPlaceholderUrl;
+    private $secondaryUrl;
 
     /** @var CoreConfig */
     private $coreConfig;
@@ -117,9 +117,9 @@ class RowData implements BrandFeedRowDataManagementInterface
      */
     private function getSecondaryCategoryPlaceholderUrl(StoreInterface $store): string
     {
-        if ($this->secondaryPlaceholderUrl === null) {
-            $this->secondaryPlaceholderUrl = $this->coreConfig->getSecondaryCategoryPlaceholderUrl($store->getId()) ?: '';
+        if ($this->secondaryUrl === null) {
+            $this->secondaryUrl = $this->coreConfig->getSecondaryCategoryPlaceholderUrl($store->getId()) ?: '';
         }
-        return $this->secondaryPlaceholderUrl;
+        return $this->secondaryUrl;
     }
 }

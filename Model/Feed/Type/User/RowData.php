@@ -23,15 +23,15 @@ class RowData implements UserFeedRowDataManagementInterface
     private $customerGroups;
 
     /** @var CustomerGroupCollectionFactory */
-    private $customerGroupCollectionFactory;
+    private $collectionFactory;
 
     /**
-     * @param CustomerGroupCollectionFactory $customerGroupCollectionFactory
+     * @param CustomerGroupCollectionFactory $collectionFactory
      */
     public function __construct(
-        CustomerGroupCollectionFactory $customerGroupCollectionFactory
+        CustomerGroupCollectionFactory $collectionFactory
     ) {
-        $this->customerGroupCollectionFactory = $customerGroupCollectionFactory;
+        $this->collectionFactory = $collectionFactory;
     }
 
     /**
@@ -39,6 +39,7 @@ class RowData implements UserFeedRowDataManagementInterface
      * @param StoreInterface $store
      * @param Customer $row
      * @return array
+     * @SuppressWarnings(PHPMD.UnusedFormalParameter)
      */
     public function getRowData(StoreInterface $store, $row): array
     {
@@ -89,7 +90,7 @@ class RowData implements UserFeedRowDataManagementInterface
     public function getCustomerGroups(): array
     {
         if ($this->customerGroups === null) {
-            $customerGroupCollection = $this->customerGroupCollectionFactory->create();
+            $customerGroupCollection = $this->collectionFactory->create();
             $this->customerGroups = $customerGroupCollection->toOptionArray();
         }
 

@@ -10,6 +10,8 @@ $state = $block->getPureclarityStateViewModel();
 /** @var \Pureclarity\Core\ViewModel\Adminhtml\Stores $stores */
 $stores = $block->getPureclarityStoresViewModel();
 
+$url = $block->getUrl('adminhtml/system_config/edit/section/pureclarity');
+
 ?>
 <div class="page-actions" id="pureclarity-toolbar">
     <?php if ($stores->hasMultipleStores()): ?>
@@ -19,9 +21,7 @@ $stores = $block->getPureclarityStoresViewModel();
         <div class="page-actions-buttons">
             <?php if ($state->isConfigured($stores->getStoreId())): ?>
                 <a id="pureclarity-toolbar-settings"
-                   href="<?= $block->escapeUrl(
-                       $block->getUrl('adminhtml/system_config/edit/section/pureclarity')
-                   ) ?>"
+                   href="<?= $block->escapeUrl($url) ?>"
                    title="<?= $block->escapeQuote($block->escapeHtml(__('Settings'))) ?>"
                    target="_blank">
                     <?= $block->escapeHtml(__('Settings')) ?>

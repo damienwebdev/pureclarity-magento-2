@@ -431,7 +431,7 @@ class Prices
      * Returns a price if a product is on sale
      *
      * @param Product|ProductInterface $product
-     * @param string $customerGroupId
+     * @param string|null $customerGroupId
      * @param float $price
      * @return float|null
      */

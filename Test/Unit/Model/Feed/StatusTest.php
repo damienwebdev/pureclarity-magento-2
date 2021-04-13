@@ -4,19 +4,11 @@
  * See LICENSE.txt for license details.
  */
 
-namespace Pureclarity\Core\Test\Unit\Model;
+namespace Pureclarity\Core\Test\Unit\Model\Feed;
 
-use Magento\Framework\Exception\FileSystemException;
-use Magento\Framework\Filesystem;
-use Magento\Framework\Filesystem\Directory\ReadInterface;
-use Magento\Framework\Phrase;
-use Pureclarity\Core\Helper\Serializer;
 use Magento\Framework\Stdlib\DateTime\TimezoneInterface;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
-use Psr\Log\LoggerInterface;
-use Pureclarity\Core\Api\StateRepositoryInterface;
-use Pureclarity\Core\Helper\Data;
 use Pureclarity\Core\Model\CoreConfig;
 use Pureclarity\Core\Model\Feed\State\Error;
 use Pureclarity\Core\Model\Feed\State\Progress;
@@ -24,45 +16,24 @@ use Pureclarity\Core\Model\Feed\State\Request;
 use Pureclarity\Core\Model\Feed\State\RunDate;
 use Pureclarity\Core\Model\Feed\State\Running;
 use Pureclarity\Core\Model\Feed\Status;
-use Pureclarity\Core\Model\State;
 use ReflectionException;
 
 /**
  * Class StatusTest
  *
  * Tests the methods in \Pureclarity\Core\Model\Feed\Status
+ * @SuppressWarnings(PHPMD.TooManyPublicMethods)
  */
 class StatusTest extends TestCase
 {
     /** @var Status $object */
     private $object;
 
-    /** @var MockObject|StateRepositoryInterface */
-    private $stateRepository;
-
-    /** @var MockObject|Filesystem */
-    private $fileSystem;
-
-    /** @var MockObject|Data */
-    private $coreHelper;
-
     /** @var MockObject|CoreConfig */
     private $coreConfig;
 
-    /** @var MockObject|Serializer */
-    private $serializer;
-
     /** @var MockObject|TimezoneInterface */
     private $timezone;
-
-    /** @var MockObject|ReadInterface */
-    private $readInterface;
-
-    /** @var MockObject|LoggerInterface */
-    private $logger;
-
-    /** @var MockObject|Request */
-    private $feedRequest;
 
     /** @var MockObject|Error */
     private $error;
