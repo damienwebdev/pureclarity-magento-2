@@ -40,7 +40,7 @@ class RunRequestedFeedsTest extends TestCase
     /**
      * Sets up RunScheduled with dependencies
      */
-    protected function setUp()
+    protected function setUp(): void
     {
         $this->logger = $this->getMockBuilder(LoggerInterface::class)
             ->disableOriginalConstructor()

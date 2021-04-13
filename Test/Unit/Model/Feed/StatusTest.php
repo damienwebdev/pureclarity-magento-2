@@ -273,7 +273,7 @@ class StatusTest extends TestCase
         $this->progress->expects(self::once())
             ->method('getProgress')
             ->with(1, 'product')
-            ->willReturn(25);
+            ->willReturn('25');
 
         $status = $this->object->getFeedStatus('product', 1);
 
@@ -380,7 +380,7 @@ class StatusTest extends TestCase
         $this->progress->expects(self::once())
             ->method('getProgress')
             ->with(1, 'product')
-            ->willReturn(25);
+            ->willReturn('25');
 
         self::assertEquals(
             true,

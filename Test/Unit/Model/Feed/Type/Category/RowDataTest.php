@@ -125,7 +125,7 @@ class RowDataTest extends TestCase
      * Sets up a parent category MockObject
      * @return MockObject|Category
      */
-    public function setupParentCategory(): MockObject
+    public function setupParentCategory()
     {
         $category = $this->getMockBuilder(Category::class)
             ->disableOriginalConstructor()
@@ -145,7 +145,7 @@ class RowDataTest extends TestCase
      * @param int $categoryId
      * @return MockObject|Category
      */
-    public function setupBaseCategory(int $categoryId): MockObject
+    public function setupBaseCategory(int $categoryId)
     {
         $category = $this->getMockBuilder(Category::class)
             ->disableOriginalConstructor()
@@ -179,7 +179,7 @@ class RowDataTest extends TestCase
      *
      * @return MockObject|Category
      */
-    public function setupCategory1(): MockObject
+    public function setupCategory1()
     {
         $categoryId = 1;
         $category = $this->setupBaseCategory($categoryId);
@@ -221,7 +221,7 @@ class RowDataTest extends TestCase
      *
      * @return MockObject|Category
      */
-    public function setupCategory2(): MockObject
+    public function setupCategory2()
     {
         $categoryId = 2;
         $category = $this->setupBaseCategory($categoryId);
@@ -266,7 +266,7 @@ class RowDataTest extends TestCase
      *
      * @return MockObject|Category
      */
-    public function setupCategory3(): MockObject
+    public function setupCategory3()
     {
         $categoryId = 3;
         $category = $this->setupBaseCategory($categoryId);

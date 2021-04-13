@@ -45,7 +45,7 @@ class CheckVersionTest extends TestCase
     /** @var MockObject|LoggerInterface $logger*/
     private $logger;
 
-    protected function setUp()
+    protected function setUp(): void
     {
         $this->url = $this->getMockBuilder(Url::class)
             ->disableOriginalConstructor()
@@ -145,7 +145,7 @@ class CheckVersionTest extends TestCase
             ->willReturn(json_encode($data));
     }
 
-    private function expectError($error)
+    private function setupExpectError($error)
     {
         $this->logger->expects($this->once())
             ->method('error')
@@ -164,7 +164,7 @@ class CheckVersionTest extends TestCase
             ->with($this->testUrl)
             ->willThrowException(new \Exception('Some sort of error'));
 
-        $this->expectError('PureClarity Check Version cron error: Some sort of error');
+        $this->setupExpectError('PureClarity Check Version cron error: Some sort of error');
 
         $this->object->execute();
     }
@@ -174,7 +174,7 @@ class CheckVersionTest extends TestCase
         $this->setupCurlGet();
         $this->setupCurlGetStatus(500);
 
-        $this->expectError(
+        $this->setupExpectError(
             'PureClarity Check Version cron error: error retrieving latest version number. Response code 500'
         );
 
@@ -186,7 +186,7 @@ class CheckVersionTest extends TestCase
         $this->setupCurlGet();
         $this->setupCurlGetStatus();
 
-        $this->expectError(
+        $this->setupExpectError(
             'PureClarity Check Version cron error: error retrieving latest version number, bad response format'
         );
 

@@ -105,7 +105,7 @@ class RowDataTest extends TestCase
      * @param array $items
      * @return MockObject|Order
      */
-    public function setupOrder(string $orderId, string $customerId, array $items): MockObject
+    public function setupOrder(string $orderId, string $customerId, array $items)
     {
         $order = $this->getMockBuilder(Order::class)
             ->disableOriginalConstructor()

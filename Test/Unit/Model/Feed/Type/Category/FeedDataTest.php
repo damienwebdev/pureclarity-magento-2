@@ -101,10 +101,10 @@ class FeedDataTest extends TestCase
 
     /**
      * Sets up category collection
-     * @param MockObject $store
+     * @param MockObject|StoreInterface $store
      * @param bool $error
      */
-    public function setupCollection(MockObject $store, bool $error = false): void
+    public function setupCollection($store, bool $error = false): void
     {
         $this->collection->expects(self::at(0))
             ->method('setStore')

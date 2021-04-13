@@ -41,7 +41,7 @@ class StateRepositoryTest extends TestCase
     /** @var MockObject|StateResource $stateResourceMock */
     private $stateResourceMock;
 
-    protected function setUp()
+    protected function setUp(): void
     {
         $this->collectionFactoryMock = $this->getMockBuilder(CollectionFactory::class)
             ->disableOriginalConstructor()

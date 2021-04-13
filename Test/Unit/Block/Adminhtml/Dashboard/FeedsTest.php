@@ -33,7 +33,7 @@ class FeedsTest extends TestCase
     /** @var MockObject|Stores $storesViewModel */
     private $storesViewModel;
 
-    protected function setUp()
+    protected function setUp(): void
     {
         $this->context = $this->getMockBuilder(Context::class)
             ->disableOriginalConstructor()

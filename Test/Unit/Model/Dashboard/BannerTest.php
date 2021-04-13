@@ -52,10 +52,10 @@ class BannerTest extends TestCase
      * @param string|null $name
      * @param string|null $value
      * @param int|null $storeId
-     * @return MockObject
+     * @return State|MockObject
      * @throws \ReflectionException
      */
-    private function getStateMock(int $stateId, string $name, string $value, int $storeId): MockObject
+    private function getStateMock(int $stateId, string $name, string $value, int $storeId)
     {
         $state = $this->createMock(State::class);
         $state->method('getId')->willReturn($stateId);
@@ -67,10 +67,12 @@ class BannerTest extends TestCase
     }
 
     /**
-     * Tests that removeWelcomeBanner does nothing if no the welcome banner flag is set
+     * Sets up a State object for the banner state row
+     * @param int $stateId
+     * @return MockObject|State
      * @throws \ReflectionException
      */
-    public function setupBannerState(int $stateId): MockObject
+    public function setupBannerState(int $stateId)
     {
         $bannerState = $this->getStateMock($stateId, 'show_welcome_banner', '', 1);
 
@@ -83,10 +85,11 @@ class BannerTest extends TestCase
     }
 
     /**
-     * Tests that removeWelcomeBanner does nothing if no the welcome banner flag is set
+     * Sets up a State object for the banner state row
+     * @return MockObject|State
      * @throws \ReflectionException
      */
-    public function setupGettingStartedState(): MockObject
+    public function setupGettingStartedState()
     {
         $gettingStartedState = $this->getStateMock(1, 'show_getting_started_banner', '', 1);
 

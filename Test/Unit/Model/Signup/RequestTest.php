@@ -67,7 +67,7 @@ class RequestTest extends TestCase
     /** @var MockObject|UrlValidator $urlValidator */
     private $urlValidator;
 
-    protected function setUp()
+    protected function setUp(): void
     {
         $this->curlMock = $this->getMockBuilder(Curl::class)
              ->disableOriginalConstructor()

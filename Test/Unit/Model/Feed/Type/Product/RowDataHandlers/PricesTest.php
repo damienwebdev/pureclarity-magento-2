@@ -218,7 +218,7 @@ class PricesTest extends TestCase
         float $price,
         bool $withGroups = false,
         bool $isDisabled = false
-    ): MockObject {
+    ) {
         $product = $this->createPartialMock(
             Product::class,
             [
@@ -346,7 +346,7 @@ class PricesTest extends TestCase
         string $baseCurrency = 'GBP',
         array $currencies = ['GBP'],
         bool $error = false
-    ): MockObject {
+    ) {
         $store = $this->getMockForAbstractClass(
             StoreInterface::class,
             [],

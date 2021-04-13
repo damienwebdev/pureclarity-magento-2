@@ -29,7 +29,7 @@ class StoreDataTest extends TestCase
     /** @var MockObject|StoreManagerInterface $writer */
     private $storeManager;
 
-    protected function setUp()
+    protected function setUp(): void
     {
         $this->storeManager = $this->getMockBuilder(StoreManagerInterface::class)
             ->disableOriginalConstructor()

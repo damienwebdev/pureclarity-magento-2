@@ -51,6 +51,7 @@ class Data
     // END POINTS
     public function useSSL($storeId)
     {
+        /* @codingStandardsIgnoreLine */
         $pureclarityHostEnv = getenv('PURECLARITY_MAGENTO_USESSL');
         if ($pureclarityHostEnv !== null && strtolower($pureclarityHostEnv) === 'false') {
             return false;

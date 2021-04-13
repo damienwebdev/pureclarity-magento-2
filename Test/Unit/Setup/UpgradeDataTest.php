@@ -51,7 +51,7 @@ class UpgradeDataTest extends TestCase
     /** @var MockObject|LoggerInterface $logger */
     private $logger;
 
-    protected function setUp()
+    protected function setUp(): void
     {
         $this->setup = $this->getMockBuilder(ModuleDataSetupInterface::class)
             ->disableOriginalConstructor()

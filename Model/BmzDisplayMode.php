@@ -6,7 +6,7 @@
 
 namespace Pureclarity\Core\Model;
 
-// Note: using deprectaed class, otherwise Zone widgets are broken in 2.3.0
+// Note: using deprecated class, otherwise Zone widgets are broken in 2.3.0
 use Magento\Framework\Option\ArrayInterface;
 
 /**

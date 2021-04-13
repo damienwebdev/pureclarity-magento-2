@@ -28,7 +28,7 @@ class ThemesTest extends TestCase
     /** @var MockObject|Label $label */
     private $label;
 
-    protected function setUp()
+    protected function setUp(): void
     {
         $this->labelFactory = $this->getMockBuilder(LabelFactory::class)->disableOriginalConstructor()->getMock();
         $this->label = $this->getMockBuilder(Label::class)->disableOriginalConstructor()->getMock();

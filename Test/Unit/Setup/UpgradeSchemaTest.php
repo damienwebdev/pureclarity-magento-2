@@ -37,7 +37,7 @@ class UpgradeSchemaTest extends TestCase
     /** @var MockObject|Table $table */
     private $table;
 
-    protected function setUp()
+    protected function setUp(): void
     {
         $this->setup = $this->getMockBuilder(SchemaSetupInterface::class)
             ->disableOriginalConstructor()

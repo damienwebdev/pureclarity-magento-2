@@ -42,7 +42,7 @@ class RunNightlyTest extends TestCase
     /**
      * Sets up RunNightly with dependencies
      */
-    protected function setUp()
+    protected function setUp(): void
     {
         $this->storeManager = $this->getMockBuilder(StoreManagerInterface::class)
             ->disableOriginalConstructor()
