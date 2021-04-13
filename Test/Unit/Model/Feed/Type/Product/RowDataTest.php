@@ -103,7 +103,7 @@ class RowDataTest extends TestCase
     public function setupProduct(
         string $type = 'simple',
         int $visibility = Product\Visibility::VISIBILITY_BOTH
-    ): MockObject {
+    ) {
         $product = $this->createPartialMock(
             Product::class,
             [
@@ -179,7 +179,7 @@ class RowDataTest extends TestCase
         string $exclude = '',
         string $new = '',
         string $onOffer = ''
-    ): MockObject {
+    ) {
 
         $product->expects(self::at(10))
             ->method('getData')
@@ -412,7 +412,7 @@ class RowDataTest extends TestCase
      * @return Product|MockObject
      * @throws ReflectionException
      */
-    public function setupChildProduct(int $childId, bool $attributes) : MockObject
+    public function setupChildProduct(int $childId, bool $attributes)
     {
         $product = $this->createPartialMock(
             Product::class,

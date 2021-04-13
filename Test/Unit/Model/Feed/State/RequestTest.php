@@ -75,7 +75,7 @@ class RequestTest extends TestCase
      * @param string $name
      * @param string $value
      * @param string $storeId
-     * @return MockObject
+     * @return State|MockObject
      */
     private function getStateMock($id = null, $name = null, $value = null, $storeId = null)
     {

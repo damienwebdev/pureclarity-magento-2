@@ -65,14 +65,14 @@ class RunningTest extends TestCase
      * @param string|null $name
      * @param string|null $value
      * @param int|null $storeId
-     * @return MockObject
+     * @return State|MockObject
      */
     private function getStateMock(
         int $id = null,
         string $name = null,
         string $value = null,
         int $storeId = null
-    ): MockObject {
+    ) {
         $state = $this->getMockBuilder(State::class)
             ->disableOriginalConstructor()
             ->getMock();
@@ -101,7 +101,7 @@ class RunningTest extends TestCase
      * @param string $value
      * @return MockObject
      */
-    private function initStateRepositoryLoad(int $id, string $name, int $storeId, string $value): MockObject
+    private function initStateRepositoryLoad(int $id, string $name, int $storeId, string $value)
     {
         $state = $this->getStateMock($id, $name, $value, $storeId);
 

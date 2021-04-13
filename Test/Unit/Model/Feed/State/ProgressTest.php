@@ -50,10 +50,10 @@ class ProgressTest extends TestCase
      * @param string|null $name
      * @param string|null $value
      * @param int|null $storeId
-     * @return MockObject
+     * @return State|MockObject
      * @throws \ReflectionException
      */
-    private function getStateMock(int $stateId, string $name, string $value, int $storeId): MockObject
+    private function getStateMock(int $stateId, string $name, string $value, int $storeId)
     {
         $state = $this->createMock(State::class);
         $state->method('getId')->willReturn($stateId);
@@ -72,7 +72,7 @@ class ProgressTest extends TestCase
      * @param string $value
      * @param int $storeId
      * @param int $index
-     * @return MockObject
+     * @return State|MockObject
      * @throws \ReflectionException
      */
     private function initStateObjectNoSave(
@@ -81,7 +81,7 @@ class ProgressTest extends TestCase
         string $value,
         int $storeId,
         int $index
-    ): MockObject {
+    ) {
         $state = $this->getStateMock($stateId, $name, $value, $storeId);
         $this->stateRepository->expects(self::at($index))
             ->method('getByNameAndStore')

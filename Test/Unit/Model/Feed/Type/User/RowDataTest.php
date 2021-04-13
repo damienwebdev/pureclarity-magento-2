@@ -87,7 +87,7 @@ class RowDataTest extends TestCase
      * @param array $data
      * @return MockObject|Customer
      */
-    public function setupCustomer(int $customerId, array $data): MockObject
+    public function setupCustomer(int $customerId, array $data)
     {
         $customer = $this->getMockBuilder(Customer::class)
             ->disableOriginalConstructor()

@@ -113,7 +113,7 @@ class RowDataTest extends TestCase
      * @param int $brandId
      * @return MockObject|Category
      */
-    public function setupBaseBrand(int $brandId): MockObject
+    public function setupBaseBrand(int $brandId)
     {
         $brand = $this->getMockBuilder(Category::class)
             ->disableOriginalConstructor()
@@ -145,7 +145,7 @@ class RowDataTest extends TestCase
      *
      * @return MockObject|Category
      */
-    public function setupBrand1(): MockObject
+    public function setupBrand1()
     {
         $brandId = 1;
         $brand = $this->setupBaseBrand($brandId);
@@ -181,7 +181,7 @@ class RowDataTest extends TestCase
      *
      * @return MockObject|Category
      */
-    public function setupBrand2(): MockObject
+    public function setupBrand2()
     {
         $brandId = 2;
         $brand = $this->setupBaseBrand($brandId);
@@ -214,7 +214,7 @@ class RowDataTest extends TestCase
      *
      * @return MockObject|Category
      */
-    public function setupBrand3(): MockObject
+    public function setupBrand3()
     {
         $brandId = 3;
         $brand = $this->setupBaseBrand($brandId);
