@@ -56,7 +56,7 @@ class CheckSignupStatusTest extends TestCase
     /** @var MockObject|StoreManagerInterface $storeManager */
     private $storeManager;
 
-    protected function setUp()
+    protected function setUp(): void
     {
         $this->requestStatus = $this->getMockBuilder(RequestStatus::class)
             ->disableOriginalConstructor()

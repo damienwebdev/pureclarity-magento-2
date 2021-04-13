@@ -35,7 +35,7 @@ class StoresTest extends TestCase
     /** @var MockObject|LoggerInterface $logger */
     private $logger;
 
-    protected function setUp()
+    protected function setUp(): void
     {
         $this->storeManager = $this->getMockBuilder(StoreManagerInterface::class)
             ->disableOriginalConstructor()

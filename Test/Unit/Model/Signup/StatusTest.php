@@ -42,7 +42,7 @@ class StatusTest extends TestCase
     /** @var MockObject|StateRepositoryInterface $stateRepositoryMock */
     private $stateRepositoryMock;
 
-    protected function setUp()
+    protected function setUp(): void
     {
         $this->curlMock = $this->getMockBuilder(Curl::class)
             ->disableOriginalConstructor()

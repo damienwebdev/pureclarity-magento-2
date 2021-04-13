@@ -23,7 +23,7 @@ class StateTest extends TestCase
     /** @var State $object */
     private $object;
 
-    protected function setUp()
+    protected function setUp(): void
     {
         $context = $this->getMockBuilder(Context::class)->disableOriginalConstructor()->getMock();
         $registry = $this->getMockBuilder(Registry::class)->disableOriginalConstructor()->getMock();

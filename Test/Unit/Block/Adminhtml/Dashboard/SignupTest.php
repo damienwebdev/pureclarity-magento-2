@@ -44,7 +44,7 @@ class SignupTest extends TestCase
     /** @var MockObject|FormKey $formKey */
     private $formKey;
 
-    protected function setUp()
+    protected function setUp(): void
     {
         $this->context = $this->getMockBuilder(Context::class)
             ->disableOriginalConstructor()

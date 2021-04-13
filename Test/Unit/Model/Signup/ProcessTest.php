@@ -59,7 +59,7 @@ class ProcessTest extends TestCase
     /** @var MockObject|Requester $feedRequest */
     private $feedRequest;
 
-    protected function setUp()
+    protected function setUp(): void
     {
         $this->stateRepositoryInterfaceMock = $this->getMockBuilder(StateRepositoryInterface::class)
             ->disableOriginalConstructor()

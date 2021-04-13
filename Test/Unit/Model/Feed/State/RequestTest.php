@@ -36,7 +36,7 @@ class RequestTest extends TestCase
     /** @var MockObject|SerializerInterface */
     private $serializer;
 
-    protected function setUp()
+    protected function setUp(): void
     {
         $this->stateRepository = $this->getMockBuilder(StateRepositoryInterface::class)
             ->disableOriginalConstructor()

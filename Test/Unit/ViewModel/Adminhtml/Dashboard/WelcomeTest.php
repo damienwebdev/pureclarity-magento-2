@@ -25,7 +25,7 @@ class WelcomeTest extends TestCase
     /** @var MockObject|StateRepositoryInterface $stateRepository */
     private $stateRepository;
 
-    protected function setUp()
+    protected function setUp(): void
     {
         $this->stateRepository = $this->getMockBuilder(StateRepositoryInterface::class)
             ->disableOriginalConstructor()

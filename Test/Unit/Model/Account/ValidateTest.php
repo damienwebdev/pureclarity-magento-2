@@ -33,7 +33,7 @@ class ValidateTest extends TestCase
     /** @var MockObject|ApiValidate $validate */
     private $validate;
 
-    protected function setUp()
+    protected function setUp(): void
     {
         $this->validateFactory = $this->getMockBuilder(ValidateFactory::class)
             ->disableOriginalConstructor()

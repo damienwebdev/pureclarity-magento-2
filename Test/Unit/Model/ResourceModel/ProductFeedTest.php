@@ -24,7 +24,7 @@ class ProductFeedTest extends TestCase
     /** @var MockObject|Context $context */
     private $context;
 
-    protected function setUp()
+    protected function setUp(): void
     {
         $this->context = $this->getMockBuilder(Context::class)
             ->disableOriginalConstructor()

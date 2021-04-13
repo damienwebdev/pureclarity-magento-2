@@ -70,7 +70,7 @@ class UrlTest extends TestCase
     /** @var Url $object */
     private $object;
 
-    protected function setUp()
+    protected function setUp(): void
     {
         $this->object = new Url();
     }
