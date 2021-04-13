@@ -210,7 +210,7 @@ class NextStepsClickTest extends TestCase
 
         $this->complete->expects(self::once())
             ->method('markNextStepComplete')
-            ->with('1','next-step-id-one-seven');
+            ->with('1', 'next-step-id-one-seven');
 
         $this->json->expects(self::once())
             ->method('setData')
