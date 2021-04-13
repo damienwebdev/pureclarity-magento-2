@@ -11,9 +11,9 @@ use Magento\Framework\Exception\NoSuchEntityException;
 use Magento\Framework\Phrase;
 use Magento\Store\Api\Data\StoreInterface;
 use PHPUnit\Framework\TestCase;
+use Pureclarity\Core\Model\Dashboard\Banner;
 use Pureclarity\Core\Model\Feed\Runner;
 use PHPUnit\Framework\MockObject\MockObject;
-use Pureclarity\Core\Api\StateRepositoryInterface;
 use Psr\Log\LoggerInterface;
 use Pureclarity\Core\Model\CoreConfig;
 use Pureclarity\Core\Model\Feed\State\Running;
@@ -49,9 +49,6 @@ class RunnerTest extends TestCase
     /** @var Runner */
     private $object;
 
-    /** @var MockObject|StateRepositoryInterface */
-    private $stateRepository;
-
     /** @var MockObject|LoggerInterface */
     private $logger;
 
@@ -79,50 +76,26 @@ class RunnerTest extends TestCase
     /** @var MockObject|Emulation */
     private $appEmulation;
 
+    /** @var MockObject|Banner */
+    private $banner;
+
+    /**
+     * @throws \ReflectionException
+     */
     protected function setUp(): void
     {
-        $this->stateRepository = $this->getMockBuilder(StateRepositoryInterface::class)
-            ->disableOriginalConstructor()
-            ->getMock();
-
-        $this->logger = $this->getMockBuilder(LoggerInterface::class)
-            ->disableOriginalConstructor()
-            ->getMock();
-
-        $this->coreConfig = $this->getMockBuilder(CoreConfig::class)
-            ->disableOriginalConstructor()
-            ->getMock();
-
-        $this->runningFeeds = $this->getMockBuilder(Running::class)
-            ->disableOriginalConstructor()
-            ->getMock();
-
-        $this->feedRunDate = $this->getMockBuilder(RunDate::class)
-            ->disableOriginalConstructor()
-            ->getMock();
-
-        $this->feedProgress = $this->getMockBuilder(Progress::class)
-            ->disableOriginalConstructor()
-            ->getMock();
-
-        $this->feedError = $this->getMockBuilder(Error::class)
-            ->disableOriginalConstructor()
-            ->getMock();
-
-        $this->feedTypeHandler = $this->getMockBuilder(TypeHandler::class)
-            ->disableOriginalConstructor()
-            ->getMock();
-
-        $this->appEmulation = $this->getMockBuilder(Emulation::class)
-            ->disableOriginalConstructor()
-            ->getMock();
-
-        $this->storeManager = $this->getMockBuilder(StoreManagerInterface::class)
-            ->disableOriginalConstructor()
-            ->getMock();
+        $this->logger = $this->createMock(LoggerInterface::class);
+        $this->coreConfig = $this->createMock(CoreConfig::class);
+        $this->runningFeeds = $this->createMock(Running::class);
+        $this->feedRunDate = $this->createMock(RunDate::class);
+        $this->feedProgress = $this->createMock(Progress::class);
+        $this->feedError = $this->createMock(Error::class);
+        $this->feedTypeHandler = $this->createMock(TypeHandler::class);
+        $this->appEmulation = $this->createMock(Emulation::class);
+        $this->storeManager = $this->createMock(StoreManagerInterface::class);
+        $this->banner = $this->createMock(Banner::class);
 
         $this->object = new Runner(
-            $this->stateRepository,
             $this->logger,
             $this->coreConfig,
             $this->runningFeeds,
@@ -131,7 +104,8 @@ class RunnerTest extends TestCase
             $this->feedError,
             $this->feedTypeHandler,
             $this->storeManager,
-            $this->appEmulation
+            $this->appEmulation,
+            $this->banner
         );
     }
 
@@ -140,15 +114,15 @@ class RunnerTest extends TestCase
      */
     public function setupConfig(): void
     {
-        $this->coreConfig->expects(self::once())
+        $this->coreConfig->expects(self::atLeastOnce())
             ->method('getAccessKey')
             ->willReturn(self::CONFIG_ACCESS_KEY);
 
-        $this->coreConfig->expects(self::once())
+        $this->coreConfig->expects(self::atLeastOnce())
             ->method('getSecretKey')
             ->willReturn(self::CONFIG_SECRET_KEY);
 
-        $this->coreConfig->expects(self::once())
+        $this->coreConfig->expects(self::atLeastOnce())
             ->method('getRegion')
             ->willReturn(self::CONFIG_REGION);
     }
@@ -188,20 +162,23 @@ class RunnerTest extends TestCase
      * @param int $numPages
      * @param int $pageSize
      * @param string $error
+     * @throws \ReflectionException
      */
-    public function setupFeedHandler($store, string $type, int $numPages, int $pageSize, string $error = ''): void
-    {
-        $feedDataHandler = $this->getMockBuilder(FeedDataManagementInterface::class)
-            ->disableOriginalConstructor()
-            ->getMock();
+    public function setupFeedHandler(
+        $store,
+        string $type,
+        int $numPages,
+        int $pageSize,
+        string $error = '',
+        int $callNum = 0
+    ): void {
+        $feedDataHandler = $this->createMock(FeedDataManagementInterface::class);
 
         $feedDataHandler->expects(self::once())
             ->method('getTotalPages')
             ->willReturn($numPages);
 
-        $feedHandler = $this->getMockBuilder(FeedManagementInterface::class)
-            ->disableOriginalConstructor()
-            ->getMock();
+        $feedHandler = $this->createMock(FeedManagementInterface::class);
 
         $feedHandler->expects(self::once())
             ->method('isEnabled')
@@ -216,14 +193,13 @@ class RunnerTest extends TestCase
             ->method('getFeedDataHandler')
             ->willReturn($feedDataHandler);
 
-        $this->feedTypeHandler->method('getFeedHandler')
+        $this->feedTypeHandler->expects(self::at($callNum))
+            ->method('getFeedHandler')
             ->with($type)
             ->willReturn($feedHandler);
 
         if ($numPages > 0) {
-            $feedBuilder = $this->getMockBuilder(Feed::class)
-                ->disableOriginalConstructor()
-                ->getMock();
+            $feedBuilder = $this->createMock(Feed::class);
 
             $feedHandler->expects(self::once())
                 ->method('getFeedBuilder')
@@ -243,9 +219,7 @@ class RunnerTest extends TestCase
                     ->method('start')
                     ->willReturn($feedDataHandler);
 
-                $feedRowDataHandler = $this->getMockBuilder(FeedRowDataManagementInterface::class)
-                    ->disableOriginalConstructor()
-                    ->getMock();
+                $feedRowDataHandler = $this->createMock(FeedRowDataManagementInterface::class);
 
                 $feedHandler->expects(self::once())
                     ->method('getRowDataHandler')
@@ -311,17 +285,68 @@ class RunnerTest extends TestCase
     }
 
     /**
+     * Sets up running feeds state handler
+     */
+    public function setupRunningState($feeds): void
+    {
+        $this->runningFeeds->expects(self::once())
+            ->method('setRunningFeeds')
+            ->with(self::STORE_ID, $feeds);
+
+        $index = 1;
+        foreach ($feeds as $feed) {
+            $this->runningFeeds->expects(self::at($index))
+                ->method('removeRunningFeed')
+                ->with(self::STORE_ID, $feed);
+            $index++;
+        }
+
+        $this->runningFeeds->expects(self::once())
+            ->method('deleteRunningFeeds')
+            ->with(self::STORE_ID);
+    }
+
+    /**
+     * Sets up run date state handler
+     */
+    public function setupRunDateState($feeds): void
+    {
+        foreach ($feeds as $x => $feed) {
+            $this->feedRunDate->expects(self::at($x))
+                ->method('setLastRunDate')
+                ->with(self::STORE_ID, $feed);
+        }
+    }
+
+    /**
+     * Sets up banner cleanup tasks
+     */
+    public function setupBannerState(): void
+    {
+        $this->banner->expects(self::once())
+            ->method('removeWelcomeBanner')
+            ->with(self::STORE_ID);
+
+        $this->runningFeeds->expects(self::once())
+            ->method('deleteRunningFeeds')
+            ->with(self::STORE_ID);
+    }
+
+    /**
      * Sets up feed progress
      *
-     * @param string $type
      * @param array $progressPoints
      */
-    public function setupFeedProgress(string $type, array $progressPoints): void
+    public function setupFeedProgress(array $progressPoints): void
     {
-        foreach ($progressPoints as $index => $progress) {
-            $this->feedProgress->expects(self::at($index))
-                ->method('updateProgress')
-                ->with(self::STORE_ID, $type, (string)$progress);
+        $index = 0;
+        foreach ($progressPoints as $type => $points) {
+            foreach ($points as $point) {
+                $this->feedProgress->expects(self::at($index))
+                    ->method('updateProgress')
+                    ->with(self::STORE_ID, $type, (string)$point);
+                $index++;
+            }
         }
     }
 
@@ -331,6 +356,138 @@ class RunnerTest extends TestCase
     public function testInstance(): void
     {
         self::assertInstanceOf(Runner::class, $this->object);
+    }
+
+    /**
+     * Tests that allFeeds runs nothing when inactive
+     */
+    public function testAllFeedsInactive(): void
+    {
+        $this->coreConfig->expects(self::once())
+            ->method('isActive')
+            ->willReturn(false);
+
+        $this->coreConfig->expects(self::never())
+            ->method('getAccessKey');
+
+        $this->feedTypeHandler->expects(self::never())
+            ->method('getFeedHandler');
+
+        $this->object->allFeeds(self::STORE_ID);
+    }
+
+    /**
+     * Tests that allFeeds runs expected feeds
+     * @throws ReflectionException
+     */
+    public function testAllFeeds(): void
+    {
+        $this->coreConfig->expects(self::once())
+            ->method('isActive')
+            ->willReturn(true);
+
+        $feeds = [
+            Feed::FEED_TYPE_PRODUCT,
+            Feed::FEED_TYPE_CATEGORY,
+            Feed::FEED_TYPE_BRAND,
+            Feed::FEED_TYPE_USER
+        ];
+        $store = $this->setupStore();
+        $this->setupConfig();
+        $this->setupFeedHandler($store, Feed::FEED_TYPE_PRODUCT, 2, 2);
+        $this->setupFeedHandler($store, Feed::FEED_TYPE_CATEGORY, 2, 2, '', 1);
+        $this->setupFeedHandler($store, Feed::FEED_TYPE_BRAND, 2, 2, '', 2);
+        $this->setupFeedHandler($store, Feed::FEED_TYPE_USER, 2, 2, '', 3);
+        $this->setupFeedProgress([
+            Feed::FEED_TYPE_PRODUCT => [0,50,100],
+            Feed::FEED_TYPE_CATEGORY => [0,50,100],
+            Feed::FEED_TYPE_BRAND => [0,50,100],
+            Feed::FEED_TYPE_USER => [0,50,100]
+        ]);
+        $this->setupRunningState($feeds);
+        $this->setupRunDateState($feeds);
+        $this->setupBannerState();
+        $this->object->allFeeds(self::STORE_ID);
+    }
+
+    /**
+     * Tests that selectedFeeds runs provided feeds
+     * @throws ReflectionException
+     */
+    public function testSelectedFeedsActive(): void
+    {
+        $this->coreConfig->expects(self::once())
+            ->method('isActive')
+            ->willReturn(true);
+
+        $feeds = [Feed::FEED_TYPE_PRODUCT, Feed::FEED_TYPE_CATEGORY];
+        $store = $this->setupStore();
+        $this->setupConfig();
+        $this->setupFeedHandler($store, Feed::FEED_TYPE_PRODUCT, 2, 2);
+        $this->setupFeedHandler($store, Feed::FEED_TYPE_CATEGORY, 2, 2, '', 1);
+        $this->setupFeedProgress([
+            Feed::FEED_TYPE_PRODUCT => [0,50,100],
+            Feed::FEED_TYPE_CATEGORY => [0,50,100]
+        ]);
+        $this->setupRunningState($feeds);
+        $this->setupRunDateState($feeds);
+        $this->setupBannerState();
+        $this->object->selectedFeeds(self::STORE_ID, $feeds);
+    }
+
+    /**
+     * Tests that selectedFeeds does nothing if inactive
+     */
+    public function testSelectedFeedsInactive(): void
+    {
+        $this->coreConfig->expects(self::once())
+            ->method('isActive')
+            ->willReturn(false);
+
+        $this->coreConfig->expects(self::never())
+            ->method('getAccessKey');
+
+        $this->feedTypeHandler->expects(self::never())
+            ->method('getFeedHandler');
+
+        $this->object->selectedFeeds(self::STORE_ID, [Feed::FEED_TYPE_PRODUCT, Feed::FEED_TYPE_CATEGORY]);
+    }
+
+    /**
+     * Tests that doFeeds runs multiple feeds
+     * @throws ReflectionException
+     */
+    public function testDoFeeds(): void
+    {
+        $feeds = [Feed::FEED_TYPE_PRODUCT, Feed::FEED_TYPE_CATEGORY];
+        $store = $this->setupStore();
+        $this->setupConfig();
+        $this->setupFeedHandler($store, Feed::FEED_TYPE_PRODUCT, 2, 2);
+        $this->setupFeedHandler($store, Feed::FEED_TYPE_CATEGORY, 2, 2, '', 1);
+        $this->setupFeedProgress([
+            Feed::FEED_TYPE_PRODUCT => [0,50,100],
+            Feed::FEED_TYPE_CATEGORY => [0,50,100]
+        ]);
+        $this->setupRunningState($feeds);
+        $this->setupRunDateState($feeds);
+        $this->setupBannerState();
+        $this->object->doFeeds($feeds, self::STORE_ID);
+    }
+
+    /**
+     * Tests that doFeeds handles an invalid feed
+     */
+    public function testDoFeedsInvalidFeed(): void
+    {
+        $feeds = ['fish'];
+
+        $this->logger->expects(self::once())
+            ->method('error')
+            ->with('PureClarity: Invalid feed type requested: fish');
+
+        $this->setupRunningState($feeds);
+        $this->setupBannerState();
+        $this->object->doFeeds($feeds, self::STORE_ID);
     }
 
     /**
@@ -351,7 +508,7 @@ class RunnerTest extends TestCase
         $store = $this->setupStore();
         $this->setupConfig();
         $this->setupFeedHandler($store, Feed::FEED_TYPE_BRAND, 2, 2);
-        $this->setupFeedProgress(Feed::FEED_TYPE_BRAND, [0,50,100]);
+        $this->setupFeedProgress([Feed::FEED_TYPE_BRAND => [0,50,100]]);
         $this->object->sendFeed(self::STORE_ID, Feed::FEED_TYPE_BRAND);
     }
 
@@ -364,7 +521,7 @@ class RunnerTest extends TestCase
         $store = $this->setupStore();
         $this->setupConfig();
         $this->setupFeedHandler($store, Feed::FEED_TYPE_USER, 2, 2);
-        $this->setupFeedProgress(Feed::FEED_TYPE_USER, [0,50,100]);
+        $this->setupFeedProgress([Feed::FEED_TYPE_USER => [0,50,100]]);
         $this->object->sendFeed(self::STORE_ID, Feed::FEED_TYPE_USER);
     }
 
@@ -377,7 +534,7 @@ class RunnerTest extends TestCase
         $store = $this->setupStore();
         $this->setupConfig();
         $this->setupFeedHandler($store, Feed::FEED_TYPE_PRODUCT, 2, 2);
-        $this->setupFeedProgress(Feed::FEED_TYPE_PRODUCT, [0,50,100]);
+        $this->setupFeedProgress([Feed::FEED_TYPE_PRODUCT => [0,50,100]]);
 
         $this->appEmulation->expects(self::once())
             ->method('startEnvironmentEmulation')
@@ -398,7 +555,7 @@ class RunnerTest extends TestCase
         $store = $this->setupStore();
         $this->setupConfig();
         $this->setupFeedHandler($store, Feed::FEED_TYPE_PRODUCT, 2, 2, 'An error');
-        $this->setupFeedProgress(Feed::FEED_TYPE_PRODUCT, [0]);
+        $this->setupFeedProgress([Feed::FEED_TYPE_PRODUCT => [0]]);
 
         $this->appEmulation->expects(self::once())
             ->method('startEnvironmentEmulation')
@@ -419,7 +576,7 @@ class RunnerTest extends TestCase
         $store = $this->setupStore();
         $this->setupConfig();
         $this->setupFeedHandler($store, Feed::FEED_TYPE_USER, 2, 2, 'An Error');
-        $this->setupFeedProgress(Feed::FEED_TYPE_USER, [0]);
+        $this->setupFeedProgress([Feed::FEED_TYPE_USER => [0]]);
 
         $this->logger->expects(self::once())
             ->method('error')
@@ -434,6 +591,7 @@ class RunnerTest extends TestCase
 
     /**
      * Tests that the user feed doesnt when a store exception happens
+     * @throws \ReflectionException
      */
     public function testSendFeedStoreException(): void
     {
