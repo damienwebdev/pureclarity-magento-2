@@ -7,11 +7,9 @@
 namespace Pureclarity\Core\Model\System\Message;
 
 use Magento\Framework\Notification\MessageInterface;
-use Magento\Framework\App\Config\ScopeConfigInterface;
 use Magento\Framework\Phrase;
 use Magento\Framework\UrlInterface;
 use Magento\Store\Model\StoreManagerInterface;
-use Pureclarity\Core\Api\StateRepositoryInterface;
 use Pureclarity\Core\Model\CoreConfig;
 
 /**

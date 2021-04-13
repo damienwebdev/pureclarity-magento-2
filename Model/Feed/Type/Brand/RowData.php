@@ -59,7 +59,6 @@ class RowData implements BrandFeedRowDataManagementInterface
         $brandData['Image'] = $this->removeUrlProtocol($brandImageUrl);
 
         // Get override image
-        $overrideImageUrl = null;
         $overrideImage = $row->getData('pureclarity_category_image') ?: '';
         if ($overrideImage !== '') {
             $overrideImageUrl = sprintf(

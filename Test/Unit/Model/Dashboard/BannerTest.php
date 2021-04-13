@@ -67,64 +67,6 @@ class BannerTest extends TestCase
     }
 
     /**
-     * Sets up a default state object to return for "last_feed_error" state row
-     *
-     * @param int $stateId
-     * @param string $name
-     * @param string $value
-     * @param int $storeId
-     * @param int $index
-     * @return MockObject
-     * @throws \ReflectionException
-     */
-    private function initStateObjectNoSave(
-        int $stateId,
-        string $name,
-        string $value,
-        int $storeId,
-        int $index
-    ): MockObject {
-        $state = $this->getStateMock($stateId, $name, $value, $storeId);
-        $this->stateRepository->expects(self::at($index))
-            ->method('getByNameAndStore')
-            ->with($name, $storeId)
-            ->willReturn($state);
-        return $state;
-    }
-
-    /**
-     * Sets up a default state object to return for "last_feed_error" state row
-     *
-     * @param int $stateId
-     * @param string $name
-     * @param string $value
-     * @param int $storeId
-     * @param int $index
-     * @param bool $saveError
-     * @throws \ReflectionException
-     */
-    private function initStateObjectWithSave(
-        int $stateId,
-        string $name,
-        string $value,
-        int $storeId,
-        int $index,
-        bool $saveError = false
-    ): void {
-        $state = $this->initStateObjectNoSave($stateId, $name, $value, $storeId, $index);
-        if ($saveError) {
-            $this->stateRepository->expects(self::at($index + 1))
-                ->method('save')
-                ->with($state)
-                ->willThrowException(new CouldNotSaveException(new Phrase('An error')));
-        } elseif ($stateId) {
-            $this->stateRepository->expects(self::at($index + 1))
-                ->method('save')
-                ->with($state);
-        }
-    }
-
-    /**
      * Tests that removeWelcomeBanner does nothing if no the welcome banner flag is set
      * @throws \ReflectionException
      */

@@ -14,7 +14,6 @@ use PureClarity\Api\Feed\Type\BrandFactory;
 use Pureclarity\Core\Api\BrandFeedDataManagementInterface;
 use Pureclarity\Core\Api\BrandFeedRowDataManagementInterface;
 use Pureclarity\Core\Api\FeedManagementInterface;
-use PureClarity\Api\Feed\Feed;
 use PureClarity\Api\Feed\Type\Brand as BrandFeed;
 use Pureclarity\Core\Api\FeedDataManagementInterface;
 use Pureclarity\Core\Api\FeedRowDataManagementInterface;

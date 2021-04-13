@@ -12,8 +12,6 @@ use PHPUnit\Framework\MockObject\MockObject;
 use Pureclarity\Core\Model\CoreConfig;
 use Magento\Catalog\Model\Category;
 use Magento\Store\Api\Data\StoreInterface;
-use Magento\Framework\Exception\NoSuchEntityException;
-use Magento\Framework\Phrase;
 use ReflectionException;
 
 /**
