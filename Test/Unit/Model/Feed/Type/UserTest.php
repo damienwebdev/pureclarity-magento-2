@@ -13,7 +13,6 @@ use PureClarity\Api\Feed\Type\UserFactory;
 use Pureclarity\Core\Api\UserFeedDataManagementInterface;
 use Pureclarity\Core\Api\UserFeedRowDataManagementInterface;
 use Pureclarity\Core\Api\FeedManagementInterface;
-use PureClarity\Api\Feed\Feed;
 use PureClarity\Api\Feed\Type\User as UserFeed;
 use Pureclarity\Core\Api\FeedDataManagementInterface;
 use Pureclarity\Core\Api\FeedRowDataManagementInterface;

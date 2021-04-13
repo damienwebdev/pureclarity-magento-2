@@ -13,7 +13,6 @@ use PureClarity\Api\Feed\Type\ProductFactory;
 use Pureclarity\Core\Api\ProductFeedDataManagementInterface;
 use Pureclarity\Core\Api\ProductFeedRowDataManagementInterface;
 use Pureclarity\Core\Api\FeedManagementInterface;
-use PureClarity\Api\Feed\Feed;
 use PureClarity\Api\Feed\Type\Product as ProductFeed;
 use Pureclarity\Core\Api\FeedDataManagementInterface;
 use Pureclarity\Core\Api\FeedRowDataManagementInterface;

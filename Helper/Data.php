@@ -6,14 +6,8 @@
 
 namespace Pureclarity\Core\Helper;
 
-use Magento\Checkout\Model\Session;
 use Magento\Framework\App\Filesystem\DirectoryList;
-use Magento\Framework\Exception\FileSystemException;
-use Magento\Framework\Filesystem\Driver\File as FileDriver;
-use Magento\Framework\Filesystem\Io\FileFactory;
 use Magento\Framework\UrlInterface;
-use Magento\Store\Model\StoreManagerInterface;
-use Psr\Log\LoggerInterface;
 
 /**
  * Class Data
@@ -23,48 +17,17 @@ use Psr\Log\LoggerInterface;
 class Data
 {
     const CURRENT_VERSION = '5.0.4';
-    const PROGRESS_FILE_BASE_NAME = 'pureclarity-feed-progress-';
-
-    /** @var StoreManagerInterface $storeManager */
-    private $storeManager;
-
-    /** @var Session $checkoutSession */
-    private $checkoutSession;
-
-    /** @var FileFactory $ioFileFactory */
-    private $ioFileFactory;
 
     /** @var DirectoryList $directoryList */
     private $directoryList;
 
-    /** @var FileDriver $driver */
-    private $driver;
-
-    /** @var LoggerInterface $logger */
-    private $logger;
-
     /**
-     * @param StoreManagerInterface $storeManager
-     * @param Session $checkoutSession
-     * @param FileFactory $ioFileFactory
      * @param DirectoryList $directoryList
-     * @param FileDriver $driver
-     * @param LoggerInterface $logger
      */
     public function __construct(
-        StoreManagerInterface $storeManager,
-        Session $checkoutSession,
-        FileFactory $ioFileFactory,
-        DirectoryList $directoryList,
-        FileDriver $driver,
-        LoggerInterface $logger
+        DirectoryList $directoryList
     ) {
-        $this->ioFileFactory   = $ioFileFactory;
-        $this->storeManager    = $storeManager;
-        $this->checkoutSession = $checkoutSession;
         $this->directoryList   = $directoryList;
-        $this->driver          = $driver;
-        $this->logger          = $logger;
     }
     
     public function getAdminImageUrl($store, $image, $type)
@@ -93,105 +56,5 @@ class Data
             return false;
         }
         return true;
-    }
-
-    public function getFileNameForFeed($feedtype, $storeCode)
-    {
-        if ($feedtype === "orders") {
-            return $storeCode . "-orders.csv";
-        }
-        return $storeCode . "-" . $feedtype . ".json";
-    }
-
-    // MISC/HELPER METHODS
-    public function getStoreId($storeId = null)
-    {
-        if ($storeId === null) {
-            $storeId = $this->storeManager->getStore()->getId();
-        }
-        return $storeId;
-    }
-
-    public function getCurrentUrl()
-    {
-        return $this->storeManager->getStore()->getCurrentUrl();
-    }
-
-    public function getPlaceholderUrl($store)
-    {
-        return $store->getBaseUrl(UrlInterface::URL_TYPE_MEDIA) . 'catalog/product';
-    }
-
-    public function getPureClarityBaseDir()
-    {
-        $varDir = $this->directoryList->getPath('var') . DIRECTORY_SEPARATOR  . 'pureclarity';
-        $fileIo = $this->ioFileFactory->create();
-        $fileIo->mkdir($varDir);
-        return $varDir;
-    }
-
-    public function getProgressFileName()
-    {
-        return $this->getPureClarityBaseDir() . DIRECTORY_SEPARATOR . self::PROGRESS_FILE_BASE_NAME . 'all.json';
-    }
-
-    public function setProgressFile(
-        $progressFileName,
-        $feedName,
-        $currentPage,
-        $pages,
-        $isComplete = "false",
-        $isUploaded = "false",
-        $error = ""
-    ) {
-        if ($progressFileName !== null) {
-            try {
-                $progressFile = $this->driver->fileOpen($progressFileName, "w");
-            } catch (FileSystemException $e) {
-                $this->logger->error('PureClarity Error opening progress file: ' . $e->getMessage());
-            }
-
-            if (isset($progressFile)) {
-                try {
-                    $this->driver->fileWrite(
-                        $progressFile,
-                        "{\"name\":\"$feedName\",\"cur\":$currentPage,\"max\":$pages,\"isComplete\":$isComplete,"
-                        . "\"isUploaded\":$isUploaded,\"error\":\"$error\"}"
-                    );
-                } catch (FileSystemException $e) {
-                    $this->logger->error('PureClarity Error updating progress file: ' . $e->getMessage());
-                }
-
-                try {
-                    $this->driver->fileClose($progressFile);
-                } catch (FileSystemException $e) {
-                    $this->logger->error('PureClarity Error closing progress file: ' . $e->getMessage());
-                }
-            }
-        }
-    }
-
-    public function getOrderObject()
-    {
-        return $this->checkoutSession->getLastRealOrder();
-    }
-
-    public function getBaseUrl()
-    {
-        return $this->storeManager->getStore()->getBaseUrl();
-    }
-
-    public function formatFeed($feed, $feedFormat = 'json')
-    {
-        switch ($feedFormat) {
-            case 'json':
-                $feed = json_encode($feed);
-                break;
-            case 'jsonpretty':
-                $feed = json_encode($feed, JSON_PRETTY_PRINT);
-                break;
-        }
-
-        return $feed;
     }
 }

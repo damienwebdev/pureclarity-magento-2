@@ -7,7 +7,6 @@ declare(strict_types=1);
 
 namespace Pureclarity\Core\Model\Feed\Type\Brand;
 
-use Magento\Framework\Exception\NoSuchEntityException;
 use Magento\Store\Api\Data\StoreInterface;
 use Pureclarity\Core\Api\BrandFeedDataManagementInterface;
 use Magento\Catalog\Model\ResourceModel\Category\Collection;

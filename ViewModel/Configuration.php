@@ -8,7 +8,6 @@
 namespace Pureclarity\Core\ViewModel;
 
 use Magento\Catalog\Model\Category;
-use Magento\Catalog\Model\Product;
 use Magento\Framework\App\Request\Http;
 use Magento\Framework\Exception\NoSuchEntityException;
 use Magento\Framework\Registry;
