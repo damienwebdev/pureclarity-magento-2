@@ -51,6 +51,7 @@ class Product implements FeedManagementInterface
      *
      * @param int $storeId
      * @return bool
+     * @SuppressWarnings(PHPMD.UnusedFormalParameter)
      */
     public function isEnabled(int $storeId): bool
     {

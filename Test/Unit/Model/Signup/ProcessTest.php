@@ -26,6 +26,7 @@ use Psr\Log\LoggerInterface;
  * Class ProcessTest
  *
  * Tests the methods in \Pureclarity\Core\Model\Signup\Process
+ * @SuppressWarnings(PHPMD.CouplingBetweenObjects)
  */
 class ProcessTest extends TestCase
 {

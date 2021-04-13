@@ -24,6 +24,7 @@ use Pureclarity\Core\Model\State;
  * Class RequestTest
  *
  * Tests the methods in \Pureclarity\Core\Model\Signup\Request
+ * @SuppressWarnings(PHPMD.CouplingBetweenObjects)
  */
 class RequestTest extends TestCase
 {

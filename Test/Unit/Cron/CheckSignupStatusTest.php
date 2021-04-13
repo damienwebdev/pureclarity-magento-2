@@ -25,6 +25,7 @@ use Pureclarity\Core\Model\State as StateModel;
  * Class CheckSignupStatusTest
  *
  * Tests the methods in \Pureclarity\Core\Cron\CheckSignupStatus
+ * @SuppressWarnings(PHPMD.CouplingBetweenObjects)
  */
 class CheckSignupStatusTest extends TestCase
 {

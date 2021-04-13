@@ -26,6 +26,7 @@ use Psr\Log\LoggerInterface;
  * Class UpgradeDataTest
  *
  * Tests the methods in \Pureclarity\Core\Setup\UpgradeData
+ * @SuppressWarnings(PHPMD.CouplingBetweenObjects)
  */
 class UpgradeDataTest extends TestCase
 {

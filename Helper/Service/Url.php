@@ -125,7 +125,9 @@ class Url
      */
     public function getFeedSftpUrl($region)
     {
+        /* @codingStandardsIgnoreLine */
         $url = getenv('PURECLARITY_FEED_HOST');
+        /* @codingStandardsIgnoreLine */
         $port = getenv('PURECLARITY_FEED_PORT');
         if (empty($url)) {
             $url = $this->sftpRegions[$region];
@@ -156,6 +158,7 @@ class Url
      */
     public function getClientScriptUrl($accessKey)
     {
+        /* @codingStandardsIgnoreLine */
         $pureclarityScriptUrl = getenv('PURECLARITY_SCRIPT_URL');
         if ($pureclarityScriptUrl != null && $pureclarityScriptUrl != '') {
             $pureclarityScriptUrl .= $accessKey . '/cs.js';
@@ -177,6 +180,7 @@ class Url
      */
     private function getHost($region)
     {
+        /* @codingStandardsIgnoreLine */
         $pureclarityHostEnv = getenv('PURECLARITY_HOST');
         if ($pureclarityHostEnv != null && $pureclarityHostEnv != '') {
             return $pureclarityHostEnv;

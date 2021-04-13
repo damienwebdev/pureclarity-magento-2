@@ -27,6 +27,7 @@ use ReflectionException;
  * Class FeedDataTest
  *
  * Tests the methods in \Pureclarity\Core\Model\Feed\Type\Brand\FeedData
+ * @SuppressWarnings(PHPMD.CouplingBetweenObjects)
  */
 class FeedDataTest extends TestCase
 {
