@@ -7,9 +7,7 @@
 namespace Pureclarity\Core\Helper;
 
 use Magento\Framework\App\Filesystem\DirectoryList;
-use Magento\Framework\Exception\FileSystemException;
 use Magento\Framework\UrlInterface;
-use Magento\Store\Api\Data\StoreInterface;
 
 /**
  * Class Data
