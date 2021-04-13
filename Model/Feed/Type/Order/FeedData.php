@@ -72,7 +72,7 @@ class FeedData implements OrderFeedDataManagementInterface
     {
         $totalPages = 0;
         try {
-            $totalPages = $this->getOrderCollection($store)->getLastPageNumber();
+            $totalPages = (int)$this->getOrderCollection($store)->getLastPageNumber();
         } catch (LocalizedException $e) {
             $error = 'Could not load orders: ' . $e->getMessage();
             $this->logger->error('PureClarity: ' . $error);

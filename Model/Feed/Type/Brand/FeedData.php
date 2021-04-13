@@ -86,7 +86,7 @@ class FeedData implements BrandFeedDataManagementInterface
     {
         $totalPages = 0;
         try {
-            $totalPages = $this->getBrandCollection($store)->getLastPageNumber();
+            $totalPages = (int)$this->getBrandCollection($store)->getLastPageNumber();
         } catch (LocalizedException $e) {
             $error = 'Could not load brands: ' . $e->getMessage();
             $this->logger->error('PureClarity: ' . $error);

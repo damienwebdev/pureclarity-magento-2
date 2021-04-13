@@ -72,7 +72,7 @@ class FeedData implements UserFeedDataManagementInterface
     {
         $totalPages = 0;
         try {
-            $totalPages = $this->getCustomerCollection($store)->getLastPageNumber();
+            $totalPages = (int)$this->getCustomerCollection($store)->getLastPageNumber();
         } catch (LocalizedException $e) {
             $error = 'Could not load users: ' . $e->getMessage();
             $this->logger->error('PureClarity: ' . $error);
