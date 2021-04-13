@@ -5,7 +5,7 @@ declare(strict_types=1);
  * See LICENSE.txt for license details.
  */
 
-namespace Pureclarity\Core\Test\Unit\Model\State\Feed;
+namespace Pureclarity\Core\Test\Unit\Model\Feed\State;
 
 use PHPUnit\Framework\TestCase;
 use Pureclarity\Core\Model\Feed\State\RunDate;

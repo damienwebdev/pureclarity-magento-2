@@ -37,21 +37,21 @@ class FeedData implements UserFeedDataManagementInterface
     private $feedError;
 
     /** @var CustomerCollectionFactory */
-    private $customerCollectionFactory;
+    private $collectionFactory;
 
     /**
      * @param LoggerInterface $logger
      * @param Error $feedError
-     * @param CustomerCollectionFactory $customerCollectionFactory
+     * @param CustomerCollectionFactory $collectionFactory
      */
     public function __construct(
         LoggerInterface $logger,
         Error $feedError,
-        CustomerCollectionFactory $customerCollectionFactory
+        CustomerCollectionFactory $collectionFactory
     ) {
-        $this->logger                         = $logger;
-        $this->feedError                      = $feedError;
-        $this->customerCollectionFactory      = $customerCollectionFactory;
+        $this->logger            = $logger;
+        $this->feedError         = $feedError;
+        $this->collectionFactory = $collectionFactory;
     }
 
     /**
@@ -127,7 +127,7 @@ class FeedData implements UserFeedDataManagementInterface
      */
     public function buildCustomerCollection(StoreInterface $store): Collection
     {
-        $collection = $this->customerCollectionFactory->create();
+        $collection = $this->collectionFactory->create();
         $collection->addAttributeToFilter(
             'website_id',
             [ "eq" => $store->getWebsiteId()]

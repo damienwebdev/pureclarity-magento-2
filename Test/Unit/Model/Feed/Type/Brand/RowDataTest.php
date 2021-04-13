@@ -14,6 +14,7 @@ use Magento\Catalog\Model\Category;
 use Magento\Store\Api\Data\StoreInterface;
 use Magento\Framework\Exception\NoSuchEntityException;
 use Magento\Framework\Phrase;
+use ReflectionException;
 
 /**
  * Class RowDataTest
@@ -245,6 +246,7 @@ class RowDataTest extends TestCase
      * Sets up a StoreInterface and store manager getStore
      *
      * @return StoreInterface|MockObject
+     * @throws ReflectionException
      */
     public function setupStore()
     {
