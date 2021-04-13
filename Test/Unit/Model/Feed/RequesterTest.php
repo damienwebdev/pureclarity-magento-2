@@ -97,13 +97,31 @@ class RequesterTest extends TestCase
         $this->request->expects(self::once())
             ->method('requestFeeds')
             ->with(1, Runner::VALID_FEED_TYPES);
-        
+
         $this->error->expects(self::exactly(5))
             ->method('saveFeedError');
-        
+
         $this->progress->expects(self::exactly(5))
             ->method('updateProgress');
 
         $this->object->requestFeeds(1, Runner::VALID_FEED_TYPES);
+    }
+
+    /**
+     * Tests that requestFeeds will request feeds if force is true
+     */
+    public function testRequestFeedsForced(): void
+    {
+        $this->request->expects(self::once())
+            ->method('requestFeeds')
+            ->with(1, Runner::VALID_FEED_TYPES);
+
+        $this->error->expects(self::exactly(5))
+            ->method('saveFeedError');
+
+        $this->progress->expects(self::exactly(5))
+            ->method('updateProgress');
+
+        $this->object->requestFeeds(1, Runner::VALID_FEED_TYPES, true);
     }
 }

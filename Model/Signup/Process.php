@@ -221,6 +221,6 @@ class Process
             }
         }
 
-        $this->feedRequest->requestFeeds($storeId, $feeds);
+        $this->feedRequest->requestFeeds($storeId, $feeds, true);
     }
 }
