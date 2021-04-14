@@ -72,7 +72,7 @@ class FeedData implements CategoryFeedDataManagementInterface
     {
         $totalPages = 0;
         try {
-            $totalPages = $this->getCategoryCollection($store)->getLastPageNumber();
+            $totalPages = (int)$this->getCategoryCollection($store)->getLastPageNumber();
         } catch (LocalizedException $e) {
             $error = 'Could not load categories: ' . $e->getMessage();
             $this->logger->error('PureClarity: ' . $error);

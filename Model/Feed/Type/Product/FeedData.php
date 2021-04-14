@@ -73,7 +73,7 @@ class FeedData implements ProductFeedDataManagementInterface
     {
         $totalPages = 0;
         try {
-            $totalPages = $this->getCollection($store)->getLastPageNumber();
+            $totalPages = (int)$this->getCollection($store)->getLastPageNumber();
         } catch (LocalizedException $e) {
             $error = 'Could not load products: ' . $e->getMessage();
             $this->logger->error('PureClarity: ' . $error);
