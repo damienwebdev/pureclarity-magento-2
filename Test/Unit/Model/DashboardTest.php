@@ -47,7 +47,7 @@ class DashboardTest extends TestCase
     /** @var MockObject|LoggerInterface $logger*/
     private $logger;
 
-    protected function setUp()
+    protected function setUp(): void
     {
         $this->coreConfig = $this->getMockBuilder(CoreConfig::class)
             ->disableOriginalConstructor()

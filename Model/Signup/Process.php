@@ -13,9 +13,8 @@ use Magento\Framework\Exception\CouldNotSaveException;
 use Magento\Store\Model\StoreManagerInterface;
 use Pureclarity\Core\Api\StateRepositoryInterface;
 use Pureclarity\Core\Model\CoreConfig;
-use Pureclarity\Core\Model\Cron;
-use Pureclarity\Core\Model\CronFactory;
 use Psr\Log\LoggerInterface;
+use Pureclarity\Core\Model\Feed\Requester;
 
 /**
  * Class Process
@@ -30,9 +29,6 @@ class Process
     /** @var CoreConfig $coreConfig */
     private $coreConfig;
 
-    /** @var CronFactory $cronFactory */
-    private $cronFactory;
-
     /** @var StoreManagerInterface $storeManager */
     private $storeManager;
 
@@ -42,28 +38,31 @@ class Process
     /** @var LoggerInterface $logger */
     private $logger;
 
+    /** @var Requester $feedRequest */
+    private $feedRequest;
+
     /**
      * @param StateRepositoryInterface $stateRepository
      * @param CoreConfig $coreConfig
-     * @param CronFactory $cronFactory
      * @param StoreManagerInterface $storeManager
      * @param Manager $cacheManager
      * @param LoggerInterface $logger
+     * @param Requester $feedRequest
      */
     public function __construct(
         StateRepositoryInterface $stateRepository,
         CoreConfig $coreConfig,
-        CronFactory $cronFactory,
         StoreManagerInterface $storeManager,
         Manager $cacheManager,
-        LoggerInterface $logger
+        LoggerInterface $logger,
+        Requester $feedRequest
     ) {
         $this->stateRepository = $stateRepository;
         $this->coreConfig      = $coreConfig;
-        $this->cronFactory     = $cronFactory;
         $this->storeManager    = $storeManager;
         $this->cacheManager    = $cacheManager;
         $this->logger          = $logger;
+        $this->feedRequest     = $feedRequest;
     }
 
     /**
@@ -206,10 +205,8 @@ class Process
      *
      * @param int $storeId
      */
-    private function triggerFeeds($storeId)
+    private function triggerFeeds(int $storeId): void
     {
-        /** @var Cron $cronFeed */
-        $cronFeed = $this->cronFactory->create();
         $feeds = [
             'product',
             'category',
@@ -224,6 +221,6 @@ class Process
             }
         }
 
-        $cronFeed->scheduleSelectedFeeds($storeId, $feeds);
+        $this->feedRequest->requestFeeds($storeId, $feeds, true);
     }
 }

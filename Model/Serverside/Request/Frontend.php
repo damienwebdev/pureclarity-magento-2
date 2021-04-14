@@ -180,6 +180,7 @@ class Frontend
             && $params['page']['page_type'] === 'search_results'
             && !empty($currentUrl)
         ) {
+            /* @codingStandardsIgnoreLine */
             parse_str(parse_url($currentUrl, PHP_URL_QUERY), $urlParams);
             $term = $this->getSearchTerm($urlParams);
             $this->request->setSearchTerm($term);

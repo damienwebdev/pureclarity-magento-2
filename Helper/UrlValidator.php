@@ -28,6 +28,7 @@ class UrlValidator
         }
 
         if ($isValid && !empty($allowedSchemes)) {
+            /* @codingStandardsIgnoreLine */
             $url = parse_url($value);
             if (empty($url['scheme']) || !in_array($url['scheme'], $allowedSchemes)) {
                 $isValid = false;

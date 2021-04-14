@@ -20,7 +20,7 @@ class ExcludesTest extends TestCase
     /** @var Excludes $object */
     private $object;
 
-    protected function setUp()
+    protected function setUp(): void
     {
         $this->object = new Excludes();
     }

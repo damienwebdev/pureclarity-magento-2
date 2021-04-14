@@ -38,7 +38,7 @@ class CategoriesTest extends TestCase
     /** @var MockObject|Group $group */
     private $group;
 
-    protected function setUp()
+    protected function setUp(): void
     {
         $this->categoryRepository = $this->getMockBuilder(CategoryRepository::class)
             ->disableOriginalConstructor()

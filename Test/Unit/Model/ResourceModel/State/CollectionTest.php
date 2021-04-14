@@ -47,7 +47,7 @@ class CollectionTest extends TestCase
     /** @var MockObject|AbstractDb $resource */
     private $resource;
 
-    protected function setUp()
+    protected function setUp(): void
     {
         $this->entityFactory = $this->getMockBuilder(EntityFactoryInterface::class)
             ->disableOriginalConstructor()

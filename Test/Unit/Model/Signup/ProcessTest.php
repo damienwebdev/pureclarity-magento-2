@@ -17,9 +17,8 @@ use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 use Pureclarity\Core\Api\StateRepositoryInterface;
 use Pureclarity\Core\Model\CoreConfig;
-use Pureclarity\Core\Model\Cron;
+use Pureclarity\Core\Model\Feed\Requester;
 use Pureclarity\Core\Model\Signup\Process;
-use Pureclarity\Core\Model\CronFactory;
 use Pureclarity\Core\Model\State;
 use Psr\Log\LoggerInterface;
 
@@ -27,6 +26,7 @@ use Psr\Log\LoggerInterface;
  * Class ProcessTest
  *
  * Tests the methods in \Pureclarity\Core\Model\Signup\Process
+ * @SuppressWarnings(PHPMD.CouplingBetweenObjects)
  */
 class ProcessTest extends TestCase
 {
@@ -44,12 +44,6 @@ class ProcessTest extends TestCase
     /** @var MockObject|CoreConfig $coreConfigMock */
     private $coreConfigMock;
 
-    /** @var MockObject|CronFactory $cronFactoryMock */
-    private $cronFactoryMock;
-
-    /** @var MockObject|Cron $cronMock */
-    private $cronMock;
-
     /** @var MockObject|StoreManagerInterface $storeManagerInterfaceMock */
     private $storeManagerInterfaceMock;
 
@@ -62,7 +56,10 @@ class ProcessTest extends TestCase
     /** @var MockObject|LoggerInterface $logger */
     private $logger;
 
-    protected function setUp()
+    /** @var MockObject|Requester $feedRequest */
+    private $feedRequest;
+
+    protected function setUp(): void
     {
         $this->stateRepositoryInterfaceMock = $this->getMockBuilder(StateRepositoryInterface::class)
             ->disableOriginalConstructor()
@@ -71,17 +68,6 @@ class ProcessTest extends TestCase
         $this->coreConfigMock = $this->getMockBuilder(CoreConfig::class)
             ->disableOriginalConstructor()
             ->getMock();
-
-        $this->cronFactoryMock = $this->getMockBuilder(CronFactory::class)
-            ->disableOriginalConstructor()
-            ->getMock();
-
-        $this->cronMock = $this->getMockBuilder(Cron::class)
-            ->disableOriginalConstructor()
-            ->getMock();
-
-        $this->cronFactoryMock->expects($this->any())->method('create')
-            ->will($this->returnValue($this->cronMock));
 
         $this->storeManagerInterfaceMock = $this->getMockBuilder(StoreManagerInterface::class)
             ->disableOriginalConstructor()
@@ -99,13 +85,17 @@ class ProcessTest extends TestCase
             ->disableOriginalConstructor()
             ->getMock();
 
+        $this->feedRequest = $this->getMockBuilder(Requester::class)
+            ->disableOriginalConstructor()
+            ->getMock();
+
         $this->object = new Process(
             $this->stateRepositoryInterfaceMock,
             $this->coreConfigMock,
-            $this->cronFactoryMock,
             $this->storeManagerInterfaceMock,
             $this->cacheManagerMock,
-            $this->logger
+            $this->logger,
+            $this->feedRequest
         );
     }
 
@@ -236,8 +226,8 @@ class ProcessTest extends TestCase
             ->with($this->getStateMock('1', 'signup_request', 'complete', self::STORE_ID));
 
         // test triggerFeeds calls
-        $this->cronMock->expects($this->at(0))
-            ->method('scheduleSelectedFeeds')
+        $this->feedRequest->expects(self::at(0))
+            ->method('requestFeeds')
             ->with(self::STORE_ID, ['product', 'category', 'user', 'orders']);
 
         $this->object->process($this->getDefaultParams());
@@ -253,8 +243,8 @@ class ProcessTest extends TestCase
             ->willReturn($this->getStateMock());
 
         // test triggerFeeds calls
-        $this->cronMock->expects($this->at(0))
-            ->method('scheduleSelectedFeeds')
+        $this->feedRequest->expects(self::at(0))
+            ->method('requestFeeds')
             ->with(17, ['product', 'category', 'user', 'orders']);
 
         $this->storeManagerInterfaceMock->expects($this->any())

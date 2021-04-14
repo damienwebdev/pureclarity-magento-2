@@ -54,6 +54,7 @@ class Region implements OptionSourceInterface
      */
     public function getRegionName($region)
     {
+        /* @codingStandardsIgnoreLine */
         $localRegion = getenv('PURECLARITY_REGION');
 
         if ($localRegion) {

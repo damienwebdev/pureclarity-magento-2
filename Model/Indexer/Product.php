@@ -51,7 +51,7 @@ class Product implements ActionInterface, MviewActionInterface
                 $deltaProduct->setData(
                     [
                         'product_id'    => $productId,
-                        'token'         => '',
+                        'token'         => 'product',
                         'status_id'     => 0
                     ]
                 );

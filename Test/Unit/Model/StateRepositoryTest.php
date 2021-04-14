@@ -41,7 +41,7 @@ class StateRepositoryTest extends TestCase
     /** @var MockObject|StateResource $stateResourceMock */
     private $stateResourceMock;
 
-    protected function setUp()
+    protected function setUp(): void
     {
         $this->collectionFactoryMock = $this->getMockBuilder(CollectionFactory::class)
             ->disableOriginalConstructor()
@@ -50,7 +50,16 @@ class StateRepositoryTest extends TestCase
         $this->collectionMock = $this->getMockBuilder(Collection::class)
             ->disableOriginalConstructor()
             ->setMethods(
-                ['addFieldToFilter', 'getSize', 'setCurPage', 'setPageSize', 'load', 'addOrder', 'getFirstItem']
+                [
+                    'addFieldToFilter',
+                    'getSize',
+                    'setCurPage',
+                    'setPageSize',
+                    'load',
+                    'addOrder',
+                    'getFirstItem',
+                    'getItems'
+                ]
             )
             ->getMock();
 
@@ -115,6 +124,17 @@ class StateRepositoryTest extends TestCase
     public function testStateRepositoryInterface()
     {
         $this->assertInstanceOf(StateRepositoryInterface::class, $this->object);
+    }
+
+    public function testGetListByName()
+    {
+        $this->collectionMock->expects(self::once())->method('addFieldToFilter')->with('name');
+        $this->collectionMock->expects(self::once())->method('getItems')->willReturn(
+            [$this->getStateMock(), $this->getStateMock()]
+        );
+        $result = $this->object->getListByName('name');
+        self::assertCount(2, $result);
+        self::assertInstanceOf(StateInterface::class, $result[0]);
     }
 
     public function testGetByNameAndStore()

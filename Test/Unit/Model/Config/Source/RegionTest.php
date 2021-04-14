@@ -20,7 +20,7 @@ class RegionTest extends TestCase
     /** @var Region $object */
     private $object;
 
-    protected function setUp()
+    protected function setUp(): void
     {
         $this->object = new Region();
     }

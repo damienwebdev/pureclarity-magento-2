@@ -24,6 +24,7 @@ use Pureclarity\Core\Model\State;
  * Class RequestTest
  *
  * Tests the methods in \Pureclarity\Core\Model\Signup\Request
+ * @SuppressWarnings(PHPMD.CouplingBetweenObjects)
  */
 class RequestTest extends TestCase
 {
@@ -66,7 +67,7 @@ class RequestTest extends TestCase
     /** @var MockObject|UrlValidator $urlValidator */
     private $urlValidator;
 
-    protected function setUp()
+    protected function setUp(): void
     {
         $this->curlMock = $this->getMockBuilder(Curl::class)
              ->disableOriginalConstructor()

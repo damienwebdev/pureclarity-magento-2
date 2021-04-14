@@ -13,6 +13,13 @@ use Pureclarity\Core\Api\Data\StateInterface;
 interface StateRepositoryInterface
 {
     /**
+     * Gets all rows with the given name, one per store
+     * @param string $name
+     * @return StateInterface[]
+     */
+    public function getListByName(string $name) : array;
+
+    /**
      * @param string $name
      * @param integer $storeId
      * @return StateInterface
