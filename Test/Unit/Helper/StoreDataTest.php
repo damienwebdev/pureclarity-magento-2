@@ -4,7 +4,7 @@
  * See LICENSE.txt for license details.
  */
 
-namespace Pureclarity\Core\Test\Unit\Model;
+namespace Pureclarity\Core\Test\Unit\Helper;
 
 use Magento\Framework\App\Config\ScopeConfigInterface;
 use Magento\Store\Model\ScopeInterface;
@@ -29,7 +29,7 @@ class StoreDataTest extends TestCase
     /** @var MockObject|StoreManagerInterface $writer */
     private $storeManager;
 
-    protected function setUp()
+    protected function setUp(): void
     {
         $this->storeManager = $this->getMockBuilder(StoreManagerInterface::class)
             ->disableOriginalConstructor()

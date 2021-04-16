@@ -33,7 +33,7 @@ class ConfiguredTest extends TestCase
     /** @var MockObject|Stores $stores */
     private $stores;
 
-    protected function setUp()
+    protected function setUp(): void
     {
         $this->context = $this->getMockBuilder(Context::class)
             ->disableOriginalConstructor()

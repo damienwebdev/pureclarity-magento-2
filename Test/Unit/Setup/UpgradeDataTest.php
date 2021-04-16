@@ -26,6 +26,7 @@ use Psr\Log\LoggerInterface;
  * Class UpgradeDataTest
  *
  * Tests the methods in \Pureclarity\Core\Setup\UpgradeData
+ * @SuppressWarnings(PHPMD.CouplingBetweenObjects)
  */
 class UpgradeDataTest extends TestCase
 {
@@ -50,7 +51,7 @@ class UpgradeDataTest extends TestCase
     /** @var MockObject|LoggerInterface $logger */
     private $logger;
 
-    protected function setUp()
+    protected function setUp(): void
     {
         $this->setup = $this->getMockBuilder(ModuleDataSetupInterface::class)
             ->disableOriginalConstructor()

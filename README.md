@@ -1,29 +1,59 @@
 PureClarity for Magento 2
 =========================
 
-Deliver the Ultimate Personalized Ecommerce Experience.
+Integrate your Magento 2 store with PureClarity for the ultimate Personalised Ecommerce Experience.
 
-Support website: [support.pureclarity.com/hc/](https://support.pureclarity.com/hc/en-us)
+Compatibility
+-------------
 
-Magento 2 Extension Setup: [Magento-2-x Implementation Guide](https://www.pureclarity.com/docs/magento-2/)
+- Magento 2.2 and above
+- Supports both Open Source and Commerce editions
+- PHP 7.1+
 
-Powerful Intelligent Personalization
-------------------------------------
+Description
+-----------
 
-[PureClarity](http://www.pureclarity.com) a Magento Technology Partner, is the leading AI-based eCommerce personalization platform proven to increase online revenue by 26% with Personalized real-time AI Recommenders, Personalized Marketing Campaigns and Personalization within Email and Search. Offering extremely competitive pricing with all personalization features included in the price, PureClarity is one of the few marketplace providers to truly provide real value in the personalization arena.
-                                               
-PureClarity is designed to provide a highly personalized visitor experience that will increase sales conversions and build customer loyalty. Through its powerful real-time AI, PureClarity analyses visitor behavior at three different levels to present highly targeted products, banners, promotions and offers relevant to each customer segment. PureClarity customers will benefit from a large number of features that will enable them to provide a highly personalized customer buying experience regardless of the amount of customer data they currently hold both on their websites and also within their search and email marketing campaigns.
-                                               
-PureClarity's AI recommender engine ensures the correct recommender is delivered at the right time in the right place and ensures 99% no duplication of product. In addition, PureClarity allows customers to create as many customer segments as required to meet their business needs. We have a team of eCommerce specialists servicing a wide range of clients and partners around the globe with offices in the UK - London and York and USA – New York.
+[PureClarity](http://www.pureclarity.com) gives your Magento store an amazing advantage over your competition by providing:
+
+- Real-time personalised product recommendations
+- Personalised popups
+- Personalised content
+- Live chat
+- Powerful personalised emails
+- Personalised recommendations within search
+
+Integrate in minutes – our plugin seamlessly links your store to PureClarity. Instantly start to increase your revenue by providing a highly personalised and engaging online shopping experience!
+
+For more information on the features and benefits of PureClarity, please visit [www.pureclarity.com](http://www.pureclarity.com)
 
 Installation
 ------------
 
-The best way to install PureClarity is via [Composer](https://getcomposer.org/).
+Install PureClarity for Magento 2 using [Composer](https://getcomposer.org/) by running the following commands:
 
-Run the following commands:
-
-- ```$ composer require pureclarity/pureclarity-magento-2```
+- ```$ composer require pureclarity/pureclarity-magento-2 --no-update```
+- ```$ composer update```
 - ```$ bin/magento module:enable Pureclarity_Core```
 - ```$ bin/magento setup:upgrade```
 - ```$ bin/magento setup:static-content:deploy```
+- ```$ bin/magento setup:di:compile```
+  
+What does the extension do?
+---------------------------
+
+The PureClarity Magento 2 extension does the following:
+
+- Allows you to sign up for a 30-day free trial.
+- Ensures data integrity between your store and PureClarity through cron jobs and indexing.
+- Gives you guidance on the initial setup of PureClarity in your store.
+- Sets up the [Zones](https://intercom.help/pureclarity-academy/en/collections/2028411-pureclarity-academy#zones) for the Home Page, Product Page, Basket Page and Order Confirmation Page.
+- Tracks events on your stores frontend to ensure up to date information is used in recommendations.
+
+[Click here to see instructions on how to sign up for a free trial](http://docs.pureclarity.net/en/articles/4719928-magento-2-x-free-trial-signup)
+
+Support
+-------
+
+If you face any issues while using the extensions, or have any questions, please contact [support@pureclarity.com](mailto:support@pureclarity.com). Please include the version & edition of Magento you're using as well as the version of the PureClarity extension. 
+
+[Documentation](http://docs.pureclarity.net/en/collections/2545031-magento-2-x-integration)

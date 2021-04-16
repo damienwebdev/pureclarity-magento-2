@@ -48,7 +48,7 @@ class AddStoreTest extends TestCase
     /** @var MockObject|LoggerInterface $logger */
     private $logger;
 
-    protected function setUp()
+    protected function setUp(): void
     {
         $this->addStore = $this->getMockBuilder(ApiAddStore::class)
             ->disableOriginalConstructor()

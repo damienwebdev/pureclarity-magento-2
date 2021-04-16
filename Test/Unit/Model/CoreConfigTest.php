@@ -29,7 +29,7 @@ class CoreConfigTest extends TestCase
     /** @var MockObject|WriterInterface $writer */
     private $writer;
 
-    protected function setUp()
+    protected function setUp(): void
     {
         $this->scopeConfig = $this->getMockBuilder(ScopeConfigInterface::class)
             ->disableOriginalConstructor()

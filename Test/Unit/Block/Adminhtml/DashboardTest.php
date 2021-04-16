@@ -23,7 +23,7 @@ class DashboardTest extends TestCase
     /** @var Dashboard $object */
     private $object;
 
-    protected function setUp()
+    protected function setUp(): void
     {
         $context = $this->getMockBuilder(Context::class)
             ->disableOriginalConstructor()

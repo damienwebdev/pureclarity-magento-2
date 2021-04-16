@@ -33,7 +33,7 @@ class InstallZonesModalTest extends TestCase
     /** @var MockObject|Themes $themesViewModel */
     private $themesViewModel;
 
-    protected function setUp()
+    protected function setUp(): void
     {
         $this->context = $this->getMockBuilder(Context::class)
             ->disableOriginalConstructor()

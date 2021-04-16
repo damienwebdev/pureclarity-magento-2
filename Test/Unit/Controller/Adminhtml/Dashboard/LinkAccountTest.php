@@ -60,7 +60,7 @@ class LinkAccountTest extends TestCase
     /** @var MockObject|Http $request */
     private $request;
 
-    protected function setUp()
+    protected function setUp(): void
     {
         $this->request = $this->getMockBuilder(Http::class)
             ->disableOriginalConstructor()

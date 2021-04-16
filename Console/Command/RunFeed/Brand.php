@@ -9,8 +9,8 @@ namespace Pureclarity\Core\Console\Command\RunFeed;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
-use Pureclarity\Core\Model\Feed;
-use Pureclarity\Core\Model\CronFactory;
+use PureClarity\Api\Feed\Feed;
+use Pureclarity\Core\Model\Feed\Runner;
 use Magento\Store\Model\StoreManagerInterface;
 use Magento\Framework\App\State;
 
@@ -21,30 +21,30 @@ use Magento\Framework\App\State;
  */
 class Brand extends Command
 {
-    /** @var CronFactory $feedRunnerFactory */
-    private $feedRunnerFactory;
+    /** @var Runner $feedRunner */
+    private $feedRunner;
     
     /** @var State $state */
     private $state;
     
     /** @var StoreManagerInterface $storeManager */
     private $storeManager;
-    
+
     /**
-     * @param CronFactory $feedRunnerFactory
+     * @param Runner $feedRunner
      * @param State $state
      * @param StoreManagerInterface $storeManager
      * @param string|null $name
      */
     public function __construct(
-        CronFactory $feedRunnerFactory,
+        Runner $feedRunner,
         State $state,
         StoreManagerInterface $storeManager,
         $name = null
     ) {
-        $this->feedRunnerFactory = $feedRunnerFactory;
-        $this->state             = $state;
-        $this->storeManager      = $storeManager;
+        $this->feedRunner   = $feedRunner;
+        $this->state        = $state;
+        $this->storeManager = $storeManager;
         parent::__construct($name);
     }
     
@@ -71,17 +71,9 @@ class Brand extends Command
             $output->writeln($e->getMessage());
         }
         
-        /** @var \Pureclarity\Core\Model\Cron */
-        $feedRunner = $this->feedRunnerFactory->create();
-        
-        foreach ($this->storeManager->getWebsites() as $website) {
-            foreach ($website->getGroups() as $group) {
-                $stores = $group->getStores();
-                foreach ($stores as $store) {
-                    $output->writeln('Running Brand Feed for Store ID ' . $store->getId());
-                    $feedRunner->selectedFeeds($store->getId(), [Feed::FEED_TYPE_BRAND]);
-                }
-            }
+        foreach ($this->storeManager->getStores() as $store) {
+            $output->writeln('Running Brand Feed for Store ID ' . $store->getId());
+            $this->feedRunner->selectedFeeds($store->getId(), [Feed::FEED_TYPE_BRAND]);
         }
         
         $memUsage = round((memory_get_usage() / 1024) / 1024, 2);

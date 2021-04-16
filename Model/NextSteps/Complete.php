@@ -7,7 +7,6 @@
 namespace Pureclarity\Core\Model\NextSteps;
 
 use Psr\Log\LoggerInterface;
-use Pureclarity\Core\Helper\Serializer;
 use PureClarity\Api\NextSteps\CompleteFactory;
 use Pureclarity\Core\Model\CoreConfig;
 

@@ -35,7 +35,7 @@ class StateTest extends TestCase
     /** @var MockObject|CoreConfig $productMetadata */
     private $coreConfig;
 
-    protected function setUp()
+    protected function setUp(): void
     {
         $this->stateRepository = $this->getMockBuilder(StateRepositoryInterface::class)
             ->disableOriginalConstructor()

@@ -23,7 +23,7 @@ class ToolbarTest extends TestCase
     /** @var Toolbar $object */
     private $object;
 
-    protected function setUp()
+    protected function setUp(): void
     {
         $context = $this->getMockBuilder(Context::class)
             ->disableOriginalConstructor()

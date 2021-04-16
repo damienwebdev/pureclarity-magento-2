@@ -24,7 +24,7 @@ class StoreTest extends TestCase
     /** @var MockObject|StoreData $storeData */
     private $storeData;
 
-    protected function setUp()
+    protected function setUp(): void
     {
         $this->storeData = $this->getMockBuilder(StoreData::class)
             ->disableOriginalConstructor()

@@ -11,7 +11,7 @@ use Magento\Backend\App\Action\Context;
 use Magento\Framework\Controller\Result\Json;
 use Magento\Framework\Controller\Result\JsonFactory;
 use Magento\Store\Model\StoreManagerInterface;
-use Pureclarity\Core\Model\FeedStatus;
+use Pureclarity\Core\Model\Feed\Status;
 
 /**
  * Class Progress
@@ -23,7 +23,7 @@ class Progress extends Action
     /** @var JsonFactory $resultJsonFactory */
     private $resultJsonFactory;
 
-    /** @var FeedStatus $feedStatus */
+    /** @var Status $feedStatus */
     private $feedStatus;
 
     /** @var StoreManagerInterface $storeManager */
@@ -32,13 +32,13 @@ class Progress extends Action
     /**
      * @param Context $context
      * @param JsonFactory $resultJsonFactory
-     * @param FeedStatus $feedStatus
+     * @param Status $feedStatus
      * @param StoreManagerInterface $storeManager
      */
     public function __construct(
         Context $context,
         JsonFactory $resultJsonFactory,
-        FeedStatus $feedStatus,
+        Status $feedStatus,
         StoreManagerInterface $storeManager
     ) {
         $this->resultJsonFactory = $resultJsonFactory;

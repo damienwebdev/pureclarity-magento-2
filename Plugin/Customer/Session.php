@@ -8,7 +8,7 @@ namespace Pureclarity\Core\Plugin\Customer;
 
 use Magento\Framework\Registry;
 use Magento\Customer\Model\Session as CustomerSession;
-use Pureclarity\Core\Model\ProductExport\PriceHandler;
+use Pureclarity\Core\Model\Feed\Type\Product\RowDataHandlers\Prices;
 
 /**
  * Class Session
@@ -46,7 +46,7 @@ class Session
         $customerGroupId
     ) {
         
-        $customerGroupIdOverride = $this->registry->registry(PriceHandler::REGISTRY_KEY_CUSTOMER_GROUP);
+        $customerGroupIdOverride = $this->registry->registry(Prices::REGISTRY_KEY_CUSTOMER_GROUP);
         if ($customerGroupIdOverride !== null) {
             return $customerGroupIdOverride;
         }

@@ -25,6 +25,7 @@ use Pureclarity\Core\Model\State as StateModel;
  * Class CheckSignupStatusTest
  *
  * Tests the methods in \Pureclarity\Core\Cron\CheckSignupStatus
+ * @SuppressWarnings(PHPMD.CouplingBetweenObjects)
  */
 class CheckSignupStatusTest extends TestCase
 {
@@ -55,7 +56,7 @@ class CheckSignupStatusTest extends TestCase
     /** @var MockObject|StoreManagerInterface $storeManager */
     private $storeManager;
 
-    protected function setUp()
+    protected function setUp(): void
     {
         $this->requestStatus = $this->getMockBuilder(RequestStatus::class)
             ->disableOriginalConstructor()
