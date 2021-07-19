@@ -5,6 +5,7 @@ use Magento\Backend\App\Action;
 use Magento\Backend\App\Action\Context;
 use Magento\Framework\Controller\Result\JsonFactory;
 use Pureclarity\Core\Model\Zones\Installer;
+use Psr\Log\LoggerInterface;
 
 /**
  * Class Install
@@ -19,18 +20,24 @@ class Install extends Action
     /** @var Installer $zoneInstaller */
     private $zoneInstaller;
 
+    /** @var LoggerInterface $logger */
+    private $logger;
+
     /**
      * @param Context $context
      * @param JsonFactory $resultJsonFactory
      * @param Installer $zoneInstaller
+     * @param LoggerInterface $logger
      */
     public function __construct(
         Context $context,
         JsonFactory $resultJsonFactory,
-        Installer $zoneInstaller
+        Installer $zoneInstaller,
+        LoggerInterface $logger
     ) {
-        $this->zoneInstaller     = $zoneInstaller;
         $this->resultJsonFactory = $resultJsonFactory;
+        $this->zoneInstaller     = $zoneInstaller;
+        $this->logger            = $logger;
         parent::__construct(
             $context
         );
@@ -51,13 +58,14 @@ class Install extends Action
                 $storeId,
                 $themeId
             );
-            return $this->resultJsonFactory->create()->setData($result);
+            $result['success'] = true;
         } catch (\Exception $e) {
-            $this->getResponse()
-                ->clearHeaders()
-                ->setHeader('HTTP/1.0', 409, true)
-                ->setHeader('Content-Type', 'text/html')
-                ->setBody('Error');
+            $this->logger->error('PureClarity Zone install error: ' . $e->getMessage());
+            $result['success'] = false;
         }
+
+        $json = $this->resultJsonFactory->create();
+        $json->setData($result);
+        return $json;
     }
 }
