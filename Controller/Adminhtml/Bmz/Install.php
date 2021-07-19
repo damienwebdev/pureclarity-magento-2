@@ -4,7 +4,7 @@ namespace Pureclarity\Core\Controller\Adminhtml\Bmz;
 use Magento\Backend\App\Action;
 use Magento\Backend\App\Action\Context;
 use Magento\Framework\Controller\Result\JsonFactory;
-use Pureclarity\Core\Model\CmsBlock;
+use Pureclarity\Core\Model\Zones\Installer;
 
 /**
  * Class Install
@@ -16,20 +16,20 @@ class Install extends Action
     /** @var JsonFactory $resultJsonFactory */
     private $resultJsonFactory;
 
-    /** @var CmsBlock $cmsBlock */
-    private $cmsBlock;
+    /** @var Installer $zoneInstaller */
+    private $zoneInstaller;
 
     /**
      * @param Context $context
      * @param JsonFactory $resultJsonFactory
-     * @param CmsBlock $cmsBlock
+     * @param Installer $zoneInstaller
      */
     public function __construct(
         Context $context,
         JsonFactory $resultJsonFactory,
-        CmsBlock $cmsBlock
+        Installer $zoneInstaller
     ) {
-        $this->cmsBlock          = $cmsBlock;
+        $this->zoneInstaller     = $zoneInstaller;
         $this->resultJsonFactory = $resultJsonFactory;
         parent::__construct(
             $context
@@ -41,7 +41,16 @@ class Install extends Action
         try {
             $storeId =  (int)$this->getRequest()->getParam('storeid');
             $themeId =  (int)$this->getRequest()->getParam('themeid');
-            $result = $this->cmsBlock->install(['bmzs.csv'], $storeId, $themeId);
+            $result = $this->zoneInstaller->install(
+                [
+                    'homepage',
+                    'product_page',
+                    'basket_page',
+                    'order_confirmation_page'
+                ],
+                $storeId,
+                $themeId
+            );
             return $this->resultJsonFactory->create()->setData($result);
         } catch (\Exception $e) {
             $this->getResponse()
