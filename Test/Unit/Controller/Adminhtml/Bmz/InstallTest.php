@@ -104,7 +104,7 @@ class InstallTest extends TestCase
     }
 
     /**
-     * Tests the execute function in single store mode, making sure menu is set correctly
+     * Tests that the execute function calls the zone installer correctly
      */
     public function testExecute()
     {
@@ -141,7 +141,7 @@ class InstallTest extends TestCase
     }
 
     /**
-     * Tests the execute function in single store mode, making sure menu is set correctly
+     * Tests the execute function handles exceptions correctly
      */
     public function testExecuteException()
     {
