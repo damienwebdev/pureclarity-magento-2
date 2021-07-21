@@ -110,7 +110,7 @@ $themes = $block->getPureclarityThemesViewModel();
                         url: urlParts.join('&'),
                         data: {form_key: window.FORM_KEY, storeid: pureclarityZoneObj.selectedStore},
                     }).done(function (response) {
-                        if (response) {
+                        if (response.success) {
                             messageParts = ['Installation finished.</br />'];
                             if (response.alreadyExists && response.alreadyExists.length > 0) {
                                 messageParts.push(

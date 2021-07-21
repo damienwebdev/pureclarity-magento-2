@@ -22,6 +22,9 @@ use Pureclarity\Core\Model\CoreConfig;
  */
 class Bmz extends Template implements BlockInterface
 {
+    /** @var string */
+    public const WIDGET_ID = 'pureclarity_core_bmz';
+
     /** @var string $_template */
     protected $_template = 'bmz.phtml';
 
