@@ -95,4 +95,53 @@
     <preference for="Pureclarity\Core\Api\ProductFeedDataManagementInterface" type="Pureclarity\Core\Model\Feed\Type\Product\FeedData" />
     <preference for="Pureclarity\Core\Api\ProductFeedRowDataManagementInterface" type="Pureclarity\Core\Model\Feed\Type\Product\RowData" />
 
+    <virtualType name="PureClarityLogger" type="Magento\Framework\Logger\Monolog">
+        <arguments>
+            <argument name="handlers" xsi:type="array">
+                <item name="debug" xsi:type="object">Pureclarity\Core\Logger\Handler\Debug</item>
+                <item name="error" xsi:type="object">Pureclarity\Core\Logger\Handler\Error</item>
+                <item name="info" xsi:type="object">Pureclarity\Core\Logger\Handler\Info</item>
+                <item name="critical" xsi:type="object">Pureclarity\Core\Logger\Handler\Critical</item>
+            </argument>
+        </arguments>
+    </virtualType>
+
+    <type name="Pureclarity\Core\Controller\Adminhtml\Bmz\Install"><arguments><argument name="logger" xsi:type="object">PureClarityLogger</argument></arguments></type>
+    <type name="Pureclarity\Core\Cron\CheckVersion"><arguments><argument name="logger" xsi:type="object">PureClarityLogger</argument></arguments></type>
+    <type name="Pureclarity\Core\Cron\RunNightly"><arguments><argument name="logger" xsi:type="object">PureClarityLogger</argument></arguments></type>
+    <type name="Pureclarity\Core\Cron\RunRequestedFeeds"><arguments><argument name="logger" xsi:type="object">PureClarityLogger</argument></arguments></type>
+    <type name="Pureclarity\Core\Cron\CheckSignupStatus"><arguments><argument name="logger" xsi:type="object">PureClarityLogger</argument></arguments></type>
+    <type name="Pureclarity\Core\Helper\Serverside"><arguments><argument name="logger" xsi:type="object">PureClarityLogger</argument></arguments></type>
+    <type name="Pureclarity\Core\Model\Feed\State\Error"><arguments><argument name="logger" xsi:type="object">PureClarityLogger</argument></arguments></type>
+    <type name="Pureclarity\Core\Model\Feed\State\Running"><arguments><argument name="logger" xsi:type="object">PureClarityLogger</argument></arguments></type>
+    <type name="Pureclarity\Core\Model\Feed\State\Progress"><arguments><argument name="logger" xsi:type="object">PureClarityLogger</argument></arguments></type>
+    <type name="Pureclarity\Core\Model\Feed\State\Request"><arguments><argument name="logger" xsi:type="object">PureClarityLogger</argument></arguments></type>
+    <type name="Pureclarity\Core\Model\Feed\State\RunDate"><arguments><argument name="logger" xsi:type="object">PureClarityLogger</argument></arguments></type>
+    <type name="Pureclarity\Core\Model\Feed\Type\Product\RowDataHandlers\Prices"><arguments><argument name="logger" xsi:type="object">PureClarityLogger</argument></arguments></type>
+    <type name="Pureclarity\Core\Model\Feed\Type\Product\FeedData"><arguments><argument name="logger" xsi:type="object">PureClarityLogger</argument></arguments></type>
+    <type name="Pureclarity\Core\Model\Feed\Type\Product\RowData"><arguments><argument name="logger" xsi:type="object">PureClarityLogger</argument></arguments></type>
+    <type name="Pureclarity\Core\Model\Feed\Type\Category\FeedData"><arguments><argument name="logger" xsi:type="object">PureClarityLogger</argument></arguments></type>
+    <type name="Pureclarity\Core\Model\Feed\Type\Brand\FeedData"><arguments><argument name="logger" xsi:type="object">PureClarityLogger</argument></arguments></type>
+    <type name="Pureclarity\Core\Model\Feed\Type\Order\FeedData"><arguments><argument name="logger" xsi:type="object">PureClarityLogger</argument></arguments></type>
+    <type name="Pureclarity\Core\Model\Feed\Type\User\FeedData"><arguments><argument name="logger" xsi:type="object">PureClarityLogger</argument></arguments></type>
+    <type name="Pureclarity\Core\Model\Feed\Runner"><arguments><argument name="logger" xsi:type="object">PureClarityLogger</argument></arguments></type>
+    <type name="Pureclarity\Core\Model\Serverside\Data\Cookie"><arguments><argument name="logger" xsi:type="object">PureClarityLogger</argument></arguments></type>
+    <type name="Pureclarity\Core\Model\Serverside\Data\Store"><arguments><argument name="logger" xsi:type="object">PureClarityLogger</argument></arguments></type>
+    <type name="Pureclarity\Core\Model\Serverside\Data\Cart"><arguments><argument name="logger" xsi:type="object">PureClarityLogger</argument></arguments></type>
+    <type name="Pureclarity\Core\Model\Zones\Installer"><arguments><argument name="logger" xsi:type="object">PureClarityLogger</argument></arguments></type>
+    <type name="Pureclarity\Core\Model\Zones\Uninstaller"><arguments><argument name="logger" xsi:type="object">PureClarityLogger</argument></arguments></type>
+    <type name="Pureclarity\Core\Model\NextSteps\Complete"><arguments><argument name="logger" xsi:type="object">PureClarityLogger</argument></arguments></type>
+    <type name="Pureclarity\Core\Model\Attribute\Backend\Image"><arguments><argument name="logger" xsi:type="object">PureClarityLogger</argument></arguments></type>
+    <type name="Pureclarity\Core\Model\Dashboard"><arguments><argument name="logger" xsi:type="object">PureClarityLogger</argument></arguments></type>
+    <type name="Pureclarity\Core\Model\Signup\AddStore"><arguments><argument name="logger" xsi:type="object">PureClarityLogger</argument></arguments></type>
+    <type name="Pureclarity\Core\Model\Signup\Process"><arguments><argument name="logger" xsi:type="object">PureClarityLogger</argument></arguments></type>
+    <type name="Pureclarity\Core\Model\Dashboard\Banner"><arguments><argument name="logger" xsi:type="object">PureClarityLogger</argument></arguments></type>
+    <type name="Pureclarity\Core\Model\Delta\Type\Product"><arguments><argument name="logger" xsi:type="object">PureClarityLogger</argument></arguments></type>
+    <type name="Pureclarity\Core\Model\Delta\Runner"><arguments><argument name="logger" xsi:type="object">PureClarityLogger</argument></arguments></type>
+    <type name="Pureclarity\Core\Plugin\Category\DataProvider"><arguments><argument name="logger" xsi:type="object">PureClarityLogger</argument></arguments></type>
+    <type name="Pureclarity\Core\Plugin\Order\AfterPlace"><arguments><argument name="logger" xsi:type="object">PureClarityLogger</argument></arguments></type>
+    <type name="Pureclarity\Core\Setup\UpgradeData"><arguments><argument name="logger" xsi:type="object">PureClarityLogger</argument></arguments></type>
+    <type name="Pureclarity\Core\ViewModel\Configuration"><arguments><argument name="logger" xsi:type="object">PureClarityLogger</argument></arguments></type>
+    <type name="Pureclarity\Core\ViewModel\Adminhtml\Stores"><arguments><argument name="logger" xsi:type="object">PureClarityLogger</argument></arguments></type>
+
 </config>
