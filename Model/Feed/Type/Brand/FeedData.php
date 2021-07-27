@@ -142,7 +142,9 @@ class FeedData implements BrandFeedDataManagementInterface
     public function buildBrandCollection(StoreInterface $store): Collection
     {
         $brandCategoryId = $this->coreConfig->getBrandParentCategory((int)$store->getId());
+        $this->logger->debug('Brand Feed: Brand category ID = ' . $brandCategoryId);
         $brandParentCategory = $this->categoryRepository->get($brandCategoryId);
+        $this->logger->debug('Brand Feed: Brand category Name = ' . $brandParentCategory->getName());
         $collection = $this->collectionFactory->create();
         $collection->addAttributeToSelect('name');
         $collection->addAttributeToSelect('image');

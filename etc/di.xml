@@ -118,9 +118,13 @@
     <type name="Pureclarity\Core\Model\Feed\Type\Product\FeedData"><arguments><argument name="logger" xsi:type="object">PureClarityLogger</argument></arguments></type>
     <type name="Pureclarity\Core\Model\Feed\Type\Product\RowData"><arguments><argument name="logger" xsi:type="object">PureClarityLogger</argument></arguments></type>
     <type name="Pureclarity\Core\Model\Feed\Type\Category\FeedData"><arguments><argument name="logger" xsi:type="object">PureClarityLogger</argument></arguments></type>
+    <type name="Pureclarity\Core\Model\Feed\Type\Category\RowData"><arguments><argument name="logger" xsi:type="object">PureClarityLogger</argument></arguments></type>
     <type name="Pureclarity\Core\Model\Feed\Type\Brand\FeedData"><arguments><argument name="logger" xsi:type="object">PureClarityLogger</argument></arguments></type>
+    <type name="Pureclarity\Core\Model\Feed\Type\Brand\RowData"><arguments><argument name="logger" xsi:type="object">PureClarityLogger</argument></arguments></type>
     <type name="Pureclarity\Core\Model\Feed\Type\Order\FeedData"><arguments><argument name="logger" xsi:type="object">PureClarityLogger</argument></arguments></type>
+    <type name="Pureclarity\Core\Model\Feed\Type\Order\RowData"><arguments><argument name="logger" xsi:type="object">PureClarityLogger</argument></arguments></type>
     <type name="Pureclarity\Core\Model\Feed\Type\User\FeedData"><arguments><argument name="logger" xsi:type="object">PureClarityLogger</argument></arguments></type>
+    <type name="Pureclarity\Core\Model\Feed\Type\User\RowData"><arguments><argument name="logger" xsi:type="object">PureClarityLogger</argument></arguments></type>
     <type name="Pureclarity\Core\Model\Feed\Runner"><arguments><argument name="logger" xsi:type="object">PureClarityLogger</argument></arguments></type>
     <type name="Pureclarity\Core\Model\Serverside\Data\Cookie"><arguments><argument name="logger" xsi:type="object">PureClarityLogger</argument></arguments></type>
     <type name="Pureclarity\Core\Model\Serverside\Data\Store"><arguments><argument name="logger" xsi:type="object">PureClarityLogger</argument></arguments></type>

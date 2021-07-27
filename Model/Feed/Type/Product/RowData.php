@@ -112,6 +112,9 @@ class RowData implements ProductFeedRowDataManagementInterface
     public function getRowData(StoreInterface $store, $row): array
     {
         try {
+            $this->logger->debug(
+                'Product feed: ' . 'Processing product ' . $row->getId() . ' (' . $row->getSku() . ')'
+            );
             $data = $this->getBaseData($store, $row);
             $this->addImageData($store, $row, $data);
             $this->addCategoryData($row, $data);
@@ -122,16 +125,19 @@ class RowData implements ProductFeedRowDataManagementInterface
             $this->addStockData($store, $row, $data);
             $this->addAttributeData($store, $row, $data);
             $childProducts = $this->children->loadChildData($row);
+            $this->logger->debug('Product feed: ' . count($childProducts) . ' child products to process');
             $this->addChildData($store, $childProducts, $data);
             $this->addPriceData($store, $row, $data, $childProducts);
         } catch (Exception $e) {
             $data = [];
             $this->logger->error(
                 'PureClarity: could not add Product ' . $row->getId()
-                . ' (' . $row->getName() . '): '
+                . ' (' . $row->getSku() . '): '
                 . $e->getMessage()
             );
         }
+
+        $this->logger->debug('Product feed: Product Data - ' . var_export($data, true));
 
         return $data;
     }
@@ -296,6 +302,7 @@ class RowData implements ProductFeedRowDataManagementInterface
         }
 
         if ($product->getData('pureclarity_exc_rec') === '1') {
+            $this->logger->debug('Product feed: Product excluded from recommenders due to flag on product');
             $data['ExcludeFromRecommenders'] = true;
         }
 
@@ -340,6 +347,7 @@ class RowData implements ProductFeedRowDataManagementInterface
         $data['InStock'] = $this->stock->getStockFlag($product);
 
         if ($this->stock->isExcluded((int)$store->getId(), $data['InStock'])) {
+            $this->logger->debug('Product feed: Product excluded from recommenders due to being out of stock');
             $data["ExcludeFromRecommenders"] = true;
         }
     }
