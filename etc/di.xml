@@ -140,5 +140,6 @@
     <type name="Pureclarity\Core\Setup\UpgradeData"><arguments><argument name="logger" xsi:type="object">PureClarityLogger</argument></arguments></type>
     <type name="Pureclarity\Core\ViewModel\Configuration"><arguments><argument name="logger" xsi:type="object">PureClarityLogger</argument></arguments></type>
     <type name="Pureclarity\Core\ViewModel\Adminhtml\Stores"><arguments><argument name="logger" xsi:type="object">PureClarityLogger</argument></arguments></type>
+    <type name="Pureclarity\Core\Model\Log\Delete"><arguments><argument name="logger" xsi:type="object">PureClarityLogger</argument></arguments></type>
 
 </config>

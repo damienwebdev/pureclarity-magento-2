@@ -5,7 +5,8 @@
 
 /** TITLE BAR **/
 
-.pureclarity-dashboard-index .page-title-wrapper {
+.pureclarity-dashboard-index .page-title-wrapper,
+.pureclarity-dashboard-logs .page-title-wrapper {
     width: 127px;
     height: 50px;
     background-image: url('images/logo.png');
@@ -13,22 +14,26 @@
     background-size: 127px  50px;
 }
 
-.pureclarity-dashboard-index .page-title-wrapper .page-title {
+.pureclarity-dashboard-index .page-title-wrapper .page-title,
+.pureclarity-dashboard-logs .page-title-wrapper .page-title {
     display:none;
 }
 
-.pureclarity-dashboard-index .page-columns {
+.pureclarity-dashboard-index .page-columns,
+.pureclarity-dashboard-logs .page-columns {
     background: #e0eaec;
     padding: 20px 30px;
 }
 
-.pureclarity-dashboard-index .page-columns:after {
+.pureclarity-dashboard-index .page-columns:after,
+.pureclarity-dashboard-logs .page-columns:after {
     content: "";
     display: block;
     clear: both;
 }
 
-.pureclarity-dashboard-index .page-main-actions {
+.pureclarity-dashboard-index .page-main-actions,
+.pureclarity-dashboard-logs .page-main-actions {
     margin-bottom: 0;
 }
 
@@ -131,7 +136,8 @@
 
 #pc-dashboard .action-default,
 .pc-modal button.primary,
-#pc-dashboard .pc-button {
+#pc-dashboard .pc-button,
+#pc-dashboard-logs .pc-button {
     background-color: #c4d95a;
     border: 0;
     color: #3c4858 !important;
@@ -142,6 +148,11 @@
     text-shadow: none;
     width: 139px;
     padding: 10px;
+}
+
+a.pc-button {
+    display: inline-block;
+    text-align: center;
 }
 
 #pc-dashboard .action-default:hover,
@@ -1173,3 +1184,39 @@ svg .pc_donut_text {
 #pureclarity-toolbar .page-actions-buttons #pureclarity-toolbar-support {
     background-image: url('images/support.png');
 }
+
+#pureclarity-toolbar .page-actions-buttons #pureclarity-toolbar-logs {
+    background-image: url('images/logs.png');
+}
+
+#pureclarity-toolbar .page-actions-buttons #pureclarity-toolbar-dashboard {
+    background-image: url('images/dashboard.png');
+}
+
+#pc-dashboard-logs-col-1,
+#pc-dashboard-logs-col-2,
+#pc-dashboard-logs-col-3 {
+    width:33%;
+    float:left;
+}
+
+#pc-dashboard-logs-logging {
+    border-top: 5px solid #68b9d6;
+}
+
+#pc-dashboard-logs-reset {
+    border-top: 5px solid #464a56;
+}
+
+#pc-dashboard-logs-download {
+    border-top: 5px solid #c5d859;
+}
+
+.pc-log-info {
+    min-height: 6rem;
+}
+
+.pc-log-button {
+    min-height: 3rem;
+}
+

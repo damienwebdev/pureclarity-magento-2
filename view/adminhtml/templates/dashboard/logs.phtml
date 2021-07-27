@@ -1,0 +1,114 @@
+<?php
+/**
+ * Copyright © PureClarity. All rights reserved.
+ * See LICENSE.txt for license details.
+ */
+
+/** @var $block \Magento\Framework\View\Element\Template */
+/** @var $config \Pureclarity\Core\ViewModel\Adminhtml\Dashboard\Logs\Config */
+$config = $block->getConfigViewModel();
+/** @var $file \Pureclarity\Core\ViewModel\Adminhtml\Dashboard\Logs\File */
+$file = $block->getFileViewModel();
+
+$configUrl = $block->getUrl('adminhtml/system_config/edit/section/pureclarity') . '#pureclarity_logging-link';
+$downloadUrl = $block->getUrl('pureclarity/dashboard/logDownload');
+$deleteUrl = $block->getUrl('pureclarity/dashboard/logDelete');
+
+?>
+<div id="pc-dashboard-logs">
+    <div id="pc-dashboard-logs-col-1">
+        <div class="pureclarity-info-box" id="pc-dashboard-logs-logging">
+            <div class="pureclarity-info-title">
+                <h2><?= $block->escapeHtml(__('Debug Logging')) ?></h2>
+            </div>
+            <div class="pureclarity-info-content">
+                <div class="pc-log-info">
+                    <p><?= $block->escapeHtml(__('Add more detail to logging, to help track down issues.')) ?></p>
+                    <p>
+                        <?= $block->escapeHtml(__('Debug logging is currently ')) ?>
+                        <strong>
+                            <?php if ($config->isLoggingEnabled()): ?>
+                                <?= $block->escapeHtml(__('enabled')) ?>
+                            <?php else: ?>
+                                <?= $block->escapeHtml(__('disabled')) ?>
+                            <?php endif; ?>
+                        </strong>
+                    </p>
+                </div>
+                <div class="pc-log-button">
+                    <a href="<?= $block->escapeUrl($configUrl) ?>" class="pc-button">
+                        <?= $block->escapeHtml(__('Go to settings')) ?>
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div id="pc-dashboard-logs-col-2">
+        <div class="pureclarity-info-box" id="pc-dashboard-logs-download">
+            <div class="pureclarity-info-title">
+                <h2><?= $block->escapeHtml(__('Download Logs')) ?></h2>
+            </div>
+            <div class="pureclarity-info-content">
+                <div class="pc-log-info">
+                    <p>
+                        <?= $block->escapeHtml(
+                            __(
+                                'This log contains information to help track down issues.'
+                            )
+                        ) ?>
+                    </p>
+                    <?php if ($file->isLogFilePresent()): ?>
+                        <p>
+                            <?= $block->escapeHtml(__('Log file size: ')) ?>
+                            <?= $block->escapeHtml($file->getLogFileSize()) ?>
+                        </p>
+                    <?php endif; ?>
+                </div>
+                <div class="pc-log-button">
+                    <?php if ($file->isLogFilePresent()): ?>
+                        <form method="post" action="<?= $block->escapeUrl($downloadUrl) ?>">
+                            <input type="hidden" name="form_key"
+                                   value="<?= $block->escapeQuote($block->escapeHtml($block->getFormKey())) ?>" />
+                            <button type="submit" name="type" value="download" class="pc-button" >
+                                <?= $block->escapeHtml(__('Download')) ?>
+                            </button>
+                        </form>
+                    <?php else: ?>
+                        <button type="submit" name="type" class="pc-button inactive" >
+                            <?= $block->escapeHtml(__('Log file not present')) ?>
+                        </button>
+                    <?php endif; ?>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div id="pc-dashboard-logs-col-3">
+        <div class="pureclarity-info-box" id="pc-dashboard-logs-reset">
+            <div class="pureclarity-info-title">
+                <h2><?= $block->escapeHtml(__('Delete Logs')) ?></h2>
+            </div>
+            <div class="pureclarity-info-content">
+                <div class="pc-log-info">
+                    <p>
+                        <?= $block->escapeHtml(
+                            __(
+                                'You can delete the current log if you\'re investigating a particular '
+                                . 'issue and only want the logs to contain recent information. '
+                                . 'They\'ll be automatically re-created.'
+                            )
+                        ) ?>
+                    </p>
+                </div>
+                <div class="pc-log-button">
+                    <form method="post" action="<?= $block->escapeUrl($deleteUrl) ?>">
+                        <input type="hidden" name="form_key"
+                               value="<?= $block->escapeQuote($block->escapeHtml($block->getFormKey())) ?>" />
+                        <button type="submit" name="type" value="debug" class="pc-button">
+                            <?= $block->escapeHtml(__('Delete Logs')) ?>
+                        </button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
