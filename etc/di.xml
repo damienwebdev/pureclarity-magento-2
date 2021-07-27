@@ -98,10 +98,7 @@
     <virtualType name="PureClarityLogger" type="Magento\Framework\Logger\Monolog">
         <arguments>
             <argument name="handlers" xsi:type="array">
-                <item name="debug" xsi:type="object">Pureclarity\Core\Logger\Handler\Debug</item>
-                <item name="error" xsi:type="object">Pureclarity\Core\Logger\Handler\Error</item>
-                <item name="info" xsi:type="object">Pureclarity\Core\Logger\Handler\Info</item>
-                <item name="critical" xsi:type="object">Pureclarity\Core\Logger\Handler\Critical</item>
+                <item name="debug" xsi:type="object">Pureclarity\Core\Logger\Handler</item>
             </argument>
         </arguments>
     </virtualType>
