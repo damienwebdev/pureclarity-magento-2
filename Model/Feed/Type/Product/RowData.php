@@ -132,7 +132,7 @@ class RowData implements ProductFeedRowDataManagementInterface
             $data = [];
             $this->logger->error(
                 'PureClarity: could not add Product ' . $row->getId()
-                . ' (' . $row->getSku() . '): '
+                . ' (' . $row->getName() . '): '
                 . $e->getMessage()
             );
         }

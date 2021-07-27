@@ -42,7 +42,8 @@ class RowData implements BrandFeedRowDataManagementInterface
         CoreConfig $coreConfig,
         LoggerInterface $logger
     ) {
-        $this->coreConfig   = $coreConfig;
+        $this->coreConfig = $coreConfig;
+        $this->logger     = $logger;
     }
 
     /**

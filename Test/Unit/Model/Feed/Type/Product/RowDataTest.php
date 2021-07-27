@@ -123,15 +123,13 @@ class RowDataTest extends TestCase
         $product->method('getId')
             ->willReturn(1);
 
-        $product->expects(self::once())
-            ->method('getSku')
+        $product->method('getSku')
             ->willReturn('ABC123');
 
-        $product->expects(self::once())
-            ->method('getName')
+        $product->method('getName')
             ->willReturn('A Product');
 
-        $product->expects(self::at(3))
+        $product->expects(self::at(5))
             ->method('getData')
             ->with('description')
             ->willReturn('A Product Description');
@@ -181,27 +179,27 @@ class RowDataTest extends TestCase
         string $onOffer = ''
     ) {
 
-        $product->expects(self::at(10))
+        $product->expects(self::at(12))
             ->method('getData')
             ->with('pureclarity_search_tags')
             ->willReturn('tag1,tag2');
 
-        $product->expects(self::at(11))
+        $product->expects(self::at(13))
             ->method('getData')
             ->with('pureclarity_overlay_image')
             ->willReturn($overlay);
 
-        $product->expects(self::at(12))
+        $product->expects(self::at(14))
             ->method('getData')
             ->with('pureclarity_exc_rec')
             ->willReturn($exclude);
 
-        $product->expects(self::at(13))
+        $product->expects(self::at(15))
             ->method('getData')
             ->with('pureclarity_newarrival')
             ->willReturn($new);
 
-        $product->expects(self::at(14))
+        $product->expects(self::at(16))
             ->method('getData')
             ->with('pureclarity_onoffer')
             ->willReturn($onOffer);
@@ -335,41 +333,41 @@ class RowDataTest extends TestCase
                 ]
             );
 
-        $product->expects(self::at(15))
-            ->method('getData')
-            ->with('attribute_1')
-            ->willReturn('attribute 1 value');
-
-        $product->expects(self::at(16))
-            ->method('getData')
-            ->with('attribute_1')
-            ->willReturn('attribute 1 value');
-
         $product->expects(self::at(17))
+            ->method('getData')
+            ->with('attribute_1')
+            ->willReturn('attribute 1 value');
+
+        $product->expects(self::at(18))
+            ->method('getData')
+            ->with('attribute_1')
+            ->willReturn('attribute 1 value');
+
+        $product->expects(self::at(19))
             ->method('getData')
             ->with('attribute_2')
             ->willReturn(['one','two','three']);
 
-        $product->expects(self::at(18))
+        $product->expects(self::at(20))
             ->method('getAttributeText')
             ->with('attribute_2')
             ->willReturn(['one','two','three']);
 
-        $product->expects(self::at(19))
+        $product->expects(self::at(21))
             ->method('getData')
             ->with('attribute_3')
             ->willReturn('');
 
-        $product->expects(self::at(20))
+        $product->expects(self::at(22))
             ->method('getAttributeText')
             ->willThrowException(new Exception('ignoreme'));
 
-        $product->expects(self::at(21))
+        $product->expects(self::at(23))
             ->method('getData')
             ->with('MagentoProductType')
             ->willReturn('attribute description value');
 
-        $product->expects(self::at(22))
+        $product->expects(self::at(24))
             ->method('getData')
             ->with('MagentoProductType')
             ->willReturn('attribute description value');
