@@ -35,6 +35,7 @@ class CoreConfig
     const CONFIG_PATH_ZONE_DEBUG = 'pureclarity/advanced/bmz_debug';
     const CONFIG_PATH_SWATCHES_PER_PRODUCT = 'catalog/frontend/swatches_per_product';
     const CONFIG_PATH_SWATCHES_IN_PRODUCT_LIST = 'catalog/frontend/show_swatches_in_product_list';
+    const CONFIG_PATH_DEBUG_LOGGING = 'pureclarity/logging/debug_logging_enabled';
 
     /** @var ScopeConfigInterface $scopeConfig */
     protected $scopeConfig;
@@ -337,6 +338,19 @@ class CoreConfig
             self::CONFIG_PATH_SWATCHES_IN_PRODUCT_LIST,
             ScopeInterface::SCOPE_STORE,
             $storeId
+        );
+    }
+
+    /**
+     * Returns whether debug logging is enabled
+     *
+     * @return boolean
+     */
+    public function isDebugLoggingEnabled(): bool
+    {
+        return $this->getConfigFlag(
+            self::CONFIG_PATH_DEBUG_LOGGING,
+            ScopeConfigInterface::SCOPE_TYPE_DEFAULT
         );
     }
 

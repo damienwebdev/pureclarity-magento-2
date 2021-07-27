@@ -1,4 +1,5 @@
 <?php
+declare(strict_types=1);
 /**
  * Copyright © PureClarity. All rights reserved.
  * See LICENSE.txt for license details.
@@ -31,23 +32,24 @@ class CoreConfigTest extends TestCase
 
     protected function setUp(): void
     {
-        $this->scopeConfig = $this->getMockBuilder(ScopeConfigInterface::class)
-            ->disableOriginalConstructor()
-            ->getMock();
-
-        $this->writer = $this->getMockBuilder(WriterInterface::class)
-            ->disableOriginalConstructor()
-            ->getMock();
+        $this->scopeConfig = $this->createMock(ScopeConfigInterface::class);
+        $this->writer = $this->createMock(WriterInterface::class);
 
         $this->object = new CoreConfig($this->scopeConfig, $this->writer);
     }
 
-    public function testCoreConfigInstance()
+    /**
+     * Test that class set up correctly
+     */
+    public function testCoreConfigInstance(): void
     {
         $this->assertInstanceOf(CoreConfig::class, $this->object);
     }
 
-    public function testIsActiveTrue()
+    /**
+     * Test that isActive returns false, when accesskey configureg & flag enabled
+     */
+    public function testIsActiveTrue(): void
     {
         $this->scopeConfig->expects($this->at(0))
             ->method('getValue')
@@ -63,21 +65,30 @@ class CoreConfigTest extends TestCase
         $this->assertEquals(true, $active);
     }
 
-    public function testIsActiveNoAccessKey()
+    /**
+     * Test that isActive returns false, when no accesskey in config
+     */
+    public function testIsActiveNoAccessKey(): void
     {
-        $this->scopeConfig->expects($this->any())->method('getValue')->willReturn(null);
+        $this->scopeConfig->method('getValue')->willReturn(null);
         $active = $this->object->isActive(1);
         $this->assertEquals(false, $active);
     }
 
-    public function testIsActiveFalse()
+    /**
+     * Test that isActive returns false, when disabled in config
+     */
+    public function testIsActiveFalse(): void
     {
-        $this->scopeConfig->expects($this->any())->method('isSetFlag')->willReturn(false);
+        $this->scopeConfig->method('isSetFlag')->willReturn(false);
         $active = $this->object->isActive(1);
         $this->assertEquals(false, $active);
     }
 
-    public function testGetAccessKey()
+    /**
+     * Test that getAccessKey returns configured value
+     */
+    public function testGetAccessKey(): void
     {
         // Test with value
         $this->scopeConfig->expects($this->at(0))
@@ -98,7 +109,10 @@ class CoreConfigTest extends TestCase
         $this->assertEquals(null, $accessKey);
     }
 
-    public function testGetSecretKey()
+    /**
+     * Test that getSecretKey returns configured value
+     */
+    public function testGetSecretKey(): void
     {
         // Test with value
         $this->scopeConfig->expects($this->at(0))
@@ -119,7 +133,10 @@ class CoreConfigTest extends TestCase
         $this->assertEquals(null, $result);
     }
 
-    public function testGetRegion()
+    /**
+     * Test that getAccessKey returns configured/default value
+     */
+    public function testGetRegion(): void
     {
         // Test with value
         $this->scopeConfig->expects($this->at(0))
@@ -140,7 +157,39 @@ class CoreConfigTest extends TestCase
         $this->assertEquals(1, $result);
     }
 
-    public function testIsDailyFeedActiveTrue()
+    /**
+     * Test that getMode returns null when not configured
+     */
+    public function testGetModeClientNoValue(): void
+    {
+        $this->scopeConfig->expects($this->at(0))
+            ->method('getValue')
+            ->with(CoreConfig::CONFIG_PATH_MODE, ScopeInterface::SCOPE_STORE, 1)
+            ->willReturn(null);
+
+        $result = $this->object->getMode(1);
+        $this->assertEquals(null, $result);
+    }
+
+    /**
+     * Test that getMode returns a configured mode
+     */
+    public function testGetModeWithvalue(): void
+    {
+        // Test with value
+        $this->scopeConfig->expects($this->at(0))
+            ->method('getValue')
+            ->with(CoreConfig::CONFIG_PATH_MODE, ScopeInterface::SCOPE_STORE, 1)
+            ->willReturn('client');
+
+        $result = $this->object->getMode(1);
+        $this->assertEquals('client', $result);
+    }
+
+    /**
+     * Test that isDailyFeedActive returns true when pc active & feed enabled
+     */
+    public function testIsDailyFeedActiveTrue(): void
     {
         $this->scopeConfig->expects($this->at(0))
             ->method('getValue')
@@ -162,7 +211,10 @@ class CoreConfigTest extends TestCase
         $this->assertEquals(true, $result);
     }
 
-    public function testIsDailyFeedActiveFalse()
+    /**
+     * Test that isDailyFeedActive returns false when pc active & feed flag not enabled
+     */
+    public function testIsDailyFeedActiveFalse(): void
     {
         $this->scopeConfig->expects($this->at(0))
             ->method('getValue')
@@ -184,7 +236,10 @@ class CoreConfigTest extends TestCase
         $this->assertEquals(false, $result);
     }
 
-    public function testIsDailyFeedActiveFalseNotActive()
+    /**
+     * Test that isDailyFeedActive returns false when pc not active
+     */
+    public function testIsDailyFeedActiveFalseNotActive(): void
     {
         $this->scopeConfig->expects($this->at(0))
             ->method('getValue')
@@ -195,7 +250,10 @@ class CoreConfigTest extends TestCase
         $this->assertEquals(false, $result);
     }
 
-    public function testAreDeltasEnabledTrue()
+    /**
+     * Test that areDeltasEnabled returns true when pc active & deltas enabled
+     */
+    public function testAreDeltasEnabledTrue(): void
     {
         $this->scopeConfig->expects($this->at(0))
             ->method('getValue')
@@ -213,11 +271,14 @@ class CoreConfigTest extends TestCase
             ->with(CoreConfig::CONFIG_PATH_PRODUCT_INDEX, ScopeInterface::SCOPE_STORE, 1)
             ->willReturn(true);
 
-        $result = $this->object->AreDeltasEnabled(1);
+        $result = $this->object->areDeltasEnabled(1);
         $this->assertEquals(true, $result);
     }
 
-    public function testAreDeltasEnabledFalse()
+    /**
+     * Test that areDeltasEnabled returns false when pc active & deltas disabled
+     */
+    public function testAreDeltasEnabledFalse(): void
     {
         $this->scopeConfig->expects($this->at(0))
             ->method('getValue')
@@ -235,22 +296,28 @@ class CoreConfigTest extends TestCase
             ->with(CoreConfig::CONFIG_PATH_PRODUCT_INDEX, ScopeInterface::SCOPE_STORE, 1)
             ->willReturn(false);
 
-        $result = $this->object->AreDeltasEnabled(1);
+        $result = $this->object->areDeltasEnabled(1);
         $this->assertEquals(false, $result);
     }
 
-    public function testAreDeltasEnabledNotActive()
+    /**
+     * Test that areDeltasEnabled returns false when pc not active
+     */
+    public function testAreDeltasEnabledNotActive(): void
     {
         $this->scopeConfig->expects($this->at(0))
             ->method('getValue')
             ->with(CoreConfig::CONFIG_PATH_ACCESS_KEY, ScopeInterface::SCOPE_STORE, 1)
             ->willReturn(null);
 
-        $result = $this->object->AreDeltasEnabled(1);
+        $result = $this->object->areDeltasEnabled(1);
         $this->assertEquals(false, $result);
     }
 
-    public function testSendCustomerGroupPricingTrue()
+    /**
+     * Test that sendCustomerGroupPricing returns true when pc active & pricing flag enabled
+     */
+    public function testSendCustomerGroupPricingTrue(): void
     {
         $this->scopeConfig->expects($this->at(0))
             ->method('getValue')
@@ -272,7 +339,10 @@ class CoreConfigTest extends TestCase
         $this->assertEquals(true, $result);
     }
 
-    public function testSendCustomerGroupPricingFalse()
+    /**
+     * Test that sendCustomerGroupPricing returns false when pc active & pricing flag disabled
+     */
+    public function testSendCustomerGroupPricingFalse(): void
     {
         $this->scopeConfig->expects($this->at(0))
             ->method('getValue')
@@ -294,7 +364,10 @@ class CoreConfigTest extends TestCase
         $this->assertEquals(false, $result);
     }
 
-    public function testSendCustomerGroupPricingNotActive()
+    /**
+     * Test that sendCustomerGroupPricing returns false when pc not active
+     */
+    public function testSendCustomerGroupPricingNotActive(): void
     {
         $this->scopeConfig->expects($this->at(0))
             ->method('getValue')
@@ -305,7 +378,10 @@ class CoreConfigTest extends TestCase
         $this->assertEquals(false, $result);
     }
 
-    public function testBrandFeedEnabledTrue()
+    /**
+     * Test that isBrandFeedEnabled returns true when pc active & brand feed flag enabled
+     */
+    public function testBrandFeedEnabledTrue(): void
     {
         $this->scopeConfig->expects($this->at(0))
             ->method('getValue')
@@ -327,7 +403,10 @@ class CoreConfigTest extends TestCase
         $this->assertEquals(true, $result);
     }
 
-    public function testBrandFeedEnabledFalse()
+    /**
+     * Test that isBrandFeedEnabled returns false when pc active & brand feed flag disabled
+     */
+    public function testBrandFeedEnabledFalse(): void
     {
         $this->scopeConfig->expects($this->at(0))
             ->method('getValue')
@@ -349,7 +428,10 @@ class CoreConfigTest extends TestCase
         $this->assertEquals(false, $result);
     }
 
-    public function testBrandFeedEnabledNotActive()
+    /**
+     * Test that isBrandFeedEnabled returns false when pc not active
+     */
+    public function testBrandFeedEnabledNotActive(): void
     {
         $this->scopeConfig->expects($this->at(0))
             ->method('getValue')
@@ -360,7 +442,10 @@ class CoreConfigTest extends TestCase
         $this->assertEquals(false, $result);
     }
 
-    public function testGetBrandParentCategory()
+    /**
+     * Test that getBrandParentCategory returns configrued value
+     */
+    public function testGetBrandParentCategory(): void
     {
         // Test with value
         $this->scopeConfig->expects($this->at(0))
@@ -381,7 +466,62 @@ class CoreConfigTest extends TestCase
         $this->assertEquals(null, $result);
     }
 
-    public function testGetProductPlaceholderUrl()
+    /**
+     * Tests getExcludedProductAttributes returns configured value
+     */
+    public function testGetExcludedProductAttributesValue(): void
+    {
+        $this->scopeConfig->expects($this->once())
+            ->method('getValue')
+            ->with(CoreConfig::CONFIG_PATH_EXCLUDED_PRODUCT_ATTRIBUTES, ScopeInterface::SCOPE_STORE, 1)
+            ->willReturn('1,2,3');
+
+        $this->assertEquals('1,2,3', $this->object->getExcludedProductAttributes(1));
+    }
+
+    /**
+     * Tests getExcludedProductAttributes returns null if no configured value
+     */
+    public function testGetExcludedProductAttributesNoValue(): void
+    {
+        $this->scopeConfig->expects($this->once())
+            ->method('getValue')
+            ->with(CoreConfig::CONFIG_PATH_EXCLUDED_PRODUCT_ATTRIBUTES, ScopeInterface::SCOPE_STORE, 1)
+            ->willReturn(null);
+
+        $this->assertEquals(null, $this->object->getExcludedProductAttributes(1));
+    }
+
+    /**
+     * Tests getExcludeOutOfStockFromRecommenders returns false if disabled in config
+     */
+    public function testGetExcludeOutOfStockFromRecommendersFalse(): void
+    {
+        $this->scopeConfig->expects($this->once())
+            ->method('isSetFlag')
+            ->with(CoreConfig::CONFIG_PATH_EXCLUDE_OOS_PRODUCTS_RECS, ScopeInterface::SCOPE_STORE, 1)
+            ->willReturn(false);
+
+        $this->assertEquals(false, $this->object->getExcludeOutOfStockFromRecommenders(1));
+    }
+
+    /**
+     * Tests getExcludeOutOfStockFromRecommenders returns true if enabled in config
+     */
+    public function testGetExcludeOutOfStockFromRecommendersTrue(): void
+    {
+        $this->scopeConfig->expects($this->once())
+            ->method('isSetFlag')
+            ->with(CoreConfig::CONFIG_PATH_EXCLUDE_OOS_PRODUCTS_RECS, ScopeInterface::SCOPE_STORE, 1)
+            ->willReturn(true);
+
+        $this->assertEquals(true, $this->object->getExcludeOutOfStockFromRecommenders(1));
+    }
+
+    /**
+     * Tests getProductPlaceholderUrl returns configured value
+     */
+    public function testGetProductPlaceholderUrl(): void
     {
         // Test with value
         $this->scopeConfig->expects($this->at(0))
@@ -402,7 +542,10 @@ class CoreConfigTest extends TestCase
         $this->assertEquals(null, $result);
     }
 
-    public function testGetCategoryPlaceholderUrl()
+    /**
+     * Tests getCategoryPlaceholderUrl returns configured value
+     */
+    public function testGetCategoryPlaceholderUrl(): void
     {
         // Test with value
         $this->scopeConfig->expects($this->at(0))
@@ -423,7 +566,10 @@ class CoreConfigTest extends TestCase
         $this->assertEquals(null, $result);
     }
 
-    public function testGetSecondaryCategoryPlaceholderUrl()
+    /**
+     * Tests getSecondaryCategoryPlaceholderUrl returns configured value
+     */
+    public function testGetSecondaryCategoryPlaceholderUrl(): void
     {
         // Test with value
         $this->scopeConfig->expects($this->at(0))
@@ -444,7 +590,10 @@ class CoreConfigTest extends TestCase
         $this->assertEquals(null, $result);
     }
 
-    public function testIsZoneDebugActive()
+    /**
+     * Tests isZoneDebugActive returns configured value
+     */
+    public function testIsZoneDebugActive(): void
     {
         // Test with value = true
         $this->scopeConfig->expects($this->at(0))
@@ -465,7 +614,10 @@ class CoreConfigTest extends TestCase
         $this->assertEquals(false, $result);
     }
 
-    public function testGetNumberSwatchesPerProduct()
+    /**
+     * Tests getNumberSwatchesPerProduct returns configured value
+     */
+    public function testGetNumberSwatchesPerProduct(): void
     {
         // Test with value = true
         $this->scopeConfig->expects($this->at(0))
@@ -486,7 +638,10 @@ class CoreConfigTest extends TestCase
         $this->assertEquals(null, $result);
     }
 
-    public function testShowSwatches()
+    /**
+     * Tests showSwatches returns configured value
+     */
+    public function testShowSwatches(): void
     {
         // Test with value = true
         $this->scopeConfig->expects($this->at(0))
@@ -507,7 +662,36 @@ class CoreConfigTest extends TestCase
         $this->assertEquals(false, $result);
     }
 
-    public function testSetAccessKeyWithDefault()
+    /**
+     * Tests isDebugLoggingEnabled returns false if disabled in config
+     */
+    public function testIsDebugLoggingEnabledFalse(): void
+    {
+        $this->scopeConfig->expects($this->once())
+            ->method('isSetFlag')
+            ->with(CoreConfig::CONFIG_PATH_DEBUG_LOGGING, ScopeConfigInterface::SCOPE_TYPE_DEFAULT, null)
+            ->willReturn(false);
+
+        $this->assertEquals(false, $this->object->isDebugLoggingEnabled());
+    }
+
+    /**
+     * Tests isDebugLoggingEnabled returns true if enabled in config
+     */
+    public function testIsDebugLoggingEnabledTrue(): void
+    {
+        $this->scopeConfig->expects($this->once())
+            ->method('isSetFlag')
+            ->with(CoreConfig::CONFIG_PATH_DEBUG_LOGGING, ScopeConfigInterface::SCOPE_TYPE_DEFAULT, null)
+            ->willReturn(true);
+
+        $this->assertEquals(true, $this->object->isDebugLoggingEnabled());
+    }
+
+    /**
+     * Tests setAccessKey passes correct values to Magento config at the default store level
+     */
+    public function testSetAccessKeyWithDefault(): void
     {
         $this->writer->expects($this->exactly(1))
             ->method('save');
@@ -519,7 +703,10 @@ class CoreConfigTest extends TestCase
         $this->object->setAccessKey('ABCDE', 0);
     }
 
-    public function testSetAccessKeyStore()
+    /**
+     * Tests setAccessKey passes correct values to Magento config at the store level
+     */
+    public function testSetAccessKeyStore(): void
     {
         $this->writer->expects($this->exactly(1))
             ->method('save');
@@ -531,7 +718,10 @@ class CoreConfigTest extends TestCase
         $this->object->setAccessKey('ABCDE', 1);
     }
 
-    public function testSetSecretKey()
+    /**
+     * Tests setSecretKey passes correct values to Magento config
+     */
+    public function testSetSecretKey(): void
     {
         $this->writer->expects($this->exactly(1))
             ->method('save');
@@ -543,7 +733,10 @@ class CoreConfigTest extends TestCase
         $this->object->setSecretKey('ABCDE', 1);
     }
 
-    public function testSetRegion()
+    /**
+     * Tests setRegion passes correct values to Magento config
+     */
+    public function testSetRegion(): void
     {
         $this->writer->expects($this->exactly(1))
             ->method('save');
@@ -555,7 +748,10 @@ class CoreConfigTest extends TestCase
         $this->object->setRegion(1, 1);
     }
 
-    public function testSetIsActive()
+    /**
+     * Tests setIsActive passes correct values to Magento config
+     */
+    public function testSetIsActive(): void
     {
         $this->writer->expects($this->exactly(1))
             ->method('save');
@@ -567,7 +763,10 @@ class CoreConfigTest extends TestCase
         $this->object->setIsActive(1, 1);
     }
 
-    public function testSetIsDailyFeedActive()
+    /**
+     * Tests setIsDailyFeedActive passes correct values to Magento config
+     */
+    public function testSetIsDailyFeedActive(): void
     {
         $this->writer->expects($this->exactly(1))
             ->method('save');
@@ -579,7 +778,10 @@ class CoreConfigTest extends TestCase
         $this->object->setIsDailyFeedActive(1, 1);
     }
 
-    public function testSetDeltasEnabled()
+    /**
+     * Tests setDeltasEnabled passes correct values to Magento config
+     */
+    public function testSetDeltasEnabled(): void
     {
         $this->writer->expects($this->exactly(1))
             ->method('save');
