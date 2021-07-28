@@ -130,6 +130,7 @@
     <type name="Pureclarity\Core\Model\Serverside\Data\Cookie"><arguments><argument name="logger" xsi:type="object">PureClarityLogger</argument></arguments></type>
     <type name="Pureclarity\Core\Model\Serverside\Data\Store"><arguments><argument name="logger" xsi:type="object">PureClarityLogger</argument></arguments></type>
     <type name="Pureclarity\Core\Model\Serverside\Data\Cart"><arguments><argument name="logger" xsi:type="object">PureClarityLogger</argument></arguments></type>
+    <type name="Pureclarity\Core\Model\Serverside\Response\ProductData"><arguments><argument name="logger" xsi:type="object">PureClarityLogger</argument></arguments></type>
     <type name="Pureclarity\Core\Model\Zones\Installer"><arguments><argument name="logger" xsi:type="object">PureClarityLogger</argument></arguments></type>
     <type name="Pureclarity\Core\Model\Zones\Uninstaller"><arguments><argument name="logger" xsi:type="object">PureClarityLogger</argument></arguments></type>
     <type name="Pureclarity\Core\Model\NextSteps\Complete"><arguments><argument name="logger" xsi:type="object">PureClarityLogger</argument></arguments></type>
