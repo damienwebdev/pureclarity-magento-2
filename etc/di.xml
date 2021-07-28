@@ -103,6 +103,7 @@
         </arguments>
     </virtualType>
 
+    <type name="Pureclarity\Core\Block\Bmz"><arguments><argument name="logger" xsi:type="object">PureClarityLogger</argument></arguments></type>
     <type name="Pureclarity\Core\Controller\Adminhtml\Bmz\Install"><arguments><argument name="logger" xsi:type="object">PureClarityLogger</argument></arguments></type>
     <type name="Pureclarity\Core\Cron\CheckVersion"><arguments><argument name="logger" xsi:type="object">PureClarityLogger</argument></arguments></type>
     <type name="Pureclarity\Core\Cron\RunNightly"><arguments><argument name="logger" xsi:type="object">PureClarityLogger</argument></arguments></type>
