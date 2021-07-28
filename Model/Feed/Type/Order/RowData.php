@@ -9,6 +9,7 @@ namespace Pureclarity\Core\Model\Feed\Type\Order;
 
 use Magento\Sales\Model\Order;
 use Magento\Store\Api\Data\StoreInterface;
+use Psr\Log\LoggerInterface;
 use Pureclarity\Core\Api\OrderFeedRowDataManagementInterface;
 
 /**
@@ -18,6 +19,18 @@ use Pureclarity\Core\Api\OrderFeedRowDataManagementInterface;
  */
 class RowData implements OrderFeedRowDataManagementInterface
 {
+
+    /** @var LoggerInterface */
+    private $logger;
+
+    /**
+     * @param LoggerInterface $logger
+     */
+    public function __construct(
+        LoggerInterface $logger
+    ) {
+        $this->logger = $logger;
+    }
     /**
      * Builds the order data for the order feed.
      * @param StoreInterface $store
@@ -34,7 +47,12 @@ class RowData implements OrderFeedRowDataManagementInterface
         $email = $row->getCustomerEmail();
         $date = $row->getCreatedAt();
 
+        $this->logger->debug('Order Feed: Processing order ' . $orderId);
+
         foreach ($row->getAllVisibleItems() as $item) {
+
+            $this->logger->debug('Order Feed: Processing order item ' . $item->getId());
+
             $orderData[] = [
                 'OrderID' => $orderId,
                 'UserId' => $customerId ?: '',
@@ -46,6 +64,8 @@ class RowData implements OrderFeedRowDataManagementInterface
                 'LinePrice' => $item->getRowTotalInclTax()
             ];
         }
+
+        $this->logger->debug('Order Feed: Order data - ' . var_export($orderData, true));
 
         return $orderData;
     }

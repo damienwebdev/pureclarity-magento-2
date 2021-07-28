@@ -7,6 +7,7 @@
 namespace Pureclarity\Core\Test\Unit\Model\Feed\Type\Category;
 
 use PHPUnit\Framework\TestCase;
+use Psr\Log\LoggerInterface;
 use Pureclarity\Core\Model\Feed\Type\Category\RowData;
 use PHPUnit\Framework\MockObject\MockObject;
 use Pureclarity\Core\Model\CoreConfig;
@@ -29,14 +30,17 @@ class RowDataTest extends TestCase
     /** @var MockObject|CoreConfig */
     private $coreConfig;
 
+    /** @var MockObject|LoggerInterface */
+    private $logger;
+
     protected function setUp(): void
     {
-        $this->coreConfig = $this->getMockBuilder(CoreConfig::class)
-            ->disableOriginalConstructor()
-            ->getMock();
+        $this->coreConfig = $this->createMock(CoreConfig::class);
+        $this->logger = $this->createMock(LoggerInterface::class);
 
         $this->object = new RowData(
-            $this->coreConfig
+            $this->coreConfig,
+            $this->logger
         );
     }
 
@@ -184,7 +188,7 @@ class RowDataTest extends TestCase
         $categoryId = 1;
         $category = $this->setupBaseCategory($categoryId);
 
-        $category->expects(self::at(3))
+        $category->expects(self::at(5))
             ->method('getData')
             ->with('description')
             ->willReturn('');
@@ -192,7 +196,7 @@ class RowDataTest extends TestCase
         $category->method('getImageUrl')
             ->willReturn(null);
 
-        $category->expects(self::at(5))
+        $category->expects(self::at(7))
             ->method('getData')
             ->with('pureclarity_hide_from_feed')
             ->willReturn('0');
@@ -200,7 +204,7 @@ class RowDataTest extends TestCase
         $category->method('getIsActive')
             ->willReturn('1');
 
-        $category->expects(self::at(7))
+        $category->expects(self::at(9))
             ->method('getData')
             ->with('pureclarity_category_image')
             ->willReturn(null);
@@ -229,7 +233,7 @@ class RowDataTest extends TestCase
         $category->method('getImageUrl')
             ->willReturn('//www.example.com/category-' . $categoryId . 'image-url.jpg');
 
-        $category->expects(self::at(3))
+        $category->expects(self::at(5))
             ->method('getData')
             ->with('description')
             ->willReturn('A Description of ' . $categoryId);
@@ -240,7 +244,7 @@ class RowDataTest extends TestCase
         $category->method('getUrl')
             ->willReturn('//www.example.com/category-' . $categoryId);
 
-        $category->expects(self::at(7))
+        $category->expects(self::at(9))
             ->method('getData')
             ->with('pureclarity_hide_from_feed')
             ->willReturn('1');
@@ -248,7 +252,7 @@ class RowDataTest extends TestCase
         $category->method('getIsActive')
             ->willReturn('0');
 
-        $category->expects(self::at(9))
+        $category->expects(self::at(11))
             ->method('getData')
             ->with('pureclarity_category_image')
             ->willReturn('override-image-url.jpg');
@@ -274,7 +278,7 @@ class RowDataTest extends TestCase
         $category->method('getImageUrl')
             ->willReturn(null);
 
-        $category->expects(self::at(3))
+        $category->expects(self::at(5))
             ->method('getData')
             ->with('description')
             ->willReturn('');
@@ -285,7 +289,7 @@ class RowDataTest extends TestCase
         $category->method('getUrl')
             ->willReturn('//www.example.com/category-' . $categoryId);
 
-        $category->expects(self::at(7))
+        $category->expects(self::at(9))
             ->method('getData')
             ->with('pureclarity_hide_from_feed')
             ->willReturn('0');
@@ -293,7 +297,7 @@ class RowDataTest extends TestCase
         $category->method('getIsActive')
             ->willReturn('1');
 
-        $category->expects(self::at(9))
+        $category->expects(self::at(11))
             ->method('getData')
             ->with('pureclarity_category_image')
             ->willReturn('');

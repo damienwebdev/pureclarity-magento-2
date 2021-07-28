@@ -8,6 +8,7 @@ declare(strict_types=1);
 namespace Pureclarity\Core\Model\Feed\Type\User;
 
 use Magento\Store\Api\Data\StoreInterface;
+use Psr\Log\LoggerInterface;
 use Pureclarity\Core\Api\UserFeedRowDataManagementInterface;
 use Magento\Customer\Model\ResourceModel\Group\CollectionFactory as CustomerGroupCollectionFactory;
 use Magento\Customer\Model\Customer;
@@ -25,13 +26,19 @@ class RowData implements UserFeedRowDataManagementInterface
     /** @var CustomerGroupCollectionFactory */
     private $collectionFactory;
 
+    /** @var LoggerInterface */
+    private $logger;
+
     /**
      * @param CustomerGroupCollectionFactory $collectionFactory
+     * @param LoggerInterface $logger
      */
     public function __construct(
-        CustomerGroupCollectionFactory $collectionFactory
+        CustomerGroupCollectionFactory $collectionFactory,
+        LoggerInterface $logger
     ) {
         $this->collectionFactory = $collectionFactory;
+        $this->logger            = $logger;
     }
 
     /**
@@ -43,6 +50,7 @@ class RowData implements UserFeedRowDataManagementInterface
      */
     public function getRowData(StoreInterface $store, $row): array
     {
+        $this->logger->debug('User Feed: Processing user ' . $row->getId());
         $customerGroups = $this->getCustomerGroups();
         $data = [
             'UserId' => $row->getId(),

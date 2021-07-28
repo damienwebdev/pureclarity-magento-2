@@ -106,6 +106,14 @@
                     <comment>Leave this blank to use the Magento default placeholder.</comment>
                 </field>
             </group>
+            <group id="logging" type="text" sortOrder="70" showInDefault="1" showInWebsite="0" showInStore="0">
+                <label>Logging</label>
+                <field id="debug_logging_enabled" translate="label" type="select" showInDefault="1" showInWebsite="0" showInStore="0">
+                    <label>Debug Logging Enabled</label>
+                    <source_model>Magento\Config\Model\Config\Source\Yesno</source_model>
+                    <comment>With debug logging enabled, extra log entries are added to help diagnose issues. Only enable when investigating issues.</comment>
+                </field>
+            </group>
             <group id="advanced" type="text" sortOrder="70" showInDefault="1" showInWebsite="1" showInStore="1">
                 <label>Advanced options</label>
                 <field id="bmz_debug" translate="label" type="select" showInDefault="1" showInWebsite="1" showInStore="1">

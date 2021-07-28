@@ -12,6 +12,7 @@ use Magento\Framework\Exception\LocalizedException;
 use Magento\Framework\Exception\NoSuchEntityException;
 use Magento\Framework\UrlInterface;
 use Magento\Store\Api\Data\StoreInterface;
+use Psr\Log\LoggerInterface;
 use Pureclarity\Core\Api\CategoryFeedRowDataManagementInterface;
 use Pureclarity\Core\Model\CoreConfig;
 
@@ -31,13 +32,19 @@ class RowData implements CategoryFeedRowDataManagementInterface
     /** @var CoreConfig */
     private $coreConfig;
 
+    /** @var LoggerInterface */
+    private $logger;
+
     /**
      * @param CoreConfig $coreConfig
+     * @param LoggerInterface $logger
      */
     public function __construct(
-        CoreConfig $coreConfig
+        CoreConfig $coreConfig,
+        LoggerInterface $logger
     ) {
-        $this->coreConfig   = $coreConfig;
+        $this->coreConfig = $coreConfig;
+        $this->logger     = $logger;
     }
 
     /**
@@ -50,6 +57,8 @@ class RowData implements CategoryFeedRowDataManagementInterface
      */
     public function getRowData(StoreInterface $store, $row): array
     {
+        $this->logger->debug('Category Feed: Processing category ' . $row->getId() . ' (' . $row->getName() . ')');
+
         // Build data
         $categoryData = [
             'Id' => $row->getId(),
@@ -69,6 +78,7 @@ class RowData implements CategoryFeedRowDataManagementInterface
         // Check whether to ignore this category in recommenders
         if ($row->getData('pureclarity_hide_from_feed') === '1') {
             $categoryData['ExcludeFromRecommenders'] = true;
+            $this->logger->debug('Category Feed: Category excluded from recommenders by attribute');
         }
 
         //Check if category is active
@@ -80,6 +90,8 @@ class RowData implements CategoryFeedRowDataManagementInterface
         if ($overrideImageUrl !== '') {
             $categoryData['OverrideImage'] = $overrideImageUrl;
         }
+
+        $this->logger->debug('Category Feed: Category data - ' . var_export($categoryData, true));
 
         return $categoryData;
     }

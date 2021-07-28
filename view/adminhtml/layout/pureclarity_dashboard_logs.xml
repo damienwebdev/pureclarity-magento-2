@@ -1,0 +1,32 @@
+<?xml version="1.0"?>
+<!--
+/**
+ * Copyright © PureClarity. All rights reserved.
+ * See LICENSE.txt for license details.
+ */
+-->
+<page xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="urn:magento:framework:View/Layout/etc/page_configuration.xsd">
+    <head>
+        <title>
+            PureClarity
+        </title>
+        <css src="Pureclarity_Core::css/dashboard.css"/>
+    </head>
+    <body>
+        <referenceContainer name="page.main.actions">
+            <block class="Pureclarity\Core\Block\Adminhtml\Toolbar" name="pureclarity_toolbar" template="Pureclarity_Core::toolbar.phtml">
+                <arguments>
+                    <argument name="show_dashboard" xsi:type="string">show</argument>
+                </arguments>
+            </block>
+        </referenceContainer>
+        <referenceContainer name="content">
+            <block name="pureclarity.logs" as="pureclarity_logs" template="Pureclarity_Core::dashboard/logs.phtml">
+                <arguments>
+                    <argument name="config_view_model" xsi:type="object">Pureclarity\Core\ViewModel\Adminhtml\Dashboard\Logs\Config</argument>
+                    <argument name="file_view_model" xsi:type="object">Pureclarity\Core\ViewModel\Adminhtml\Dashboard\Logs\File</argument>
+                </arguments>
+            </block>
+        </referenceContainer>
+    </body>
+</page>

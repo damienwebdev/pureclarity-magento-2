@@ -568,6 +568,22 @@ class RunnerTest extends TestCase
     }
 
     /**
+     * Tests that the product feed gets sent
+     * @throws ReflectionException
+     */
+    public function testSendFeedZeroPages(): void
+    {
+        $store = $this->setupStore();
+        $this->setupFeedHandler($store, Feed::FEED_TYPE_PRODUCT, 0, 0);
+
+        $this->logger->expects(self::at(1))
+            ->method('debug')
+            ->with('No product Feed pages to process');
+
+        $this->object->sendFeed(self::STORE_ID, Feed::FEED_TYPE_PRODUCT);
+    }
+
+    /**
      * Tests that the user feed doesnt send when no users present
      * @throws ReflectionException
      */

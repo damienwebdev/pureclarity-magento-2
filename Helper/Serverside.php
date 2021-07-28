@@ -128,6 +128,8 @@ class Serverside
             $requestBody['searchterm'] = $searchTerm;
         }
 
+        $this->logger->debug('Serverside: Request Sent - ' . var_export($requestBody, true));
+
         $this->executeRequest($requestBody);
     }
 
@@ -141,6 +143,8 @@ class Serverside
         $url = $this->serviceUrl->getServerSideEndpoint(
             $this->coreConfig->getRegion($this->storeId)
         );
+
+        $this->logger->debug('Serverside: Sending request to ' . $url);
 
         $this->curl->setHeaders([
             'Content-Type' => 'application/json',
@@ -156,6 +160,8 @@ class Serverside
         try {
             $this->curl->post($url, $this->serializer->serialize($requestBody));
             $this->result = $this->serializer->unserialize($this->curl->getBody());
+
+            $this->logger->debug('Serverside: Response - ' . var_export($this->result, true));
 
             if (isset($this->result['errors']) && !empty($this->result['errors'])) {
                 $this->logger->error(
