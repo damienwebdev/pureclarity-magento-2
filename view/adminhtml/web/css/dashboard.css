@@ -150,7 +150,7 @@
     padding: 10px;
 }
 
-a.pc-button {
+#pc-dashboard-logs a.pc-button {
     display: inline-block;
     text-align: center;
 }
