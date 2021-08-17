@@ -26,9 +26,7 @@ class StoreTest extends TestCase
 
     protected function setUp(): void
     {
-        $this->storeData = $this->getMockBuilder(StoreData::class)
-            ->disableOriginalConstructor()
-            ->getMock();
+        $this->storeData = $this->createMock(StoreData::class);
 
         $this->object = new Store(
             $this->storeData

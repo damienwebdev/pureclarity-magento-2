@@ -38,17 +38,9 @@ class AccountStatusTest extends TestCase
 
     protected function setUp(): void
     {
-        $this->context = $this->getMockBuilder(Context::class)
-            ->disableOriginalConstructor()
-            ->getMock();
-
-        $date = $this->getMockBuilder(\DateTime::class)
-            ->disableOriginalConstructor()
-            ->getMock();
-
-        $this->localeDate = $this->getMockBuilder(TimezoneInterface::class)
-            ->disableOriginalConstructor()
-            ->getMock();
+        $this->context = $this->createMock(Context::class);
+        $date = $this->createMock(\DateTime::class);
+        $this->localeDate = $this->createMock(TimezoneInterface::class);
 
         $this->localeDate->method('date')
             ->willReturn($date);
@@ -59,13 +51,8 @@ class AccountStatusTest extends TestCase
         $this->context->method('getLocaleDate')
             ->willReturn($this->localeDate);
 
-        $this->dashboard = $this->getMockBuilder(Dashboard::class)
-            ->disableOriginalConstructor()
-            ->getMock();
-
-        $this->stores = $this->getMockBuilder(Stores::class)
-            ->disableOriginalConstructor()
-            ->getMock();
+        $this->dashboard = $this->createMock(Dashboard::class);
+        $this->stores = $this->createMock(Stores::class);
 
         $this->object = new AccountStatus(
             $this->context,

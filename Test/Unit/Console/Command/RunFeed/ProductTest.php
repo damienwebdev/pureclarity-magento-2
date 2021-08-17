@@ -40,17 +40,9 @@ class ProductTest extends TestCase
 
     protected function setUp() : void
     {
-        $this->feedRunner = $this->getMockBuilder(Runner::class)
-            ->disableOriginalConstructor()
-            ->getMock();
-
-        $this->state = $this->getMockBuilder(State::class)
-            ->disableOriginalConstructor()
-            ->getMock();
-
-        $this->storeManager = $this->getMockBuilder(StoreManagerInterface::class)
-            ->disableOriginalConstructor()
-            ->getMock();
+        $this->feedRunner = $this->createMock(Runner::class);
+        $this->state = $this->createMock(State::class);
+        $this->storeManager = $this->createMock(StoreManagerInterface::class);
 
         $this->object = new Product(
             $this->feedRunner,
@@ -67,9 +59,7 @@ class ProductTest extends TestCase
     {
         $stores = [];
         foreach ($storeIds as $storeId) {
-            $store = $this->getMockBuilder(StoreInterface::class)
-                ->disableOriginalConstructor()
-                ->getMock();
+            $store = $this->createMock(StoreInterface::class);
 
             $store->method('getId')
                 ->willReturn($storeId);
@@ -136,8 +126,8 @@ class ProductTest extends TestCase
      */
     private function runExecute(bool $error = false): void
     {
-        $input = $this->getMockBuilder(InputInterface::class)->disableOriginalConstructor()->getMock();
-        $output = $this->getMockBuilder(OutputInterface::class)->disableOriginalConstructor()->getMock();
+        $input = $this->createMock(InputInterface::class);
+        $output = $this->createMock(OutputInterface::class);
         if ($error === false) {
             $this->state->expects(self::once())->method('setAreaCode');
         } else {

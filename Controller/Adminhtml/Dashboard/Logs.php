@@ -9,7 +9,7 @@ namespace Pureclarity\Core\Controller\Adminhtml\Dashboard;
 
 use Magento\Backend\App\Action;
 use Magento\Backend\App\Action\Context;
-use Magento\Framework\View\Result\Page;
+use Magento\Backend\Model\View\Result\Page;
 use Magento\Framework\View\Result\PageFactory;
 
 /**
@@ -42,6 +42,7 @@ class Logs extends Action
     public function execute()
     {
         $resultPage = $this->resultPageFactory->create();
+        /** @var Page $resultPage */
         $resultPage->setActiveMenu('Magento_Backend::content');
         return $resultPage;
     }

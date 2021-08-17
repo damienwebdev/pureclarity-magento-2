@@ -34,13 +34,8 @@ class RunDateTest extends TestCase
 
     protected function setUp(): void
     {
-        $this->stateRepository = $this->getMockBuilder(StateRepositoryInterface::class)
-            ->disableOriginalConstructor()
-            ->getMock();
-
-        $this->logger = $this->getMockBuilder(LoggerInterface::class)
-            ->disableOriginalConstructor()
-            ->getMock();
+        $this->stateRepository = $this->createMock(StateRepositoryInterface::class);
+        $this->logger = $this->createMock(LoggerInterface::class);
 
         $this->object = new RunDate(
             $this->stateRepository,
@@ -62,9 +57,7 @@ class RunDateTest extends TestCase
         string $value = null,
         int $storeId = null
     ) {
-        $state = $this->getMockBuilder(State::class)
-            ->disableOriginalConstructor()
-            ->getMock();
+        $state = $this->createMock(State::class);
 
         $state->method('getId')
             ->willReturn($id);

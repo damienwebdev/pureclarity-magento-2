@@ -74,13 +74,14 @@ class AttributesTest extends TestCase
         for ($i = 1; $i <= 2; $i++) {
             $att = $this->createPartialMock(
                 Attribute::class,
-                ['getAttributeCode', 'getFrontendLabel', 'getFrontendInput']
+                ['getAttributeCode', '__call', 'getFrontendInput']
             );
 
             $att->method('getAttributeCode')
                 ->willReturn('attribute_' . $i);
 
-            $att->method('getFrontendLabel')
+            $att->method('__call')
+                ->with('getFrontendLabel')
                 ->willReturn('Attribute ' . $i);
 
             $att->method('getFrontendInput')

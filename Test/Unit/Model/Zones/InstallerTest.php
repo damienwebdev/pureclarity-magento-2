@@ -43,41 +43,27 @@ class InstallerTest extends TestCase
 
     protected function setUp(): void
     {
-        $this->widgetFactory = $this->getMockBuilder(InstanceFactory::class)
-            ->disableOriginalConstructor()
-            ->getMock();
+        $this->widgetFactory = $this->createMock(InstanceFactory::class);
 
-        $this->widgetInstance = $this->getMockBuilder(Instance::class)
-            ->disableOriginalConstructor()
-            ->setMethods([
+        $this->widgetInstance = $this->createPartialMock(
+            Instance::class,
+            [
                 'getWidgetReference',
                 'setType',
                 'setCode',
-                'setThemeId',
-                'setTitle',
-                'setStoreIds',
-                'setWidgetParameters',
-                'setSortOrder',
-                'setPageGroups',
+                '__call',
                 'save'
-            ])
-            ->getMock();
+            ]
+        );
 
         $this->widgetFactory->method('create')->willReturn($this->widgetInstance);
 
-        $this->collectionFactory = $this->getMockBuilder(CollectionFactory::class)
-            ->disableOriginalConstructor()
-            ->getMock();
-
-        $this->collection = $this->getMockBuilder(Collection::class)
-            ->disableOriginalConstructor()
-            ->getMock();
+        $this->collectionFactory = $this->createMock(CollectionFactory::class);
+        $this->collection = $this->createMock(Collection::class);
 
         $this->collectionFactory->method('create')->willReturn($this->collection);
 
-        $this->logger = $this->getMockBuilder(LoggerInterface::class)
-            ->disableOriginalConstructor()
-            ->getMock();
+        $this->logger = $this->createMock(LoggerInterface::class);
 
         $this->object = new Installer($this->widgetFactory, $this->collectionFactory, $this->logger);
     }
@@ -189,41 +175,51 @@ class InstallerTest extends TestCase
             ->with(Bmz::WIDGET_ID);
 
         $this->widgetInstance->expects(self::at(3))
-            ->method('setThemeId')
-            ->with(1);
+            ->method('__call')
+            ->with('setThemeId', [1]);
 
         $this->widgetInstance->expects(self::at(4))
-            ->method('setTitle')
-            ->with('PC Zone HP-01');
+            ->method('__call')
+            ->with('setTitle', ['PC Zone HP-01']);
 
         $this->widgetInstance->expects(self::at(5))
-            ->method('setStoreIds')
-            ->with([1]);
+            ->method('__call')
+            ->with('setStoreIds', [[1]]);
 
         $this->widgetInstance->expects(self::at(6))
-            ->method('setWidgetParameters')
-            ->with([
-                'bmz_id' => 'HP-01',
-                'pc_bmz_buffer' => 0
-            ]);
-
-        $this->widgetInstance->expects(self::at(7))
-            ->method('setSortOrder')
-            ->with(0);
-
-        $this->widgetInstance->expects(self::at(8))
-            ->method('setPageGroups')
-            ->with([
+            ->method('__call')
+            ->with(
+                'setWidgetParameters',
                 [
-                    'page_group' => 'pages',
-                    'pages' => [
-                        'block' => 'content.bottom',
-                        'for' => 'all',
-                        'layout_handle' => 'cms_index_index',
-                        'page_id' => '',
+                    [
+                        'bmz_id' => 'HP-01',
+                        'pc_bmz_buffer' => 0
                     ]
                 ]
-            ]);
+            );
+
+        $this->widgetInstance->expects(self::at(7))
+            ->method('__call')
+            ->with('setSortOrder', [0]);
+
+        $this->widgetInstance->expects(self::at(8))
+            ->method('__call')
+            ->with(
+                'setPageGroups',
+                [
+                    [
+                        [
+                            'page_group' => 'pages',
+                            'pages' => [
+                                'block' => 'content.bottom',
+                                'for' => 'all',
+                                'layout_handle' => 'cms_index_index',
+                                'page_id' => '',
+                            ]
+                        ]
+                    ]
+                ]
+            );
 
         $this->object->createZone('HP-01', $zone, 1, 1);
     }

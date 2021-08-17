@@ -36,19 +36,12 @@ class UninstallerTest extends TestCase
 
     protected function setUp(): void
     {
-        $this->collectionFactory = $this->getMockBuilder(CollectionFactory::class)
-            ->disableOriginalConstructor()
-            ->getMock();
-
-        $this->collection = $this->getMockBuilder(Collection::class)
-            ->disableOriginalConstructor()
-            ->getMock();
+        $this->collectionFactory = $this->createMock(CollectionFactory::class);
+        $this->collection = $this->createMock(Collection::class);
 
         $this->collectionFactory->method('create')->willReturn($this->collection);
 
-        $this->logger = $this->getMockBuilder(LoggerInterface::class)
-            ->disableOriginalConstructor()
-            ->getMock();
+        $this->logger = $this->createMock(LoggerInterface::class);
 
         $this->object = new Uninstaller($this->collectionFactory, $this->logger);
     }
@@ -66,9 +59,7 @@ class UninstallerTest extends TestCase
      */
     public function testUninstallNoDelete(): void
     {
-        $widget = $this->getMockBuilder(Instance::class)
-            ->disableOriginalConstructor()
-            ->getMock();
+        $widget = $this->createMock(Instance::class);
 
         $this->collection->method('addFilter')
             ->with('instance_type', Bmz::class);
@@ -87,9 +78,7 @@ class UninstallerTest extends TestCase
      */
     public function testUninstallWithDelete(): void
     {
-        $widget = $this->getMockBuilder(Instance::class)
-            ->disableOriginalConstructor()
-            ->getMock();
+        $widget = $this->createMock(Instance::class);
 
         $this->collection->method('addFilter')
             ->with('instance_type', Bmz::class);
@@ -108,9 +97,7 @@ class UninstallerTest extends TestCase
      */
     public function testUninstallWithException(): void
     {
-        $widget = $this->getMockBuilder(Instance::class)
-            ->disableOriginalConstructor()
-            ->getMock();
+        $widget = $this->createMock(Instance::class);
 
         $this->collection->method('addFilter')
             ->with('instance_type', Bmz::class);

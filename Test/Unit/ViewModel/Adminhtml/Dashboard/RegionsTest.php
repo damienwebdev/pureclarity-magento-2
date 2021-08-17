@@ -26,9 +26,7 @@ class RegionsTest extends TestCase
 
     protected function setUp(): void
     {
-        $this->region = $this->getMockBuilder(Region::class)
-            ->disableOriginalConstructor()
-            ->getMock();
+        $this->region = $this->createMock(Region::class);
 
         $this->object = new Regions(
             $this->region

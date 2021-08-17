@@ -49,33 +49,13 @@ class CollectionTest extends TestCase
 
     protected function setUp(): void
     {
-        $this->entityFactory = $this->getMockBuilder(EntityFactoryInterface::class)
-            ->disableOriginalConstructor()
-            ->getMock();
-
-        $this->logger = $this->getMockBuilder(LoggerInterface::class)
-            ->disableOriginalConstructor()
-            ->getMock();
-
-        $this->fetchStrategy = $this->getMockBuilder(FetchStrategyInterface::class)
-            ->disableOriginalConstructor()
-            ->getMock();
-
-        $this->eventManager = $this->getMockBuilder(ManagerInterface::class)
-            ->disableOriginalConstructor()
-            ->getMock();
-
-        $this->connection = $this->getMockBuilder(AdapterInterface::class)
-            ->disableOriginalConstructor()
-            ->getMock();
-
-        $this->resource = $this->getMockBuilder(AbstractDb::class)
-            ->disableOriginalConstructor()
-            ->getMock();
-
-        $select = $this->getMockBuilder(Select::class)
-            ->disableOriginalConstructor()
-            ->getMock();
+        $this->entityFactory = $this->createMock(EntityFactoryInterface::class);
+        $this->logger = $this->createMock(LoggerInterface::class);
+        $this->fetchStrategy = $this->createMock(FetchStrategyInterface::class);
+        $this->eventManager = $this->createMock(ManagerInterface::class);
+        $this->connection = $this->createMock(AdapterInterface::class);
+        $this->resource = $this->createMock(AbstractDb::class);
+        $select = $this->createMock(Select::class);
 
         $this->resource->expects($this->any())->method('getConnection')->willReturn($this->connection);
         $this->connection->expects($this->any())->method('select')->willReturn($select);

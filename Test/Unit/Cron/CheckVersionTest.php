@@ -47,25 +47,11 @@ class CheckVersionTest extends TestCase
 
     protected function setUp(): void
     {
-        $this->url = $this->getMockBuilder(Url::class)
-            ->disableOriginalConstructor()
-            ->getMock();
-
-        $this->curl = $this->getMockBuilder(Curl::class)
-            ->disableOriginalConstructor()
-            ->getMock();
-
-        $this->serializer = $this->getMockBuilder(Serializer::class)
-            ->disableOriginalConstructor()
-            ->getMock();
-
-        $this->stateRepository = $this->getMockBuilder(StateRepositoryInterface::class)
-            ->disableOriginalConstructor()
-            ->getMock();
-
-        $this->logger = $this->getMockBuilder(LoggerInterface::class)
-            ->disableOriginalConstructor()
-            ->getMock();
+        $this->url = $this->createMock(Url::class);
+        $this->curl = $this->createMock(Curl::class);
+        $this->serializer = $this->createMock(Serializer::class);
+        $this->stateRepository = $this->createMock(StateRepositoryInterface::class);
+        $this->logger = $this->createMock(LoggerInterface::class);
 
         $this->object = new CheckVersion(
             $this->url,
@@ -97,9 +83,7 @@ class CheckVersionTest extends TestCase
      */
     private function getStateMock($id = null, $name = null, $value = null, $storeId = null)
     {
-        $state = $this->getMockBuilder(State::class)
-            ->disableOriginalConstructor()
-            ->getMock();
+        $state = $this->createMock(State::class);
 
         $state->expects($this->any())
             ->method('getId')

@@ -44,21 +44,10 @@ class StatusTest extends TestCase
 
     protected function setUp(): void
     {
-        $this->curlMock = $this->getMockBuilder(Curl::class)
-            ->disableOriginalConstructor()
-            ->getMock();
-
-        $this->urlMock = $this->getMockBuilder(Url::class)
-            ->disableOriginalConstructor()
-            ->getMock();
-
-        $this->serializerMock = $this->getMockBuilder(Serializer::class)
-            ->disableOriginalConstructor()
-            ->getMock();
-
-        $this->stateRepositoryMock = $this->getMockBuilder(StateRepositoryInterface::class)
-            ->disableOriginalConstructor()
-            ->getMock();
+        $this->curlMock = $this->createMock(Curl::class);
+        $this->urlMock = $this->createMock(Url::class);
+        $this->serializerMock = $this->createMock(Serializer::class);
+        $this->stateRepositoryMock = $this->createMock(StateRepositoryInterface::class);
 
         $this->serializerMock->expects($this->any())
             ->method('serialize')->will(
@@ -117,9 +106,7 @@ class StatusTest extends TestCase
      */
     private function getStateMock($id = null, $name = null, $value = null, $storeId = null)
     {
-        $state = $this->getMockBuilder(State::class)
-            ->disableOriginalConstructor()
-            ->getMock();
+        $state = $this->createMock(State::class);
 
         $state->expects($this->any())
             ->method('getId')

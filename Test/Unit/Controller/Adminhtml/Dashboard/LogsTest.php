@@ -11,7 +11,7 @@ use PHPUnit\Framework\TestCase;
 use Pureclarity\Core\Controller\Adminhtml\Dashboard\Logs;
 use Magento\Backend\App\Action\Context;
 use Magento\Framework\View\Result\PageFactory;
-use Magento\Framework\View\Result\Page;
+use Magento\Backend\Model\View\Result\Page;
 use Magento\Backend\App\Action;
 use PHPUnit\Framework\MockObject\MockObject;
 

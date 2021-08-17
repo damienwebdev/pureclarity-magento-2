@@ -38,17 +38,9 @@ class CategoryTest extends TestCase
 
     protected function setUp(): void
     {
-        $this->categoryFeedFactory = $this->getMockBuilder(CategoryFactory::class)
-            ->disableOriginalConstructor()
-            ->getMock();
-
-        $this->feedDataHandler = $this->getMockBuilder(CategoryFeedDataManagementInterface::class)
-            ->disableOriginalConstructor()
-            ->getMock();
-
-        $this->rowDataHandler = $this->getMockBuilder(CategoryFeedRowDataManagementInterface::class)
-            ->disableOriginalConstructor()
-            ->getMock();
+        $this->categoryFeedFactory = $this->createMock(CategoryFactory::class);
+        $this->feedDataHandler = $this->createMock(CategoryFeedDataManagementInterface::class);
+        $this->rowDataHandler = $this->createMock(CategoryFeedRowDataManagementInterface::class);
 
         $this->object = new Category(
             $this->categoryFeedFactory,
@@ -86,9 +78,7 @@ class CategoryTest extends TestCase
      */
     public function testGetFeedBuilder(): void
     {
-        $feed = $this->getMockBuilder(CategoryFeed::class)
-            ->disableOriginalConstructor()
-            ->getMock();
+        $feed = $this->createMock(CategoryFeed::class);
 
         $this->categoryFeedFactory->expects(self::once())
             ->method('create')

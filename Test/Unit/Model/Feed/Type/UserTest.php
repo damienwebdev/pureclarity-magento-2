@@ -38,17 +38,9 @@ class UserTest extends TestCase
 
     protected function setUp(): void
     {
-        $this->userFeedFactory = $this->getMockBuilder(UserFactory::class)
-            ->disableOriginalConstructor()
-            ->getMock();
-
-        $this->feedDataHandler = $this->getMockBuilder(UserFeedDataManagementInterface::class)
-            ->disableOriginalConstructor()
-            ->getMock();
-
-        $this->rowDataHandler = $this->getMockBuilder(UserFeedRowDataManagementInterface::class)
-            ->disableOriginalConstructor()
-            ->getMock();
+        $this->userFeedFactory = $this->createMock(UserFactory::class);
+        $this->feedDataHandler = $this->createMock(UserFeedDataManagementInterface::class);
+        $this->rowDataHandler = $this->createMock(UserFeedRowDataManagementInterface::class);
 
         $this->object = new User(
             $this->userFeedFactory,
@@ -86,9 +78,7 @@ class UserTest extends TestCase
      */
     public function testGetFeedBuilder(): void
     {
-        $feed = $this->getMockBuilder(UserFeed::class)
-            ->disableOriginalConstructor()
-            ->getMock();
+        $feed = $this->createMock(UserFeed::class);
 
         $this->userFeedFactory->expects(self::once())
             ->method('create')

@@ -46,25 +46,15 @@ class SignupTest extends TestCase
 
     protected function setUp(): void
     {
-        $this->context = $this->getMockBuilder(Context::class)
-            ->disableOriginalConstructor()
-            ->getMock();
-
-        $this->formKey = $this->getMockBuilder(FormKey::class)
-            ->disableOriginalConstructor()
-            ->getMock();
+        $this->context = $this->createMock(Context::class);
+        $this->formKey = $this->createMock(FormKey::class);
 
         $this->context->expects(self::any())
             ->method('getFormKey')
             ->willReturn($this->formKey);
 
-        $request = $this->getMockBuilder(RequestInterface::class)
-            ->disableOriginalConstructor()
-            ->getMock();
-
-        $assetRepo = $this->getMockBuilder(Repository::class)
-            ->disableOriginalConstructor()
-            ->getMock();
+        $request = $this->createMock(RequestInterface::class);
+        $assetRepo = $this->createMock(Repository::class);
 
         $this->context->method('getFormKey')
             ->willReturn($this->formKey);
@@ -79,21 +69,10 @@ class SignupTest extends TestCase
         $this->context->method('getAssetRepository')
             ->willReturn($assetRepo);
 
-        $this->storesViewModel = $this->getMockBuilder(Stores::class)
-            ->disableOriginalConstructor()
-            ->getMock();
-
-        $this->regionsViewModel = $this->getMockBuilder(Regions::class)
-            ->disableOriginalConstructor()
-            ->getMock();
-
-        $this->storeViewModel = $this->getMockBuilder(Store::class)
-            ->disableOriginalConstructor()
-            ->getMock();
-
-        $stateViewModel = $this->getMockBuilder(State::class)
-            ->disableOriginalConstructor()
-            ->getMock();
+        $this->storesViewModel = $this->createMock(Stores::class);
+        $this->regionsViewModel = $this->createMock(Regions::class);
+        $this->storeViewModel = $this->createMock(Store::class);
+        $stateViewModel = $this->createMock(State::class);
 
         $this->object = new Signup(
             $this->context,

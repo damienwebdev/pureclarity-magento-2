@@ -45,17 +45,11 @@ class FeedDataTest extends TestCase
 
     protected function setUp(): void
     {
-        $this->logger = $this->getMockBuilder(LoggerInterface::class)
-            ->disableOriginalConstructor()
-            ->getMock();
-
-        $this->feedError = $this->getMockBuilder(Error::class)
-            ->disableOriginalConstructor()
-            ->getMock();
-
-        $this->collection = $this->getMockBuilder(Collection::class)
-            ->disableOriginalConstructor()
-            ->setMethods([
+        $this->logger = $this->createMock(LoggerInterface::class);
+        $this->feedError = $this->createMock(Error::class);
+        $this->collection = $this->createPartialMock(
+            Collection::class,
+            [
                 'addAttributeToSelect',
                 'addUrlRewriteToResult',
                 'clear',
@@ -64,12 +58,10 @@ class FeedDataTest extends TestCase
                 'setCurPage',
                 'setPageSize',
                 'setStore'
-            ])
-            ->getMock();
+            ]
+        );
 
-        $this->collectionFactory = $this->getMockBuilder(CategoryCollectionFactory::class)
-            ->disableOriginalConstructor()
-            ->getMock();
+        $this->collectionFactory = $this->createMock(CategoryCollectionFactory::class);
 
         $this->collectionFactory->method('create')
             ->willReturn($this->collection);

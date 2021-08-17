@@ -34,17 +34,9 @@ class StatsTest extends TestCase
 
     protected function setUp(): void
     {
-        $this->context = $this->getMockBuilder(Context::class)
-            ->disableOriginalConstructor()
-            ->getMock();
-
-        $this->dashboard = $this->getMockBuilder(Dashboard::class)
-            ->disableOriginalConstructor()
-            ->getMock();
-
-        $this->stores = $this->getMockBuilder(Stores::class)
-            ->disableOriginalConstructor()
-            ->getMock();
+        $this->context = $this->createMock(Context::class);
+        $this->dashboard = $this->createMock(Dashboard::class);
+        $this->stores = $this->createMock(Stores::class);
 
         $this->object = new Stats(
             $this->context,

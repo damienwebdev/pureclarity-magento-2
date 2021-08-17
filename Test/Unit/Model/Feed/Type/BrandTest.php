@@ -42,21 +42,10 @@ class BrandTest extends TestCase
 
     protected function setUp(): void
     {
-        $this->coreConfig = $this->getMockBuilder(CoreConfig::class)
-            ->disableOriginalConstructor()
-            ->getMock();
-
-        $this->brandFeedFactory = $this->getMockBuilder(BrandFactory::class)
-            ->disableOriginalConstructor()
-            ->getMock();
-
-        $this->feedDataHandler = $this->getMockBuilder(BrandFeedDataManagementInterface::class)
-            ->disableOriginalConstructor()
-            ->getMock();
-
-        $this->rowDataHandler = $this->getMockBuilder(BrandFeedRowDataManagementInterface::class)
-            ->disableOriginalConstructor()
-            ->getMock();
+        $this->coreConfig = $this->createMock(CoreConfig::class);
+        $this->brandFeedFactory = $this->createMock(BrandFactory::class);
+        $this->feedDataHandler = $this->createMock(BrandFeedDataManagementInterface::class);
+        $this->rowDataHandler = $this->createMock(BrandFeedRowDataManagementInterface::class);
 
         $this->object = new Brand(
             $this->coreConfig,
@@ -159,9 +148,7 @@ class BrandTest extends TestCase
      */
     public function testGetFeedBuilder(): void
     {
-        $feed = $this->getMockBuilder(BrandFeed::class)
-            ->disableOriginalConstructor()
-            ->getMock();
+        $feed = $this->createMock(BrandFeed::class);
 
         $this->brandFeedFactory->expects(self::once())
             ->method('create')

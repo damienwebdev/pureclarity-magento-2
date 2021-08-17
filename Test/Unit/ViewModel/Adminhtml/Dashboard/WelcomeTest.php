@@ -27,9 +27,7 @@ class WelcomeTest extends TestCase
 
     protected function setUp(): void
     {
-        $this->stateRepository = $this->getMockBuilder(StateRepositoryInterface::class)
-            ->disableOriginalConstructor()
-            ->getMock();
+        $this->stateRepository = $this->createMock(StateRepositoryInterface::class);
 
         $this->object = new Welcome(
             $this->stateRepository
@@ -46,9 +44,7 @@ class WelcomeTest extends TestCase
      */
     private function getStateMock($id = null, $name = null, $value = null, $storeId = null)
     {
-        $state = $this->getMockBuilder(StateModel::class)
-            ->disableOriginalConstructor()
-            ->getMock();
+        $state = $this->createMock(StateModel::class);
 
         $state->method('getId')
             ->willReturn($id);

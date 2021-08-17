@@ -43,37 +43,31 @@ class StateRepositoryTest extends TestCase
 
     protected function setUp(): void
     {
-        $this->collectionFactoryMock = $this->getMockBuilder(CollectionFactory::class)
-            ->disableOriginalConstructor()
-            ->getMock();
+        $this->collectionFactoryMock = $this->createMock(CollectionFactory::class);
 
-        $this->collectionMock = $this->getMockBuilder(Collection::class)
-            ->disableOriginalConstructor()
-            ->setMethods(
-                [
-                    'addFieldToFilter',
-                    'getSize',
-                    'setCurPage',
-                    'setPageSize',
-                    'load',
-                    'addOrder',
-                    'getFirstItem',
-                    'getItems'
-                ]
-            )
-            ->getMock();
+        $this->collectionMock = $this->createPartialMock(
+            Collection::class,
+            [
+                'addFieldToFilter',
+                'getSize',
+                'setCurPage',
+                'setPageSize',
+                'load',
+                'addOrder',
+                'getFirstItem',
+                'getItems'
+            ]
+        );
 
         $this->collectionFactoryMock->expects($this->any())->method('create')
             ->will($this->returnValue($this->collectionMock));
 
-        $this->stateFactoryMock = $this->getMockBuilder(StateFactory::class)
-            ->disableOriginalConstructor()
-            ->setMethods(['create'])
-            ->getMock();
+        $this->stateFactoryMock = $this->createPartialMock(
+            StateFactory::class,
+            ['create']
+        );
 
-        $this->stateResourceMock = $this->getMockBuilder(StateResource::class)
-            ->disableOriginalConstructor()
-            ->getMock();
+        $this->stateResourceMock = $this->createMock(StateResource::class);
 
         $this->stateFactoryMock->expects($this->any())->method('create')
             ->will($this->returnValue($this->stateResourceMock));
@@ -93,9 +87,7 @@ class StateRepositoryTest extends TestCase
      */
     private function getStateMock($id = null, $name = null, $value = null, $storeId = null)
     {
-        $state = $this->getMockBuilder(State::class)
-            ->disableOriginalConstructor()
-            ->getMock();
+        $state = $this->createMock(State::class);
 
         $state->expects($this->any())
             ->method('getId')

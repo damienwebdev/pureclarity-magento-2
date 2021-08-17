@@ -42,21 +42,10 @@ class CompleteTest extends TestCase
 
     protected function setUp(): void
     {
-        $this->coreConfig = $this->getMockBuilder(CoreConfig::class)
-            ->disableOriginalConstructor()
-            ->getMock();
-
-        $this->logger = $this->getMockBuilder(LoggerInterface::class)
-            ->disableOriginalConstructor()
-            ->getMock();
-
-        $this->complete = $this->getMockBuilder(ApiComplete::class)
-            ->disableOriginalConstructor()
-            ->getMock();
-
-        $this->completeFactory = $this->getMockBuilder(CompleteFactory::class)
-            ->disableOriginalConstructor()
-            ->getMock();
+        $this->coreConfig = $this->createMock(CoreConfig::class);
+        $this->logger = $this->createMock(LoggerInterface::class);
+        $this->complete = $this->createMock(ApiComplete::class);
+        $this->completeFactory = $this->createMock(CompleteFactory::class);
 
         $this->object = new Complete(
             $this->coreConfig,

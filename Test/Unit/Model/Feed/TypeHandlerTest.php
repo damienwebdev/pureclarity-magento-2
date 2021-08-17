@@ -50,25 +50,11 @@ class TypeHandlerTest extends TestCase
 
     protected function setUp(): void
     {
-        $this->productFeed = $this->getMockBuilder(ProductFactory::class)
-            ->disableOriginalConstructor()
-            ->getMock();
-
-        $this->categoryFeed = $this->getMockBuilder(CategoryFactory::class)
-            ->disableOriginalConstructor()
-            ->getMock();
-
-        $this->brandFeed = $this->getMockBuilder(BrandFactory::class)
-            ->disableOriginalConstructor()
-            ->getMock();
-
-        $this->userFeed = $this->getMockBuilder(UserFactory::class)
-            ->disableOriginalConstructor()
-            ->getMock();
-
-        $this->orderFeed = $this->getMockBuilder(OrderFactory::class)
-            ->disableOriginalConstructor()
-            ->getMock();
+        $this->productFeed = $this->createMock(ProductFactory::class);
+        $this->categoryFeed = $this->createMock(CategoryFactory::class);
+        $this->brandFeed = $this->createMock(BrandFactory::class);
+        $this->userFeed = $this->createMock(UserFactory::class);
+        $this->orderFeed = $this->createMock(OrderFactory::class);
 
         $this->object = new TypeHandler(
             $this->productFeed,
@@ -107,9 +93,7 @@ class TypeHandlerTest extends TestCase
      */
     public function testGetFeedHandlerProduct(): void
     {
-        $feed = $this->getMockBuilder(Product::class)
-            ->disableOriginalConstructor()
-            ->getMock();
+        $feed = $this->createMock(Product::class);
 
         $this->productFeed->expects(self::once())
             ->method('create')
@@ -124,9 +108,7 @@ class TypeHandlerTest extends TestCase
      */
     public function testGetFeedHandlerCategory(): void
     {
-        $feed = $this->getMockBuilder(Category::class)
-            ->disableOriginalConstructor()
-            ->getMock();
+        $feed = $this->createMock(Category::class);
 
         $this->categoryFeed->expects(self::once())
             ->method('create')
@@ -141,9 +123,7 @@ class TypeHandlerTest extends TestCase
      */
     public function testGetFeedHandlerBrand(): void
     {
-        $feed = $this->getMockBuilder(Brand::class)
-            ->disableOriginalConstructor()
-            ->getMock();
+        $feed = $this->createMock(Brand::class);
 
         $this->brandFeed->expects(self::once())
             ->method('create')
@@ -158,9 +138,7 @@ class TypeHandlerTest extends TestCase
      */
     public function testGetFeedHandlerUser(): void
     {
-        $userFeed = $this->getMockBuilder(User::class)
-            ->disableOriginalConstructor()
-            ->getMock();
+        $userFeed = $this->createMock(User::class);
 
         $this->userFeed->expects(self::once())
             ->method('create')
@@ -175,9 +153,7 @@ class TypeHandlerTest extends TestCase
      */
     public function testGetFeedHandlerOrder(): void
     {
-        $orderFeed = $this->getMockBuilder(Order::class)
-            ->disableOriginalConstructor()
-            ->getMock();
+        $orderFeed = $this->createMock(Order::class);
 
         $this->orderFeed->expects(self::once())
             ->method('create')

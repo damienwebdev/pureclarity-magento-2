@@ -90,43 +90,50 @@ class RowDataTest extends TestCase
      */
     public function setupCustomer(int $customerId, array $data)
     {
-        $customer = $this->getMockBuilder(Customer::class)
-            ->disableOriginalConstructor()
-            ->setMethods([
+        $customer = $this->createPartialMock(
+            Customer::class,
+            [
                 'getId',
-                'getEmail',
-                'getFirstname',
-                'getLastname',
-                'getPrefix',
-                'getDob',
+                '__call',
                 'getGroupId',
-                'getGender',
                 'getData'
-            ])
-            ->getMock();
+            ]
+        );
 
         $customer->method('getId')
             ->willReturn($customerId);
 
-        $customer->method('getEmail')
+        $customer->expects(self::at(2))
+            ->method('__call')
+            ->with('getEmail')
             ->willReturn($data['Email']);
 
-        $customer->method('getFirstname')
+        $customer->expects(self::at(3))
+            ->method('__call')
+            ->with('getFirstname')
             ->willReturn($data['FirstName']);
 
-        $customer->method('getLastname')
+        $customer->expects(self::at(4))
+            ->method('__call')
+            ->with('getLastname')
             ->willReturn($data['LastName']);
 
-        $customer->method('getPrefix')
+        $customer->expects(self::at(5))
+            ->method('__call')
+            ->with('getPrefix')
             ->willReturn($data['Salutation'] ?? '');
 
-        $customer->method('getDob')
+        $customer->expects(self::at(6))
+            ->method('__call')
+            ->with('getDob')
             ->willReturn($data['DOB'] ?? '');
 
         $customer->method('getGroupId')
             ->willReturn($data['GroupId']);
 
-        $customer->method('getGender')
+        $customer->expects(self::at(8))
+            ->method('__call')
+            ->with('getGender')
             ->willReturn($data['GroupId']);
 
         $customer->expects(self::at(9))
