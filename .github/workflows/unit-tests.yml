@@ -10,6 +10,7 @@ jobs:
       MAGENTO_MARKETPLACE_PASSWORD: ${{ secrets.MAGENTO_MARKETPLACE_PASSWORD }}
       MODULE_NAME: Pureclarity_Core
       COMPOSER_NAME: pureclarity/pureclarity-magento-2
+      INPUT_MAGENTO_PRE_INSTALL_SCRIPT: .github/scripts/require.sh
       
     strategy:
       matrix:
