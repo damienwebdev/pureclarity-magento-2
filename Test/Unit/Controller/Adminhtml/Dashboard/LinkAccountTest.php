@@ -237,6 +237,11 @@ class LinkAccountTest extends TestCase
         $this->setupRequestIsPost(true);
         $this->setupFormKeyValidator(true);
 
+        $this->validate->expects(self::once())
+            ->method('sendRequest')
+            ->with($this->defaultParams)
+            ->willReturn(['error' => '']);
+
         $this->requestProcess->expects(self::once())
             ->method('processManualConfigure')
             ->with($this->defaultParams)
@@ -263,6 +268,11 @@ class LinkAccountTest extends TestCase
         $this->setupRequestIsPost(true);
         $this->setupRequestGetParams();
         $this->setupFormKeyValidator(true);
+
+        $this->validate->expects(self::once())
+            ->method('sendRequest')
+            ->with($this->defaultParams)
+            ->willReturn(['error' => '']);
 
         $this->requestProcess->expects(self::once())
             ->method('processManualConfigure')
