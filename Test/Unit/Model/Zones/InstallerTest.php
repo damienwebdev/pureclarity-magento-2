@@ -43,13 +43,11 @@ class InstallerTest extends TestCase
 
     protected function setUp(): void
     {
-        $this->widgetFactory = $this->getMockBuilder(InstanceFactory::class)
-            ->disableOriginalConstructor()
-            ->getMock();
+        $this->widgetFactory = $this->createMock(InstanceFactory::class);
 
-        $this->widgetInstance = $this->getMockBuilder(Instance::class)
-            ->disableOriginalConstructor()
-            ->setMethods([
+        $this->widgetInstance = $this->createPartialMock(
+            Instance::class,
+            [
                 'getWidgetReference',
                 'setType',
                 'setCode',
@@ -60,24 +58,17 @@ class InstallerTest extends TestCase
                 'setSortOrder',
                 'setPageGroups',
                 'save'
-            ])
-            ->getMock();
+            ]
+        );
 
         $this->widgetFactory->method('create')->willReturn($this->widgetInstance);
 
-        $this->collectionFactory = $this->getMockBuilder(CollectionFactory::class)
-            ->disableOriginalConstructor()
-            ->getMock();
-
-        $this->collection = $this->getMockBuilder(Collection::class)
-            ->disableOriginalConstructor()
-            ->getMock();
+        $this->collectionFactory = $this->createMock(CollectionFactory::class);
+        $this->collection = $this->createMock(Collection::class);
 
         $this->collectionFactory->method('create')->willReturn($this->collection);
 
-        $this->logger = $this->getMockBuilder(LoggerInterface::class)
-            ->disableOriginalConstructor()
-            ->getMock();
+        $this->logger = $this->createMock(LoggerInterface::class);
 
         $this->object = new Installer($this->widgetFactory, $this->collectionFactory, $this->logger);
     }

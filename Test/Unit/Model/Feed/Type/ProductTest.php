@@ -38,17 +38,9 @@ class ProductTest extends TestCase
 
     protected function setUp(): void
     {
-        $this->productFeedFactory = $this->getMockBuilder(ProductFactory::class)
-            ->disableOriginalConstructor()
-            ->getMock();
-
-        $this->feedDataHandler = $this->getMockBuilder(ProductFeedDataManagementInterface::class)
-            ->disableOriginalConstructor()
-            ->getMock();
-
-        $this->rowDataHandler = $this->getMockBuilder(ProductFeedRowDataManagementInterface::class)
-            ->disableOriginalConstructor()
-            ->getMock();
+        $this->productFeedFactory = $this->createMock(ProductFactory::class);
+        $this->feedDataHandler = $this->createMock(ProductFeedDataManagementInterface::class);
+        $this->rowDataHandler = $this->createMock(ProductFeedRowDataManagementInterface::class);
 
         $this->object = new Product(
             $this->productFeedFactory,
@@ -86,9 +78,7 @@ class ProductTest extends TestCase
      */
     public function testGetFeedBuilder(): void
     {
-        $feed = $this->getMockBuilder(ProductFeed::class)
-            ->disableOriginalConstructor()
-            ->getMock();
+        $feed = $this->createMock(ProductFeed::class);
 
         $this->productFeedFactory->expects(self::once())
             ->method('create')

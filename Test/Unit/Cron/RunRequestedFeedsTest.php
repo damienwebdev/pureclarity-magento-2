@@ -42,21 +42,10 @@ class RunRequestedFeedsTest extends TestCase
      */
     protected function setUp(): void
     {
-        $this->logger = $this->getMockBuilder(LoggerInterface::class)
-            ->disableOriginalConstructor()
-            ->getMock();
-
-        $this->coreConfig = $this->getMockBuilder(CoreConfig::class)
-            ->disableOriginalConstructor()
-            ->getMock();
-
-        $this->feedRunner = $this->getMockBuilder(Runner::class)
-            ->disableOriginalConstructor()
-            ->getMock();
-
-        $this->feedRequest = $this->getMockBuilder(Request::class)
-            ->disableOriginalConstructor()
-            ->getMock();
+        $this->logger = $this->createMock(LoggerInterface::class);
+        $this->coreConfig = $this->createMock(CoreConfig::class);
+        $this->feedRunner = $this->createMock(Runner::class);
+        $this->feedRequest = $this->createMock(Request::class);
 
         $this->object = new RunRequestedFeeds(
             $this->logger,

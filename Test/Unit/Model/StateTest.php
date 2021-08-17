@@ -25,9 +25,9 @@ class StateTest extends TestCase
 
     protected function setUp(): void
     {
-        $context = $this->getMockBuilder(Context::class)->disableOriginalConstructor()->getMock();
-        $registry = $this->getMockBuilder(Registry::class)->disableOriginalConstructor()->getMock();
-        $resourceModel = $this->getMockBuilder(StateResource::class)->disableOriginalConstructor()->getMock();
+        $context = $this->createMock(Context::class);
+        $registry = $this->createMock(Registry::class);
+        $resourceModel = $this->createMock(StateResource::class);
 
         $this->object = new State($context, $registry, $resourceModel);
     }

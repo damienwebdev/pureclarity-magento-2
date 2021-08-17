@@ -58,29 +58,12 @@ class CheckSignupStatusTest extends TestCase
 
     protected function setUp(): void
     {
-        $this->requestStatus = $this->getMockBuilder(RequestStatus::class)
-            ->disableOriginalConstructor()
-            ->getMock();
-
-        $this->requestProcess = $this->getMockBuilder(Process::class)
-            ->disableOriginalConstructor()
-            ->getMock();
-
-        $this->stateRepository = $this->getMockBuilder(StateRepositoryInterface::class)
-            ->disableOriginalConstructor()
-            ->getMock();
-
-        $this->logger = $this->getMockBuilder(LoggerInterface::class)
-            ->disableOriginalConstructor()
-            ->getMock();
-
-        $this->state = $this->getMockBuilder(State::class)
-            ->disableOriginalConstructor()
-            ->getMock();
-
-        $this->storeManager = $this->getMockBuilder(StoreManagerInterface::class)
-            ->disableOriginalConstructor()
-            ->getMock();
+        $this->requestStatus = $this->createMock(RequestStatus::class);
+        $this->requestProcess = $this->createMock(Process::class);
+        $this->stateRepository = $this->createMock(StateRepositoryInterface::class);
+        $this->logger = $this->createMock(LoggerInterface::class);
+        $this->state = $this->createMock(State::class);
+        $this->storeManager = $this->createMock(StoreManagerInterface::class);
 
         $this->object = new CheckSignupStatus(
             $this->requestStatus,
@@ -102,9 +85,7 @@ class CheckSignupStatusTest extends TestCase
      */
     private function getStateMock($id = null, $name = null, $value = null, $storeId = null)
     {
-        $state = $this->getMockBuilder(StateModel::class)
-            ->disableOriginalConstructor()
-            ->getMock();
+        $state = $this->createMock(StateModel::class);
 
         $state->method('getId')
             ->willReturn($id);
@@ -134,16 +115,12 @@ class CheckSignupStatusTest extends TestCase
 
     private function setupGetStores()
     {
-        $store1 = $this->getMockBuilder(StoreInterface::class)
-            ->disableOriginalConstructor()
-            ->getMock();
+        $store1 = $this->createMock(StoreInterface::class);
 
         $store1->method('getId')
             ->willReturn('1');
 
-        $store2 = $this->getMockBuilder(StoreInterface::class)
-            ->disableOriginalConstructor()
-            ->getMock();
+        $store2 = $this->createMock(StoreInterface::class);
 
         $store2->method('getId')
             ->willReturn('17');

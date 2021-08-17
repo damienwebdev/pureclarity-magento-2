@@ -90,9 +90,9 @@ class RowDataTest extends TestCase
      */
     public function setupCustomer(int $customerId, array $data)
     {
-        $customer = $this->getMockBuilder(Customer::class)
-            ->disableOriginalConstructor()
-            ->setMethods([
+        $customer = $this->createPartialMock(
+            Customer::class,
+            [
                 'getId',
                 'getEmail',
                 'getFirstname',
@@ -102,8 +102,8 @@ class RowDataTest extends TestCase
                 'getGroupId',
                 'getGender',
                 'getData'
-            ])
-            ->getMock();
+            ]
+        );
 
         $customer->method('getId')
             ->willReturn($customerId);

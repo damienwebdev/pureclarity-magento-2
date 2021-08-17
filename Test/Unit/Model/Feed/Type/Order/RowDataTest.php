@@ -112,16 +112,16 @@ class RowDataTest extends TestCase
      */
     public function setupOrder(string $orderId, string $customerId, array $items)
     {
-        $order = $this->getMockBuilder(Order::class)
-            ->disableOriginalConstructor()
-            ->setMethods([
+        $order = $this->createPartialMock(
+            Order::class,
+            [
                 'getIncrementId',
                 'getCustomerId',
                 'getCustomerEmail',
                 'getCreatedAt',
                 'getAllVisibleItems'
-            ])
-            ->getMock();
+            ]
+        );
 
         $order->method('getIncrementId')
             ->willReturn($orderId);
@@ -149,15 +149,15 @@ class RowDataTest extends TestCase
     {
         $itemMocks = [];
         foreach ($items as $item) {
-            $itemMock = $this->getMockBuilder(Item::class)
-                ->disableOriginalConstructor()
-                ->setMethods([
+            $itemMock = $this->createPartialMock(
+                Item::class,
+                [
                     'getProductId',
                     'getQtyOrdered',
                     'getPriceInclTax',
                     'getRowTotalInclTax'
-                ])
-                ->getMock();
+                ]
+            );
 
             $itemMock->method('getProductId')
                 ->willReturn($item['id']);

@@ -30,8 +30,8 @@ class ThemesTest extends TestCase
 
     protected function setUp(): void
     {
-        $this->labelFactory = $this->getMockBuilder(LabelFactory::class)->disableOriginalConstructor()->getMock();
-        $this->label = $this->getMockBuilder(Label::class)->disableOriginalConstructor()->getMock();
+        $this->labelFactory = $this->createMock(LabelFactory::class);
+        $this->label = $this->createMock(Label::class);
 
         $this->object = new Themes($this->labelFactory);
     }

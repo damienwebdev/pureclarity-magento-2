@@ -39,17 +39,9 @@ class RunDeltasTest extends TestCase
      */
     protected function setUp() : void
     {
-        $this->storeManager = $this->getMockBuilder(StoreManagerInterface::class)
-            ->disableOriginalConstructor()
-            ->getMock();
-
-        $this->coreConfig = $this->getMockBuilder(CoreConfig::class)
-            ->disableOriginalConstructor()
-            ->getMock();
-
-        $this->runner = $this->getMockBuilder(Runner::class)
-            ->disableOriginalConstructor()
-            ->getMock();
+        $this->storeManager = $this->createMock(StoreManagerInterface::class);
+        $this->coreConfig = $this->createMock(CoreConfig::class);
+        $this->runner = $this->createMock(Runner::class);
 
         $this->object = new RunDeltas(
             $this->storeManager,
@@ -67,9 +59,7 @@ class RunDeltasTest extends TestCase
         $coreConfigIndex = 0;
         $runnerIndex = 0;
         foreach ($storeIds as $storeId => $deltasEnabled) {
-            $store = $this->getMockBuilder(StoreInterface::class)
-                ->disableOriginalConstructor()
-                ->getMock();
+            $store = $this->createMock(StoreInterface::class);
 
             $store->method('getId')
                 ->willReturn($storeId);

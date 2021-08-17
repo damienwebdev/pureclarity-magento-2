@@ -50,20 +50,13 @@ class AddStoreTest extends TestCase
 
     protected function setUp(): void
     {
-        $this->addStore = $this->getMockBuilder(ApiAddStore::class)
-            ->disableOriginalConstructor()
-            ->getMock();
-
-        $this->addStoreFactory = $this->getMockBuilder(AddStoreFactory::class)
-            ->disableOriginalConstructor()
-            ->getMock();
+        $this->addStore = $this->createMock(ApiAddStore::class);
+        $this->addStoreFactory = $this->createMock(AddStoreFactory::class);
 
         $this->addStoreFactory->method('create')
             ->willReturn($this->addStore);
 
-        $this->serializer = $this->getMockBuilder(Serializer::class)
-            ->disableOriginalConstructor()
-            ->getMock();
+        $this->serializer = $this->createMock(Serializer::class);
 
         $this->serializer->expects($this->any())->method('serialize')->will($this->returnCallback(function ($param) {
             return json_encode($param);
@@ -73,13 +66,8 @@ class AddStoreTest extends TestCase
             return json_decode($param, true);
         }));
 
-        $this->logger = $this->getMockBuilder(LoggerInterface::class)
-            ->disableOriginalConstructor()
-            ->getMock();
-
-        $this->stateRepository = $this->getMockBuilder(StateRepositoryInterface::class)
-            ->disableOriginalConstructor()
-            ->getMock();
+        $this->logger = $this->createMock(LoggerInterface::class);
+        $this->stateRepository = $this->createMock(StateRepositoryInterface::class);
 
         $this->object = new AddStore(
             $this->addStoreFactory,
@@ -113,9 +101,7 @@ class AddStoreTest extends TestCase
      */
     private function getStateMock($id = null, $name = null, $value = null, $storeId = null)
     {
-        $state = $this->getMockBuilder(State::class)
-            ->disableOriginalConstructor()
-            ->getMock();
+        $state = $this->createMock(State::class);
 
         $state->method('getId')
             ->willReturn($id);

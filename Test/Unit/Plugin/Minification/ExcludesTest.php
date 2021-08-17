@@ -38,7 +38,7 @@ class ExcludesTest extends TestCase
      */
     public function testAfterGetExcludesJs()
     {
-        $subject = $this->getMockBuilder(Minification::class)->disableOriginalConstructor()->getMock();
+        $subject = $this->createMock(Minification::class);
 
         $orig = [
             'anotherexclude.js'
@@ -57,7 +57,7 @@ class ExcludesTest extends TestCase
      */
     public function testAfterGetExcludesNonJs()
     {
-        $subject = $this->getMockBuilder(Minification::class)->disableOriginalConstructor()->getMock();
+        $subject = $this->createMock(Minification::class);
 
         $orig = [
             'anotherexclude.js'

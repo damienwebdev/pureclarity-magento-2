@@ -131,12 +131,12 @@ class RowDataTest extends TestCase
      */
     public function setupParentCategory()
     {
-        $category = $this->getMockBuilder(Category::class)
-            ->disableOriginalConstructor()
-            ->setMethods([
+        $category = $this->createPartialMock(
+            Category::class,
+            [
                 'getId'
-            ])
-            ->getMock();
+            ]
+        );
 
         $category->method('getId')
             ->willReturn('7');
@@ -151,9 +151,9 @@ class RowDataTest extends TestCase
      */
     public function setupBaseCategory(int $categoryId)
     {
-        $category = $this->getMockBuilder(Category::class)
-            ->disableOriginalConstructor()
-            ->setMethods([
+        $category = $this->createPartialMock(
+            Category::class,
+            [
                 'getId',
                 'getName',
                 'getData',
@@ -162,8 +162,8 @@ class RowDataTest extends TestCase
                 'getLevel',
                 'getParentCategory',
                 'getUrl'
-            ])
-            ->getMock();
+            ]
+        );
 
         $category->method('getId')
             ->willReturn($categoryId);

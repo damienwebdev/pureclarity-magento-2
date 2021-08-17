@@ -69,17 +69,9 @@ class RequestTest extends TestCase
 
     protected function setUp(): void
     {
-        $this->curlMock = $this->getMockBuilder(Curl::class)
-             ->disableOriginalConstructor()
-             ->getMock();
-
-        $this->urlMock = $this->getMockBuilder(Url::class)
-            ->disableOriginalConstructor()
-            ->getMock();
-
-        $this->regionMock = $this->getMockBuilder(Region::class)
-            ->disableOriginalConstructor()
-            ->getMock();
+        $this->curlMock = $this->createMock(Curl::class);
+        $this->urlMock = $this->createMock(Url::class);
+        $this->regionMock = $this->createMock(Region::class);
 
         $this->regionMock->method('getValidRegions')->willReturn(
             [
@@ -88,25 +80,11 @@ class RequestTest extends TestCase
             ]
         );
 
-        $this->storeManagerMock = $this->getMockBuilder(StoreManagerInterface::class)
-            ->disableOriginalConstructor()
-            ->getMock();
-
-        $this->serializerMock = $this->getMockBuilder(Serializer::class)
-            ->disableOriginalConstructor()
-            ->getMock();
-
-        $this->storeDataMock = $this->getMockBuilder(StoreData::class)
-            ->disableOriginalConstructor()
-            ->getMock();
-
-        $this->stateRepositoryMock = $this->getMockBuilder(StateRepositoryInterface::class)
-            ->disableOriginalConstructor()
-            ->getMock();
-
-        $this->urlValidator = $this->getMockBuilder(UrlValidator::class)
-            ->disableOriginalConstructor()
-            ->getMock();
+        $this->storeManagerMock = $this->createMock(StoreManagerInterface::class);
+        $this->serializerMock = $this->createMock(Serializer::class);
+        $this->storeDataMock = $this->createMock(StoreData::class);
+        $this->stateRepositoryMock = $this->createMock(StateRepositoryInterface::class);
+        $this->urlValidator = $this->createMock(UrlValidator::class);
 
         $this->serializerMock->expects($this->any())
             ->method('serialize')->will(
@@ -168,9 +146,7 @@ class RequestTest extends TestCase
      */
     private function getStateMock($id = null, $name = null, $value = null, $storeId = null)
     {
-        $state = $this->getMockBuilder(State::class)
-            ->disableOriginalConstructor()
-            ->getMock();
+        $state = $this->createMock(State::class);
 
         $state->expects($this->any())
             ->method('getId')

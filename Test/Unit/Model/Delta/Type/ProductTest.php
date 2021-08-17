@@ -141,10 +141,10 @@ class ProductTest extends TestCase
      */
     private function getProductModel(int $productId, array $prodInfo)
     {
-        $model = $this->getMockBuilder(ProductModel::class)
-            ->disableOriginalConstructor()
-            ->setMethods(['getId', 'getVisibility', 'getData'])
-            ->getMock();
+        $model = $this->createPartialMock(
+            ProductModel::class,
+            ['getId', 'getVisibility', 'getData']
+        );
 
         $model->method('getId')
             ->willReturn($productId);

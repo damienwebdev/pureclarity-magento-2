@@ -38,17 +38,9 @@ class OrderTest extends TestCase
 
     protected function setUp(): void
     {
-        $this->orderFeedFactory = $this->getMockBuilder(OrderFactory::class)
-            ->disableOriginalConstructor()
-            ->getMock();
-
-        $this->feedDataHandler = $this->getMockBuilder(OrderFeedDataManagementInterface::class)
-            ->disableOriginalConstructor()
-            ->getMock();
-
-        $this->rowDataHandler = $this->getMockBuilder(OrderFeedRowDataManagementInterface::class)
-            ->disableOriginalConstructor()
-            ->getMock();
+        $this->orderFeedFactory = $this->createMock(OrderFactory::class);
+        $this->feedDataHandler = $this->createMock(OrderFeedDataManagementInterface::class);
+        $this->rowDataHandler = $this->createMock(OrderFeedRowDataManagementInterface::class);
 
         $this->object = new Order(
             $this->orderFeedFactory,
@@ -86,9 +78,7 @@ class OrderTest extends TestCase
      */
     public function testGetFeedBuilder(): void
     {
-        $feed = $this->getMockBuilder(OrderFeed::class)
-            ->disableOriginalConstructor()
-            ->getMock();
+        $feed = $this->createMock(OrderFeed::class);
 
         $this->orderFeedFactory->expects(self::once())
             ->method('create')

@@ -48,36 +48,25 @@ class IndexTest extends TestCase
 
     protected function setUp(): void
     {
-        $this->request = $this->getMockBuilder(Http::class)
-            ->disableOriginalConstructor()
-            ->getMock();
-
-        $this->context = $this->getMockBuilder(Context::class)
-            ->disableOriginalConstructor()
-            ->getMock();
+        $this->request = $this->createMock(Http::class);
+        $this->context = $this->createMock(Context::class);
 
         $this->context->method('getRequest')
             ->willReturn($this->request);
 
-        $this->resultPageFactory = $this->getMockBuilder(PageFactory::class)
-            ->disableOriginalConstructor()
-            ->getMock();
+        $this->resultPageFactory = $this->createMock(PageFactory::class);
 
-        $this->resultPage = $this->getMockBuilder(Page::class)
-            ->disableOriginalConstructor()
-            ->setMethods(['setActiveMenu'])
-            ->getMock();
+        $this->resultPage = $this->createPartialMock(
+            Page::class,
+            ['setActiveMenu']
+        );
 
         $this->resultPageFactory->method('create')
             ->willReturn($this->resultPage);
 
-        $this->storeManager = $this->getMockBuilder(StoreManagerInterface::class)
-            ->disableOriginalConstructor()
-            ->getMock();
+        $this->storeManager = $this->createMock(StoreManagerInterface::class);
 
-        $this->coreConfig = $this->getMockBuilder(CoreConfig::class)
-            ->disableOriginalConstructor()
-            ->getMock();
+        $this->coreConfig = $this->createMock(CoreConfig::class);
 
         $this->object = new Index(
             $this->context,
@@ -92,17 +81,13 @@ class IndexTest extends TestCase
      */
     private function setupGetStores()
     {
-        $store1 = $this->getMockBuilder(StoreInterface::class)
-            ->disableOriginalConstructor()
-            ->getMock();
+        $store1 = $this->createMock(StoreInterface::class);
 
         $store1->expects($this->any())
             ->method('getId')
             ->willReturn('1');
 
-        $store2 = $this->getMockBuilder(StoreInterface::class)
-            ->disableOriginalConstructor()
-            ->getMock();
+        $store2 = $this->createMock(StoreInterface::class);
 
         $store2->method('getId')
             ->willReturn('17');
@@ -117,9 +102,7 @@ class IndexTest extends TestCase
      */
     private function setupDefaultStore()
     {
-        $store1 = $this->getMockBuilder(StoreInterface::class)
-            ->disableOriginalConstructor()
-            ->getMock();
+        $store1 = $this->createMock(StoreInterface::class);
 
         $store1->method('getId')
             ->willReturn('42');

@@ -57,17 +57,12 @@ class FeedDataTest extends TestCase
 
     protected function setUp(): void
     {
-        $this->logger = $this->getMockBuilder(LoggerInterface::class)
-            ->disableOriginalConstructor()
-            ->getMock();
+        $this->logger = $this->createMock(LoggerInterface::class);
+        $this->feedError = $this->createMock(Error::class);
 
-        $this->feedError = $this->getMockBuilder(Error::class)
-            ->disableOriginalConstructor()
-            ->getMock();
-
-        $this->collection = $this->getMockBuilder(Collection::class)
-            ->disableOriginalConstructor()
-            ->setMethods([
+        $this->collection = $this->createPartialMock(
+            Collection::class,
+            [
                 'addAttributeToSelect',
                 'addIdFilter',
                 'clear',
@@ -75,23 +70,16 @@ class FeedDataTest extends TestCase
                 'getLastPageNumber',
                 'setCurPage',
                 'setPageSize'
-            ])
-            ->getMock();
+            ]
+        );
 
-        $this->collectionFactory = $this->getMockBuilder(CategoryCollectionFactory::class)
-            ->disableOriginalConstructor()
-            ->getMock();
+        $this->collectionFactory = $this->createMock(CategoryCollectionFactory::class);
 
         $this->collectionFactory->method('create')
             ->willReturn($this->collection);
 
-        $this->categoryRepository = $this->getMockBuilder(CategoryRepository::class)
-            ->disableOriginalConstructor()
-            ->getMock();
-
-        $this->coreConfig = $this->getMockBuilder(CoreConfig::class)
-            ->disableOriginalConstructor()
-            ->getMock();
+        $this->categoryRepository = $this->createMock(CategoryRepository::class);
+        $this->coreConfig = $this->createMock(CoreConfig::class);
 
         $this->object = new FeedData(
             $this->logger,
@@ -141,10 +129,10 @@ class FeedDataTest extends TestCase
                 ->with('1')
                 ->willThrowException(new NoSuchEntityException(new Phrase('A Category Error')));
         } else {
-            $parent = $this->getMockBuilder(Category::class)
-                ->disableOriginalConstructor()
-                ->setMethods(['getChildren'])
-                ->getMock();
+            $parent = $this->createPartialMock(
+                Category::class,
+                ['getChildren']
+            );
 
             $parent->method('getChildren')
                 ->willReturn('1,2,3');

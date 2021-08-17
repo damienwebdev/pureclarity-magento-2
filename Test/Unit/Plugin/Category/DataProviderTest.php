@@ -44,21 +44,10 @@ class DataProviderTest extends TestCase
 
     protected function setUp(): void
     {
-        $this->coreHelper = $this->getMockBuilder(Data::class)
-            ->disableOriginalConstructor()
-            ->getMock();
-
-        $this->storeManager = $this->getMockBuilder(StoreManagerInterface::class)
-            ->disableOriginalConstructor()
-            ->getMock();
-
-        $this->filesystem = $this->getMockBuilder(Filesystem::class)
-            ->disableOriginalConstructor()
-            ->getMock();
-
-        $this->logger = $this->getMockBuilder(LoggerInterface::class)
-            ->disableOriginalConstructor()
-            ->getMock();
+        $this->coreHelper = $this->createMock(Data::class);
+        $this->storeManager = $this->createMock(StoreManagerInterface::class);
+        $this->filesystem = $this->createMock(Filesystem::class);
+        $this->logger = $this->createMock(LoggerInterface::class);
 
         $this->object = new DataProvider(
             $this->coreHelper,
@@ -81,9 +70,7 @@ class DataProviderTest extends TestCase
      */
     public function testAfterGetDataCategoryException(): void
     {
-        $subject = $this->getMockBuilder(CategoryDataProvider::class)
-            ->disableOriginalConstructor()
-            ->getMock();
+        $subject = $this->createMock(CategoryDataProvider::class);
 
         $subject->expects(self::once())
             ->method('getCurrentCategory')
@@ -101,9 +88,7 @@ class DataProviderTest extends TestCase
      */
     public function testAfterGetDataNoCategory(): void
     {
-        $subject = $this->getMockBuilder(CategoryDataProvider::class)
-            ->disableOriginalConstructor()
-            ->getMock();
+        $subject = $this->createMock(CategoryDataProvider::class);
 
         $subject->expects(self::once())
             ->method('getCurrentCategory')
@@ -117,13 +102,8 @@ class DataProviderTest extends TestCase
      */
     public function testAfterGetDataNoImage()
     {
-        $subject = $this->getMockBuilder(CategoryDataProvider::class)
-            ->disableOriginalConstructor()
-            ->getMock();
-
-        $category = $this->getMockBuilder(Category::class)
-            ->disableOriginalConstructor()
-            ->getMock();
+        $subject = $this->createMock(CategoryDataProvider::class);
+        $category = $this->createMock(Category::class);
 
         $category->expects(self::once())
             ->method('getData')
@@ -142,13 +122,8 @@ class DataProviderTest extends TestCase
      */
     public function testAfterGetDataWithImage(): void
     {
-        $subject = $this->getMockBuilder(CategoryDataProvider::class)
-            ->disableOriginalConstructor()
-            ->getMock();
-
-        $category = $this->getMockBuilder(Category::class)
-            ->disableOriginalConstructor()
-            ->getMock();
+        $subject = $this->createMock(CategoryDataProvider::class);
+        $category = $this->createMock(Category::class);
 
         $category->method('getId')
             ->willReturn(17);
@@ -163,9 +138,7 @@ class DataProviderTest extends TestCase
             ->willReturn($category);
 
         /** @var Store | MockObject $store1 */
-        $store = $this->getMockBuilder(Store::class)
-            ->disableOriginalConstructor()
-            ->getMock();
+        $store = $this->createMock(Store::class);
 
         $this->storeManager->method('getStore')
             ->willReturn($store);
@@ -181,9 +154,7 @@ class DataProviderTest extends TestCase
             ->willReturn('/path/abc123.jpg');
 
         /** @var Store | MockObject $store1 */
-        $read = $this->getMockBuilder(ReadInterface::class)
-            ->disableOriginalConstructor()
-            ->getMock();
+        $read = $this->createMock(ReadInterface::class);
 
         $read->method('stat')
             ->with('/path/abc123.jpg')

@@ -38,17 +38,9 @@ class RequestTest extends TestCase
 
     protected function setUp(): void
     {
-        $this->stateRepository = $this->getMockBuilder(StateRepositoryInterface::class)
-            ->disableOriginalConstructor()
-            ->getMock();
-
-        $this->logger = $this->getMockBuilder(LoggerInterface::class)
-            ->disableOriginalConstructor()
-            ->getMock();
-
-        $this->serializer = $this->getMockBuilder(SerializerInterface::class)
-            ->disableOriginalConstructor()
-            ->getMock();
+        $this->stateRepository = $this->createMock(StateRepositoryInterface::class);
+        $this->logger = $this->createMock(LoggerInterface::class);
+        $this->serializer = $this->createMock(SerializerInterface::class);
 
         $this->serializer->method('serialize')->willReturnCallback(
             function ($param) {
@@ -79,9 +71,7 @@ class RequestTest extends TestCase
      */
     private function getStateMock($id = null, $name = null, $value = null, $storeId = null)
     {
-        $state = $this->getMockBuilder(State::class)
-            ->disableOriginalConstructor()
-            ->getMock();
+        $state = $this->createMock(State::class);
 
         $state->expects($this->any())
             ->method('getId')
@@ -111,9 +101,7 @@ class RequestTest extends TestCase
      */
     private function initStateObject(string $name, int $storeId, $saveError = false)
     {
-        $state = $this->getMockBuilder(State::class)
-            ->disableOriginalConstructor()
-            ->getMock();
+        $state = $this->createMock(State::class);
 
         $state->expects(self::once())->method('setStoreId')->with($storeId);
         $state->expects(self::once())->method('setName')->with('requested_feeds');

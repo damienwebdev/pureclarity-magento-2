@@ -49,35 +49,20 @@ class InstallTest extends TestCase
 
     protected function setUp(): void
     {
-        $this->request = $this->getMockBuilder(Http::class)
-            ->disableOriginalConstructor()
-            ->getMock();
-
-        $this->context = $this->getMockBuilder(Context::class)
-            ->disableOriginalConstructor()
-            ->getMock();
+        $this->request = $this->createMock(Http::class);
+        $this->context = $this->createMock(Context::class);
 
         $this->context->method('getRequest')
             ->willReturn($this->request);
 
-        $this->zoneInstaller = $this->getMockBuilder(Installer::class)
-            ->disableOriginalConstructor()
-            ->getMock();
-
-        $this->resultJsonFactory = $this->getMockBuilder(JsonFactory::class)
-            ->disableOriginalConstructor()
-            ->getMock();
-
-        $this->resultJson = $this->getMockBuilder(Json::class)
-            ->disableOriginalConstructor()
-            ->getMock();
+        $this->zoneInstaller = $this->createMock(Installer::class);
+        $this->resultJsonFactory = $this->createMock(JsonFactory::class);
+        $this->resultJson = $this->createMock(Json::class);
 
         $this->resultJsonFactory->method('create')
             ->willReturn($this->resultJson);
 
-        $this->logger = $this->getMockBuilder(LoggerInterface::class)
-            ->disableOriginalConstructor()
-            ->getMock();
+        $this->logger = $this->createMock(LoggerInterface::class);
 
         $this->object = new Install(
             $this->context,

@@ -61,33 +61,13 @@ class ProcessTest extends TestCase
 
     protected function setUp(): void
     {
-        $this->stateRepositoryInterfaceMock = $this->getMockBuilder(StateRepositoryInterface::class)
-            ->disableOriginalConstructor()
-            ->getMock();
-
-        $this->coreConfigMock = $this->getMockBuilder(CoreConfig::class)
-            ->disableOriginalConstructor()
-            ->getMock();
-
-        $this->storeManagerInterfaceMock = $this->getMockBuilder(StoreManagerInterface::class)
-            ->disableOriginalConstructor()
-            ->getMock();
-
-        $this->storeInterfaceMock = $this->getMockBuilder(StoreInterface::class)
-            ->disableOriginalConstructor()
-            ->getMock();
-
-        $this->cacheManagerMock = $this->getMockBuilder(Manager::class)
-            ->disableOriginalConstructor()
-            ->getMock();
-
-        $this->logger = $this->getMockBuilder(LoggerInterface::class)
-            ->disableOriginalConstructor()
-            ->getMock();
-
-        $this->feedRequest = $this->getMockBuilder(Requester::class)
-            ->disableOriginalConstructor()
-            ->getMock();
+        $this->stateRepositoryInterfaceMock = $this->createMock(StateRepositoryInterface::class);
+        $this->coreConfigMock = $this->createMock(CoreConfig::class);
+        $this->storeManagerInterfaceMock = $this->createMock(StoreManagerInterface::class);
+        $this->storeInterfaceMock = $this->createMock(StoreInterface::class);
+        $this->cacheManagerMock = $this->createMock(Manager::class);
+        $this->logger = $this->createMock(LoggerInterface::class);
+        $this->feedRequest = $this->createMock(Requester::class);
 
         $this->object = new Process(
             $this->stateRepositoryInterfaceMock,
@@ -123,9 +103,7 @@ class ProcessTest extends TestCase
      */
     private function getStateMock($id = null, $name = null, $value = null, $storeId = null)
     {
-        $state = $this->getMockBuilder(State::class)
-            ->disableOriginalConstructor()
-            ->getMock();
+        $state = $this->createMock(State::class);
 
         $state->expects($this->any())
             ->method('getId')

@@ -261,9 +261,7 @@ class RunnerTest extends TestCase
      */
     public function setupFeedHandlerDisabled(string $type): void
     {
-        $feedHandler = $this->getMockBuilder(FeedManagementInterface::class)
-            ->disableOriginalConstructor()
-            ->getMock();
+        $feedHandler = $this->createMock(FeedManagementInterface::class);
 
         $feedHandler->expects(self::once())
             ->method('isEnabled')

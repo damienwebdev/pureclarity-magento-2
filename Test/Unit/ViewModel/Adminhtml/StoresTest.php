@@ -37,17 +37,9 @@ class StoresTest extends TestCase
 
     protected function setUp(): void
     {
-        $this->storeManager = $this->getMockBuilder(StoreManagerInterface::class)
-            ->disableOriginalConstructor()
-            ->getMock();
-
-        $this->request = $this->getMockBuilder(RequestInterface::class)
-            ->disableOriginalConstructor()
-            ->getMock();
-
-        $this->logger = $this->getMockBuilder(LoggerInterface::class)
-            ->disableOriginalConstructor()
-            ->getMock();
+        $this->storeManager = $this->createMock(StoreManagerInterface::class);
+        $this->request = $this->createMock(RequestInterface::class);
+        $this->logger = $this->createMock(LoggerInterface::class);
 
         $this->object = new Stores(
             $this->storeManager,
@@ -64,9 +56,7 @@ class StoresTest extends TestCase
      */
     private function getStoreMock($id, $name)
     {
-        $store = $this->getMockBuilder(StoreInterface::class)
-            ->disableOriginalConstructor()
-            ->getMock();
+        $store = $this->createMock(StoreInterface::class);
 
         $store->expects(self::any())
             ->method('getId')

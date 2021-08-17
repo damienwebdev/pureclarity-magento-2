@@ -25,17 +25,9 @@ class DashboardTest extends TestCase
 
     protected function setUp(): void
     {
-        $context = $this->getMockBuilder(Context::class)
-            ->disableOriginalConstructor()
-            ->getMock();
-
-        $stateViewModel = $this->getMockBuilder(State::class)
-            ->disableOriginalConstructor()
-            ->getMock();
-
-        $storesViewModel = $this->getMockBuilder(Stores::class)
-            ->disableOriginalConstructor()
-            ->getMock();
+        $context = $this->createMock(Context::class);
+        $stateViewModel = $this->createMock(State::class);
+        $storesViewModel = $this->createMock(Stores::class);
 
         $this->object = new Dashboard(
             $context,

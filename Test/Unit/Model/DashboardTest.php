@@ -49,13 +49,8 @@ class DashboardTest extends TestCase
 
     protected function setUp(): void
     {
-        $this->coreConfig = $this->getMockBuilder(CoreConfig::class)
-            ->disableOriginalConstructor()
-            ->getMock();
-
-        $this->serializer = $this->getMockBuilder(Serializer::class)
-            ->disableOriginalConstructor()
-            ->getMock();
+        $this->coreConfig = $this->createMock(CoreConfig::class);
+        $this->serializer = $this->createMock(Serializer::class);
 
         $this->serializer->method('serialize')->willReturnCallback(function ($param) {
             return json_encode($param);
@@ -65,17 +60,9 @@ class DashboardTest extends TestCase
             return json_decode($param, true);
         });
 
-        $this->dashboard = $this->getMockBuilder(ApiDashboard::class)
-            ->disableOriginalConstructor()
-            ->getMock();
-
-        $this->dashboardFactory = $this->getMockBuilder(DashboardFactory::class)
-            ->disableOriginalConstructor()
-            ->getMock();
-
-        $this->logger = $this->getMockBuilder(LoggerInterface::class)
-            ->disableOriginalConstructor()
-            ->getMock();
+        $this->dashboard = $this->createMock(ApiDashboard::class);
+        $this->dashboardFactory = $this->createMock(DashboardFactory::class);
+        $this->logger = $this->createMock(LoggerInterface::class);
 
         $this->object = new Dashboard(
             $this->coreConfig,

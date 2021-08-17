@@ -53,33 +53,17 @@ class SignupStatusTest extends TestCase
 
     protected function setUp(): void
     {
-        $this->request = $this->getMockBuilder(Http::class)
-            ->disableOriginalConstructor()
-            ->getMock();
-
-        $this->context = $this->getMockBuilder(Context::class)
-            ->disableOriginalConstructor()
-            ->getMock();
+        $this->request = $this->createMock(Http::class);
+        $this->context = $this->createMock(Context::class);
 
         $this->context->expects($this->any())
             ->method('getRequest')
             ->willReturn($this->request);
 
-        $this->requestStatus = $this->getMockBuilder(RequestStatus::class)
-            ->disableOriginalConstructor()
-            ->getMock();
-
-        $this->requestProcess = $this->getMockBuilder(Process::class)
-            ->disableOriginalConstructor()
-            ->getMock();
-
-        $this->jsonFactory = $this->getMockBuilder(JsonFactory::class)
-            ->disableOriginalConstructor()
-            ->getMock();
-
-        $this->json = $this->getMockBuilder(Json::class)
-            ->disableOriginalConstructor()
-            ->getMock();
+        $this->requestStatus = $this->createMock(RequestStatus::class);
+        $this->requestProcess = $this->createMock(Process::class);
+        $this->jsonFactory = $this->createMock(JsonFactory::class);
+        $this->json = $this->createMock(Json::class);
 
         $this->jsonFactory->expects($this->any())
             ->method('create')

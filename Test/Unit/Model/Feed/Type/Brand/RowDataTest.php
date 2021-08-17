@@ -119,16 +119,16 @@ class RowDataTest extends TestCase
      */
     public function setupBaseBrand(int $brandId)
     {
-        $brand = $this->getMockBuilder(Category::class)
-            ->disableOriginalConstructor()
-            ->setMethods([
+        $brand = $this->createPartialMock(
+            Category::class,
+            [
                 'getId',
                 'getName',
                 'getData',
                 'getImageUrl',
                 'getUrl'
-            ])
-            ->getMock();
+            ]
+        );
 
         $brand->method('getId')
             ->willReturn($brandId);
