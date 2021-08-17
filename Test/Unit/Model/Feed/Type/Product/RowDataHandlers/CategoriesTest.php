@@ -36,7 +36,7 @@ class CategoriesTest extends TestCase
     protected function setUp(): void
     {
         $this->categoryCollection = $this->createPartialMock(
-            CollectionFactory::class,
+            Collection::class,
             ['addAttributeToSelect','addFieldToFilter','getItems']
         );
         $this->collectionFactory = $this->createMock(CollectionFactory::class);

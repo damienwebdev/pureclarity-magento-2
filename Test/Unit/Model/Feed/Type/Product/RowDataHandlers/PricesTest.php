@@ -223,7 +223,7 @@ class PricesTest extends TestCase
             Product::class,
             [
                 'setStoreId',
-                'setCustomerGroupId',
+                '__call',
                 'reloadPriceInfo',
                 'getTypeId',
                 'getPrice',
@@ -242,7 +242,8 @@ class PricesTest extends TestCase
                 ->method('reloadPriceInfo');
 
             $product->expects(self::exactly(8))
-                ->method('setCustomerGroupId');
+                ->method('__call')
+                ->with('setCustomerGroupId');
 
             $product->method('getPrice')
                 ->willReturnOnConsecutiveCalls(
@@ -276,10 +277,12 @@ class PricesTest extends TestCase
 
             if ($type === BundleType::TYPE_CODE || $type === Configurable::TYPE_CODE) {
                 $product->expects(self::once())
-                    ->method('setCustomerGroupId');
+                    ->method('__call')
+                    ->with('setCustomerGroupId');
             } else {
                 $product->expects(self::exactly(2))
-                    ->method('setCustomerGroupId');
+                    ->method('__call')
+                    ->with('setCustomerGroupId');
             }
 
             $product->method('getPrice')

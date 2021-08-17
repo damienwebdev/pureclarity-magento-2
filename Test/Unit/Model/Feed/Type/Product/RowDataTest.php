@@ -111,7 +111,7 @@ class RowDataTest extends TestCase
                 'getSku',
                 'getName',
                 'getData',
-                'getShortDescription',
+                '__call',
                 'getTypeId',
                 'setStoreId',
                 'getUrlModel',
@@ -134,8 +134,9 @@ class RowDataTest extends TestCase
             ->with('description')
             ->willReturn('A Product Description');
 
-        $product->expects(self::once())
-            ->method('getShortDescription')
+        $product->expects(self::at(6))
+            ->method('__call')
+            ->with('getShortDescription')
             ->willReturn('A Product Short Description');
 
         $product->method('getTypeId')
@@ -416,7 +417,7 @@ class RowDataTest extends TestCase
             Product::class,
             [
                 'getData',
-                'getShortDescription',
+                '__call',
                 'getAttributeText'
             ]
         );
@@ -437,7 +438,8 @@ class RowDataTest extends TestCase
             ->willReturn('CHILD ' . $childId . ' Description');
 
         $product->expects(self::at(3))
-            ->method('getShortDescription')
+            ->method('__call')
+            ->with('getShortDescription')
             ->willReturn('CHILD ' . $childId . ' Short Description');
 
         $product->expects(self::at(4))
