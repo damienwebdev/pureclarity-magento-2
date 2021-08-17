@@ -51,12 +51,7 @@ class InstallerTest extends TestCase
                 'getWidgetReference',
                 'setType',
                 'setCode',
-                'setThemeId',
-                'setTitle',
-                'setStoreIds',
-                'setWidgetParameters',
-                'setSortOrder',
-                'setPageGroups',
+                '__call',
                 'save'
             ]
         );
@@ -180,41 +175,51 @@ class InstallerTest extends TestCase
             ->with(Bmz::WIDGET_ID);
 
         $this->widgetInstance->expects(self::at(3))
-            ->method('setThemeId')
-            ->with(1);
+            ->method('__call')
+            ->with('setThemeId', [1]);
 
         $this->widgetInstance->expects(self::at(4))
-            ->method('setTitle')
-            ->with('PC Zone HP-01');
+            ->method('__call')
+            ->with('setTitle', ['PC Zone HP-01']);
 
         $this->widgetInstance->expects(self::at(5))
-            ->method('setStoreIds')
-            ->with([1]);
+            ->method('__call')
+            ->with('setStoreIds', [[1]]);
 
         $this->widgetInstance->expects(self::at(6))
-            ->method('setWidgetParameters')
-            ->with([
-                'bmz_id' => 'HP-01',
-                'pc_bmz_buffer' => 0
-            ]);
-
-        $this->widgetInstance->expects(self::at(7))
-            ->method('setSortOrder')
-            ->with(0);
-
-        $this->widgetInstance->expects(self::at(8))
-            ->method('setPageGroups')
-            ->with([
+            ->method('__call')
+            ->with(
+                'setWidgetParameters',
                 [
-                    'page_group' => 'pages',
-                    'pages' => [
-                        'block' => 'content.bottom',
-                        'for' => 'all',
-                        'layout_handle' => 'cms_index_index',
-                        'page_id' => '',
+                    [
+                        'bmz_id' => 'HP-01',
+                        'pc_bmz_buffer' => 0
                     ]
                 ]
-            ]);
+            );
+
+        $this->widgetInstance->expects(self::at(7))
+            ->method('__call')
+            ->with('setSortOrder', [0]);
+
+        $this->widgetInstance->expects(self::at(8))
+            ->method('__call')
+            ->with(
+                'setPageGroups',
+                [
+                    [
+                        [
+                            'page_group' => 'pages',
+                            'pages' => [
+                                'block' => 'content.bottom',
+                                'for' => 'all',
+                                'layout_handle' => 'cms_index_index',
+                                'page_id' => '',
+                            ]
+                        ]
+                    ]
+                ]
+            );
 
         $this->object->createZone('HP-01', $zone, 1, 1);
     }

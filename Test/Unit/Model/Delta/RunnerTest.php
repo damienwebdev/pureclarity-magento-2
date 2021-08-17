@@ -74,10 +74,11 @@ class RunnerTest extends TestCase
     {
         $model = $this->createPartialMock(
             ProductFeed::class,
-            ['getProductId']
+            ['__call']
         );
 
-        $model->method('getProductId')
+        $model->method('__call')
+            ->with('getProductId')
             ->willReturn($id);
 
         return $model;
