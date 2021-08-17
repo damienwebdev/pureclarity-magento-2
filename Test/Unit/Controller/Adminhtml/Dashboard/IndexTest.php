@@ -12,7 +12,7 @@ use Magento\Store\Model\StoreManagerInterface;
 use PHPUnit\Framework\TestCase;
 use Pureclarity\Core\Controller\Adminhtml\Dashboard\Index;
 use Magento\Backend\App\Action\Context;
-use Magento\Framework\View\Result\Page;
+use Magento\Backend\Model\View\Result\Page;
 use Magento\Framework\View\Result\PageFactory;
 use Magento\Backend\App\Action;
 use PHPUnit\Framework\MockObject\MockObject;

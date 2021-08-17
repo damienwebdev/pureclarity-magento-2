@@ -8,7 +8,7 @@ namespace Pureclarity\Core\Controller\Adminhtml\Dashboard;
 
 use Magento\Backend\App\Action;
 use Magento\Backend\App\Action\Context;
-use Magento\Framework\View\Result\Page;
+use Magento\Backend\Model\View\Result\Page;
 use Magento\Framework\View\Result\PageFactory;
 use Magento\Store\Model\StoreManagerInterface;
 use Pureclarity\Core\Model\CoreConfig;
@@ -58,6 +58,7 @@ class Index extends Action
         if ($this->storeManager->hasSingleStore() === false) {
             $this->getRequest()->setParams(['store' => $this->preSelectStore()]);
         }
+        /** @var Page $resultPage */
         $resultPage = $this->resultPageFactory->create();
         $resultPage->setActiveMenu('Magento_Backend::content');
         return $resultPage;
