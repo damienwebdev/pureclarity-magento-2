@@ -4,7 +4,8 @@ namespace Pureclarity\Core\Controller\Adminhtml\Bmz;
 use Magento\Backend\App\Action;
 use Magento\Backend\App\Action\Context;
 use Magento\Framework\Controller\Result\JsonFactory;
-use Pureclarity\Core\Model\CmsBlock;
+use Pureclarity\Core\Model\Zones\Installer;
+use Psr\Log\LoggerInterface;
 
 /**
  * Class Install
@@ -16,21 +17,27 @@ class Install extends Action
     /** @var JsonFactory $resultJsonFactory */
     private $resultJsonFactory;
 
-    /** @var CmsBlock $cmsBlock */
-    private $cmsBlock;
+    /** @var Installer $zoneInstaller */
+    private $zoneInstaller;
+
+    /** @var LoggerInterface $logger */
+    private $logger;
 
     /**
      * @param Context $context
      * @param JsonFactory $resultJsonFactory
-     * @param CmsBlock $cmsBlock
+     * @param Installer $zoneInstaller
+     * @param LoggerInterface $logger
      */
     public function __construct(
         Context $context,
         JsonFactory $resultJsonFactory,
-        CmsBlock $cmsBlock
+        Installer $zoneInstaller,
+        LoggerInterface $logger
     ) {
-        $this->cmsBlock          = $cmsBlock;
         $this->resultJsonFactory = $resultJsonFactory;
+        $this->zoneInstaller     = $zoneInstaller;
+        $this->logger            = $logger;
         parent::__construct(
             $context
         );
@@ -41,14 +48,24 @@ class Install extends Action
         try {
             $storeId =  (int)$this->getRequest()->getParam('storeid');
             $themeId =  (int)$this->getRequest()->getParam('themeid');
-            $result = $this->cmsBlock->install(['bmzs.csv'], $storeId, $themeId);
-            return $this->resultJsonFactory->create()->setData($result);
+            $result = $this->zoneInstaller->install(
+                [
+                    'homepage',
+                    'product_page',
+                    'basket_page',
+                    'order_confirmation_page'
+                ],
+                $storeId,
+                $themeId
+            );
+            $result['success'] = true;
         } catch (\Exception $e) {
-            $this->getResponse()
-                ->clearHeaders()
-                ->setHeader('HTTP/1.0', 409, true)
-                ->setHeader('Content-Type', 'text/html')
-                ->setBody('Error');
+            $this->logger->error('PureClarity Zone install error: ' . $e->getMessage());
+            $result['success'] = false;
         }
+
+        $json = $this->resultJsonFactory->create();
+        $json->setData($result);
+        return $json;
     }
 }

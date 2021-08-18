@@ -14,6 +14,7 @@ use Magento\Framework\View\Element\Template\Context;
 use Magento\Widget\Block\BlockInterface;
 use Pureclarity\Core\Model\Config\Source\Mode;
 use Pureclarity\Core\Model\CoreConfig;
+use Psr\Log\LoggerInterface;
 
 /**
  * Class Bmz
@@ -22,6 +23,9 @@ use Pureclarity\Core\Model\CoreConfig;
  */
 class Bmz extends Template implements BlockInterface
 {
+    /** @var string */
+    public const WIDGET_ID = 'pureclarity_core_bmz';
+
     /** @var string $_template */
     protected $_template = 'bmz.phtml';
 
@@ -52,11 +56,15 @@ class Bmz extends Template implements BlockInterface
     /** @var CoreConfig $coreConfig */
     private $coreConfig;
 
+    /** @var LoggerInterface */
+    private $logger;
+
     /**
      * @param Context $context
      * @param Registry $registry
      * @param BlockFactory $cmsBlockFactory
      * @param CoreConfig $coreConfig
+     * @param LoggerInterface $logger
      * @param array $data
      */
     public function __construct(
@@ -64,11 +72,13 @@ class Bmz extends Template implements BlockInterface
         Registry $registry,
         BlockFactory $cmsBlockFactory,
         CoreConfig $coreConfig,
+        LoggerInterface $logger,
         array $data = []
     ) {
         $this->registry        = $registry;
         $this->cmsBlockFactory = $cmsBlockFactory;
         $this->coreConfig      = $coreConfig;
+        $this->logger          = $logger;
         parent::__construct(
             $context,
             $data
@@ -97,7 +107,7 @@ class Bmz extends Template implements BlockInterface
         $this->bmzId = $this->escapeHtml($this->getData('bmz_id'));
 
         if ($this->bmzId === null || $this->bmzId === '') {
-            $this->_logger->error('PureClarity: Zone block instantiated without a Zone Id.');
+            $this->logger->error('PureClarity: Zone block instantiated without a Zone Id.');
         } else {
             $this->addBmzData('bmz', $this->bmzId);
 
@@ -163,6 +173,15 @@ class Bmz extends Template implements BlockInterface
 
         // Content is now final
         $this->content = $content;
+
+        $this->logger->debug(
+            'Zone [' . $this->bmzId . '] added | '
+            . 'data:' . $this->bmzData . ' | '
+            . 'Fallback Block: ' . $fallbackCmsBlock . ' | '
+            . 'Classes: ' . $customClasses . ' | '
+            . 'Display Mode: ' . $displayMode . ' | '
+            . 'Debug display: ' . ($this->debug ? 'yes' : 'no')
+        );
 
         // Classes are now final
         $allClasses[] = 'pc_bmz';

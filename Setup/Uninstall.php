@@ -6,11 +6,10 @@
 
 namespace Pureclarity\Core\Setup;
 
-use Pureclarity\Core\Model\CmsBlock;
-
 use Magento\Framework\Setup\ModuleContextInterface;
 use Magento\Framework\Setup\SchemaSetupInterface;
 use Magento\Framework\Setup\UninstallInterface;
+use Pureclarity\Core\Model\Zones\Uninstaller;
 
 /**
  * Class Uninstall
@@ -19,17 +18,17 @@ use Magento\Framework\Setup\UninstallInterface;
  */
 class Uninstall implements UninstallInterface
 {
-    /** @var CmsBlock $cmsBlock */
-    private $cmsBlock;
+    /** @var Uninstaller $uninstaller */
+    private $uninstaller;
 
     /**
      * Constructor to inject dependencies into class.
      *
-     * @param CmsBlock $cmsBlock
+     * @param Uninstaller $uninstaller
      */
-    public function __construct(CmsBlock $cmsBlock)
+    public function __construct(Uninstaller $uninstaller)
     {
-        $this->cmsBlock = $cmsBlock;
+        $this->uninstaller = $uninstaller;
     }
 
     /**
@@ -40,14 +39,14 @@ class Uninstall implements UninstallInterface
      *
      * @return void
      */
-    public function uninstall(SchemaSetupInterface $setup, ModuleContextInterface $context)
+    public function uninstall(SchemaSetupInterface $setup, ModuleContextInterface $context): void
     {
         $setup->startSetup();
         
         $connection = $setup->getConnection();
         $connection->dropTable($setup->getTable('pureclarity_productfeed'));
 
-        $this->cmsBlock->uninstall();
+        $this->uninstaller->uninstall();
 
         $setup->endSetup();
     }

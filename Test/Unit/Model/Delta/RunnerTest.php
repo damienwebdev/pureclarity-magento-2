@@ -47,31 +47,15 @@ class RunnerTest extends TestCase
 
     protected function setUp() : void
     {
-        $this->deltaIndexCollectionFactory = $this->getMockBuilder(CollectionFactory::class)
-            ->disableOriginalConstructor()
-            ->getMock();
-
-        $this->deltaIndexCollection = $this->getMockBuilder(Collection::class)
-            ->disableOriginalConstructor()
-            ->getMock();
+        $this->deltaIndexCollectionFactory = $this->createMock(CollectionFactory::class);
+        $this->deltaIndexCollection = $this->createMock(Collection::class);
 
         $this->deltaIndexCollectionFactory->method('create')->willReturn($this->deltaIndexCollection);
 
-        $this->logger = $this->getMockBuilder(LoggerInterface::class)
-            ->disableOriginalConstructor()
-            ->getMock();
-
-        $this->feedRunner = $this->getMockBuilder(FeedRunner::class)
-            ->disableOriginalConstructor()
-            ->getMock();
-
-        $this->deltaResourceModel = $this->getMockBuilder(ProductFeedResourceModel::class)
-            ->disableOriginalConstructor()
-            ->getMock();
-
-        $this->productDeltaRunner = $this->getMockBuilder(Product::class)
-            ->disableOriginalConstructor()
-            ->getMock();
+        $this->logger = $this->createMock(LoggerInterface::class);
+        $this->feedRunner = $this->createMock(FeedRunner::class);
+        $this->deltaResourceModel = $this->createMock(ProductFeedResourceModel::class);
+        $this->productDeltaRunner = $this->createMock(Product::class);
 
         $this->object = new Runner(
             $this->deltaIndexCollectionFactory,
@@ -88,12 +72,13 @@ class RunnerTest extends TestCase
      */
     private function getProductFeedModel(string $id)
     {
-        $model = $this->getMockBuilder(ProductFeed::class)
-            ->disableOriginalConstructor()
-            ->setMethods(['getProductId'])
-            ->getMock();
+        $model = $this->createPartialMock(
+            ProductFeed::class,
+            ['__call']
+        );
 
-        $model->method('getProductId')
+        $model->method('__call')
+            ->with('getProductId')
             ->willReturn($id);
 
         return $model;

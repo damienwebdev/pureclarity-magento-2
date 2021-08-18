@@ -39,21 +39,10 @@ class UpgradeSchemaTest extends TestCase
 
     protected function setUp(): void
     {
-        $this->setup = $this->getMockBuilder(SchemaSetupInterface::class)
-            ->disableOriginalConstructor()
-            ->getMock();
-
-        $this->context = $this->getMockBuilder(ModuleContextInterface::class)
-            ->disableOriginalConstructor()
-            ->getMock();
-
-        $this->adapter = $this->getMockBuilder(AdapterInterface::class)
-            ->disableOriginalConstructor()
-            ->getMock();
-
-        $this->table = $this->getMockBuilder(Table::class)
-            ->disableOriginalConstructor()
-            ->getMock();
+        $this->setup = $this->createMock(SchemaSetupInterface::class);
+        $this->context = $this->createMock(ModuleContextInterface::class);
+        $this->adapter = $this->createMock(AdapterInterface::class);
+        $this->table = $this->createMock(Table::class);
 
         $this->setup->expects($this->any())
             ->method('getConnection')

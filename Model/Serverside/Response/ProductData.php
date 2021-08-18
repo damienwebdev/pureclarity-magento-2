@@ -16,6 +16,7 @@ use Magento\Checkout\Helper\Cart;
 use Magento\Framework\Data\Helper\PostHelper;
 use Magento\Wishlist\Helper\Data as WishlistHelper;
 use Pureclarity\Core\Helper\Serializer;
+use Psr\Log\LoggerInterface;
 
 /**
  * Class ProductData
@@ -54,6 +55,9 @@ class ProductData
     /** @var Serializer */
     private $serializer;
 
+    /** @var LoggerInterface */
+    private $logger;
+
     /**
      * @param EncoderInterface $encoder
      * @param ProductRepositoryInterface $productRepository
@@ -63,6 +67,7 @@ class ProductData
      * @param WishlistHelper $wishlistHelper
      * @param Compare $compareHelper
      * @param Serializer $serializer
+     * @param LoggerInterface $logger
      */
     public function __construct(
         EncoderInterface $encoder,
@@ -72,7 +77,8 @@ class ProductData
         PostHelper $postHelper,
         WishlistHelper $wishlistHelper,
         Compare $compareHelper,
-        Serializer $serializer
+        Serializer $serializer,
+        LoggerInterface $logger
     ) {
         $this->encoder               = $encoder;
         $this->productRepository     = $productRepository;
@@ -82,6 +88,7 @@ class ProductData
         $this->compareHelper         = $compareHelper;
         $this->wishlistHelper        = $wishlistHelper;
         $this->serializer            = $serializer;
+        $this->logger                = $logger;
     }
 
     /**
@@ -119,6 +126,8 @@ class ProductData
             $skuKeys[$item['Sku']] = $key;
         }
 
+        $this->logger->debug('Serverside: getting product data for SKUs - ' . implode(',', $skus));
+
         $this->searchCriteriaBuilder->addFilter('sku', $skus, 'in');
         $searchCriteria = $this->searchCriteriaBuilder->create();
         $searchResults = $this->productRepository->getList($searchCriteria);
@@ -127,6 +136,7 @@ class ProductData
 
         foreach ($searchResults->getItems() as $product) {
             $sku = $product->getSku();
+            $this->logger->debug('Serverside: processing product data for SKU ' . $sku);
             $newItems[$skuKeys[$sku]] = $this->populateProductData(
                 $product,
                 $zone['items'][$skuKeys[$sku]]

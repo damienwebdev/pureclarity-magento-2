@@ -9,6 +9,7 @@ namespace Pureclarity\Core\Test\Unit\Model\Feed\Type\User;
 use Magento\Customer\Model\Customer;
 use Magento\Store\Api\Data\StoreInterface;
 use PHPUnit\Framework\TestCase;
+use Psr\Log\LoggerInterface;
 use Pureclarity\Core\Model\Feed\Type\User;
 use Pureclarity\Core\Model\Feed\Type\User\RowData;
 use PHPUnit\Framework\MockObject\MockObject;
@@ -31,20 +32,20 @@ class RowDataTest extends TestCase
     /** @var MockObject|CustomerGroupCollectionFactory */
     private $customerGroupCollectionFactory;
 
+    /** @var MockObject|LoggerInterface */
+    private $logger;
+
     protected function setUp(): void
     {
-        $this->customerGroupCollection = $this->getMockBuilder(CustomerGroupCollection::class)
-            ->disableOriginalConstructor()
-            ->getMock();
-
-        $this->customerGroupCollectionFactory = $this->getMockBuilder(CustomerGroupCollectionFactory::class)
-            ->disableOriginalConstructor()
-            ->getMock();
+        $this->customerGroupCollection = $this->createMock(CustomerGroupCollection::class);
+        $this->customerGroupCollectionFactory = $this->createMock(CustomerGroupCollectionFactory::class);
+        $this->logger = $this->createMock(LoggerInterface::class);
 
         $this->customerGroupCollectionFactory->method('create')->willReturn($this->customerGroupCollection);
 
         $this->object = new RowData(
-            $this->customerGroupCollectionFactory
+            $this->customerGroupCollectionFactory,
+            $this->logger
         );
     }
 
@@ -89,56 +90,63 @@ class RowDataTest extends TestCase
      */
     public function setupCustomer(int $customerId, array $data)
     {
-        $customer = $this->getMockBuilder(Customer::class)
-            ->disableOriginalConstructor()
-            ->setMethods([
+        $customer = $this->createPartialMock(
+            Customer::class,
+            [
                 'getId',
-                'getEmail',
-                'getFirstname',
-                'getLastname',
-                'getPrefix',
-                'getDob',
+                '__call',
                 'getGroupId',
-                'getGender',
                 'getData'
-            ])
-            ->getMock();
+            ]
+        );
 
         $customer->method('getId')
             ->willReturn($customerId);
 
-        $customer->method('getEmail')
+        $customer->expects(self::at(2))
+            ->method('__call')
+            ->with('getEmail')
             ->willReturn($data['Email']);
 
-        $customer->method('getFirstname')
+        $customer->expects(self::at(3))
+            ->method('__call')
+            ->with('getFirstname')
             ->willReturn($data['FirstName']);
 
-        $customer->method('getLastname')
+        $customer->expects(self::at(4))
+            ->method('__call')
+            ->with('getLastname')
             ->willReturn($data['LastName']);
 
-        $customer->method('getPrefix')
+        $customer->expects(self::at(5))
+            ->method('__call')
+            ->with('getPrefix')
             ->willReturn($data['Salutation'] ?? '');
 
-        $customer->method('getDob')
+        $customer->expects(self::at(6))
+            ->method('__call')
+            ->with('getDob')
             ->willReturn($data['DOB'] ?? '');
 
         $customer->method('getGroupId')
             ->willReturn($data['GroupId']);
 
-        $customer->method('getGender')
+        $customer->expects(self::at(8))
+            ->method('__call')
+            ->with('getGender')
             ->willReturn($data['GroupId']);
 
-        $customer->expects(self::at(8))
+        $customer->expects(self::at(9))
             ->method('getData')
             ->with('city')
             ->willReturn($data['City']);
 
-        $customer->expects(self::at(9))
+        $customer->expects(self::at(10))
             ->method('getData')
             ->with('region')
             ->willReturn($data['State']);
 
-        $customer->expects(self::at(10))
+        $customer->expects(self::at(11))
             ->method('getData')
             ->with('country_id')
             ->willReturn($data['Country']);

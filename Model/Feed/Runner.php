@@ -84,7 +84,7 @@ class Runner
      * @param TypeHandler $feedTypeHandler
      * @param StoreManagerInterface $storeManager
      * @param Emulation $appEmulation
-     *
+     * @param Banner $banner
      * @SuppressWarnings(PHPMD.ExcessiveParameterList)
      */
     public function __construct(
@@ -148,6 +148,7 @@ class Runner
      */
     public function doFeeds(array $feedTypes, int $storeId): void
     {
+        $this->logger->debug('Running Feeds on Store ' . $storeId . ' : ' . implode(',', $feedTypes));
         $this->runningFeeds->setRunningFeeds($storeId, $feedTypes);
         foreach ($feedTypes as $feedType) {
             if (in_array($feedType, self::VALID_FEED_TYPES, true)) {
@@ -160,6 +161,7 @@ class Runner
         }
         $this->banner->removeWelcomeBanner($storeId);
         $this->runningFeeds->deleteRunningFeeds($storeId);
+        $this->logger->debug('Finished Running Feeds');
     }
 
     /**
@@ -173,6 +175,7 @@ class Runner
         $feedHandler = $this->feedTypeHandler->getFeedHandler($type);
         try {
             if ($feedHandler->isEnabled($storeId)) {
+                $this->logger->debug('Running ' . $type . ' Feed for store ' . $storeId);
                 $store = $this->getStore($storeId);
                 if ($feedHandler->requiresEmulation()) {
                     $this->appEmulation->startEnvironmentEmulation($storeId, Area::AREA_FRONTEND, true);
@@ -181,6 +184,8 @@ class Runner
                 if ($feedHandler->requiresEmulation()) {
                     $this->appEmulation->stopEnvironmentEmulation();
                 }
+            } else {
+                $this->logger->debug('Not running ' . $type . ' Feed, not enabled');
             }
         } catch (Exception $e) {
             if ($feedHandler->requiresEmulation()) {
@@ -206,6 +211,8 @@ class Runner
 
         if ($pageCount > 0) {
 
+            $this->logger->debug($type . ' Feed - ' . $pageCount . ' pages to process');
+
             $this->feedProgress->updateProgress((int)$store->getId(), $type, '0');
             $feedBuilder = $feedHandler->getFeedBuilder(
                 $this->coreConfig->getAccessKey((int)$store->getId()),
@@ -213,11 +220,14 @@ class Runner
                 $this->coreConfig->getRegion((int)$store->getId())
             );
 
+            $this->logger->debug('Starting ' . $type . ' Feed');
             $feedBuilder->start();
 
             $rowDataHandler = $feedHandler->getRowDataHandler();
             for ($page = 1; $page <= $pageCount; $page++) {
+                $this->logger->debug($type . ' Feed - Processing page ' . $page);
                 $data = $feedDataHandler->getPageData($store, $page);
+                $this->logger->debug($type . ' Feed - ' . count($data) . ' rows to process');
                 foreach ($data as $row) {
                     $rowData = $rowDataHandler->getRowData($store, $row);
                     if ($rowData) {
@@ -232,6 +242,9 @@ class Runner
             }
 
             $feedBuilder->end();
+            $this->logger->debug('Ending ' . $type . ' Feed');
+        } else {
+            $this->logger->debug('No ' . $type . ' Feed pages to process');
         }
     }
 

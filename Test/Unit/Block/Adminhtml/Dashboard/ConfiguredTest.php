@@ -35,17 +35,9 @@ class ConfiguredTest extends TestCase
 
     protected function setUp(): void
     {
-        $this->context = $this->getMockBuilder(Context::class)
-            ->disableOriginalConstructor()
-            ->getMock();
-
-        $this->state = $this->getMockBuilder(State::class)
-            ->disableOriginalConstructor()
-            ->getMock();
-
-        $this->stores = $this->getMockBuilder(Stores::class)
-            ->disableOriginalConstructor()
-            ->getMock();
+        $this->context = $this->createMock(Context::class);
+        $this->state = $this->createMock(State::class);
+        $this->stores = $this->createMock(Stores::class);
 
         $this->object = new Configured(
             $this->context,

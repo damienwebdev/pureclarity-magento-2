@@ -53,29 +53,12 @@ class UpgradeDataTest extends TestCase
 
     protected function setUp(): void
     {
-        $this->setup = $this->getMockBuilder(ModuleDataSetupInterface::class)
-            ->disableOriginalConstructor()
-            ->getMock();
-
-        $this->context = $this->getMockBuilder(ModuleContextInterface::class)
-            ->disableOriginalConstructor()
-            ->getMock();
-
-        $this->coreConfig = $this->getMockBuilder(CoreConfig::class)
-            ->disableOriginalConstructor()
-            ->getMock();
-
-        $this->stateRepository = $this->getMockBuilder(StateRepositoryInterface::class)
-            ->disableOriginalConstructor()
-            ->getMock();
-
-        $this->storeManager = $this->getMockBuilder(StoreManagerInterface::class)
-            ->disableOriginalConstructor()
-            ->getMock();
-
-        $this->logger = $this->getMockBuilder(LoggerInterface::class)
-            ->disableOriginalConstructor()
-            ->getMock();
+        $this->setup = $this->createMock(ModuleDataSetupInterface::class);
+        $this->context = $this->createMock(ModuleContextInterface::class);
+        $this->coreConfig = $this->createMock(CoreConfig::class);
+        $this->stateRepository = $this->createMock(StateRepositoryInterface::class);
+        $this->storeManager = $this->createMock(StoreManagerInterface::class);
+        $this->logger = $this->createMock(LoggerInterface::class);
 
         $this->object = new UpgradeData(
             $this->coreConfig,
@@ -101,17 +84,13 @@ class UpgradeDataTest extends TestCase
      */
     private function setupGetStores()
     {
-        $store1 = $this->getMockBuilder(StoreInterface::class)
-            ->disableOriginalConstructor()
-            ->getMock();
+        $store1 = $this->createMock(StoreInterface::class);
 
         $store1->expects($this->any())
             ->method('getId')
             ->willReturn('1');
 
-        $store2 = $this->getMockBuilder(StoreInterface::class)
-            ->disableOriginalConstructor()
-            ->getMock();
+        $store2 = $this->createMock(StoreInterface::class);
 
         $store2->expects($this->any())
             ->method('getId')
@@ -133,9 +112,7 @@ class UpgradeDataTest extends TestCase
      */
     private function getStateMock($id = null, $name = null, $value = null, $storeId = null)
     {
-        $state = $this->getMockBuilder(State::class)
-            ->disableOriginalConstructor()
-            ->getMock();
+        $state = $this->createMock(State::class);
 
         $state->method('getId')
             ->willReturn($id);

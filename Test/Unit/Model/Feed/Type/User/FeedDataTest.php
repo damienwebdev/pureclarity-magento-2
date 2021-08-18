@@ -45,21 +45,10 @@ class FeedDataTest extends TestCase
 
     protected function setUp(): void
     {
-        $this->logger = $this->getMockBuilder(LoggerInterface::class)
-            ->disableOriginalConstructor()
-            ->getMock();
-
-        $this->feedError = $this->getMockBuilder(Error::class)
-            ->disableOriginalConstructor()
-            ->getMock();
-
-        $this->customerCollection = $this->getMockBuilder(CustomerCollection::class)
-            ->disableOriginalConstructor()
-            ->getMock();
-
-        $this->customerCollectionFactory = $this->getMockBuilder(CustomerCollectionFactory::class)
-            ->disableOriginalConstructor()
-            ->getMock();
+        $this->logger = $this->createMock(LoggerInterface::class);
+        $this->feedError = $this->createMock(Error::class);
+        $this->customerCollection = $this->createMock(CustomerCollection::class);
+        $this->customerCollectionFactory = $this->createMock(CustomerCollectionFactory::class);
 
         $this->customerCollectionFactory->method('create')->willReturn($this->customerCollection);
 

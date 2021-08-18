@@ -261,9 +261,7 @@ class RunnerTest extends TestCase
      */
     public function setupFeedHandlerDisabled(string $type): void
     {
-        $feedHandler = $this->getMockBuilder(FeedManagementInterface::class)
-            ->disableOriginalConstructor()
-            ->getMock();
+        $feedHandler = $this->createMock(FeedManagementInterface::class);
 
         $feedHandler->expects(self::once())
             ->method('isEnabled')
@@ -563,6 +561,22 @@ class RunnerTest extends TestCase
 
         $this->appEmulation->expects(self::once())
             ->method('stopEnvironmentEmulation');
+
+        $this->object->sendFeed(self::STORE_ID, Feed::FEED_TYPE_PRODUCT);
+    }
+
+    /**
+     * Tests that the product feed gets sent
+     * @throws ReflectionException
+     */
+    public function testSendFeedZeroPages(): void
+    {
+        $store = $this->setupStore();
+        $this->setupFeedHandler($store, Feed::FEED_TYPE_PRODUCT, 0, 0);
+
+        $this->logger->expects(self::at(1))
+            ->method('debug')
+            ->with('No product Feed pages to process');
 
         $this->object->sendFeed(self::STORE_ID, Feed::FEED_TYPE_PRODUCT);
     }

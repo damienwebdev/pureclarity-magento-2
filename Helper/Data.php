@@ -16,7 +16,7 @@ use Magento\Framework\UrlInterface;
  */
 class Data
 {
-    const CURRENT_VERSION = '6.0.0';
+    const CURRENT_VERSION = '6.1.0';
 
     /** @var DirectoryList $directoryList */
     private $directoryList;

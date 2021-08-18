@@ -11,6 +11,7 @@ use Magento\Catalog\Model\Category;
 use Magento\Framework\Exception\LocalizedException;
 use Magento\Framework\UrlInterface;
 use Magento\Store\Api\Data\StoreInterface;
+use Psr\Log\LoggerInterface;
 use Pureclarity\Core\Api\BrandFeedRowDataManagementInterface;
 use Pureclarity\Core\Model\CoreConfig;
 
@@ -30,13 +31,19 @@ class RowData implements BrandFeedRowDataManagementInterface
     /** @var CoreConfig */
     private $coreConfig;
 
+    /** @var LoggerInterface */
+    private $logger;
+
     /**
      * @param CoreConfig $coreConfig
+     * @param LoggerInterface $logger
      */
     public function __construct(
-        CoreConfig $coreConfig
+        CoreConfig $coreConfig,
+        LoggerInterface $logger
     ) {
-        $this->coreConfig   = $coreConfig;
+        $this->coreConfig = $coreConfig;
+        $this->logger     = $logger;
     }
 
     /**
@@ -48,6 +55,8 @@ class RowData implements BrandFeedRowDataManagementInterface
      */
     public function getRowData(StoreInterface $store, $row): array
     {
+        $this->logger->debug('Brand Feed: Processing brand category ' . $row->getId() . ' (' . $row->getName() . ')');
+
         $brandData = [
             'Id' => $row->getId(),
             'DisplayName' =>  $row->getName(),
@@ -81,7 +90,10 @@ class RowData implements BrandFeedRowDataManagementInterface
         // Check whether to ignore this brand in recommenders
         if ($row->getData('pureclarity_hide_from_feed') === '1') {
             $brandData['ExcludeFromRecommenders'] = true;
+            $this->logger->debug('Brand Feed: Brand excluded from recommenders by attribute');
         }
+
+        $this->logger->debug('Brand Feed: Category data - ' . var_export($brandData, true));
 
         return $brandData;
     }

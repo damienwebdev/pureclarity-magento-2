@@ -35,17 +35,9 @@ class FeedsTest extends TestCase
 
     protected function setUp(): void
     {
-        $this->context = $this->getMockBuilder(Context::class)
-            ->disableOriginalConstructor()
-            ->getMock();
-
-        $this->feedStatusViewModel = $this->getMockBuilder(FeedStatus::class)
-            ->disableOriginalConstructor()
-            ->getMock();
-
-        $this->storesViewModel = $this->getMockBuilder(Stores::class)
-            ->disableOriginalConstructor()
-            ->getMock();
+        $this->context = $this->createMock(Context::class);
+        $this->feedStatusViewModel = $this->createMock(FeedStatus::class);
+        $this->storesViewModel = $this->createMock(Stores::class);
 
         $this->object = new Feeds(
             $this->context,

@@ -37,21 +37,11 @@ class StateTest extends TestCase
 
     protected function setUp(): void
     {
-        $this->stateRepository = $this->getMockBuilder(StateRepositoryInterface::class)
-            ->disableOriginalConstructor()
-            ->getMock();
+        $this->stateRepository = $this->createMock(StateRepositoryInterface::class);
+        $this->productMetadata = $this->createMock(ProductMetadataInterface::class);
 
-        $this->productMetadata = $this->getMockBuilder(ProductMetadataInterface::class)
-            ->disableOriginalConstructor()
-            ->getMock();
-
-        $request = $this->getMockBuilder(RequestInterface::class)
-            ->disableOriginalConstructor()
-            ->getMock();
-
-        $this->coreConfig = $this->getMockBuilder(CoreConfig::class)
-            ->disableOriginalConstructor()
-            ->getMock();
+        $request = $this->createMock(RequestInterface::class);
+        $this->coreConfig = $this->createMock(CoreConfig::class);
 
         $this->object = new State(
             $this->stateRepository,
@@ -71,9 +61,7 @@ class StateTest extends TestCase
      */
     private function getStateMock($id = null, $name = null, $value = null, $storeId = null)
     {
-        $state = $this->getMockBuilder(StateModel::class)
-            ->disableOriginalConstructor()
-            ->getMock();
+        $state = $this->createMock(StateModel::class);
 
         $state->expects($this->any())
             ->method('getId')

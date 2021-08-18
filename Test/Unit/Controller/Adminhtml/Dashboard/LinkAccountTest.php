@@ -62,46 +62,26 @@ class LinkAccountTest extends TestCase
 
     protected function setUp(): void
     {
-        $this->request = $this->getMockBuilder(Http::class)
-            ->disableOriginalConstructor()
-            ->getMock();
-
-        $this->context = $this->getMockBuilder(Context::class)
-            ->disableOriginalConstructor()
-            ->getMock();
+        $this->request = $this->createMock(Http::class);
+        $this->context = $this->createMock(Context::class);
 
         $this->context->method('getRequest')
             ->willReturn($this->request);
 
-        $this->formKeyValidator = $this->getMockBuilder(Validator::class)
-            ->disableOriginalConstructor()
-            ->getMock();
+        $this->formKeyValidator = $this->createMock(Validator::class);
 
         $this->context->method('getFormKeyValidator')
             ->willReturn($this->formKeyValidator);
 
-        $this->requestProcess = $this->getMockBuilder(Process::class)
-            ->disableOriginalConstructor()
-            ->getMock();
-
-        $this->jsonFactory = $this->getMockBuilder(JsonFactory::class)
-            ->disableOriginalConstructor()
-            ->getMock();
-
-        $this->json = $this->getMockBuilder(Json::class)
-            ->disableOriginalConstructor()
-            ->getMock();
+        $this->requestProcess = $this->createMock(Process::class);
+        $this->jsonFactory = $this->createMock(JsonFactory::class);
+        $this->json = $this->createMock(Json::class);
 
         $this->jsonFactory->method('create')
             ->willReturn($this->json);
 
-        $this->validate = $this->getMockBuilder(Validate::class)
-            ->disableOriginalConstructor()
-            ->getMock();
-
-        $this->addStore = $this->getMockBuilder(AddStore::class)
-            ->disableOriginalConstructor()
-            ->getMock();
+        $this->validate = $this->createMock(Validate::class);
+        $this->addStore = $this->createMock(AddStore::class);
 
         $this->object = new LinkAccount(
             $this->context,
@@ -237,6 +217,11 @@ class LinkAccountTest extends TestCase
         $this->setupRequestIsPost(true);
         $this->setupFormKeyValidator(true);
 
+        $this->validate->expects(self::once())
+            ->method('sendRequest')
+            ->with($this->defaultParams)
+            ->willReturn(['error' => '']);
+
         $this->requestProcess->expects(self::once())
             ->method('processManualConfigure')
             ->with($this->defaultParams)
@@ -263,6 +248,11 @@ class LinkAccountTest extends TestCase
         $this->setupRequestIsPost(true);
         $this->setupRequestGetParams();
         $this->setupFormKeyValidator(true);
+
+        $this->validate->expects(self::once())
+            ->method('sendRequest')
+            ->with($this->defaultParams)
+            ->willReturn(['error' => '']);
 
         $this->requestProcess->expects(self::once())
             ->method('processManualConfigure')

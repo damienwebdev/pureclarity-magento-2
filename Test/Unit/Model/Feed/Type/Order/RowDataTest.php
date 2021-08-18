@@ -8,6 +8,7 @@ namespace Pureclarity\Core\Test\Unit\Model\Feed\Type\Order;
 
 use Magento\Store\Api\Data\StoreInterface;
 use PHPUnit\Framework\TestCase;
+use Psr\Log\LoggerInterface;
 use Pureclarity\Core\Model\Feed\Type\Order\RowData;
 use PHPUnit\Framework\MockObject\MockObject;
 use Magento\Sales\Model\Order;
@@ -23,9 +24,13 @@ class RowDataTest extends TestCase
     /** @var RowData */
     private $object;
 
+    /** @var MockObject|LoggerInterface */
+    private $logger;
+
     protected function setUp(): void
     {
-        $this->object = new RowData();
+        $this->logger = $this->createMock(LoggerInterface::class);
+        $this->object = new RowData($this->logger);
     }
 
     /**
@@ -107,16 +112,16 @@ class RowDataTest extends TestCase
      */
     public function setupOrder(string $orderId, string $customerId, array $items)
     {
-        $order = $this->getMockBuilder(Order::class)
-            ->disableOriginalConstructor()
-            ->setMethods([
+        $order = $this->createPartialMock(
+            Order::class,
+            [
                 'getIncrementId',
                 'getCustomerId',
                 'getCustomerEmail',
                 'getCreatedAt',
                 'getAllVisibleItems'
-            ])
-            ->getMock();
+            ]
+        );
 
         $order->method('getIncrementId')
             ->willReturn($orderId);
@@ -144,15 +149,15 @@ class RowDataTest extends TestCase
     {
         $itemMocks = [];
         foreach ($items as $item) {
-            $itemMock = $this->getMockBuilder(Item::class)
-                ->disableOriginalConstructor()
-                ->setMethods([
+            $itemMock = $this->createPartialMock(
+                Item::class,
+                [
                     'getProductId',
                     'getQtyOrdered',
                     'getPriceInclTax',
                     'getRowTotalInclTax'
-                ])
-                ->getMock();
+                ]
+            );
 
             $itemMock->method('getProductId')
                 ->willReturn($item['id']);

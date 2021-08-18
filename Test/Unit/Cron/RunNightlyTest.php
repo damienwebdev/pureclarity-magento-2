@@ -44,21 +44,10 @@ class RunNightlyTest extends TestCase
      */
     protected function setUp(): void
     {
-        $this->storeManager = $this->getMockBuilder(StoreManagerInterface::class)
-            ->disableOriginalConstructor()
-            ->getMock();
-
-        $this->logger = $this->getMockBuilder(LoggerInterface::class)
-            ->disableOriginalConstructor()
-            ->getMock();
-
-        $this->coreConfig = $this->getMockBuilder(CoreConfig::class)
-            ->disableOriginalConstructor()
-            ->getMock();
-
-        $this->cron = $this->getMockBuilder(Runner::class)
-            ->disableOriginalConstructor()
-            ->getMock();
+        $this->storeManager = $this->createMock(StoreManagerInterface::class);
+        $this->logger = $this->createMock(LoggerInterface::class);
+        $this->coreConfig = $this->createMock(CoreConfig::class);
+        $this->cron = $this->createMock(Runner::class);
 
         $this->object = new RunNightly(
             $this->storeManager,
@@ -75,9 +64,7 @@ class RunNightlyTest extends TestCase
     {
         $stores = [];
         foreach ($storeIds as $storeId) {
-            $store = $this->getMockBuilder(StoreInterface::class)
-                ->disableOriginalConstructor()
-                ->getMock();
+            $store = $this->createMock(StoreInterface::class);
 
             $store->method('getId')
                 ->willReturn($storeId);

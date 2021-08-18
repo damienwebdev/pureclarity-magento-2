@@ -7,6 +7,7 @@
 namespace Pureclarity\Core\Test\Unit\Model\Feed\Type\Brand;
 
 use PHPUnit\Framework\TestCase;
+use Psr\Log\LoggerInterface;
 use Pureclarity\Core\Model\Feed\Type\Brand\RowData;
 use PHPUnit\Framework\MockObject\MockObject;
 use Pureclarity\Core\Model\CoreConfig;
@@ -30,14 +31,17 @@ class RowDataTest extends TestCase
     /** @var MockObject|CoreConfig */
     private $coreConfig;
 
+    /** @var LoggerInterface | MockObject */
+    private $logger;
+
     protected function setUp(): void
     {
-        $this->coreConfig = $this->getMockBuilder(CoreConfig::class)
-            ->disableOriginalConstructor()
-            ->getMock();
+        $this->coreConfig = $this->createMock(CoreConfig::class);
+        $this->logger = $this->createMock(LoggerInterface::class);
 
         $this->object = new RowData(
-            $this->coreConfig
+            $this->coreConfig,
+            $this->logger
         );
     }
 
@@ -115,16 +119,16 @@ class RowDataTest extends TestCase
      */
     public function setupBaseBrand(int $brandId)
     {
-        $brand = $this->getMockBuilder(Category::class)
-            ->disableOriginalConstructor()
-            ->setMethods([
+        $brand = $this->createPartialMock(
+            Category::class,
+            [
                 'getId',
                 'getName',
                 'getData',
                 'getImageUrl',
                 'getUrl'
-            ])
-            ->getMock();
+            ]
+        );
 
         $brand->method('getId')
             ->willReturn($brandId);
@@ -150,7 +154,7 @@ class RowDataTest extends TestCase
         $brandId = 1;
         $brand = $this->setupBaseBrand($brandId);
 
-        $brand->expects(self::at(2))
+        $brand->expects(self::at(4))
             ->method('getData')
             ->with('description')
             ->willReturn('');
@@ -158,12 +162,12 @@ class RowDataTest extends TestCase
         $brand->method('getImageUrl')
             ->willReturn('');
 
-        $brand->expects(self::at(4))
+        $brand->expects(self::at(6))
             ->method('getData')
             ->with('pureclarity_category_image')
             ->willReturn(null);
 
-        $brand->expects(self::at(6))
+        $brand->expects(self::at(8))
             ->method('getData')
             ->with('pureclarity_hide_from_feed')
             ->willReturn('0');
@@ -186,7 +190,7 @@ class RowDataTest extends TestCase
         $brandId = 2;
         $brand = $this->setupBaseBrand($brandId);
 
-        $brand->expects(self::at(2))
+        $brand->expects(self::at(4))
             ->method('getData')
             ->with('description')
             ->willReturn('A Description of 2');
@@ -194,12 +198,12 @@ class RowDataTest extends TestCase
         $brand->method('getImageUrl')
             ->willReturn('http://www.example.com/image-url.jpg');
 
-        $brand->expects(self::at(4))
+        $brand->expects(self::at(6))
             ->method('getData')
             ->with('pureclarity_category_image')
             ->willReturn('override-image-url.jpg');
 
-        $brand->expects(self::at(6))
+        $brand->expects(self::at(8))
             ->method('getData')
             ->with('pureclarity_hide_from_feed')
             ->willReturn('1');
@@ -219,7 +223,7 @@ class RowDataTest extends TestCase
         $brandId = 3;
         $brand = $this->setupBaseBrand($brandId);
 
-        $brand->expects(self::at(2))
+        $brand->expects(self::at(4))
             ->method('getData')
             ->with('description')
             ->willReturn('');
@@ -227,12 +231,12 @@ class RowDataTest extends TestCase
         $brand->method('getImageUrl')
             ->willReturn(null);
 
-        $brand->expects(self::at(4))
+        $brand->expects(self::at(6))
             ->method('getData')
             ->with('pureclarity_category_image')
             ->willReturn(null);
 
-        $brand->expects(self::at(6))
+        $brand->expects(self::at(8))
             ->method('getData')
             ->with('pureclarity_hide_from_feed')
             ->willReturn('0');

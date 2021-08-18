@@ -34,17 +34,9 @@ class WelcomeBannerTest extends TestCase
 
     protected function setUp(): void
     {
-        $this->context = $this->getMockBuilder(Context::class)
-            ->disableOriginalConstructor()
-            ->getMock();
-
-        $this->welcome = $this->getMockBuilder(Welcome::class)
-            ->disableOriginalConstructor()
-            ->getMock();
-
-        $this->stores = $this->getMockBuilder(Stores::class)
-            ->disableOriginalConstructor()
-            ->getMock();
+        $this->context = $this->createMock(Context::class);
+        $this->welcome = $this->createMock(Welcome::class);
+        $this->stores = $this->createMock(Stores::class);
 
         $this->object = new WelcomeBanner(
             $this->context,

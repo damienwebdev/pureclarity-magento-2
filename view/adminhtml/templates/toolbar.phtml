@@ -11,6 +11,8 @@ $state = $block->getPureclarityStateViewModel();
 $stores = $block->getPureclarityStoresViewModel();
 
 $url = $block->getUrl('adminhtml/system_config/edit/section/pureclarity');
+$logsUrl = $block->getUrl('pureclarity/dashboard/logs');
+$dashUrl = $block->getUrl('pureclarity/dashboard');
 
 ?>
 <div class="page-actions" id="pureclarity-toolbar">
@@ -19,6 +21,19 @@ $url = $block->getUrl('adminhtml/system_config/edit/section/pureclarity');
     <?php endif; ?>
     <div class="page-actions-inner">
         <div class="page-actions-buttons">
+            <?php if ($block->getShowDashboard() === 'show'): ?>
+                <a id="pureclarity-toolbar-dashboard"
+                   href="<?= $block->escapeUrl($dashUrl) ?>"
+                   title="<?= $block->escapeQuote($block->escapeHtml(__('Dashboard'))) ?>">
+                    <?= $block->escapeHtml(__('Dashboard')) ?>
+                </a>
+            <?php else: ?>
+                <a id="pureclarity-toolbar-logs"
+                   href="<?= $block->escapeUrl($logsUrl) ?>"
+                   title="<?= $block->escapeQuote($block->escapeHtml(__('Logs'))) ?>">
+                    <?= $block->escapeHtml(__('Logs')) ?>
+                </a>
+            <?php endif; ?>
             <?php if ($state->isConfigured($stores->getStoreId())): ?>
                 <a id="pureclarity-toolbar-settings"
                    href="<?= $block->escapeUrl($url) ?>"

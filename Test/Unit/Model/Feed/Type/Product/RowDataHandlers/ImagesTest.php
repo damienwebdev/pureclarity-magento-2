@@ -69,7 +69,7 @@ class ImagesTest extends TestCase
         $this->store = $this->createMock(Store::class);
         $this->galleryImage = $this->createPartialMock(
             Image::class,
-            ['getImageUrl', 'getData']
+            ['__call', 'getData']
         );
         $this->galleryCollection = $this->createMock(Collection::class);
 
@@ -142,7 +142,8 @@ class ImagesTest extends TestCase
             ->willReturn($this->galleryImage);
 
         $this->galleryImage->expects(self::at(0))
-            ->method('getImageUrl')
+            ->method('__call')
+            ->with('getImageUrl')
             ->willReturn('/cached/image.jpg');
 
         $url = $this->object->getProductImageUrl($this->product, $this->store);

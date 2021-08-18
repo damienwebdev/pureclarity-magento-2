@@ -35,13 +35,8 @@ class ValidateTest extends TestCase
 
     protected function setUp(): void
     {
-        $this->validateFactory = $this->getMockBuilder(ValidateFactory::class)
-            ->disableOriginalConstructor()
-            ->getMock();
-
-        $this->validate = $this->getMockBuilder(ApiValidate::class)
-            ->disableOriginalConstructor()
-            ->getMock();
+        $this->validateFactory = $this->createMock(ValidateFactory::class);
+        $this->validate = $this->createMock(ApiValidate::class);
 
         $this->validateFactory->method('create')
             ->willReturn($this->validate);

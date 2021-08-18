@@ -35,17 +35,9 @@ class InstallZonesModalTest extends TestCase
 
     protected function setUp(): void
     {
-        $this->context = $this->getMockBuilder(Context::class)
-            ->disableOriginalConstructor()
-            ->getMock();
-
-        $this->storesViewModel = $this->getMockBuilder(Stores::class)
-            ->disableOriginalConstructor()
-            ->getMock();
-
-        $this->themesViewModel = $this->getMockBuilder(Themes::class)
-            ->disableOriginalConstructor()
-            ->getMock();
+        $this->context = $this->createMock(Context::class);
+        $this->storesViewModel = $this->createMock(Stores::class);
+        $this->themesViewModel = $this->createMock(Themes::class);
 
         $this->object = new InstallZonesModal(
             $this->context,
