@@ -181,7 +181,7 @@ class Installer
                     'sort_order' => 0,
                     'page_group' => 'pages',
                     'group_data' => [
-                        'block' => 'content.bottom',
+                        'block' => 'content.top',
                         'layout_handle' => 'cms_index_index',
                     ],
                     'bmz_buffer' => false,
