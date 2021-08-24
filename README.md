@@ -46,14 +46,14 @@ The PureClarity Magento 2 extension does the following:
 - Allows you to sign up for a 30-day free trial.
 - Ensures data integrity between your store and PureClarity through cron jobs and indexing.
 - Gives you guidance on the initial setup of PureClarity in your store.
-- Sets up the [Zones](https://intercom.help/pureclarity-academy/en/collections/2028411-pureclarity-academy#zones) for the Home Page, Product Page, Basket Page and Order Confirmation Page.
+- Sets up the [Zones](https://docs.pureclarity.com/en/collections/2028411-pureclarity-academy#zones) for the Home Page, Product Page, Basket Page and Order Confirmation Page.
 - Tracks events on your stores frontend to ensure up to date information is used in recommendations.
 
-[Click here to see instructions on how to sign up for a free trial](http://docs.pureclarity.net/en/articles/4719928-magento-2-x-free-trial-signup)
+[Click here to see instructions on how to sign up for a free trial](https://docs.pureclarity.com/en/articles/4719928-magento-2-x-free-trial-signup)
 
 Support
 -------
 
 If you face any issues while using the extensions, or have any questions, please contact [support@pureclarity.com](mailto:support@pureclarity.com). Please include the version & edition of Magento you're using as well as the version of the PureClarity extension. 
 
-[Documentation](http://docs.pureclarity.net/en/collections/2545031-magento-2-x-integration)
+[Documentation](https://docs.pureclarity.com/en/collections/2545031-magento-2-x-integration)
