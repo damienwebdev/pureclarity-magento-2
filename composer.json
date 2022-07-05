@@ -50,5 +50,8 @@
         "allow-plugins": {
             "magento/*": true
         }
+    },
+    "require-dev": {
+        "phpunit/phpunit": "^9.5"
     }
 }
