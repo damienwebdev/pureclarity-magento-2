@@ -1,4 +1,4 @@
-name: Unit Test
+name: Installation Test
 
 on:
   push:
@@ -24,19 +24,19 @@ jobs:
       - uses: graycoreio/github-actions-magento2/supported-version@main
         id: supported-version
       - run: echo ${{ steps.supported-version.outputs.matrix }}
-  unit-test:
+
+  install-test:
     needs: compute_matrix
     strategy:
       matrix: ${{ fromJSON(needs.compute_matrix.outputs.matrix) }}
-      fail-fast: false
     runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@v3
-    - uses: graycoreio/github-actions-magento2/unit-test-with-magento@unit-test-with-magento
+    - uses: graycoreio/github-actions-magento2/installation-test@main
       with:
         composer_version: ${{ matrix.composer }}
         php_version: ${{ matrix.php }}
         magento_version: ${{ matrix.magento }}
+        composer_auth: ${{ secrets.COMPOSER_AUTH }}
         package_name: pureclarity/pureclarity-magento-2
         source_folder: $GITHUB_WORKSPACE
-        test_command: ../../../vendor/bin/phpunit ../../../vendor/pureclarity/pureclarity-magento-2/Test/Unit
