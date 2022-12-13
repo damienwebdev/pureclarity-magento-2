@@ -331,12 +331,11 @@ class UpgradeDataTest extends TestCase
 
     /**
      * Tests that the 3.0.0 upgrade only gets called if 2.0.0 is already installed
+     * @group fit
      */
     public function test300OnlyUpgrade()
     {
-        $this->context->expects($this->at(0))
-            ->method('getVersion')
-            ->willReturn('2.0.0');
+        $this->setupGetVersion('2.0.0');
 
         $this->setup->expects($this->once())->method('startSetup');
         $this->setup->expects($this->once())->method('endSetup');
@@ -353,9 +352,7 @@ class UpgradeDataTest extends TestCase
      */
     public function test300UpgradeDoesDeletes()
     {
-        $this->context->expects($this->at(0))
-            ->method('getVersion')
-            ->willReturn('2.0.0');
+        $this->setupGetVersion('2.0.0');
 
         $this->setup->expects($this->once())->method('startSetup');
         $this->setup->expects($this->once())->method('endSetup');
@@ -399,9 +396,7 @@ class UpgradeDataTest extends TestCase
      */
     public function test300UpgradeDoesDeleteError()
     {
-        $this->context->expects($this->at(0))
-            ->method('getVersion')
-            ->willReturn('2.0.0');
+        $this->setupGetVersion('2.0.0');
 
         $this->setup->expects($this->once())->method('startSetup');
         $this->setup->expects($this->once())->method('endSetup');
