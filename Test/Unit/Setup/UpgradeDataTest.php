@@ -76,7 +76,7 @@ class UpgradeDataTest extends TestCase
     {
         $this->context->expects($this->any())
             ->method('getVersion')
-            ->willReturn('1.0.0');
+            ->willReturn($version);
     }
 
     /**
