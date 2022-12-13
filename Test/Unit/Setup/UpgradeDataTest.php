@@ -331,7 +331,6 @@ class UpgradeDataTest extends TestCase
 
     /**
      * Tests that the 3.0.0 upgrade only gets called if 2.0.0 is already installed
-     * @group fit
      */
     public function test300OnlyUpgrade()
     {
