@@ -173,7 +173,6 @@ class CheckVersionTest extends TestCase
         ->method('getBody')
         ->willReturn('');
 
-
         $this->setupExpectError(
             'PureClarity Check Version cron error: error retrieving latest version number, bad response format'
         );
