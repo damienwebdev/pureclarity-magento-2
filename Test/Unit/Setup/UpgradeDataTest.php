@@ -334,8 +334,13 @@ class UpgradeDataTest extends TestCase
      */
     public function test300OnlyUpgrade()
     {
-        $this->setupGetVersion('2.0.0');
-        $this->setupGetStores();
+        $this->context->expects($this->at(0))
+            ->method('getVersion')
+            ->willReturn('2.0.0');
+
+        $this->context->expects($this->at(1))
+            ->method('getVersion')
+            ->willReturn('3.0.0');
 
         $this->setup->expects($this->once())->method('startSetup');
         $this->setup->expects($this->once())->method('endSetup');
@@ -352,8 +357,13 @@ class UpgradeDataTest extends TestCase
      */
     public function test300UpgradeDoesDeletes()
     {
-        $this->setupGetVersion('2.0.0');
-        $this->setupGetStores();
+        $this->context->expects($this->at(0))
+            ->method('getVersion')
+            ->willReturn('2.0.0');
+
+        $this->context->expects($this->at(1))
+            ->method('getVersion')
+            ->willReturn('3.0.0');
 
         $this->setup->expects($this->once())->method('startSetup');
         $this->setup->expects($this->once())->method('endSetup');
@@ -397,8 +407,13 @@ class UpgradeDataTest extends TestCase
      */
     public function test300UpgradeDoesDeleteError()
     {
-        $this->setupGetVersion('2.0.0');
-        $this->setupGetStores();
+        $this->context->expects($this->at(0))
+            ->method('getVersion')
+            ->willReturn('2.0.0');
+        
+        $this->context->expects($this->at(1))
+            ->method('getVersion')
+            ->willReturn('3.0.0');
 
         $this->setup->expects($this->once())->method('startSetup');
         $this->setup->expects($this->once())->method('endSetup');
